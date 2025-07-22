@@ -9,7 +9,7 @@ public class TApplication {
     public TApplication() {
         System.out.println("Start");
 
-        BackendFactory backendFactory = new MonochromeBitmapBackendFactory();
+        BackendFactory backendFactory = new MonochromeBitmapFxBackendFactory();
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
@@ -17,7 +17,7 @@ public class TApplication {
         Console console = new Console(screenBuffer, backend);
 
         console.clearScreen();
-        console.putString(10, 5, "Hello, DOS World!", Color.WHITE, Color.BLUE);
+        console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
         console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
     }
 }
