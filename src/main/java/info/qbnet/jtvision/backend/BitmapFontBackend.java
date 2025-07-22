@@ -4,14 +4,13 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * A backend that renders screen characters using a bitmap font from a PNG file.
  * Pixel-perfect rendering is enforced by disabling image smoothing and scaling artifacts.
+ * Rendering is done into a BufferedImage backbuffer for precise control.
  */
 public class BitmapFontBackend extends JPanel implements Backend {
 
@@ -19,6 +18,7 @@ public class BitmapFontBackend extends JPanel implements Backend {
     private static final int CHAR_HEIGHT = 16;
     private final Screen buffer;
     private final BufferedImage fontImage;
+    private final BufferedImage backbuffer;
 
     public BitmapFontBackend(Screen buffer) throws IOException {
         this.buffer = buffer;
@@ -28,19 +28,21 @@ public class BitmapFontBackend extends JPanel implements Backend {
         }
         this.fontImage = ImageIO.read(fontStream);
 
-        setPreferredSize(new Dimension(buffer.getWidth() * CHAR_WIDTH,
-                buffer.getHeight() * CHAR_HEIGHT));
+        int width = buffer.getWidth() * CHAR_WIDTH;
+        int height = buffer.getHeight() * CHAR_HEIGHT;
+        this.backbuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        setPreferredSize(new Dimension(width, height));
     }
 
     @Override
     public void render() {
+        drawToBackbuffer();
         repaint();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
+    private void drawToBackbuffer() {
+        Graphics2D g2d = backbuffer.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
@@ -51,6 +53,13 @@ public class BitmapFontBackend extends JPanel implements Backend {
                 drawChar(g2d, x, y, buffer.getChar(x, y));
             }
         }
+        g2d.dispose();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(backbuffer, 0, 0, null);
     }
 
     private void drawChar(Graphics g, int x, int y, Screen.ScreenChar sc) {
@@ -59,17 +68,18 @@ public class BitmapFontBackend extends JPanel implements Backend {
         int sy = (code / 16) * CHAR_HEIGHT;
         BufferedImage glyph = fontImage.getSubimage(sx, sy, CHAR_WIDTH, CHAR_HEIGHT);
 
-        // draw background
-        g.setColor(sc.background);
-        g.fillRect(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
+        int px = x * CHAR_WIDTH;
+        int py = y * CHAR_HEIGHT;
 
-        // draw glyph manually pixel by pixel with foreground color
+        g.setColor(sc.background);
+        g.fillRect(px, py, CHAR_WIDTH, CHAR_HEIGHT);
+
         for (int gy = 0; gy < CHAR_HEIGHT; gy++) {
             for (int gx = 0; gx < CHAR_WIDTH; gx++) {
                 int pixel = glyph.getRGB(gx, gy) & 0xFFFFFF;
                 if (pixel != 0x000000) {
                     g.setColor(sc.foreground);
-                    g.fillRect(x * CHAR_WIDTH + gx, y * CHAR_HEIGHT + gy, 1, 1);
+                    g.fillRect(px + gx, py + gy, 1, 1);
                 }
             }
         }
