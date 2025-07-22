@@ -1,8 +1,26 @@
 package info.qbnet.jtvision;
 
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.BackendFactory;
+import info.qbnet.jtvision.backend.Screen;
+import info.qbnet.jtvision.backend.SwingBackendFactory;
+
+import java.awt.*;
+
 public class TApplication {
 
     public TApplication() {
         System.out.println("Start");
+
+        BackendFactory backendFactory = new SwingBackendFactory();
+        backendFactory.initialize();
+
+        Screen screenBuffer = new Screen(80, 25);
+        Backend backend = backendFactory.createBackend(screenBuffer);
+        Console console = new Console(screenBuffer, backend);
+
+        console.clearScreen();
+        console.putString(10, 5, "Hello, DOS World!", Color.WHITE, Color.BLUE);
+        console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
     }
 }
