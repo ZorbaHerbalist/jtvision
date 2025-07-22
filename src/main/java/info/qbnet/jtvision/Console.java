@@ -32,7 +32,13 @@ public class Console {
      * @param bg background color
      */
     public void putString(int x, int y, String text, Color fg, Color bg) {
-        for (int i = 0; i < text.length(); i++) {
+        int maxLength = screenBuffer.getCols() - x;
+        if (maxLength <= 0 || y < 0 || y >= screenBuffer.getRows()) {
+            return;
+        }
+
+        int len = Math.min(text.length(), maxLength);
+        for (int i = 0; i < len; i++) {
             screenBuffer.setChar(x + i, y, text.charAt(i), fg, bg);
         }
         backend.render();
