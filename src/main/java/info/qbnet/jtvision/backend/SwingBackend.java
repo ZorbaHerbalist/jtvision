@@ -35,12 +35,23 @@ public class SwingBackend extends JPanel implements Backend {
 
         for (int y = 0; y < buffer.getRows(); y++) {
             for (int x = 0; x < buffer.getCols(); x++) {
-                Screen.ScreenChar sc = buffer.getChar(x, y);
-                g.setColor(sc.bg);
-                g.fillRect(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
-                g.setColor(sc.fg);
-                g.drawString(Character.toString(sc.c), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
+                drawChar(g, x, y, buffer.getChar(x, y));
             }
         }
     }
+
+    /**
+     * Draws a single character cell at the given coordinates.
+     * @param g the graphics context
+     * @param x column position
+     * @param y row position
+     * @param sc the screen character to draw
+     */
+    private void drawChar(Graphics g, int x, int y, Screen.ScreenChar sc) {
+        g.setColor(sc.bg);
+        g.fillRect(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
+        g.setColor(sc.fg);
+        g.drawString(Character.toString(sc.c), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
+    }
+
 }
