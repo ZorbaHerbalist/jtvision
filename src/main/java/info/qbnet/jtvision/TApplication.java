@@ -9,7 +9,7 @@ public class TApplication {
     public TApplication() {
         System.out.println("Start");
 
-        BackendFactory backendFactory = new TTFFontBackendFactory();
+        BackendFactory backendFactory = new TTFSpriteFontBackendFactory();
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
