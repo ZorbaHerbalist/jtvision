@@ -1,9 +1,6 @@
 package info.qbnet.jtvision;
 
-import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.backend.BackendFactory;
-import info.qbnet.jtvision.backend.Screen;
-import info.qbnet.jtvision.backend.SwingBackendFactory;
+import info.qbnet.jtvision.backend.*;
 
 import java.awt.*;
 
@@ -12,7 +9,7 @@ public class TApplication {
     public TApplication() {
         System.out.println("Start");
 
-        BackendFactory backendFactory = new SwingBackendFactory();
+        BackendFactory backendFactory = new BitmapFontBackendFactory();
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
