@@ -11,63 +11,63 @@ public class Screen {
      * Represents a single character cell on the screen.
      */
     public static class ScreenChar {
-        char c;
-        Color fg;
-        Color bg;
+        char character;
+        Color foreground;
+        Color background;
 
         /**
          * Constructs a character cell with specified character and colors.
-         * @param c character to display
-         * @param fg foreground color
-         * @param bg background color
+         * @param character character to display
+         * @param foreground foreground color
+         * @param background background color
          */
-        public ScreenChar(char c, Color fg, Color bg) {
-            this.c = c;
-            this.fg = fg;
-            this.bg = bg;
+        public ScreenChar(char character, Color foreground, Color background) {
+            this.character = character;
+            this.foreground = foreground;
+            this.background = background;
         }
     }
 
-    private final int cols;
-    private final int rows;
+    private final int width;
+    private final int height;
     private final ScreenChar[][] buffer;
-    private final Color defaultFg;
-    private final Color defaultBg;
+    private final Color defaultForeground;
+    private final Color defaultBackground;
     private final ScreenChar emptyCharTemplate;
 
     /**
-     * Constructs a screen buffer with given number of columns and rows,
+     * Constructs a screen buffer with a given number of columns and rows,
      * and default foreground/background colors.
-     * @param cols number of columns
-     * @param rows number of rows
-     * @param defaultFg default foreground color
-     * @param defaultBg default background color
+     * @param width number of columns
+     * @param height number of rows
+     * @param defaultForeground default foreground color
+     * @param defaultBackground default background color
      */
-    public Screen(int cols, int rows, Color defaultFg, Color defaultBg) {
-        if (cols <= 0 || rows <= 0) {
-            System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.\n", cols, rows);
+    public Screen(int width, int height, Color defaultForeground, Color defaultBackground) {
+        if (width <= 0 || height <= 0) {
+            System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.\n", width, height);
             throw new IllegalArgumentException("Screen dimensions must be positive");
         }
-        if (defaultFg == null || defaultBg == null) {
+        if (defaultForeground == null || defaultBackground == null) {
             System.err.println("Default colors cannot be null.");
             throw new IllegalArgumentException("Default foreground and background colors must not be null");
         }
-        this.cols = cols;
-        this.rows = rows;
-        this.defaultFg = defaultFg;
-        this.defaultBg = defaultBg;
-        this.emptyCharTemplate = new ScreenChar(' ', defaultFg, defaultBg);
-        buffer = new ScreenChar[rows][cols];
+        this.width = width;
+        this.height = height;
+        this.defaultForeground = defaultForeground;
+        this.defaultBackground = defaultBackground;
+        this.emptyCharTemplate = new ScreenChar(' ', defaultForeground, defaultBackground);
+        buffer = new ScreenChar[height][width];
         clear();
     }
 
     /**
      * Constructs a screen buffer with default colors (LIGHT_GRAY on BLACK).
-     * @param cols number of columns
-     * @param rows number of rows
+     * @param width number of columns
+     * @param height number of rows
      */
-    public Screen(int cols, int rows) {
-        this(cols, rows, Color.LIGHT_GRAY, Color.BLACK);
+    public Screen(int width, int height) {
+        this(width, height, Color.LIGHT_GRAY, Color.BLACK);
     }
 
     /**
@@ -75,21 +75,31 @@ public class Screen {
      * @param x horizontal coordinate
      * @param y vertical coordinate
      * @param c character to display
-     * @param fg foreground color
-     * @param bg background color
+     * @param foreground foreground color
+     * @param background background color
      */
-    public void setChar(int x, int y, char c, Color fg, Color bg) {
+    public void setChar(int x, int y, char c, Color foreground, Color background) {
         if (!isInBounds(x, y))
         {
             System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
-        if (!isValidColor(fg, bg))
+        if (!isValidColor(foreground, background))
         {
             System.err.printf("setChar(): null color at (%d,%d). Ignored.%n", x, y);
             return;
         }
-        buffer[y][x] = new ScreenChar(c, fg, bg);
+        buffer[y][x] = new ScreenChar(c, foreground, background);
+    }
+
+    /**
+     * Sets a character at a specific position with the default color
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
+     * @param c character to display
+     */
+    public void setChar(int x, int y, char c) {
+        setChar(x, y, c, defaultForeground, defaultBackground);
     }
 
     /**
@@ -111,8 +121,8 @@ public class Screen {
      * with default foreground and background colors.
      */
     public void clear() {
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < cols; x++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 buffer[y][x] = emptyCharTemplate;
             }
         }
@@ -122,27 +132,27 @@ public class Screen {
      * Checks if coordinates are within screen bounds.
      */
     public boolean isInBounds(int x, int y) {
-        return x >= 0 && x < cols && y >= 0 && y < rows;
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     /**
      * Checks if foreground and background colors are not null.
      */
-    public boolean isValidColor(Color fg, Color bg) {
-        return fg != null && bg != null;
+    public boolean isValidColor(Color foreground, Color background) {
+        return foreground != null && background != null;
     }
 
     /**
      * @return number of columns
      */
-    public int getCols() {
-        return cols;
+    public int getWidth() {
+        return width;
     }
 
     /**
      * @return number of rows
      */
-    public int getRows() {
-        return rows;
+    public int getHeight() {
+        return height;
     }
 }

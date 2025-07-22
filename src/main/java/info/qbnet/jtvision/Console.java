@@ -10,16 +10,16 @@ import java.awt.*;
  */
 public class Console {
 
-    private final Screen screenBuffer;
+    private final Screen screen;
     private final Backend backend;
 
     /**
      * Constructs a Console with the given screen buffer and rendering backend.
-     * @param screenBuffer the screen buffer
+     * @param screen the screen buffer
      * @param backend the rendering backend
      */
-    public Console(Screen screenBuffer, Backend backend) {
-        this.screenBuffer = screenBuffer;
+    public Console(Screen screen, Backend backend) {
+        this.screen = screen;
         this.backend = backend;
     }
 
@@ -28,27 +28,27 @@ public class Console {
      * @param x horizontal position
      * @param y vertical position
      * @param text the text to print
-     * @param fg foreground color
-     * @param bg background color
+     * @param foreground foreground color
+     * @param background background color
      */
-    public void putString(int x, int y, String text, Color fg, Color bg) {
+    public void putString(int x, int y, String text, Color foreground, Color background) {
         if (text == null) {
             System.err.println("putString(): text is null. Ignored.");
             return;
         }
-        if (!screenBuffer.isValidColor(fg, bg)) {
+        if (!screen.isValidColor(foreground, background)) {
             System.err.printf("putString(): null color argument at (%d,%d). Ignored.%n", x, y);
             return;
         }
-        if (!screenBuffer.isInBounds(x, y)) {
+        if (!screen.isInBounds(x, y)) {
             System.err.printf("putString(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
 
-        int maxLength = screenBuffer.getCols() - x;
+        int maxLength = screen.getWidth() - x;
         int len = Math.min(text.length(), maxLength);
         for (int i = 0; i < len; i++) {
-            screenBuffer.setChar(x + i, y, text.charAt(i), fg, bg);
+            screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
         backend.render();
     }
@@ -57,7 +57,7 @@ public class Console {
      * Clears the screen buffer and renders the empty screen.
      */
     public void clearScreen() {
-        screenBuffer.clear();
+        screen.clear();
         backend.render();
     }
 
