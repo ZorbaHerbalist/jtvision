@@ -31,17 +31,33 @@ public class Screen {
     private final int cols;
     private final int rows;
     private final ScreenChar[][] buffer;
+    private final Color defaultFg;
+    private final Color defaultBg;
 
     /**
-     * Constructs a screen buffer with given number of columns and rows.
+     * Constructs a screen buffer with given number of columns and rows,
+     * and default foreground/background colors.
+     * @param cols number of columns
+     * @param rows number of rows
+     * @param defaultFg default foreground color
+     * @param defaultBg default background color
+     */
+    public Screen(int cols, int rows, Color defaultFg, Color defaultBg) {
+        this.cols = cols;
+        this.rows = rows;
+        this.defaultFg = defaultFg;
+        this.defaultBg = defaultBg;
+        buffer = new ScreenChar[rows][cols];
+        clear();
+    }
+
+    /**
+     * Constructs a screen buffer with default colors (LIGHT_GRAY on BLACK).
      * @param cols number of columns
      * @param rows number of rows
      */
     public Screen(int cols, int rows) {
-        this.cols = cols;
-        this.rows = rows;
-        buffer = new ScreenChar[rows][cols];
-        clear();
+        this(cols, rows, Color.LIGHT_GRAY, Color.BLACK);
     }
 
     /**
@@ -72,12 +88,13 @@ public class Screen {
     }
 
     /**
-     * Clears the screen by setting all cells to a space character.
+     * Clears the screen by setting all cells to a space character,
+     * with default foreground and background colors.
      */
     public void clear() {
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                buffer[y][x] = new ScreenChar(' ', Color.LIGHT_GRAY, Color.BLACK);
+                buffer[y][x] = new ScreenChar(' ', defaultFg, defaultBg);
             }
         }
     }

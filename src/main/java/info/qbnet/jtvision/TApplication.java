@@ -15,7 +15,7 @@ public class TApplication {
         BackendFactory backendFactory = new SwingBackendFactory();
         backendFactory.initialize();
 
-        Screen screenBuffer = new Screen(80, 25);
+        Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
         Backend backend = backendFactory.createBackend(screenBuffer);
         Console console = new Console(screenBuffer, backend);
 
