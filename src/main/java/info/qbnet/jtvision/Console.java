@@ -32,17 +32,20 @@ public class Console {
      * @param bg background color
      */
     public void putString(int x, int y, String text, Color fg, Color bg) {
-        if (text == null || fg == null || bg == null) {
-            System.err.println("putString(): text or color arguments are null. Ignored.");
+        if (text == null) {
+            System.err.println("putString(): text is null. Ignored.");
+            return;
+        }
+        if (!screenBuffer.isValidColor(fg, bg)) {
+            System.err.printf("putString(): null color argument at (%d,%d). Ignored.%n", x, y);
+            return;
+        }
+        if (!screenBuffer.isInBounds(x, y)) {
+            System.err.printf("putString(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
 
         int maxLength = screenBuffer.getCols() - x;
-        if (maxLength <= 0 || y < 0 || y >= screenBuffer.getRows()) {
-            System.err.printf("putString(): coordinates out of bounds or no space to render at (%d,%d). Ignored.\n", x , y);
-            return;
-        }
-
         int len = Math.min(text.length(), maxLength);
         for (int i = 0; i < len; i++) {
             screenBuffer.setChar(x + i, y, text.charAt(i), fg, bg);

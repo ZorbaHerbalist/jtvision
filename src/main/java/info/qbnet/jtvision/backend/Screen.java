@@ -79,15 +79,17 @@ public class Screen {
      * @param bg background color
      */
     public void setChar(int x, int y, char c, Color fg, Color bg) {
-        if (x >= 0 && x < cols && y >= 0 && y < rows) {
-            if (fg == null || bg == null) {
-                System.err.printf("setChar(): null color at (%d,%d). Ignored\n", x, y);
-                return;
-            }
-            buffer[y][x] = new ScreenChar(c, fg, bg);
-        } else {
-            System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.\n", x ,y);
+        if (!isInBounds(x, y))
+        {
+            System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
+            return;
         }
+        if (!isValidColor(fg, bg))
+        {
+            System.err.printf("setChar(): null color at (%d,%d). Ignored.%n", x, y);
+            return;
+        }
+        buffer[y][x] = new ScreenChar(c, fg, bg);
     }
 
     /**
@@ -97,9 +99,10 @@ public class Screen {
      * @return character cell at the position or null if out of bounds
      */
     public ScreenChar getChar(int x, int y) {
-        if (x >= 0 && x < cols && y >= 0 && y < rows) {
+        if (isInBounds(x, y)) {
             return buffer[y][x];
         }
+        System.err.printf("getChar(): coordinates out of bounds (%d,%d). Returning null.%n", x, y);
         return null;
     }
 
@@ -113,6 +116,20 @@ public class Screen {
                 buffer[y][x] = emptyCharTemplate;
             }
         }
+    }
+
+    /**
+     * Checks if coordinates are within screen bounds.
+     */
+    public boolean isInBounds(int x, int y) {
+        return x >= 0 && x < cols && y >= 0 && y < rows;
+    }
+
+    /**
+     * Checks if foreground and background colors are not null.
+     */
+    public boolean isValidColor(Color fg, Color bg) {
+        return fg != null && bg != null;
     }
 
     /**
