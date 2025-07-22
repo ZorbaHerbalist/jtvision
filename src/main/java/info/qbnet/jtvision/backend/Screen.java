@@ -33,6 +33,7 @@ public class Screen {
     private final ScreenChar[][] buffer;
     private final Color defaultFg;
     private final Color defaultBg;
+    private final ScreenChar emptyCharTemplate;
 
     /**
      * Constructs a screen buffer with given number of columns and rows,
@@ -47,6 +48,7 @@ public class Screen {
         this.rows = rows;
         this.defaultFg = defaultFg;
         this.defaultBg = defaultBg;
+        this.emptyCharTemplate = new ScreenChar(' ', defaultFg, defaultBg);
         buffer = new ScreenChar[rows][cols];
         clear();
     }
@@ -94,7 +96,7 @@ public class Screen {
     public void clear() {
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                buffer[y][x] = new ScreenChar(' ', defaultFg, defaultBg);
+                buffer[y][x] = emptyCharTemplate;
             }
         }
     }
