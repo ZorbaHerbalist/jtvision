@@ -44,6 +44,14 @@ public class Screen {
      * @param defaultBg default background color
      */
     public Screen(int cols, int rows, Color defaultFg, Color defaultBg) {
+        if (cols <= 0 || rows <= 0) {
+            System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.\n", cols, rows);
+            throw new IllegalArgumentException("Screen dimensions must be positive");
+        }
+        if (defaultFg == null || defaultBg == null) {
+            System.err.println("Default colors cannot be null.");
+            throw new IllegalArgumentException("Default foreground and background colors must not be null");
+        }
         this.cols = cols;
         this.rows = rows;
         this.defaultFg = defaultFg;
@@ -72,7 +80,13 @@ public class Screen {
      */
     public void setChar(int x, int y, char c, Color fg, Color bg) {
         if (x >= 0 && x < cols && y >= 0 && y < rows) {
+            if (fg == null || bg == null) {
+                System.err.printf("setChar(): null color at (%d,%d). Ignored\n", x, y);
+                return;
+            }
             buffer[y][x] = new ScreenChar(c, fg, bg);
+        } else {
+            System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.\n", x ,y);
         }
     }
 

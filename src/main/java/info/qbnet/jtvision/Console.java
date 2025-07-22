@@ -32,8 +32,14 @@ public class Console {
      * @param bg background color
      */
     public void putString(int x, int y, String text, Color fg, Color bg) {
+        if (text == null || fg == null || bg == null) {
+            System.err.println("putString(): text or color arguments are null. Ignored.");
+            return;
+        }
+
         int maxLength = screenBuffer.getCols() - x;
         if (maxLength <= 0 || y < 0 || y >= screenBuffer.getRows()) {
+            System.err.printf("putString(): coordinates out of bounds or no space to render at (%d,%d). Ignored.\n", x , y);
             return;
         }
 
