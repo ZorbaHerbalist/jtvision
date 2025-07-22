@@ -45,6 +45,7 @@ public class TTFFontBackend extends JPanel implements Backend {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setFont(font);
 
         for (int y = 0; y < buffer.getHeight(); y++) {
@@ -58,7 +59,12 @@ public class TTFFontBackend extends JPanel implements Backend {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(backbuffer, 0, 0, null);
+        // enforce exact scaling (1:1)
+        Graphics2D g2d = (Graphics2D) g.create();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2d.drawImage(backbuffer, 0, 0, getWidth(), getHeight(), 0, 0, backbuffer.getWidth(), backbuffer.getHeight(), null);
+        g2d.dispose();
     }
 
     private void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
@@ -69,7 +75,7 @@ public class TTFFontBackend extends JPanel implements Backend {
         g.fillRect(px, py, CHAR_WIDTH, CHAR_HEIGHT);
 
         g.setColor(sc.foreground);
-        FontRenderContext frc = g.getFontRenderContext();
+        FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.character });
         g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
     }
