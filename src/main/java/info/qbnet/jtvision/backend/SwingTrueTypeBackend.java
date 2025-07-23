@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.SwingFactory;
+import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,12 +78,12 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
         int px = x * CHAR_WIDTH;
         int py = y * CHAR_HEIGHT;
 
-        g.setColor(sc.background);
+        g.setColor(sc.getBackground());
         g.fillRect(px, py, CHAR_WIDTH, CHAR_HEIGHT);
 
-        g.setColor(sc.foreground);
+        g.setColor(sc.getForeground());
         FontRenderContext frc = new FontRenderContext(null, false, false);
-        GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.character });
+        GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.getCharacter() });
         g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
     }
 

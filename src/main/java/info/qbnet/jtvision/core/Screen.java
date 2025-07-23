@@ -1,4 +1,4 @@
-package info.qbnet.jtvision.backend;
+package info.qbnet.jtvision.core;
 
 import java.awt.*;
 
@@ -25,6 +25,18 @@ public class Screen {
             this.character = character;
             this.foreground = foreground;
             this.background = background;
+        }
+
+        public char getCharacter() {
+            return character;
+        }
+
+        public Color getForeground() {
+            return foreground;
+        }
+
+        public Color getBackground() {
+            return background;
         }
     }
 

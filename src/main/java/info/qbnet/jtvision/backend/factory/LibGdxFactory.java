@@ -4,7 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.backend.Screen;
+import info.qbnet.jtvision.core.Screen;
 
 import java.util.function.Function;
 

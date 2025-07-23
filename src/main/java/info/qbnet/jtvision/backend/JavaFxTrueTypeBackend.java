@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.JavaFxFactory;
+import info.qbnet.jtvision.core.Screen;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -56,11 +57,11 @@ public class JavaFxTrueTypeBackend implements JavaFxFactory.FxBackendWithCanvas 
         double dx = x * CHAR_WIDTH;
         double dy = (y + 1) * CHAR_HEIGHT - 3; // vertical align
 
-        gc.setFill(convert(sc.background));
+        gc.setFill(convert(sc.getBackground()));
         gc.fillRect(dx, dy - CHAR_HEIGHT + 3, CHAR_WIDTH, CHAR_HEIGHT);
 
-        gc.setFill(convert(sc.foreground));
-        gc.fillText(Character.toString(sc.character), dx, dy);
+        gc.setFill(convert(sc.getForeground()));
+        gc.fillText(Character.toString(sc.getCharacter()), dx, dy);
     }
 
     private Color convert(java.awt.Color awtColor) {

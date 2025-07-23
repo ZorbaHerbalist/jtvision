@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import info.qbnet.jtvision.core.Screen;
 
 /**
  * LibGDX backend rendering console using a bitmap font texture.
@@ -63,12 +64,12 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
                 int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
 
                 // Draw background
-                batch.setColor(convert(ch.background));
+                batch.setColor(convert(ch.getBackground()));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
                 // Draw foreground character with a separate blend mode
-                batch.setColor(convert(ch.foreground));
-                int charCode = ch.character;
+                batch.setColor(convert(ch.getForeground()));
+                int charCode = ch.getCharacter();
                 int srcX = (charCode % CHARS_PER_ROW) * CHAR_WIDTH;
                 int srcY = (charCode / CHARS_PER_ROW) * CHAR_HEIGHT;
 

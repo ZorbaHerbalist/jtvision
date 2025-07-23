@@ -1,7 +1,7 @@
 package info.qbnet.jtvision.backend.factory;
 
 import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.backend.Screen;
+import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import java.util.function.Function;

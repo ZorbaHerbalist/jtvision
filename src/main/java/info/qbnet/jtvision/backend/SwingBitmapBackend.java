@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.SwingFactory;
+import info.qbnet.jtvision.core.Screen;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -67,7 +68,7 @@ public class SwingBitmapBackend extends JPanel implements SwingFactory.SwingBack
     }
 
     private void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
-        int charCode = sc.character & 0xFF;
+        int charCode = sc.getCharacter() & 0xFF;
         int sx = (charCode % 16) * CHAR_WIDTH;
         int sy = (charCode / 16) * CHAR_HEIGHT;
 
@@ -75,7 +76,7 @@ public class SwingBitmapBackend extends JPanel implements SwingFactory.SwingBack
         int dy = y * CHAR_HEIGHT;
 
         // Draw background
-        g.setColor(sc.background);
+        g.setColor(sc.getBackground());
         g.fillRect(dx, dy, CHAR_WIDTH, CHAR_HEIGHT);
 
         // Apply foreground color to 1-bit glyph
@@ -83,7 +84,7 @@ public class SwingBitmapBackend extends JPanel implements SwingFactory.SwingBack
             for (int gx = 0; gx < CHAR_WIDTH; gx++) {
                 int pixel = fontAtlas.getRGB(sx + gx, sy + gy) & 0xFFFFFF;
                 if (pixel != 0x000000) {
-                    g.setColor(sc.foreground);
+                    g.setColor(sc.getForeground());
                     g.fillRect(dx + gx, dy + gy, 1, 1);
                 }
             }

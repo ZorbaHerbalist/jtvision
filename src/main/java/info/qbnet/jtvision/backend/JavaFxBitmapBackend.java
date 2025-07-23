@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.JavaFxFactory;
+import info.qbnet.jtvision.core.Screen;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -50,21 +51,21 @@ public class JavaFxBitmapBackend implements JavaFxFactory.FxBackendWithCanvas {
     }
 
     private void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
-        int charCode = sc.character & 0xFF;
+        int charCode = sc.getCharacter() & 0xFF;
         int sx = (charCode % 16) * CHAR_WIDTH;
         int sy = (charCode / 16) * CHAR_HEIGHT;
         double dx = x * CHAR_WIDTH;
         double dy = y * CHAR_HEIGHT;
 
         // Draw background
-        gc.setFill(convert(sc.background));
+        gc.setFill(convert(sc.getBackground()));
         gc.fillRect(dx, dy, CHAR_WIDTH, CHAR_HEIGHT);
 
         // Extract glyph from atlas
         PixelReader reader = fontAtlas.getPixelReader();
         WritableImage glyph = new WritableImage(CHAR_WIDTH, CHAR_HEIGHT);
         PixelWriter writer = glyph.getPixelWriter();
-        Color fg = convert(sc.foreground);
+        Color fg = convert(sc.getForeground());
 
         for (int j = 0; j < CHAR_HEIGHT; j++) {
             for (int i = 0; i < CHAR_WIDTH; i++) {

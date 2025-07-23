@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import info.qbnet.jtvision.core.Screen;
 
 /**
  * LibGDX backend rendering console using TrueType font.
@@ -70,12 +71,12 @@ public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend
                 int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
 
                 // Draw background
-                batch.setColor(convert(ch.background));
+                batch.setColor(convert(ch.getBackground()));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
                 // Draw character
-                font.setColor(convert(ch.foreground));
-                font.draw(batch, String.valueOf(ch.character), x * CHAR_WIDTH, drawY + CHAR_HEIGHT - 2);
+                font.setColor(convert(ch.getForeground()));
+                font.draw(batch, String.valueOf(ch.getCharacter()), x * CHAR_WIDTH, drawY + CHAR_HEIGHT - 2);
             }
         }
 

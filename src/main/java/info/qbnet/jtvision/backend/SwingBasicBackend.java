@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.SwingFactory;
+import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,10 +51,10 @@ public class SwingBasicBackend extends JPanel implements SwingFactory.SwingBacke
      * @param sc the screen character to draw
      */
     private void drawChar(Graphics g, int x, int y, Screen.ScreenChar sc) {
-        g.setColor(sc.background);
+        g.setColor(sc.getBackground());
         g.fillRect(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
-        g.setColor(sc.foreground);
-        g.drawString(Character.toString(sc.character), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
+        g.setColor(sc.getForeground());
+        g.drawString(Character.toString(sc.getCharacter()), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
     }
 
     @Override

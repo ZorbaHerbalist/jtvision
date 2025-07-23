@@ -2,9 +2,8 @@ package info.qbnet.jtvision;
 
 import info.qbnet.jtvision.backend.*;
 import info.qbnet.jtvision.backend.factory.Factory;
-import info.qbnet.jtvision.backend.factory.JavaFxFactory;
-import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 import info.qbnet.jtvision.backend.factory.SwingFactory;
+import info.qbnet.jtvision.core.Screen;
 
 import java.awt.*;
 
