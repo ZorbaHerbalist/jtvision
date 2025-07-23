@@ -1,5 +1,7 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.backend.factory.SwingFactory;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -10,15 +12,15 @@ import java.io.InputStream;
 /**
  * A backend that uses a 1-bit monochrome bitmap font atlas and applies color dynamically.
  */
-public class MonochromeBitmapBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
+public class SwingBitmapBackend extends JPanel implements SwingFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
     private final Screen buffer;
     private final BufferedImage fontAtlas;
-    private final BufferedImage backbuffer;
+    private final BufferedImage backBuffer;
 
-    public MonochromeBitmapBackend(Screen buffer) {
+    public SwingBitmapBackend(Screen buffer) {
         this.buffer = buffer;
 
         InputStream stream = getClass().getResourceAsStream("/bios_font_8x16.png");
@@ -34,19 +36,19 @@ public class MonochromeBitmapBackend extends JPanel implements SwingBackendFacto
 
         int width = buffer.getWidth() * CHAR_WIDTH;
         int height = buffer.getHeight() * CHAR_HEIGHT;
-        this.backbuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         setPreferredSize(new Dimension(width, height));
     }
 
     @Override
     public void render() {
-        drawToBackbuffer();
+        drawToBackBuffer();
         repaint();
     }
 
-    private void drawToBackbuffer() {
-        Graphics2D g2d = backbuffer.createGraphics();
+    private void drawToBackBuffer() {
+        Graphics2D g2d = backBuffer.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 
@@ -61,7 +63,7 @@ public class MonochromeBitmapBackend extends JPanel implements SwingBackendFacto
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(backbuffer, 0, 0, null);
+        g.drawImage(backBuffer, 0, 0, null);
     }
 
     private void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {

@@ -1,13 +1,16 @@
-package info.qbnet.jtvision.backend;
+package info.qbnet.jtvision.backend.factory;
+
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.Screen;
 
 import javax.swing.*;
 import java.util.function.Function;
 
-public class SwingBackendFactory implements BackendFactory {
+public class SwingFactory implements Factory {
 
     private final Function<Screen, ? extends SwingBackendWithPanel> constructor;
 
-    public SwingBackendFactory(Function<Screen, ? extends SwingBackendWithPanel> constructor) {
+    public SwingFactory(Function<Screen, ? extends SwingBackendWithPanel> constructor) {
         this.constructor = constructor;
     }
 

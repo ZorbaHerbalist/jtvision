@@ -1,5 +1,7 @@
-package info.qbnet.jtvision.backend;
+package info.qbnet.jtvision.backend.factory;
 
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.Screen;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
@@ -13,12 +15,12 @@ import java.util.function.Function;
 /**
  * Generic JavaFX backend factory using constructor injection.
  */
-public class JavaFxBackendFactory implements BackendFactory {
+public class JavaFxFactory implements Factory {
 
     private final Function<Screen, ? extends FxBackendWithCanvas> constructor;
     private Backend backend;
 
-    public JavaFxBackendFactory(Function<Screen, ? extends FxBackendWithCanvas> constructor) {
+    public JavaFxFactory(Function<Screen, ? extends FxBackendWithCanvas> constructor) {
         this.constructor = constructor;
     }
 

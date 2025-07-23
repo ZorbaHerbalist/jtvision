@@ -1,12 +1,14 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.backend.factory.SwingFactory;
+
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * A Swing-based implementation of the rendering backend.
  */
-public class SwingBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
+public class SwingBasicBackend extends JPanel implements SwingFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -16,7 +18,7 @@ public class SwingBackend extends JPanel implements SwingBackendFactory.SwingBac
      * Constructs a Swing rendering panel for the given screen.
      * @param buffer the screen buffer to render
      */
-    public SwingBackend(Screen buffer) {
+    public SwingBasicBackend(Screen buffer) {
         this.buffer = buffer;
         Dimension size = new Dimension(buffer.getWidth() * CHAR_WIDTH,
                 buffer.getHeight() * CHAR_HEIGHT);

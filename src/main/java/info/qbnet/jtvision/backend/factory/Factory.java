@@ -1,9 +1,12 @@
-package info.qbnet.jtvision.backend;
+package info.qbnet.jtvision.backend.factory;
+
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.Screen;
 
 /**
  * Factory interface for creating rendering backends.
  */
-public interface BackendFactory {
+public interface Factory {
 
     /**
      * Creates and returns a rendering backend for the given screen buffer.

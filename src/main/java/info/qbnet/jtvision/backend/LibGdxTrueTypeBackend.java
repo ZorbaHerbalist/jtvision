@@ -2,8 +2,6 @@ package info.qbnet.jtvision.backend;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -14,12 +12,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * LibGDX backend rendering console using TrueType font.
  */
-public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
+public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend {
     private static final int CHAR_WIDTH = 11; // increased from 9
     private static final int CHAR_HEIGHT = 20; // increased from 16
 
@@ -30,7 +27,7 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
     private OrthographicCamera camera;
     private ScreenViewport viewport;
 
-    public LibGdxTTFBackend(Screen screen) {
+    public LibGdxTrueTypeBackend(Screen screen) {
         this.screen = screen;
     }
 
@@ -99,9 +96,5 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
         batch.dispose();
         font.dispose();
         pixel.dispose();
-    }
-
-    public void renderFrame() {
-        // invoked by external caller if needed
     }
 }

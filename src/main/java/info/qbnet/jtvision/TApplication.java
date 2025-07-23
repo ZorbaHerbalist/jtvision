@@ -1,9 +1,12 @@
 package info.qbnet.jtvision;
 
 import info.qbnet.jtvision.backend.*;
+import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.backend.factory.JavaFxFactory;
+import info.qbnet.jtvision.backend.factory.LibGdxFactory;
+import info.qbnet.jtvision.backend.factory.SwingFactory;
 
 import java.awt.*;
-import java.io.IOException;
 
 public class TApplication {
 
@@ -11,9 +14,9 @@ public class TApplication {
         System.out.println("Start");
 
 
-        //BackendFactory backendFactory = new SwingBackendFactory(TTFSpriteFontBackend::new);
-        //BackendFactory backendFactory = new JavaFxBackendFactory(TTFFontFxBackend::new);
-        BackendFactory backendFactory =  new LibGdxBackendFactory(LibGdxBitmapBackend::new);
+        Factory backendFactory = new SwingFactory(SwingTrueTypeBackend::new);
+        //Factory backendFactory = new JavaFxFactory(JavaFxBitmapBackend::new);
+        //Factory backendFactory = new LibGdxFactory(LibGdxBitmapBackend::new);
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);

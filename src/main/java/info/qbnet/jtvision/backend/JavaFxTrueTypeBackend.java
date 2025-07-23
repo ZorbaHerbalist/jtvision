@@ -1,21 +1,19 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.backend.factory.JavaFxFactory;
 import javafx.application.Platform;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
-import javafx.stage.Stage;
 
 import java.io.InputStream;
 
 /**
  * JavaFX-based backend that renders text using a TTF VGA-style font.
  */
-public class TTFFontFxBackend implements JavaFxBackendFactory.FxBackendWithCanvas {
+public class JavaFxTrueTypeBackend implements JavaFxFactory.FxBackendWithCanvas {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -23,7 +21,7 @@ public class TTFFontFxBackend implements JavaFxBackendFactory.FxBackendWithCanva
     private final Canvas canvas;
     private final Font font;
 
-    public TTFFontFxBackend(Screen buffer) {
+    public JavaFxTrueTypeBackend(Screen buffer) {
         this.buffer = buffer;
         this.canvas = new Canvas(buffer.getWidth() * CHAR_WIDTH, buffer.getHeight() * CHAR_HEIGHT);
 

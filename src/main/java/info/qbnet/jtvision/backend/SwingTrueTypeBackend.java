@@ -1,5 +1,7 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.backend.factory.SwingFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -11,15 +13,15 @@ import java.io.InputStream;
 /**
  * A backend that renders screen characters using a TTF VGA font with pixel-perfect rendering.
  */
-public class TTFFontBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
+public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
     private final Screen buffer;
     private final Font font;
-    private final BufferedImage backbuffer;
+    private final BufferedImage backBuffer;
 
-    public TTFFontBackend(Screen buffer) {
+    public SwingTrueTypeBackend(Screen buffer) {
         this.buffer = buffer;
         InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
         if (fontStream == null) {
@@ -27,27 +29,25 @@ public class TTFFontBackend extends JPanel implements SwingBackendFactory.SwingB
         }
         try {
             this.font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
-        } catch (FontFormatException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
         }
 
         int width = buffer.getWidth() * CHAR_WIDTH;
         int height = buffer.getHeight() * CHAR_HEIGHT;
-        this.backbuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         setPreferredSize(new Dimension(width, height));
     }
 
     @Override
     public void render() {
-        drawToBackbuffer();
+        drawToBackBuffer();
         repaint();
     }
 
-    private void drawToBackbuffer() {
-        Graphics2D g2d = backbuffer.createGraphics();
+    private void drawToBackBuffer() {
+        Graphics2D g2d = backBuffer.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
@@ -69,7 +69,7 @@ public class TTFFontBackend extends JPanel implements SwingBackendFactory.SwingB
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        g2d.drawImage(backbuffer, 0, 0, getWidth(), getHeight(), 0, 0, backbuffer.getWidth(), backbuffer.getHeight(), null);
+        g2d.drawImage(backBuffer, 0, 0, getWidth(), getHeight(), 0, 0, backBuffer.getWidth(), backBuffer.getHeight(), null);
         g2d.dispose();
     }
 

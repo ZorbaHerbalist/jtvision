@@ -1,19 +1,21 @@
-package info.qbnet.jtvision.backend;
+package info.qbnet.jtvision.backend.factory;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.Screen;
 
 import java.util.function.Function;
 
 /**
  * Generic LibGDX backend factory accepting ApplicationAdapter constructor.
  */
-public class LibGdxBackendFactory implements BackendFactory {
+public class LibGdxFactory implements Factory {
 
     private final Function<Screen, ApplicationAdapter> constructor;
 
-    public LibGdxBackendFactory(Function<Screen, ApplicationAdapter> constructor) {
+    public LibGdxFactory(Function<Screen, ApplicationAdapter> constructor) {
         this.constructor = constructor;
     }
 

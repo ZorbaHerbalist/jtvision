@@ -1,21 +1,21 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.backend.factory.JavaFxFactory;
 import javafx.application.Platform;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import javafx.scene.effect.BlendMode;
-import javafx.stage.Stage;
 
 import java.io.InputStream;
 
 /**
  * JavaFX backend rendering bitmap glyphs with pre-colored white font atlas.
  */
-public class BitmapFontFxBackend implements JavaFxBackendFactory.FxBackendWithCanvas {
+public class JavaFxBitmapBackend implements JavaFxFactory.FxBackendWithCanvas {
 
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
@@ -23,7 +23,7 @@ public class BitmapFontFxBackend implements JavaFxBackendFactory.FxBackendWithCa
     private final Canvas canvas;
     private final Image fontAtlas;
 
-    public BitmapFontFxBackend(Screen buffer) {
+    public JavaFxBitmapBackend(Screen buffer) {
         this.buffer = buffer;
         this.canvas = new Canvas(buffer.getWidth() * CHAR_WIDTH, buffer.getHeight() * CHAR_HEIGHT);
 
@@ -61,15 +61,15 @@ public class BitmapFontFxBackend implements JavaFxBackendFactory.FxBackendWithCa
         gc.fillRect(dx, dy, CHAR_WIDTH, CHAR_HEIGHT);
 
         // Extract glyph from atlas
-        javafx.scene.image.PixelReader reader = fontAtlas.getPixelReader();
-        javafx.scene.image.WritableImage glyph = new javafx.scene.image.WritableImage(CHAR_WIDTH, CHAR_HEIGHT);
-        javafx.scene.image.PixelWriter writer = glyph.getPixelWriter();
-        javafx.scene.paint.Color fg = convert(sc.foreground);
+        PixelReader reader = fontAtlas.getPixelReader();
+        WritableImage glyph = new WritableImage(CHAR_WIDTH, CHAR_HEIGHT);
+        PixelWriter writer = glyph.getPixelWriter();
+        Color fg = convert(sc.foreground);
 
         for (int j = 0; j < CHAR_HEIGHT; j++) {
             for (int i = 0; i < CHAR_WIDTH; i++) {
                 Color color = reader.getColor(sx + i, sy + j);
-                // assume white pixel means glyph, preserve alpha
+                // assume a white pixel means glyph, preserve alpha
                 if (color.getOpacity() > 0.1) {
                     writer.setColor(i, j, fg);
                 } else {

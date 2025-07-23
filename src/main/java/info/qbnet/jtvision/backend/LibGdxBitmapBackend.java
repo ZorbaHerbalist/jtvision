@@ -3,7 +3,6 @@ package info.qbnet.jtvision.backend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -67,7 +66,7 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
                 batch.setColor(convert(ch.background));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
-                // Draw foreground character with separate blend mode
+                // Draw foreground character with a separate blend mode
                 batch.setColor(convert(ch.foreground));
                 int charCode = ch.character;
                 int srcX = (charCode % CHARS_PER_ROW) * CHAR_WIDTH;
