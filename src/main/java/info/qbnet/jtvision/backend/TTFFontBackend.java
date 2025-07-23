@@ -11,7 +11,7 @@ import java.io.InputStream;
 /**
  * A backend that renders screen characters using a TTF VGA font with pixel-perfect rendering.
  */
-public class TTFFontBackend extends JPanel implements Backend {
+public class TTFFontBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -19,13 +19,19 @@ public class TTFFontBackend extends JPanel implements Backend {
     private final Font font;
     private final BufferedImage backbuffer;
 
-    public TTFFontBackend(Screen buffer) throws IOException, FontFormatException {
+    public TTFFontBackend(Screen buffer) {
         this.buffer = buffer;
         InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
         if (fontStream == null) {
-            throw new IOException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
+            throw new RuntimeException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
         }
-        this.font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
+        try {
+            this.font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
+        } catch (FontFormatException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         int width = buffer.getWidth() * CHAR_WIDTH;
         int height = buffer.getHeight() * CHAR_HEIGHT;
@@ -78,5 +84,10 @@ public class TTFFontBackend extends JPanel implements Backend {
         FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.character });
         g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return this;
     }
 }

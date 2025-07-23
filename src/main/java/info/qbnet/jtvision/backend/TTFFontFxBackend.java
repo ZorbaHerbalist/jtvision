@@ -15,7 +15,7 @@ import java.io.InputStream;
 /**
  * JavaFX-based backend that renders text using a TTF VGA-style font.
  */
-public class TTFFontFxBackend implements Backend {
+public class TTFFontFxBackend implements JavaFxBackendFactory.FxBackendWithCanvas {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -69,6 +69,7 @@ public class TTFFontFxBackend implements Backend {
         return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 
+    @Override
     public Canvas getCanvas() {
         return canvas;
     }

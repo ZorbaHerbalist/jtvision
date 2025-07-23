@@ -1,27 +1,38 @@
 package info.qbnet.jtvision.backend;
 
 import javax.swing.*;
+import java.util.function.Function;
 
-/**
- * Factory for initializing and creating a Swing rendering backend.
- */
 public class SwingBackendFactory implements BackendFactory {
 
-    private JFrame frame;
+    private final Function<Screen, ? extends SwingBackendWithPanel> constructor;
 
-    @Override
-    public Backend createBackend(Screen buffer) {
-        SwingBackend panel = new SwingBackend(buffer);
-        frame.add(panel);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-        return panel;
+    public SwingBackendFactory(Function<Screen, ? extends SwingBackendWithPanel> constructor) {
+        this.constructor = constructor;
     }
 
     @Override
     public void initialize() {
-        frame = new JFrame("DOS Console");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // no-op for Swing
+    }
+
+    @Override
+    public Backend createBackend(Screen buffer) {
+        try {
+            SwingBackendWithPanel backend = constructor.apply(buffer);
+            JFrame frame = new JFrame("Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(backend.getPanel());
+            frame.pack();
+            frame.setVisible(true);
+            return backend;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Failed to create Swing backend", e);
+        }
+    }
+
+    public interface SwingBackendWithPanel extends Backend {
+        JPanel getPanel();
     }
 }

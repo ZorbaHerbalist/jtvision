@@ -10,7 +10,7 @@ import java.io.InputStream;
 /**
  * A backend that uses a 1-bit monochrome bitmap font atlas and applies color dynamically.
  */
-public class MonochromeBitmapBackend extends JPanel implements Backend {
+public class MonochromeBitmapBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
@@ -18,15 +18,19 @@ public class MonochromeBitmapBackend extends JPanel implements Backend {
     private final BufferedImage fontAtlas;
     private final BufferedImage backbuffer;
 
-    public MonochromeBitmapBackend(Screen buffer) throws IOException {
+    public MonochromeBitmapBackend(Screen buffer) {
         this.buffer = buffer;
 
         InputStream stream = getClass().getResourceAsStream("/bios_font_8x16.png");
         if (stream == null) {
-            throw new IOException("Missing resource: bios_font_8x16.png");
+            throw new RuntimeException("Missing resource: bios_font_8x16.png");
         }
 
-        this.fontAtlas = ImageIO.read(stream);
+        try {
+            this.fontAtlas = ImageIO.read(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         int width = buffer.getWidth() * CHAR_WIDTH;
         int height = buffer.getHeight() * CHAR_HEIGHT;
@@ -82,5 +86,10 @@ public class MonochromeBitmapBackend extends JPanel implements Backend {
                 }
             }
         }
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return this;
     }
 }

@@ -6,7 +6,7 @@ import java.awt.*;
 /**
  * A Swing-based implementation of the rendering backend.
  */
-public class SwingBackend extends JPanel implements Backend {
+public class SwingBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -54,4 +54,9 @@ public class SwingBackend extends JPanel implements Backend {
         g.drawString(Character.toString(sc.character), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
     }
 
+    @Override
+    public JPanel getPanel() {
+        return this;
+    }
 }
+

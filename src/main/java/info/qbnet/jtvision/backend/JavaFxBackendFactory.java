@@ -4,20 +4,27 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
+import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 
 /**
- * Factory to launch JavaFX TTF font backend synchronously.
+ * Generic JavaFX backend factory using constructor injection.
  */
-public class TTFFontFxBackendFactory implements BackendFactory {
+public class JavaFxBackendFactory implements BackendFactory {
 
+    private final Function<Screen, ? extends FxBackendWithCanvas> constructor;
     private Backend backend;
+
+    public JavaFxBackendFactory(Function<Screen, ? extends FxBackendWithCanvas> constructor) {
+        this.constructor = constructor;
+    }
 
     @Override
     public void initialize() {
-        new JFXPanel(); // initializes JavaFX runtime
+        new JFXPanel();
     }
 
     @Override
@@ -25,13 +32,13 @@ public class TTFFontFxBackendFactory implements BackendFactory {
         CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
-            TTFFontFxBackend fxBackend = new TTFFontFxBackend(buffer);
-            backend = fxBackend;
+            FxBackendWithCanvas backendWithCanvas = constructor.apply(buffer);
+            backend = backendWithCanvas;
 
-            StackPane root = new StackPane(fxBackend.getCanvas());
+            StackPane root = new StackPane(backendWithCanvas.getCanvas());
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            stage.setTitle("DOS Console (JavaFX + TTF Font)");
+            stage.setTitle("Console (Library: JavaFX, Renderer: " + backend.getClass().getSimpleName() + ")");
             stage.setScene(scene);
             stage.show();
 
@@ -45,5 +52,9 @@ public class TTFFontFxBackendFactory implements BackendFactory {
         }
 
         return backend;
+    }
+
+    public interface FxBackendWithCanvas extends Backend {
+        Canvas getCanvas();
     }
 }

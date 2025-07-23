@@ -3,13 +3,16 @@ package info.qbnet.jtvision;
 import info.qbnet.jtvision.backend.*;
 
 import java.awt.*;
+import java.io.IOException;
 
 public class TApplication {
 
     public TApplication() {
         System.out.println("Start");
 
-        BackendFactory backendFactory = new MonochromeBitmapFxBackendFactory();
+
+        BackendFactory backendFactory = new SwingBackendFactory(TTFSpriteFontBackend::new);
+        //BackendFactory backendFactory = new JavaFxBackendFactory(TTFFontFxBackend::new);
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);

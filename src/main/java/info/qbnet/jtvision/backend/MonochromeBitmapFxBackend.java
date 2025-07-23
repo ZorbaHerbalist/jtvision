@@ -17,7 +17,7 @@ import java.io.InputStream;
 /**
  * JavaFX backend rendering glyphs from monochrome font atlas with dynamic coloring.
  */
-public class MonochromeBitmapFxBackend implements Backend {
+public class MonochromeBitmapFxBackend implements JavaFxBackendFactory.FxBackendWithCanvas {
 
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
@@ -87,6 +87,7 @@ public class MonochromeBitmapFxBackend implements Backend {
         return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 
+    @Override
     public Canvas getCanvas() {
         return canvas;
     }

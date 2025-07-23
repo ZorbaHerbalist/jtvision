@@ -11,7 +11,7 @@ import java.io.InputStream;
 /**
  * A backend that renders characters using a pre-rendered TTF font atlas to ensure pixel-perfect DOS-like appearance.
  */
-public class TTFSpriteFontBackend extends JPanel implements Backend {
+public class TTFSpriteFontBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -19,15 +19,22 @@ public class TTFSpriteFontBackend extends JPanel implements Backend {
     private final BufferedImage[] glyphs = new BufferedImage[256];
     private final BufferedImage backbuffer;
 
-    public TTFSpriteFontBackend(Screen buffer) throws IOException, FontFormatException {
+    public TTFSpriteFontBackend(Screen buffer) {
         this.buffer = buffer;
 
         // Load font and generate glyph bitmaps
         InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
         if (fontStream == null) {
-            throw new IOException("Font TTF PxPlus_IBM_VGA_9x16.ttf not found in resources.");
+            throw new RuntimeException("Font TTF PxPlus_IBM_VGA_9x16.ttf not found in resources.");
         }
-        Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
+        Font font = null;
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
+        } catch (FontFormatException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         FontRenderContext frc = new FontRenderContext(null, false, false);
 
         for (int i = 0; i < 256; i++) {
@@ -92,5 +99,10 @@ public class TTFSpriteFontBackend extends JPanel implements Backend {
                 }
             }
         }
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return this;
     }
 }

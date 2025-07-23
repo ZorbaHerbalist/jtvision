@@ -12,7 +12,7 @@ import java.io.InputStream;
  * Pixel-perfect rendering is enforced by disabling image smoothing and scaling artifacts.
  * Rendering is done into a BufferedImage backbuffer for precise control.
  */
-public class BitmapFontBackend extends JPanel implements Backend {
+public class BitmapFontBackend extends JPanel implements SwingBackendFactory.SwingBackendWithPanel {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
@@ -20,13 +20,17 @@ public class BitmapFontBackend extends JPanel implements Backend {
     private final BufferedImage fontImage;
     private final BufferedImage backbuffer;
 
-    public BitmapFontBackend(Screen buffer) throws IOException {
+    public BitmapFontBackend(Screen buffer) {
         this.buffer = buffer;
         InputStream fontStream = getClass().getResourceAsStream("/cp437_9x16.png");
         if (fontStream == null) {
-            throw new IOException("Font image cp437_9x16.png not found in resources.");
+            throw new RuntimeException("Font image cp437_9x16.png not found in resources.");
         }
-        this.fontImage = ImageIO.read(fontStream);
+        try {
+            this.fontImage = ImageIO.read(fontStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         int width = buffer.getWidth() * CHAR_WIDTH;
         int height = buffer.getHeight() * CHAR_HEIGHT;
@@ -83,5 +87,10 @@ public class BitmapFontBackend extends JPanel implements Backend {
                 }
             }
         }
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return this;
     }
 }

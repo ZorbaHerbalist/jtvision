@@ -15,7 +15,7 @@ import java.io.InputStream;
 /**
  * JavaFX backend rendering bitmap glyphs with pre-colored white font atlas.
  */
-public class BitmapFontFxBackend implements Backend {
+public class BitmapFontFxBackend implements JavaFxBackendFactory.FxBackendWithCanvas {
 
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
@@ -86,6 +86,7 @@ public class BitmapFontFxBackend implements Backend {
         return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 
+    @Override
     public Canvas getCanvas() {
         return canvas;
     }
