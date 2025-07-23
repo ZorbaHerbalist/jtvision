@@ -28,8 +28,8 @@ public class LibGdxBackendFactory implements BackendFactory {
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.title = "DOS Console (LibGDX)";
-        config.width = buffer.getWidth() * 9;
-        config.height = buffer.getHeight() * 16;
+        config.width = buffer.getWidth() * 11; // updated to match CHAR_WIDTH
+        config.height = buffer.getHeight() * 20; // updated to match CHAR_HEIGHT
 
         new LwjglApplication(app, config);
         return new DummyBackend();
