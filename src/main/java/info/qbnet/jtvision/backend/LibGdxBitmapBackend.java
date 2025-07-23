@@ -3,6 +3,7 @@ package info.qbnet.jtvision.backend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,9 +15,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
  * LibGDX backend rendering console using a bitmap font texture.
  */
 public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
-    private static final int CHAR_WIDTH = 9;
+    private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
-    private static final int CHARS_PER_ROW = 16; // Assuming 256 chars in 8 rows
+    private static final int CHARS_PER_ROW = 16; // corrected from 32
 
     private final Screen screen;
     private SpriteBatch batch;
@@ -33,7 +34,8 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
     public void create() {
         batch = new SpriteBatch();
 
-        fontTexture = new Texture(Gdx.files.internal("cp437_9x16.png"));
+        //fontTexture = new Texture(Gdx.files.internal("cp437_9x16.png"));
+        fontTexture = new Texture(Gdx.files.internal("font_white_8x16.png"));
         fontTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -61,16 +63,18 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
                 Screen.ScreenChar ch = screen.getChar(x, y);
                 int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
 
+                // Draw background
                 batch.setColor(convert(ch.background));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
+                // Draw foreground character with separate blend mode
+                batch.setColor(convert(ch.foreground));
                 int charCode = ch.character;
                 int srcX = (charCode % CHARS_PER_ROW) * CHAR_WIDTH;
                 int srcY = (charCode / CHARS_PER_ROW) * CHAR_HEIGHT;
 
-                batch.setColor(convert(ch.foreground));
                 batch.draw(fontTexture, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT,
-                        srcX, srcY, CHAR_WIDTH, CHAR_HEIGHT, false, false);
+                        srcX, srcY, CHAR_WIDTH, CHAR_HEIGHT, false, false); // flip Y=false
             }
         }
 
