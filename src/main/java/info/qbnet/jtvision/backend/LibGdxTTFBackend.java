@@ -5,14 +5,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * LibGDX backend rendering console using TrueType font.
@@ -24,8 +26,9 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
     private final Screen screen;
     private BitmapFont font;
     private SpriteBatch batch;
-    private GlyphLayout layout;
     private Texture pixel;
+    private OrthographicCamera camera;
+    private ScreenViewport viewport;
 
     public LibGdxTTFBackend(Screen screen) {
         this.screen = screen;
@@ -34,13 +37,11 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        layout = new GlyphLayout();
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("PxPlus_IBM_VGA_9x16.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = 16;
-        parameter.flip = false; // Flip vertically for LibGDX coordinate system
-        // Let the generator extract available characters automatically
+        parameter.flip = false; // Use normal orientation
         font = generator.generateFont(parameter);
         generator.dispose();
 
@@ -49,11 +50,19 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
         pixmap.fill();
         pixel = new Texture(pixmap);
         pixmap.dispose();
+
+        camera = new OrthographicCamera();
+        viewport = new ScreenViewport(camera);
+        viewport.apply();
+        camera.position.set(screen.getWidth() * CHAR_WIDTH / 2f, screen.getHeight() * CHAR_HEIGHT / 2f, 0);
+        camera.update();
     }
 
     @Override
     public void render() {
         ScreenUtils.clear(0, 0, 0, 1);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         for (int y = 0; y < screen.getHeight(); y++) {
@@ -74,6 +83,11 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
         }
 
         batch.end();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 
     private Color convert(java.awt.Color awtColor) {
