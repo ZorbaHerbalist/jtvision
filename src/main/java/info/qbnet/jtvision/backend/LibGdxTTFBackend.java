@@ -39,6 +39,7 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("PxPlus_IBM_VGA_9x16.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = 16;
+        parameter.flip = false; // Flip vertically for LibGDX coordinate system
         // Let the generator extract available characters automatically
         font = generator.generateFont(parameter);
         generator.dispose();
@@ -59,14 +60,16 @@ public class LibGdxTTFBackend extends ApplicationAdapter implements Backend {
             for (int x = 0; x < screen.getWidth(); x++) {
                 Screen.ScreenChar ch = screen.getChar(x, y);
 
+                // Flip Y-axis since LibGDX (0,0) is bottom-left
+                int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
+
                 // Draw background
                 batch.setColor(convert(ch.background));
-                batch.draw(pixel, x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
+                batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
                 // Draw character
                 font.setColor(convert(ch.foreground));
-                layout.setText(font, String.valueOf(ch.character & 0xFF));
-                font.draw(batch, layout, x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT);
+                font.draw(batch, String.valueOf(ch.character), x * CHAR_WIDTH, drawY + CHAR_HEIGHT - 2);
             }
         }
 
