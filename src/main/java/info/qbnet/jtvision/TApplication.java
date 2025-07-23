@@ -13,7 +13,7 @@ public class TApplication {
 
         //BackendFactory backendFactory = new SwingBackendFactory(TTFSpriteFontBackend::new);
         //BackendFactory backendFactory = new JavaFxBackendFactory(TTFFontFxBackend::new);
-        BackendFactory backendFactory =  new LibGdxBackendFactory(LibGdxTTFBackend::new);
+        BackendFactory backendFactory =  new LibGdxBackendFactory(LibGdxBitmapBackend::new);
         backendFactory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
