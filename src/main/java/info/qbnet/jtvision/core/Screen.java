@@ -105,7 +105,7 @@ public class Screen {
     }
 
     /**
-     * Sets a character at a specific position with the default color
+     * Sets a character at a specific position with the default colors.
      * @param x horizontal coordinate
      * @param y vertical coordinate
      * @param c character to display
