@@ -2,6 +2,7 @@ package info.qbnet.jtvision;
 
 import info.qbnet.jtvision.backend.*;
 import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 import info.qbnet.jtvision.backend.factory.SwingFactory;
 import info.qbnet.jtvision.core.Screen;
 
@@ -13,17 +14,24 @@ public class TApplication {
         System.out.println("Start");
 
 
-        Factory backendFactory = new SwingFactory(SwingTrueTypeBackend::new);
-        //Factory backendFactory = new JavaFxFactory(JavaFxBitmapBackend::new);
-        //Factory backendFactory = new LibGdxFactory(LibGdxBitmapBackend::new);
-        backendFactory.initialize();
+        //Factory factory1 = new SwingFactory(SwingTrueTypeBackend::new);
+        //Factory factory1 = new JavaFxFactory(JavaFxBitmapBackend::new);
+        Factory factory1 = new LibGdxFactory(LibGdxBitmapBackend::new);
+        factory1.initialize();
+
+        Factory factory2 = new SwingFactory(SwingTrueTypeBackend::new);
+        factory2.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
-        Backend backend = backendFactory.createBackend(screenBuffer);
-        Console console = new Console(screenBuffer, backend);
+        Backend backend1 = factory1.createBackend(screenBuffer);
+        Console console1 = new Console(screenBuffer, backend1);
 
-        console.clearScreen();
-        console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
+        Backend backend2 = factory2.createBackend(screenBuffer);
+        Console console2 = new Console(screenBuffer, backend2);
+
+
+        console2.clearScreen();
+        console2.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
 //        console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
 
         try {
@@ -32,6 +40,6 @@ public class TApplication {
             e.printStackTrace();
         }
 
-        console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
+        console2.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
     }
 }
