@@ -38,6 +38,22 @@ public class TApplication {
         }
 
         console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
+
+        // Measure how many characters per second we can print to the backend
+        //measureBackendSpeed(console);
+    }
+
+    private void measureBackendSpeed(Console console) {
+        final int iterations = 1000;
+        final String testString = "X";
+        long startTime = System.nanoTime();
+        for (int i = 0; i < iterations; i++) {
+            console.putString(0, 0, testString, Color.WHITE, Color.BLACK);
+        }
+        long endTime = System.nanoTime();
+        double durationSeconds = (endTime - startTime) / 1_000_000_000.0;
+        double cps = iterations / durationSeconds;
+        System.out.printf("Backend speed: %.2f chars/s%n", cps);
     }
 
     private void drawDoubleFrame(Console console, int x, int y, int width, int height,
