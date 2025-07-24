@@ -20,9 +20,9 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     public SwingBitmapBackend(Screen buffer) {
         super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
 
-        InputStream stream = getClass().getResourceAsStream("/bios_font_8x16.png");
+        InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png");
         if (stream == null) {
-            throw new RuntimeException("Missing resource: bios_font_8x16.png");
+            throw new RuntimeException("Missing resource: font_white_8x16_2.png");
         }
 
         try {

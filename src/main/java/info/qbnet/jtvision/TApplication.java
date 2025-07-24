@@ -28,6 +28,7 @@ public class TApplication {
         Console console = new Console(screenBuffer, backend);
 
         console.clearScreen();
+        drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
         console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
 
         try {
@@ -37,5 +38,21 @@ public class TApplication {
         }
 
         console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
+    }
+
+    private void drawDoubleFrame(Console console, int x, int y, int width, int height,
+                                 Color fg, Color bg) {
+        if (width < 2 || height < 2) {
+            return;
+        }
+
+        String horizontal = ("" + (char)205).repeat(width - 2);
+        console.putString(x, y, (char)201 + horizontal + (char)187, fg, bg);
+
+        for (int i = 1; i < height - 1; i++) {
+            console.putString(x, y + i, (char)186 + " ".repeat(width - 2) + (char)186, fg, bg);
+        }
+
+        console.putString(x, y + height - 1, (char)200 + horizontal + (char)188, fg, bg);
     }
 }

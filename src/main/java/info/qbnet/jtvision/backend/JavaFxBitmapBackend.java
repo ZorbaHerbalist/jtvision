@@ -29,7 +29,7 @@ public class JavaFxBitmapBackend implements JavaFxFactory.FxBackendWithCanvas {
         this.buffer = buffer;
         this.canvas = new Canvas(buffer.getWidth() * CHAR_WIDTH, buffer.getHeight() * CHAR_HEIGHT);
 
-        InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16.png");
+        InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png");
         if (fontStream == null) throw new RuntimeException("Font image not found: font_white_8x16.png");
         this.fontAtlas = new Image(fontStream, CHAR_WIDTH * 16, CHAR_HEIGHT * 16, false, false);
 
