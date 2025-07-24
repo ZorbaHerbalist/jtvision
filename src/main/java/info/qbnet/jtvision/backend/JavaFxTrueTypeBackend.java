@@ -72,14 +72,4 @@ public class JavaFxTrueTypeBackend implements JavaFxFactory.FxBackendWithCanvas 
     public Canvas getCanvas() {
         return canvas;
     }
-
-    @Override
-    public int getCharWidth() {
-        return CHAR_WIDTH;
-    }
-
-    @Override
-    public int getCharHeight() {
-        return CHAR_HEIGHT;
-    }
 }

@@ -86,9 +86,6 @@ public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-        int cols = Math.max(Screen.MIN_WIDTH, width / CHAR_WIDTH);
-        int rows = Math.max(Screen.MIN_HEIGHT, height / CHAR_HEIGHT);
-        screen.resize(cols, rows);
     }
 
     private Color convert(java.awt.Color awtColor) {
