@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
 
 /**
@@ -64,11 +65,11 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
                 int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
 
                 // Draw background
-                batch.setColor(convert(ch.getBackground()));
+                batch.setColor(ColorUtil.toGdx(ch.getBackground()));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
                 // Draw foreground character with a separate blend mode
-                batch.setColor(convert(ch.getForeground()));
+                batch.setColor(ColorUtil.toGdx(ch.getForeground()));
                 int charCode = ch.getCharacter();
                 int srcX = (charCode % CHARS_PER_ROW) * CHAR_WIDTH;
                 int srcY = (charCode / CHARS_PER_ROW) * CHAR_HEIGHT;
@@ -85,11 +86,6 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
     public void resize(int width, int height) {
         viewport.update(width, height);
     }
-
-    private Color convert(java.awt.Color awtColor) {
-        return new Color(awtColor.getRed() / 255f, awtColor.getGreen() / 255f, awtColor.getBlue() / 255f, 1f);
-    }
-
     @Override
     public void dispose() {
         batch.dispose();

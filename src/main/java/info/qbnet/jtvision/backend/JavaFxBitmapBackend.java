@@ -10,6 +10,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import info.qbnet.jtvision.backend.util.ColorUtil;
 
 import java.io.InputStream;
 
@@ -58,14 +59,14 @@ public class JavaFxBitmapBackend implements JavaFxFactory.FxBackendWithCanvas {
         double dy = y * CHAR_HEIGHT;
 
         // Draw background
-        gc.setFill(convert(sc.getBackground()));
+        gc.setFill(ColorUtil.toFx(sc.getBackground()));
         gc.fillRect(dx, dy, CHAR_WIDTH, CHAR_HEIGHT);
 
         // Extract glyph from atlas
         PixelReader reader = fontAtlas.getPixelReader();
         WritableImage glyph = new WritableImage(CHAR_WIDTH, CHAR_HEIGHT);
         PixelWriter writer = glyph.getPixelWriter();
-        Color fg = convert(sc.getForeground());
+        Color fg = ColorUtil.toFx(sc.getForeground());
 
         for (int j = 0; j < CHAR_HEIGHT; j++) {
             for (int i = 0; i < CHAR_WIDTH; i++) {
@@ -80,11 +81,6 @@ public class JavaFxBitmapBackend implements JavaFxFactory.FxBackendWithCanvas {
         }
 
         gc.drawImage(glyph, dx, dy);
-    }
-
-
-    private Color convert(java.awt.Color awtColor) {
-        return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 
     @Override

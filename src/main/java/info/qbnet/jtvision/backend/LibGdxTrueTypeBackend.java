@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
 
 /**
@@ -71,11 +72,11 @@ public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend
                 int drawY = (screen.getHeight() - y - 1) * CHAR_HEIGHT;
 
                 // Draw background
-                batch.setColor(convert(ch.getBackground()));
+                batch.setColor(ColorUtil.toGdx(ch.getBackground()));
                 batch.draw(pixel, x * CHAR_WIDTH, drawY, CHAR_WIDTH, CHAR_HEIGHT);
 
                 // Draw character
-                font.setColor(convert(ch.getForeground()));
+                font.setColor(ColorUtil.toGdx(ch.getForeground()));
                 font.draw(batch, String.valueOf(ch.getCharacter()), x * CHAR_WIDTH, drawY + CHAR_HEIGHT - 2);
             }
         }
@@ -87,11 +88,6 @@ public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend
     public void resize(int width, int height) {
         viewport.update(width, height);
     }
-
-    private Color convert(java.awt.Color awtColor) {
-        return new Color(awtColor.getRed() / 255f, awtColor.getGreen() / 255f, awtColor.getBlue() / 255f, 1f);
-    }
-
     @Override
     public void dispose() {
         batch.dispose();
