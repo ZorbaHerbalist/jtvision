@@ -20,7 +20,7 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
     private static final int CHAR_HEIGHT = 16;
     private final Screen buffer;
     private final Font font;
-    private final BufferedImage backBuffer;
+    private BufferedImage backBuffer;
 
     public SwingTrueTypeBackend(Screen buffer) {
         this.buffer = buffer;
@@ -39,6 +39,16 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
         this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
         setPreferredSize(new Dimension(width, height));
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int cols = Math.max(Screen.MIN_WIDTH, getWidth() / CHAR_WIDTH);
+                int rows = Math.max(Screen.MIN_HEIGHT, getHeight() / CHAR_HEIGHT);
+                buffer.resize(cols, rows);
+                updateBackBuffer();
+                repaint();
+            }
+        });
     }
 
     @Override
@@ -85,6 +95,14 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
         FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.getCharacter() });
         g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
+    }
+
+    private void updateBackBuffer() {
+        int width = buffer.getWidth() * CHAR_WIDTH;
+        int height = buffer.getHeight() * CHAR_HEIGHT;
+        backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        setPreferredSize(new Dimension(width, height));
+        revalidate();
     }
 
     @Override

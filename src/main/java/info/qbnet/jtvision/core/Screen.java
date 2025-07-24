@@ -40,9 +40,15 @@ public class Screen {
         }
     }
 
-    private final int width;
-    private final int height;
-    private final ScreenChar[][] buffer;
+    /** Minimum allowed screen width in characters */
+    public static final int MIN_WIDTH = 80;
+
+    /** Minimum allowed screen height in characters */
+    public static final int MIN_HEIGHT = 25;
+
+    private int width;
+    private int height;
+    private ScreenChar[][] buffer;
     private final Color defaultForeground;
     private final Color defaultBackground;
     private final ScreenChar emptyCharTemplate;
@@ -57,9 +63,11 @@ public class Screen {
      */
     public Screen(int width, int height, Color defaultForeground, Color defaultBackground) {
         if (width <= 0 || height <= 0) {
-            System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.\n", width, height);
+            System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.%n", width, height);
             throw new IllegalArgumentException("Screen dimensions must be positive");
         }
+        width = Math.max(width, MIN_WIDTH);
+        height = Math.max(height, MIN_HEIGHT);
         if (defaultForeground == null || defaultBackground == null) {
             System.err.println("Default colors cannot be null.");
             throw new IllegalArgumentException("Default foreground and background colors must not be null");
@@ -138,6 +146,37 @@ public class Screen {
                 buffer[y][x] = emptyCharTemplate;
             }
         }
+    }
+
+    /**
+     * Resizes the screen buffer keeping existing content where possible.
+     * New cells are initialized with the default colors and a space character.
+     *
+     * @param newWidth  new column count (minimum {@value MIN_WIDTH})
+     * @param newHeight new row count (minimum {@value MIN_HEIGHT})
+     */
+    public synchronized void resize(int newWidth, int newHeight) {
+        if (newWidth <= 0 || newHeight <= 0) {
+            System.err.printf("resize(): invalid dimensions %d x %d. Ignored.%n", newWidth, newHeight);
+            return;
+        }
+        newWidth = Math.max(newWidth, MIN_WIDTH);
+        newHeight = Math.max(newHeight, MIN_HEIGHT);
+
+        ScreenChar[][] newBuffer = new ScreenChar[newHeight][newWidth];
+        for (int y = 0; y < newHeight; y++) {
+            for (int x = 0; x < newWidth; x++) {
+                if (y < height && x < width) {
+                    newBuffer[y][x] = buffer[y][x];
+                } else {
+                    newBuffer[y][x] = emptyCharTemplate;
+                }
+            }
+        }
+
+        this.width = newWidth;
+        this.height = newHeight;
+        this.buffer = newBuffer;
     }
 
     /**
