@@ -18,8 +18,8 @@ import info.qbnet.jtvision.core.Screen;
  * LibGDX backend rendering console using TrueType font.
  */
 public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend {
-    private static final int CHAR_WIDTH = 11; // increased from 9
-    private static final int CHAR_HEIGHT = 20; // increased from 16
+    private static final int CHAR_WIDTH = 8;
+    private static final int CHAR_HEIGHT = 16;
 
     private final Screen screen;
     private BitmapFont font;
@@ -38,7 +38,7 @@ public class LibGdxTrueTypeBackend extends ApplicationAdapter implements Backend
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("PxPlus_IBM_VGA_9x16.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.size = 20;
+        parameter.size = 16;
         parameter.flip = false; // Use normal orientation
         font = generator.generateFont(parameter);
         generator.dispose();
