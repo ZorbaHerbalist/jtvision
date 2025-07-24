@@ -24,6 +24,15 @@ public class SwingBasicBackend extends JPanel implements SwingFactory.SwingBacke
         Dimension size = new Dimension(buffer.getWidth() * CHAR_WIDTH,
                 buffer.getHeight() * CHAR_HEIGHT);
         setPreferredSize(size);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int cols = Math.max(Screen.MIN_WIDTH, getWidth() / CHAR_WIDTH);
+                int rows = Math.max(Screen.MIN_HEIGHT, getHeight() / CHAR_HEIGHT);
+                buffer.resize(cols, rows);
+                repaint();
+            }
+        });
         setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
     }
 

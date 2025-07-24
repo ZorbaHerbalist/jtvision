@@ -44,6 +44,22 @@ public class JavaFxFactory implements Factory {
             stage.setScene(scene);
             stage.show();
 
+            backendWithCanvas.getCanvas().widthProperty().bind(root.widthProperty());
+            backendWithCanvas.getCanvas().heightProperty().bind(root.heightProperty());
+
+            root.widthProperty().addListener((obs, oldVal, newVal) -> {
+                int cols = Math.max(Screen.MIN_WIDTH,
+                        (int) (newVal.doubleValue() / backendWithCanvas.getCharWidth()));
+                buffer.resize(cols, buffer.getHeight());
+                backend.render();
+            });
+            root.heightProperty().addListener((obs, oldVal, newVal) -> {
+                int rows = Math.max(Screen.MIN_HEIGHT,
+                        (int) (newVal.doubleValue() / backendWithCanvas.getCharHeight()));
+                buffer.resize(buffer.getWidth(), rows);
+                backend.render();
+            });
+
             latch.countDown();
         });
 
@@ -58,5 +74,7 @@ public class JavaFxFactory implements Factory {
 
     public interface FxBackendWithCanvas extends Backend {
         Canvas getCanvas();
+        int getCharWidth();
+        int getCharHeight();
     }
 }
