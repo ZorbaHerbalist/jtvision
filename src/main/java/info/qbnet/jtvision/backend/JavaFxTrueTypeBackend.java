@@ -1,12 +1,8 @@
 package info.qbnet.jtvision.backend;
 
-import info.qbnet.jtvision.backend.factory.JavaFxFactory;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
-import javafx.application.Platform;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
 
@@ -15,17 +11,14 @@ import java.io.InputStream;
 /**
  * JavaFX-based backend that renders text using a TTF VGA-style font.
  */
-public class JavaFxTrueTypeBackend implements JavaFxFactory.FxBackendWithCanvas {
+public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
-    private final Screen buffer;
-    private final Canvas canvas;
     private final Font font;
 
     public JavaFxTrueTypeBackend(Screen buffer) {
-        this.buffer = buffer;
-        this.canvas = new Canvas(buffer.getWidth() * CHAR_WIDTH, buffer.getHeight() * CHAR_HEIGHT);
+        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
 
         try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
             if (fontStream == null) throw new RuntimeException("Font not found: PxPlus_IBM_VGA_9x16.ttf");
@@ -37,35 +30,24 @@ public class JavaFxTrueTypeBackend implements JavaFxFactory.FxBackendWithCanvas 
         drawToCanvas();
     }
 
-    @Override
-    public void render() {
-        Platform.runLater(this::drawToCanvas);
-    }
+    // drawToCanvas() inherited
 
-    private void drawToCanvas() {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+    @Override
+    protected void configureGraphics(GraphicsContext gc) {
         gc.setFont(font);
         gc.setFontSmoothingType(FontSmoothingType.LCD);
-
-        for (int y = 0; y < buffer.getHeight(); y++) {
-            for (int x = 0; x < buffer.getWidth(); x++) {
-                drawChar(gc, x, y, buffer.getChar(x, y));
-            }
-        }
     }
 
-    private void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
-        double dx = x * CHAR_WIDTH;
-        double dy = (y + 1) * CHAR_HEIGHT - 3; // vertical align
+    @Override
+    protected void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
+        double dx = x * getCharWidth();
+        double dy = (y + 1) * getCharHeight() - 3; // vertical align
 
         gc.setFill(ColorUtil.toFx(sc.getBackground()));
-        gc.fillRect(dx, dy - CHAR_HEIGHT + 3, CHAR_WIDTH, CHAR_HEIGHT);
+        gc.fillRect(dx, dy - getCharHeight() + 3, getCharWidth(), getCharHeight());
 
         gc.setFill(ColorUtil.toFx(sc.getForeground()));
         gc.fillText(Character.toString(sc.getCharacter()), dx, dy);
     }
-    @Override
-    public Canvas getCanvas() {
-        return canvas;
-    }
 }
+
