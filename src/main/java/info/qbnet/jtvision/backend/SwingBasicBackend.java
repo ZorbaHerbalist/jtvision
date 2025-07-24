@@ -5,6 +5,7 @@ import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * A Swing-based implementation of the rendering backend.
@@ -14,6 +15,7 @@ public class SwingBasicBackend extends JPanel implements SwingFactory.SwingBacke
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
     private final Screen buffer;
+    private final BufferedImage backBuffer;
 
     /**
      * Constructs a Swing rendering panel for the given screen.
@@ -21,26 +23,36 @@ public class SwingBasicBackend extends JPanel implements SwingFactory.SwingBacke
      */
     public SwingBasicBackend(Screen buffer) {
         this.buffer = buffer;
-        Dimension size = new Dimension(buffer.getWidth() * CHAR_WIDTH,
-                buffer.getHeight() * CHAR_HEIGHT);
-        setPreferredSize(size);
+        int width = buffer.getWidth() * CHAR_WIDTH;
+        int height = buffer.getHeight() * CHAR_HEIGHT;
+        this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        setPreferredSize(new Dimension(width, height));
         setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
     }
 
     @Override
     public void render() {
+        drawToBackBuffer();
         repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.drawImage(backBuffer, 0, 0, null);
+    }
 
+    private void drawToBackBuffer() {
+        Graphics2D g2d = backBuffer.createGraphics();
+        g2d.setFont(getFont());
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         for (int y = 0; y < buffer.getHeight(); y++) {
             for (int x = 0; x < buffer.getWidth(); x++) {
-                drawChar(g, x, y, buffer.getChar(x, y));
+                drawChar(g2d, x, y, buffer.getChar(x, y));
             }
         }
+        g2d.dispose();
     }
 
     /**
