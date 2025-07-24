@@ -36,7 +36,7 @@ public class LibGdxBitmapBackend extends ApplicationAdapter implements Backend {
         batch = new SpriteBatch();
 
         //fontTexture = new Texture(Gdx.files.internal("cp437_9x16.png"));
-        fontTexture = new Texture(Gdx.files.internal("font_white_8x16.png"));
+        fontTexture = new Texture(Gdx.files.internal("font_white_8x16_2.png"));
         fontTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
