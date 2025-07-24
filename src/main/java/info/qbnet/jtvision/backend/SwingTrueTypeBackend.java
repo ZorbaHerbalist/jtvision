@@ -1,29 +1,24 @@
 package info.qbnet.jtvision.backend;
 
-import info.qbnet.jtvision.backend.factory.SwingFactory;
 import info.qbnet.jtvision.core.Screen;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * A backend that renders screen characters using a TTF VGA font with pixel-perfect rendering.
  */
-public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBackendWithPanel {
+public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
     private static final int CHAR_WIDTH = 9;
     private static final int CHAR_HEIGHT = 16;
-    private final Screen buffer;
     private final Font font;
-    private final BufferedImage backBuffer;
 
     public SwingTrueTypeBackend(Screen buffer) {
-        this.buffer = buffer;
+        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
         InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
         if (fontStream == null) {
             throw new RuntimeException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
@@ -34,33 +29,6 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
             throw new RuntimeException(e);
         }
 
-        int width = buffer.getWidth() * CHAR_WIDTH;
-        int height = buffer.getHeight() * CHAR_HEIGHT;
-        this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-        setPreferredSize(new Dimension(width, height));
-    }
-
-    @Override
-    public void render() {
-        drawToBackBuffer();
-        repaint();
-    }
-
-    private void drawToBackBuffer() {
-        Graphics2D g2d = backBuffer.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g2d.setFont(font);
-
-        for (int y = 0; y < buffer.getHeight(); y++) {
-            for (int x = 0; x < buffer.getWidth(); x++) {
-                drawChar(g2d, x, y, buffer.getChar(x, y));
-            }
-        }
-        g2d.dispose();
     }
 
     @Override
@@ -74,7 +42,9 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
         g2d.dispose();
     }
 
-    private void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
+    @Override
+    protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
+        g.setFont(font);
         int px = x * CHAR_WIDTH;
         int py = y * CHAR_HEIGHT;
 
@@ -87,8 +57,4 @@ public class SwingTrueTypeBackend extends JPanel implements SwingFactory.SwingBa
         g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
     }
 
-    @Override
-    public JPanel getPanel() {
-        return this;
-    }
 }
