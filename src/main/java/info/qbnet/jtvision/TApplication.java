@@ -39,6 +39,11 @@ public class TApplication {
 
         console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         // Measure how many characters per second we can print to the backend
         //measureBackendSpeed(console);
     }
