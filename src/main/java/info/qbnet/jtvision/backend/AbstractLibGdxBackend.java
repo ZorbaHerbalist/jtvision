@@ -1,7 +1,6 @@
 package info.qbnet.jtvision.backend;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -12,6 +11,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
 import info.qbnet.jtvision.backend.factory.LibGdxFactory;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Base class for LibGDX backends handling common initialization and rendering
@@ -24,6 +25,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
     private final int charHeight;
 
     private volatile Thread renderThread;
+    private CountDownLatch initLatch;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -53,14 +55,16 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
         viewport.apply();
         camera.position.set(screen.getWidth() * charWidth / 2f, screen.getHeight() * charHeight / 2f, 0);
         camera.update();
+
+        if (initLatch != null) {
+            initLatch.countDown();
+        }
     }
 
     @Override
     public void render() {
         if (renderThread == null || renderThread != Thread.currentThread()) {
-            return;
-        }
-        if (Gdx.gl == null) {
+            System.err.println("Rendering thread not ready. Ignoring render request.");
             return;
         }
         ScreenUtils.clear(0, 0, 0, 1);
@@ -126,6 +130,11 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
     @Override
     public ApplicationAdapter getApplicationAdapter() {
         return this;
+    }
+
+    @Override
+    public void setInitializationLatch(CountDownLatch latch) {
+        this.initLatch = latch;
     }
 }
 
