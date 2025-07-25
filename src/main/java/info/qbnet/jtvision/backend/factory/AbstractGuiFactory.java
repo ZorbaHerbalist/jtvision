@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend.factory;
 
 import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import info.qbnet.jtvision.core.Screen;
 
 import java.util.concurrent.CountDownLatch;
@@ -13,9 +14,11 @@ import java.util.function.Function;
 public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B> {
 
     private final Function<Screen, ? extends B> constructor;
+    private final String libraryName;
 
-    protected AbstractGuiFactory(Function<Screen, ? extends B> constructor) {
+    protected AbstractGuiFactory(Function<Screen, ? extends B> constructor, String libraryName) {
         this.constructor = constructor;
+        this.libraryName = libraryName;
     }
 
     /**
@@ -43,5 +46,39 @@ public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
+    }
+    
+    /**
+     * Creates a window configuration with common parameters.
+     */
+    protected WindowConfig createWindowConfig(B backend, Screen screen) {
+        return new WindowConfig(
+            libraryName,
+            backend.getClass().getSimpleName(),
+            calculateWindowWidth(screen),
+            calculateWindowHeight(screen)
+        );
+    }
+    
+    /**
+     * Sets up common thread cleanup for the main thread.
+     */
+    protected void setupThreadCleanup(Thread mainThread, Runnable cleanupAction) {
+        ThreadWatcher.onTermination(mainThread, cleanupAction);
+        Runtime.getRuntime().addShutdownHook(new Thread(cleanupAction));
+    }
+    
+    /**
+     * Calculate window width based on screen buffer. Override for custom sizing.
+     */
+    protected int calculateWindowWidth(Screen screen) {
+        return screen.getWidth() * 8;  // Default character width
+    }
+    
+    /**
+     * Calculate window height based on screen buffer. Override for custom sizing.
+     */
+    protected int calculateWindowHeight(Screen screen) {
+        return screen.getHeight() * 16;  // Default character height
     }
 }

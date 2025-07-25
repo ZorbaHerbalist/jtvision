@@ -1,6 +1,6 @@
 package info.qbnet.jtvision.backend;
 
-import info.qbnet.jtvision.backend.factory.JavaFxFactory;
+import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.core.Screen;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
@@ -10,7 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
  * Base class for JavaFX backends implementing common rendering logic.
  * Subclasses only need to provide font setup and glyph drawing.
  */
-public abstract class AbstractJavaFxBackend implements JavaFxFactory.FxBackendWithCanvas {
+public abstract class AbstractJavaFxBackend implements GuiComponent {
 
     protected final Screen buffer;
     protected final Canvas canvas;
@@ -58,7 +58,7 @@ public abstract class AbstractJavaFxBackend implements JavaFxFactory.FxBackendWi
     }
 
     @Override
-    public Canvas getCanvas() {
+    public Object getNativeComponent() {
         return canvas;
     }
 }

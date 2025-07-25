@@ -1,6 +1,5 @@
 package info.qbnet.jtvision.backend.factory;
 
-import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -16,10 +15,10 @@ import java.util.function.Function;
 /**
  * Generic JavaFX backend factory using constructor injection.
  */
-public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWithCanvas> {
+public class JavaFxFactory extends AbstractGuiFactory<GuiComponent> {
 
-    public JavaFxFactory(Function<Screen, ? extends FxBackendWithCanvas> constructor) {
-        super(constructor);
+    public JavaFxFactory(Function<Screen, ? extends GuiComponent> constructor) {
+        super(constructor, "JavaFX");
     }
 
     @Override
@@ -30,20 +29,21 @@ public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWit
     }
 
     @Override
-    public FxBackendWithCanvas createBackend(Screen buffer) {
+    public GuiComponent createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
-        AtomicReference<FxBackendWithCanvas> backendRef = new AtomicReference<>();
+        AtomicReference<GuiComponent> backendRef = new AtomicReference<>();
 
         return createAndInitialize(buffer, (backend, latch) ->
                 Platform.runLater(() -> {
                     backendRef.set(backend);
+                    WindowConfig config = createWindowConfig(backend, buffer);
 
-                    StackPane root = new StackPane(backend.getCanvas());
+                    Canvas canvas = (Canvas) backend.getNativeComponent();
+                    StackPane root = new StackPane(canvas);
                     Scene scene = new Scene(root);
                     Stage stage = new Stage();
-                    stage.setTitle("Console (Library: JavaFX, Renderer: " +
-                            backend.getClass().getSimpleName() + ")");
+                    stage.setTitle(config.getTitle());
                     stage.setScene(scene);
                     stage.setOnCloseRequest(event -> {
                         event.consume();
@@ -52,7 +52,7 @@ public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWit
                     });
                     stage.show();
 
-                    ThreadWatcher.onTermination(mainThread, () ->
+                    setupThreadCleanup(mainThread, () ->
                             Platform.runLater(() -> {
                                 stage.close();
                                 Platform.exit();
@@ -60,9 +60,5 @@ public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWit
 
                     latch.countDown();
                 }));
-    }
-
-    public interface FxBackendWithCanvas extends Backend {
-        Canvas getCanvas();
     }
 }

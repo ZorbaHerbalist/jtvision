@@ -8,9 +8,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import info.qbnet.jtvision.backend.factory.GuiComponent;
+import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
-import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -18,7 +19,8 @@ import java.util.concurrent.CountDownLatch;
  * Base class for LibGDX backends handling common initialization and rendering
  * logic. Subclasses only need to provide font specific setup and glyph drawing.
  */
-public abstract class AbstractLibGdxBackend extends ApplicationAdapter implements LibGdxFactory.LibGdxBackendWithAdapter {
+public abstract class AbstractLibGdxBackend extends ApplicationAdapter 
+        implements GuiComponent, LibGdxFactory.LibGdxBackendWithInitialization {
 
     private final Screen screen;
     private final int charWidth;
@@ -128,7 +130,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
     protected abstract void disposeResources();
 
     @Override
-    public ApplicationAdapter getApplicationAdapter() {
+    public Object getNativeComponent() {
         return this;
     }
 
