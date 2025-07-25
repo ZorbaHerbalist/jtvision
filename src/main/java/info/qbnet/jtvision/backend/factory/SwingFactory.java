@@ -16,11 +16,6 @@ public class SwingFactory implements Factory {
     }
 
     @Override
-    public void initialize() {
-        // no-op for Swing
-    }
-
-    @Override
     public Backend createBackend(Screen buffer) {
         try {
             SwingBackendWithPanel backend = constructor.apply(buffer);

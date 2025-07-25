@@ -17,7 +17,12 @@ public interface Factory {
 
     /**
      * Initializes any GUI-related setup before backend creation.
+     *
+     * <p>Default implementation performs no action. Factories that require
+     * initialization can override this method.</p>
      */
-    void initialize();
+    default void initialize() {
+        // no-op
+    }
 
 }

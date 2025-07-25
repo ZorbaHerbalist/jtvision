@@ -21,11 +21,6 @@ public class LibGdxFactory implements Factory {
     }
 
     @Override
-    public void initialize() {
-        // No-op for LibGDX
-    }
-
-    @Override
     public Backend createBackend(Screen buffer) {
         LibGdxBackendWithAdapter backend = constructor.apply(buffer);
 
