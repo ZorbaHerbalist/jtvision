@@ -4,7 +4,6 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
-import java.awt.Frame;
 import java.util.function.Function;
 
 public class SwingFactory implements Factory {
@@ -28,7 +27,8 @@ public class SwingFactory implements Factory {
             Thread callingThread = Thread.currentThread();
             final JFrame[] frameHolder = new JFrame[1];
 
-            Thread uiThread = new Thread(() -> {
+            // Create and show the UI on the Event Dispatch Thread
+            SwingUtilities.invokeAndWait(() -> {
                 JFrame frame = new JFrame(
                         "Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
                 frameHolder[0] = frame;
@@ -36,23 +36,31 @@ public class SwingFactory implements Factory {
                 frame.setContentPane(backend.getPanel());
                 frame.pack();
                 frame.setVisible(true);
-            }, "Swing UI Thread");
-            uiThread.setDaemon(true);
-            uiThread.start();
+            });
 
-            Thread watcher = new Thread(() -> {
+            // Monitor main thread and close window when it terminates
+            Thread mainThreadWatcher = new Thread(() -> {
                 try {
                     callingThread.join();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
+                // Close window when main thread terminates
                 JFrame frame = frameHolder[0];
                 if (frame != null) {
                     SwingUtilities.invokeLater(frame::dispose);
                 }
-            }, "Swing UI Watcher");
-            watcher.setDaemon(true);
-            watcher.start();
+            });
+            mainThreadWatcher.setDaemon(true);
+            mainThreadWatcher.start();
+
+            // Also add shutdown hook for JVM shutdown scenarios
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                JFrame frame = frameHolder[0];
+                if (frame != null) {
+                    SwingUtilities.invokeLater(frame::dispose);
+                }
+            }));
 
             return backend;
         }
