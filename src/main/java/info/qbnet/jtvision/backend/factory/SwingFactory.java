@@ -29,13 +29,13 @@ public class SwingFactory implements Factory {
             frame.setVisible(true);
         });
 
+        Runnable dispose = () -> SwingUtilities.invokeLater(frame::dispose);
+
         // Close window when the calling thread terminates
-        ThreadWatcher.onTermination(Thread.currentThread(),
-                () -> SwingUtilities.invokeLater(frame::dispose));
+        ThreadWatcher.onTermination(Thread.currentThread(), dispose);
 
         // Also add shutdown hook for JVM shutdown scenarios
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
-                SwingUtilities.invokeLater(frame::dispose)));
+        Runtime.getRuntime().addShutdownHook(new Thread(dispose));
 
         return backend;
     }
