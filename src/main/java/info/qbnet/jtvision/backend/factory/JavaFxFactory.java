@@ -9,6 +9,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.function.Function;
 
@@ -18,7 +19,6 @@ import java.util.function.Function;
 public class JavaFxFactory implements Factory {
 
     private final Function<Screen, ? extends FxBackendWithCanvas> constructor;
-    private Backend backend;
 
     public JavaFxFactory(Function<Screen, ? extends FxBackendWithCanvas> constructor) {
         this.constructor = constructor;
@@ -35,15 +35,16 @@ public class JavaFxFactory implements Factory {
     public Backend createBackend(Screen buffer) {
         CountDownLatch latch = new CountDownLatch(1);
         Thread mainThread = Thread.currentThread();
+        AtomicReference<Backend> backendRef = new AtomicReference<>();
 
         Platform.runLater(() -> {
             FxBackendWithCanvas backendWithCanvas = constructor.apply(buffer);
-            backend = backendWithCanvas;
+            backendRef.set(backendWithCanvas);
 
             StackPane root = new StackPane(backendWithCanvas.getCanvas());
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            stage.setTitle("Console (Library: JavaFX, Renderer: " + backend.getClass().getSimpleName() + ")");
+            stage.setTitle("Console (Library: JavaFX, Renderer: " + backendWithCanvas.getClass().getSimpleName() + ")");
             stage.setScene(scene);
             stage.setOnCloseRequest(event -> {
                 event.consume();
@@ -67,7 +68,7 @@ public class JavaFxFactory implements Factory {
             throw new RuntimeException(e);
         }
 
-        return backend;
+        return backendRef.get();
     }
 
     public interface FxBackendWithCanvas extends Backend {
