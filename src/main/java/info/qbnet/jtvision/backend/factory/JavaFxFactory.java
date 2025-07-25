@@ -3,7 +3,6 @@ package info.qbnet.jtvision.backend.factory;
 import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
@@ -27,7 +26,9 @@ public class JavaFxFactory implements Factory {
 
     @Override
     public void initialize() {
-        new JFXPanel();
+        Platform.startup(() -> {
+            // no-op, just initialize JavaFX runtime
+        });
     }
 
     @Override
