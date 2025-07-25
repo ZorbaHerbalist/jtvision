@@ -17,32 +17,27 @@ public class SwingFactory implements Factory {
 
     @Override
     public Backend createBackend(Screen buffer) {
-        try {
-            SwingBackendWithPanel backend = constructor.apply(buffer);
-            JFrame frame = new JFrame();
-            // Create and show the UI on the Event Dispatch Thread
-            SwingUtilities.invokeAndWait(() -> {
-                frame.setTitle("Console (Library: Swing, Renderer: " +
-                        backend.getClass().getSimpleName() + ")");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setContentPane(backend.getPanel());
-                frame.pack();
-                frame.setVisible(true);
-            });
+        SwingBackendWithPanel backend = constructor.apply(buffer);
+        JFrame frame = new JFrame();
+        // Create and show the UI on the Event Dispatch Thread
+        SwingUtilities.invokeLater(() -> {
+            frame.setTitle("Console (Library: Swing, Renderer: " +
+                    backend.getClass().getSimpleName() + ")");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(backend.getPanel());
+            frame.pack();
+            frame.setVisible(true);
+        });
 
-            // Close window when the calling thread terminates
-            ThreadWatcher.onTermination(Thread.currentThread(),
-                    () -> SwingUtilities.invokeLater(frame::dispose));
+        // Close window when the calling thread terminates
+        ThreadWatcher.onTermination(Thread.currentThread(),
+                () -> SwingUtilities.invokeLater(frame::dispose));
 
-            // Also add shutdown hook for JVM shutdown scenarios
-            Runtime.getRuntime().addShutdownHook(new Thread(() ->
-                    SwingUtilities.invokeLater(frame::dispose)));
+        // Also add shutdown hook for JVM shutdown scenarios
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                SwingUtilities.invokeLater(frame::dispose)));
 
-            return backend;
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Failed to create Swing backend", e);
-        }
+        return backend;
     }
 
     public interface SwingBackendWithPanel extends Backend {
