@@ -5,7 +5,6 @@ import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import info.qbnet.jtvision.backend.util.ThreadWatcher;
-import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 public class SwingFactory implements Factory {
@@ -25,19 +24,16 @@ public class SwingFactory implements Factory {
     public Backend createBackend(Screen buffer) {
         try {
             SwingBackendWithPanel backend = constructor.apply(buffer);
-
-            FutureTask<JFrame> frameTask = new FutureTask<>(() -> {
-                JFrame frame = new JFrame(
-                        "Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
+            JFrame frame = new JFrame();
+            // Create and show the UI on the Event Dispatch Thread
+            SwingUtilities.invokeAndWait(() -> {
+                frame.setTitle("Console (Library: Swing, Renderer: " +
+                        backend.getClass().getSimpleName() + ")");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setContentPane(backend.getPanel());
                 frame.pack();
                 frame.setVisible(true);
-                return frame;
             });
-            // Create and show the UI on the Event Dispatch Thread
-            SwingUtilities.invokeAndWait(frameTask);
-            final JFrame frame = frameTask.get();
 
             // Close window when the calling thread terminates
             ThreadWatcher.onTermination(Thread.currentThread(),
