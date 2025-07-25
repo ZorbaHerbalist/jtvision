@@ -9,13 +9,13 @@ import info.qbnet.jtvision.core.Screen;
 import java.util.function.Function;
 
 /**
- * Generic LibGDX backend factory accepting ApplicationAdapter constructor.
+ * Generic LibGDX backend factory using constructor injection.
  */
 public class LibGdxFactory implements Factory {
 
-    private final Function<Screen, ApplicationAdapter> constructor;
+    private final Function<Screen, ? extends LibGdxBackendWithAdapter> constructor;
 
-    public LibGdxFactory(Function<Screen, ApplicationAdapter> constructor) {
+    public LibGdxFactory(Function<Screen, ? extends LibGdxBackendWithAdapter> constructor) {
         this.constructor = constructor;
     }
 
@@ -26,19 +26,26 @@ public class LibGdxFactory implements Factory {
 
     @Override
     public Backend createBackend(Screen buffer) {
-        ApplicationAdapter app = constructor.apply(buffer);
+        LibGdxBackendWithAdapter backend = constructor.apply(buffer);
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.title = "DOS Console (LibGDX)";
+        config.title = "Console (Library: LibGDX, Renderer: " + backend.getClass().getSimpleName() + ")";
         config.width = buffer.getWidth() * 8;
         config.height = buffer.getHeight() * 16;
 
-        new LwjglApplication(app, config);
-        return new DummyBackend();
+        Thread thread = new Thread(() -> new LwjglApplication(
+                backend.getApplicationAdapter(), config));
+        thread.setDaemon(true);
+        thread.start();
+
+        return backend;
     }
 
-    private static class DummyBackend implements Backend {
-        @Override
-        public void render() {}
+    /**
+     * Backend returned by this factory. Provides access to the
+     * {@link ApplicationAdapter} required to start the LibGDX application.
+     */
+    public interface LibGdxBackendWithAdapter extends Backend {
+        ApplicationAdapter getApplicationAdapter();
     }
 }

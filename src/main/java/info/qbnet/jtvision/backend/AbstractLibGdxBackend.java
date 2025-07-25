@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -10,16 +11,19 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 
 /**
  * Base class for LibGDX backends handling common initialization and rendering
  * logic. Subclasses only need to provide font specific setup and glyph drawing.
  */
-public abstract class AbstractLibGdxBackend extends ApplicationAdapter implements Backend {
+public abstract class AbstractLibGdxBackend extends ApplicationAdapter implements Backend, LibGdxFactory.LibGdxBackendWithAdapter {
 
     private final Screen screen;
     private final int charWidth;
     private final int charHeight;
+
+    private volatile Thread renderThread;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -34,6 +38,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
 
     @Override
     public void create() {
+        renderThread = Thread.currentThread();
         batch = new SpriteBatch();
         initResources();
 
@@ -52,6 +57,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
 
     @Override
     public void render() {
+        if (renderThread == null || renderThread != Thread.currentThread()) {
+            return;
+        }
+        if (Gdx.gl == null) {
+            return;
+        }
         ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -111,5 +122,10 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
      * Dispose any resources allocated in {@link #initResources()}.
      */
     protected abstract void disposeResources();
+
+    @Override
+    public ApplicationAdapter getApplicationAdapter() {
+        return this;
+    }
 }
 
