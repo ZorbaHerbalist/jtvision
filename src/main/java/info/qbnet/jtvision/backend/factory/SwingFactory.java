@@ -4,6 +4,7 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class SwingFactory implements Factory {
@@ -25,13 +26,13 @@ public class SwingFactory implements Factory {
             SwingBackendWithPanel backend = constructor.apply(buffer);
 
             Thread callingThread = Thread.currentThread();
-            final JFrame[] frameHolder = new JFrame[1];
+            AtomicReference<JFrame> frameRef = new AtomicReference<>();
 
             // Create and show the UI on the Event Dispatch Thread
             SwingUtilities.invokeAndWait(() -> {
                 JFrame frame = new JFrame(
                         "Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
-                frameHolder[0] = frame;
+                frameRef.set(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setContentPane(backend.getPanel());
                 frame.pack();
@@ -46,7 +47,7 @@ public class SwingFactory implements Factory {
                     Thread.currentThread().interrupt();
                 }
                 // Close window when main thread terminates
-                JFrame frame = frameHolder[0];
+                JFrame frame = frameRef.get();
                 if (frame != null) {
                     SwingUtilities.invokeLater(frame::dispose);
                 }
@@ -56,7 +57,7 @@ public class SwingFactory implements Factory {
 
             // Also add shutdown hook for JVM shutdown scenarios
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                JFrame frame = frameHolder[0];
+                JFrame frame = frameRef.get();
                 if (frame != null) {
                     SwingUtilities.invokeLater(frame::dispose);
                 }
