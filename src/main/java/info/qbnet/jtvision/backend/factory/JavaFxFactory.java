@@ -10,6 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 
 import java.util.concurrent.CountDownLatch;
+import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.function.Function;
 
 /**
@@ -45,18 +46,11 @@ public class JavaFxFactory implements Factory {
             stage.setScene(scene);
             stage.show();
 
-            Thread watcher = new Thread(() -> {
-                try {
-                    mainThread.join();
-                } catch (InterruptedException ignored) {
-                }
-                Platform.runLater(() -> {
-                    stage.close();
-                    Platform.exit();
-                });
-            });
-            watcher.setDaemon(true);
-            watcher.start();
+            ThreadWatcher.onTermination(mainThread, () ->
+                    Platform.runLater(() -> {
+                        stage.close();
+                        Platform.exit();
+                    }));
 
             latch.countDown();
         });

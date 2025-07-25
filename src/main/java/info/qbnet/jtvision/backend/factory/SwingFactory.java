@@ -4,6 +4,7 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
+import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
@@ -25,8 +26,6 @@ public class SwingFactory implements Factory {
         try {
             SwingBackendWithPanel backend = constructor.apply(buffer);
 
-            Thread callingThread = Thread.currentThread();
-
             FutureTask<JFrame> frameTask = new FutureTask<>(() -> {
                 JFrame frame = new JFrame(
                         "Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
@@ -40,18 +39,9 @@ public class SwingFactory implements Factory {
             SwingUtilities.invokeAndWait(frameTask);
             final JFrame frame = frameTask.get();
 
-            // Monitor main thread and close window when it terminates
-            Thread mainThreadWatcher = new Thread(() -> {
-                try {
-                    callingThread.join();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                // Close window when main thread terminates
-                SwingUtilities.invokeLater(frame::dispose);
-            });
-            mainThreadWatcher.setDaemon(true);
-            mainThreadWatcher.start();
+            // Close window when the calling thread terminates
+            ThreadWatcher.onTermination(Thread.currentThread(),
+                    () -> SwingUtilities.invokeLater(frame::dispose));
 
             // Also add shutdown hook for JVM shutdown scenarios
             Runtime.getRuntime().addShutdownHook(new Thread(() ->
