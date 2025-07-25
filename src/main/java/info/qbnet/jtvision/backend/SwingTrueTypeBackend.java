@@ -34,12 +34,7 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // enforce exact scaling (1:1)
-        Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        g2d.drawImage(backBuffer, 0, 0, getWidth(), getHeight(), 0, 0, backBuffer.getWidth(), backBuffer.getHeight(), null);
-        g2d.dispose();
+        g.drawImage(backBuffer, 0, 0, null);
     }
 
     @Override
