@@ -1,10 +1,12 @@
 package info.qbnet.jtvision.backend.factory;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.backend.util.ThreadWatcher;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
@@ -30,6 +32,7 @@ public class LibGdxFactory extends AbstractGuiFactory<LibGdxFactory.LibGdxBacken
         config.width = buffer.getWidth() * 8;
         config.height = buffer.getHeight() * 16;
 
+        Thread mainThread = Thread.currentThread();
         Thread thread = new Thread(() -> new LwjglApplication(
                 backend.getApplicationAdapter(), config));
         thread.setDaemon(true);
@@ -38,6 +41,10 @@ public class LibGdxFactory extends AbstractGuiFactory<LibGdxFactory.LibGdxBacken
         // The LibGDX factory waits for backend initialization. A latch is set on the backend, the application
         // thread is started, and the factory blocks until initialization completes
         awaitInitialization(latch);
+
+        Runnable exit = () -> Gdx.app.postRunnable(() -> Gdx.app.exit());
+        ThreadWatcher.onTermination(mainThread, exit);
+        Runtime.getRuntime().addShutdownHook(new Thread(exit));
 
         return backend;
     }
