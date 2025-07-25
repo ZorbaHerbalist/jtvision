@@ -4,7 +4,7 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
 public class SwingFactory implements Factory {
@@ -26,18 +26,19 @@ public class SwingFactory implements Factory {
             SwingBackendWithPanel backend = constructor.apply(buffer);
 
             Thread callingThread = Thread.currentThread();
-            AtomicReference<JFrame> frameRef = new AtomicReference<>();
 
-            // Create and show the UI on the Event Dispatch Thread
-            SwingUtilities.invokeAndWait(() -> {
+            FutureTask<JFrame> frameTask = new FutureTask<>(() -> {
                 JFrame frame = new JFrame(
                         "Console (Library: Swing, Renderer: " + backend.getClass().getSimpleName() + ")");
-                frameRef.set(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setContentPane(backend.getPanel());
                 frame.pack();
                 frame.setVisible(true);
+                return frame;
             });
+            // Create and show the UI on the Event Dispatch Thread
+            SwingUtilities.invokeAndWait(frameTask);
+            final JFrame frame = frameTask.get();
 
             // Monitor main thread and close window when it terminates
             Thread mainThreadWatcher = new Thread(() -> {
@@ -47,21 +48,14 @@ public class SwingFactory implements Factory {
                     Thread.currentThread().interrupt();
                 }
                 // Close window when main thread terminates
-                JFrame frame = frameRef.get();
-                if (frame != null) {
-                    SwingUtilities.invokeLater(frame::dispose);
-                }
+                SwingUtilities.invokeLater(frame::dispose);
             });
             mainThreadWatcher.setDaemon(true);
             mainThreadWatcher.start();
 
             // Also add shutdown hook for JVM shutdown scenarios
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                JFrame frame = frameRef.get();
-                if (frame != null) {
-                    SwingUtilities.invokeLater(frame::dispose);
-                }
-            }));
+            Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                    SwingUtilities.invokeLater(frame::dispose)));
 
             return backend;
         }
