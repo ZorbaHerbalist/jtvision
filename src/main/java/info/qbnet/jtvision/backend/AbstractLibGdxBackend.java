@@ -20,6 +20,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
     private final Screen screen;
     private final int charWidth;
     private final int charHeight;
+    private volatile boolean needsRender = true; // Flag to indicate if rendering is needed
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -50,8 +51,19 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter implement
         camera.update();
     }
 
+    /**
+     * ApplicationAdapter render method - called automatically by LibGDX framework.
+     * Always performs rendering to keep the display updated.
+     */
     @Override
     public void render() {
+        performRender();
+    }
+
+    /**
+     * Performs the actual rendering. This method should only be called from the LibGDX thread.
+     */
+    private void performRender() {
         ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
