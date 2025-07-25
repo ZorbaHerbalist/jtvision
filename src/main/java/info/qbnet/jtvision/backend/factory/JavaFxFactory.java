@@ -34,6 +34,7 @@ public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWit
         CountDownLatch latch = new CountDownLatch(1);
 
         Thread mainThread = Thread.currentThread();
+
         AtomicReference<Backend> backendRef = new AtomicReference<>();
 
         Platform.runLater(() -> {

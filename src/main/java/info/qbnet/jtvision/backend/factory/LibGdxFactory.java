@@ -24,6 +24,8 @@ public class LibGdxFactory extends AbstractGuiFactory<LibGdxFactory.LibGdxBacken
     public Backend createBackend(Screen buffer) {
         CountDownLatch latch = new CountDownLatch(1);
 
+        Thread mainThread = Thread.currentThread();
+
         LibGdxBackendWithAdapter backend = createBackendInstance(buffer);
         backend.setInitializationLatch(latch);
 
@@ -32,14 +34,13 @@ public class LibGdxFactory extends AbstractGuiFactory<LibGdxFactory.LibGdxBacken
         config.width = buffer.getWidth() * 8;
         config.height = buffer.getHeight() * 16;
 
-        Thread mainThread = Thread.currentThread();
-        Thread thread = new Thread(() -> new LwjglApplication(
+        Thread uiThread = new Thread(() -> new LwjglApplication(
                 backend.getApplicationAdapter(), config));
-        thread.setDaemon(true);
-        thread.start();
+        uiThread.setDaemon(true);
+        uiThread.start();
 
         // The LibGDX factory waits for backend initialization. A latch is set on the backend, the application
-        // thread is started, and the factory blocks until initialization completes
+        // uiThread is started, and the factory blocks until initialization completes
         awaitInitialization(latch);
 
         Runnable exit = () -> Gdx.app.postRunnable(() -> Gdx.app.exit());

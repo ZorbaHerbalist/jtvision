@@ -18,8 +18,9 @@ public class SwingFactory extends AbstractGuiFactory<SwingFactory.SwingBackendWi
     public Backend createBackend(Screen buffer) {
         CountDownLatch latch = new CountDownLatch(1);
 
-        SwingBackendWithPanel backend = createBackendInstance(buffer);
         Thread mainThread = Thread.currentThread();
+
+        SwingBackendWithPanel backend = createBackendInstance(buffer);
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame();
