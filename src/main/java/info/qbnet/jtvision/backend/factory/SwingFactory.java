@@ -24,6 +24,7 @@ public class SwingFactory implements Factory {
         try {
             SwingBackendWithPanel backend = constructor.apply(buffer);
 
+            Thread callingThread = Thread.currentThread();
             final JFrame[] frameHolder = new JFrame[1];
 
             // Create and show the UI on the Event Dispatch Thread
@@ -37,7 +38,23 @@ public class SwingFactory implements Factory {
                 frame.setVisible(true);
             });
 
-            // Add shutdown hook to close window when main thread terminates
+            // Monitor main thread and close window when it terminates
+            Thread mainThreadWatcher = new Thread(() -> {
+                try {
+                    callingThread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                // Close window when main thread terminates
+                JFrame frame = frameHolder[0];
+                if (frame != null) {
+                    SwingUtilities.invokeLater(frame::dispose);
+                }
+            });
+            mainThreadWatcher.setDaemon(true);
+            mainThreadWatcher.start();
+
+            // Also add shutdown hook for JVM shutdown scenarios
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 JFrame frame = frameHolder[0];
                 if (frame != null) {
