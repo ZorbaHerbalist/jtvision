@@ -15,34 +15,25 @@ public class SwingFactory extends AbstractGuiFactory<SwingFactory.SwingBackendWi
     }
 
     @Override
-    public Backend createBackend(Screen buffer) {
-        CountDownLatch latch = new CountDownLatch(1);
-
+    public SwingBackendWithPanel createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
-        SwingBackendWithPanel backend = createBackendInstance(buffer);
+        return createAndInitialize(buffer, (backend, latch) ->
+                SwingUtilities.invokeLater(() -> {
+                    JFrame frame = new JFrame();
+                    frame.setTitle("Console (Library: Swing, Renderer: " +
+                            backend.getClass().getSimpleName() + ")");
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.setContentPane(backend.getPanel());
+                    frame.pack();
+                    frame.setVisible(true);
 
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame();
-            frame.setTitle("Console (Library: Swing, Renderer: " +
-                    backend.getClass().getSimpleName() + ")");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(backend.getPanel());
-            frame.pack();
-            frame.setVisible(true);
+                    Runnable dispose = () -> SwingUtilities.invokeLater(frame::dispose);
+                    ThreadWatcher.onTermination(mainThread, dispose);
+                    Runtime.getRuntime().addShutdownHook(new Thread(dispose));
 
-            Runnable dispose = () -> SwingUtilities.invokeLater(frame::dispose);
-            // Close window when the calling thread terminates
-            ThreadWatcher.onTermination(mainThread, dispose);
-            // Also add shutdown hook for JVM shutdown scenarios
-            Runtime.getRuntime().addShutdownHook(new Thread(dispose));
-
-            latch.countDown();
-        });
-
-        awaitInitialization(latch);
-
-        return backend;
+                    latch.countDown();
+                }));
     }
 
     public interface SwingBackendWithPanel extends Backend {

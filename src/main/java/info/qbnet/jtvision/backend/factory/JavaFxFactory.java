@@ -30,42 +30,36 @@ public class JavaFxFactory extends AbstractGuiFactory<JavaFxFactory.FxBackendWit
     }
 
     @Override
-    public Backend createBackend(Screen buffer) {
-        CountDownLatch latch = new CountDownLatch(1);
-
+    public FxBackendWithCanvas createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
-        AtomicReference<Backend> backendRef = new AtomicReference<>();
+        AtomicReference<FxBackendWithCanvas> backendRef = new AtomicReference<>();
 
-        Platform.runLater(() -> {
-            FxBackendWithCanvas backendWithCanvas = createBackendInstance(buffer);
-            backendRef.set(backendWithCanvas);
+        return createAndInitialize(buffer, (backend, latch) ->
+                Platform.runLater(() -> {
+                    backendRef.set(backend);
 
-            StackPane root = new StackPane(backendWithCanvas.getCanvas());
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setTitle("Console (Library: JavaFX, Renderer: " + backendWithCanvas.getClass().getSimpleName() + ")");
-            stage.setScene(scene);
-            stage.setOnCloseRequest(event -> {
-                event.consume();
-                Platform.exit();
-                System.exit(0);
-            });
-            stage.show();
-
-            ThreadWatcher.onTermination(mainThread, () ->
-                    Platform.runLater(() -> {
-                        stage.close();
+                    StackPane root = new StackPane(backend.getCanvas());
+                    Scene scene = new Scene(root);
+                    Stage stage = new Stage();
+                    stage.setTitle("Console (Library: JavaFX, Renderer: " +
+                            backend.getClass().getSimpleName() + ")");
+                    stage.setScene(scene);
+                    stage.setOnCloseRequest(event -> {
+                        event.consume();
                         Platform.exit();
-                    }));
+                        System.exit(0);
+                    });
+                    stage.show();
 
-            latch.countDown();
-        });
+                    ThreadWatcher.onTermination(mainThread, () ->
+                            Platform.runLater(() -> {
+                                stage.close();
+                                Platform.exit();
+                            }));
 
-
-        awaitInitialization(latch);
-
-        return backendRef.get();
+                    latch.countDown();
+                }));
     }
 
     public interface FxBackendWithCanvas extends Backend {

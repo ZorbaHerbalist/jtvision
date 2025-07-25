@@ -18,7 +18,7 @@ public final class BackendFactoryProvider {
      * @param type selected backend type
      * @return factory capable of creating the backend
      */
-    public static Factory getFactory(BackendType type) {
+    public static Factory<? extends Backend> getFactory(BackendType type) {
         return switch (type) {
             case SWING_BASIC -> new SwingFactory(SwingBasicBackend::new);
             case SWING_BITMAP -> new SwingFactory(SwingBitmapBackend::new);

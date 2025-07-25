@@ -4,12 +4,13 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
  * Base class for GUI backend factories providing common utilities.
  */
-public abstract class AbstractGuiFactory<B extends Backend> implements Factory {
+public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B> {
 
     private final Function<Screen, ? extends B> constructor;
 
@@ -22,6 +23,14 @@ public abstract class AbstractGuiFactory<B extends Backend> implements Factory {
      */
     protected B createBackendInstance(Screen screen) {
         return constructor.apply(screen);
+    }
+
+    protected B createAndInitialize(Screen screen, BiConsumer<B, CountDownLatch> initializer) {
+        CountDownLatch latch = new CountDownLatch(1);
+        B backend = createBackendInstance(screen);
+        initializer.accept(backend, latch);
+        awaitInitialization(latch);
+        return backend;
     }
 
     /**

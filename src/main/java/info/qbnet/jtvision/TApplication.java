@@ -20,7 +20,7 @@ public class TApplication {
             type = BackendType.SWING_BITMAP;
         }
 
-        Factory factory = BackendFactoryProvider.getFactory(type);
+        Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
