@@ -3,7 +3,7 @@ package info.qbnet.jtvision;
 import info.qbnet.jtvision.backend.*;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
-import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.backend.factory.AbstractGuiFactory;
 import info.qbnet.jtvision.core.Screen;
 
 import java.awt.*;
@@ -20,7 +20,7 @@ public class TApplication {
             type = BackendType.SWING_BITMAP;
         }
 
-        Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
+        AbstractGuiFactory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
 
         Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);

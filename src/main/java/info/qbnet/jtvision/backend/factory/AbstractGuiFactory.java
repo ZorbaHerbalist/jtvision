@@ -9,13 +9,32 @@ import java.util.function.Function;
 
 /**
  * Base class for GUI backend factories providing common utilities.
+ * This class serves as both the factory interface and implementation base,
+ * combining the functionality of the former Factory interface with concrete utilities.
  */
-public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B> {
+public abstract class AbstractGuiFactory<B extends Backend> {
 
     private final Function<Screen, ? extends B> constructor;
 
     protected AbstractGuiFactory(Function<Screen, ? extends B> constructor) {
         this.constructor = constructor;
+    }
+
+    /**
+     * Creates and returns a rendering backend for the given screen buffer.
+     * @param buffer the screen buffer
+     * @return a rendering backend instance
+     */
+    public abstract B createBackend(Screen buffer);
+
+    /**
+     * Initializes any GUI-related setup before backend creation.
+     *
+     * <p>Default implementation performs no action. Factories that require
+     * initialization can override this method.</p>
+     */
+    public void initialize() {
+        // no-op
     }
 
     /**

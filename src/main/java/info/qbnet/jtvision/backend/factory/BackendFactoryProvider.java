@@ -3,7 +3,7 @@ package info.qbnet.jtvision.backend.factory;
 import info.qbnet.jtvision.backend.*;
 
 /**
- * Utility class that provides {@link Factory} instances for each
+ * Utility class that provides {@link AbstractGuiFactory} instances for each
  * {@link BackendType} using a simple switch statement.
  */
 public final class BackendFactoryProvider {
@@ -18,7 +18,7 @@ public final class BackendFactoryProvider {
      * @param type selected backend type
      * @return factory capable of creating the backend
      */
-    public static Factory<? extends Backend> getFactory(BackendType type) {
+    public static AbstractGuiFactory<? extends Backend> getFactory(BackendType type) {
         return switch (type) {
             case SWING_BASIC -> new SwingFactory(SwingBasicBackend::new);
             case SWING_BITMAP -> new SwingFactory(SwingBitmapBackend::new);
