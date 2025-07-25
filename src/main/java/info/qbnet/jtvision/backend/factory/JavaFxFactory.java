@@ -44,6 +44,11 @@ public class JavaFxFactory implements Factory {
             Stage stage = new Stage();
             stage.setTitle("Console (Library: JavaFX, Renderer: " + backend.getClass().getSimpleName() + ")");
             stage.setScene(scene);
+            stage.setOnCloseRequest(event -> {
+                event.consume();
+                Platform.exit();
+                System.exit(0);
+            });
             stage.show();
 
             ThreadWatcher.onTermination(mainThread, () ->
