@@ -32,6 +32,7 @@ public class JavaFxFactory implements Factory {
     @Override
     public Backend createBackend(Screen buffer) {
         CountDownLatch latch = new CountDownLatch(1);
+        Thread mainThread = Thread.currentThread();
 
         Platform.runLater(() -> {
             FxBackendWithCanvas backendWithCanvas = constructor.apply(buffer);
@@ -43,6 +44,19 @@ public class JavaFxFactory implements Factory {
             stage.setTitle("Console (Library: JavaFX, Renderer: " + backend.getClass().getSimpleName() + ")");
             stage.setScene(scene);
             stage.show();
+
+            Thread watcher = new Thread(() -> {
+                try {
+                    mainThread.join();
+                } catch (InterruptedException ignored) {
+                }
+                Platform.runLater(() -> {
+                    stage.close();
+                    Platform.exit();
+                });
+            });
+            watcher.setDaemon(true);
+            watcher.start();
 
             latch.countDown();
         });
