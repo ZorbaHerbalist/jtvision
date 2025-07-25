@@ -1,0 +1,38 @@
+package info.qbnet.jtvision.backend.factory;
+
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.core.Screen;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
+
+/**
+ * Base class for GUI backend factories providing common utilities.
+ */
+public abstract class AbstractGuiFactory<B extends Backend> implements Factory {
+
+    private final Function<Screen, ? extends B> constructor;
+
+    protected AbstractGuiFactory(Function<Screen, ? extends B> constructor) {
+        this.constructor = constructor;
+    }
+
+    /**
+     * Create a backend instance using the stored constructor.
+     */
+    protected B createBackendInstance(Screen screen) {
+        return constructor.apply(screen);
+    }
+
+    /**
+     * Wait for initialization to complete and handle interruptions.
+     */
+    protected void awaitInitialization(CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+}

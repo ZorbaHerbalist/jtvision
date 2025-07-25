@@ -8,19 +8,17 @@ import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.function.Function;
 import java.util.concurrent.CountDownLatch;
 
-public class SwingFactory implements Factory {
-
-    private final Function<Screen, ? extends SwingBackendWithPanel> constructor;
+public class SwingFactory extends AbstractGuiFactory<SwingFactory.SwingBackendWithPanel> {
 
     public SwingFactory(Function<Screen, ? extends SwingBackendWithPanel> constructor) {
-        this.constructor = constructor;
+        super(constructor);
     }
 
     @Override
     public Backend createBackend(Screen buffer) {
-        SwingBackendWithPanel backend = constructor.apply(buffer);
-
         CountDownLatch latch = new CountDownLatch(1);
+
+        SwingBackendWithPanel backend = createBackendInstance(buffer);
         Thread mainThread = Thread.currentThread();
 
         SwingUtilities.invokeLater(() -> {
@@ -41,12 +39,7 @@ public class SwingFactory implements Factory {
             latch.countDown();
         });
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
+        awaitInitialization(latch);
 
         return backend;
     }

@@ -12,19 +12,17 @@ import java.util.function.Function;
 /**
  * Generic LibGDX backend factory using constructor injection.
  */
-public class LibGdxFactory implements Factory {
-
-    private final Function<Screen, ? extends LibGdxBackendWithAdapter> constructor;
+public class LibGdxFactory extends AbstractGuiFactory<LibGdxFactory.LibGdxBackendWithAdapter> {
 
     public LibGdxFactory(Function<Screen, ? extends LibGdxBackendWithAdapter> constructor) {
-        this.constructor = constructor;
+        super(constructor);
     }
 
     @Override
     public Backend createBackend(Screen buffer) {
-        LibGdxBackendWithAdapter backend = constructor.apply(buffer);
-
         CountDownLatch latch = new CountDownLatch(1);
+
+        LibGdxBackendWithAdapter backend = createBackendInstance(buffer);
         backend.setInitializationLatch(latch);
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -39,12 +37,7 @@ public class LibGdxFactory implements Factory {
 
         // The LibGDX factory waits for backend initialization. A latch is set on the backend, the application
         // thread is started, and the factory blocks until initialization completes
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
+        awaitInitialization(latch);
 
         return backend;
     }
