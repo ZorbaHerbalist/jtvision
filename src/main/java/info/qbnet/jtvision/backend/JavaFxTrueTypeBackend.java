@@ -13,12 +13,10 @@ import java.io.InputStream;
  */
 public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
 
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
     private final Font font;
 
-    public JavaFxTrueTypeBackend(Screen buffer) {
-        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
+    public JavaFxTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
+        super(buffer, charWidth, charHeight);
 
         try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
             if (fontStream == null) throw new RuntimeException("Font not found: PxPlus_IBM_VGA_9x16.ttf");

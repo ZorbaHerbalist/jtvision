@@ -10,4 +10,14 @@ public interface Backend {
      */
     void render();
 
+    /**
+     * @return width of a single character cell in pixels
+     */
+    Integer getCharWidth();
+
+    /**
+     * @return height of a single character cell in pixels
+     */
+    Integer getCharHeight();
+
 }

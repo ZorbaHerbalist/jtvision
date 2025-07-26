@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         implements GuiComponent<ApplicationAdapter>,
-        LibGdxFactory.LibGdxBackendWithInitialization, CharDimensions {
+        LibGdxFactory.LibGdxBackendWithInitialization {
 
     private final Screen screen;
     private final Integer charWidth;

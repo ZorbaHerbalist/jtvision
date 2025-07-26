@@ -10,14 +10,12 @@ import info.qbnet.jtvision.core.Screen;
  * LibGDX backend rendering console using a bitmap font texture.
  */
 public class LibGdxBitmapBackend extends AbstractLibGdxBackend {
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
     private static final int CHARS_PER_ROW = 16;
 
     private Texture fontTexture;
 
-    public LibGdxBitmapBackend(Screen screen) {
-        super(screen, CHAR_WIDTH, CHAR_HEIGHT);
+    public LibGdxBitmapBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
     }
 
     @Override

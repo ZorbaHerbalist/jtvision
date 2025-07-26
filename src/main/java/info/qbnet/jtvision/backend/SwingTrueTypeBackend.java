@@ -13,12 +13,10 @@ import java.io.InputStream;
  */
 public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
     private final Font font;
 
-    public SwingTrueTypeBackend(Screen buffer) {
-        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
+    public SwingTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
+        super(buffer, charWidth, charHeight);
         InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
         if (fontStream == null) {
             throw new RuntimeException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
@@ -40,16 +38,16 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
     @Override
     protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         g.setFont(font);
-        int px = x * CHAR_WIDTH;
-        int py = y * CHAR_HEIGHT;
+        int px = x * getCharWidth();
+        int py = y * getCharHeight();
 
         g.setColor(sc.getBackground());
-        g.fillRect(px, py, CHAR_WIDTH, CHAR_HEIGHT);
+        g.fillRect(px, py, getCharWidth(), getCharHeight());
 
         g.setColor(sc.getForeground());
         FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.getCharacter() });
-        g.drawGlyphVector(gv, px, py + CHAR_HEIGHT - 3);
+        g.drawGlyphVector(gv, px, py + getCharHeight() - 3);
     }
 
 }

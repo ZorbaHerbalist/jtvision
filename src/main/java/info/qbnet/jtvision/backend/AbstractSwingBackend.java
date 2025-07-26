@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  * rendering.
  */
 public abstract class AbstractSwingBackend extends JPanel
-        implements GuiComponent<JPanel>, CharDimensions {
+        implements GuiComponent<JPanel> {
 
     protected final Screen buffer;
     protected final BufferedImage backBuffer;

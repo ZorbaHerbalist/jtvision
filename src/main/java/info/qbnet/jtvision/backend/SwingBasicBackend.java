@@ -9,15 +9,15 @@ import java.awt.*;
  */
 public class SwingBasicBackend extends AbstractSwingBackend {
 
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
-
     /**
      * Constructs a Swing rendering panel for the given screen.
+     *
      * @param buffer the screen buffer to render
+     * @param charWidth width of a character cell in pixels
+     * @param charHeight height of a character cell in pixels
      */
-    public SwingBasicBackend(Screen buffer) {
-        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
+    public SwingBasicBackend(Screen buffer, int charWidth, int charHeight) {
+        super(buffer, charWidth, charHeight);
         setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
     }
 
@@ -36,9 +36,9 @@ public class SwingBasicBackend extends AbstractSwingBackend {
     @Override
     protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         g.setColor(sc.getBackground());
-        g.fillRect(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
+        g.fillRect(x * getCharWidth(), y * getCharHeight(), getCharWidth(), getCharHeight());
         g.setColor(sc.getForeground());
-        g.drawString(Character.toString(sc.getCharacter()), x * CHAR_WIDTH, (y + 1) * CHAR_HEIGHT - 4);
+        g.drawString(Character.toString(sc.getCharacter()), x * getCharWidth(), (y + 1) * getCharHeight() - 4);
     }
 
 }

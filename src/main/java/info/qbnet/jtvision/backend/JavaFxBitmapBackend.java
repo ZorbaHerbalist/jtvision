@@ -16,16 +16,14 @@ import java.io.InputStream;
  */
 public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
 
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
     private final Image fontAtlas;
 
-    public JavaFxBitmapBackend(Screen buffer) {
-        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
+    public JavaFxBitmapBackend(Screen buffer, int charWidth, int charHeight) {
+        super(buffer, charWidth, charHeight);
 
         InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png");
         if (fontStream == null) throw new RuntimeException("Font image not found: font_white_8x16.png");
-        this.fontAtlas = new Image(fontStream, CHAR_WIDTH * 16, CHAR_HEIGHT * 16, false, false);
+        this.fontAtlas = new Image(fontStream, charWidth * 16, charHeight * 16, false, false);
 
         drawToCanvas();
     }

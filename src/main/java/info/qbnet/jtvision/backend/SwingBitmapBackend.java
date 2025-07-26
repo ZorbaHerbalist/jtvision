@@ -13,12 +13,10 @@ import java.io.InputStream;
  */
 public class SwingBitmapBackend extends AbstractSwingBackend {
 
-    private static final Integer CHAR_WIDTH = 8;
-    private static final Integer CHAR_HEIGHT = 16;
     private final BufferedImage fontAtlas;
 
-    public SwingBitmapBackend(Screen buffer) {
-        super(buffer, CHAR_WIDTH, CHAR_HEIGHT);
+    public SwingBitmapBackend(Screen buffer, int charWidth, int charHeight) {
+        super(buffer, charWidth, charHeight);
 
         InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png");
         if (stream == null) {
@@ -41,19 +39,19 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     @Override
     protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
-        int sx = (charCode % 16) * CHAR_WIDTH;
-        int sy = (charCode / 16) * CHAR_HEIGHT;
+        int sx = (charCode % 16) * getCharWidth();
+        int sy = (charCode / 16) * getCharHeight();
 
-        int dx = x * CHAR_WIDTH;
-        int dy = y * CHAR_HEIGHT;
+        int dx = x * getCharWidth();
+        int dy = y * getCharHeight();
 
         // Draw background
         g.setColor(sc.getBackground());
-        g.fillRect(dx, dy, CHAR_WIDTH, CHAR_HEIGHT);
+        g.fillRect(dx, dy, getCharWidth(), getCharHeight());
 
         // Apply foreground color to 1-bit glyph
-        for (int gy = 0; gy < CHAR_HEIGHT; gy++) {
-            for (int gx = 0; gx < CHAR_WIDTH; gx++) {
+        for (int gy = 0; gy < getCharHeight(); gy++) {
+            for (int gx = 0; gx < getCharWidth(); gx++) {
                 int pixel = fontAtlas.getRGB(sx + gx, sy + gy) & 0xFFFFFF;
                 if (pixel != 0x000000) {
                     g.setColor(sc.getForeground());

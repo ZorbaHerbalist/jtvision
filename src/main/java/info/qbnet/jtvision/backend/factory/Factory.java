@@ -1,7 +1,6 @@
 package info.qbnet.jtvision.backend.factory;
 
 import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.backend.CharDimensions;
 import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import info.qbnet.jtvision.core.Screen;
 
@@ -43,12 +42,8 @@ public abstract class Factory<B extends Backend> {
         B backend = createBackendInstance(screen);
         Thread mainThread = Thread.currentThread();
 
-        int pixelWidth = 0;
-        int pixelHeight = 0;
-        if (backend instanceof CharDimensions dims) {
-            pixelWidth = screen.getWidth() * dims.getCharWidth();
-            pixelHeight = screen.getHeight() * dims.getCharHeight();
-        }
+        int pixelWidth = screen.getWidth() * backend.getCharWidth();
+        int pixelHeight = screen.getHeight() * backend.getCharHeight();
 
         initializeBackend(backend, pixelWidth, pixelHeight, latch, mainThread);
         awaitInitialization(latch);
