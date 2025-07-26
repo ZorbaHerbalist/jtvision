@@ -6,14 +6,10 @@ package info.qbnet.jtvision.backend.factory;
 public class WindowConfig {
     private final String libraryName;
     private final String rendererName;
-    private final int width;
-    private final int height;
     
-    public WindowConfig(String libraryName, String rendererName, int width, int height) {
+    public WindowConfig(String libraryName, String rendererName) {
         this.libraryName = libraryName;
         this.rendererName = rendererName;
-        this.width = width;
-        this.height = height;
     }
     
     public String getTitle() {
@@ -26,13 +22,5 @@ public class WindowConfig {
     
     public String getRendererName() {
         return rendererName;
-    }
-    
-    public int getWidth() {
-        return width;
-    }
-    
-    public int getHeight() {
-        return height;
     }
 }

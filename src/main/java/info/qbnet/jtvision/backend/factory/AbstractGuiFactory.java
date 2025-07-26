@@ -54,9 +54,7 @@ public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B
     protected WindowConfig createWindowConfig(B backend, Screen screen) {
         return new WindowConfig(
             libraryName,
-            backend.getClass().getSimpleName(),
-            calculateWindowWidth(screen),
-            calculateWindowHeight(screen)
+            backend.getClass().getSimpleName()
         );
     }
     
@@ -66,19 +64,5 @@ public abstract class AbstractGuiFactory<B extends Backend> implements Factory<B
     protected void setupThreadCleanup(Thread mainThread, Runnable cleanupAction) {
         ThreadWatcher.onTermination(mainThread, cleanupAction);
         Runtime.getRuntime().addShutdownHook(new Thread(cleanupAction));
-    }
-    
-    /**
-     * Calculate window width based on screen buffer. Override for custom sizing.
-     */
-    protected int calculateWindowWidth(Screen screen) {
-        return screen.getWidth() * 8;  // Default character width
-    }
-    
-    /**
-     * Calculate window height based on screen buffer. Override for custom sizing.
-     */
-    protected int calculateWindowHeight(Screen screen) {
-        return screen.getHeight() * 16;  // Default character height
     }
 }

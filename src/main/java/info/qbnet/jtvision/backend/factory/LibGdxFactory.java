@@ -32,8 +32,8 @@ public class LibGdxFactory extends AbstractGuiFactory<GuiComponent<ApplicationAd
 
             LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
             lwjglConfig.title = config.getTitle();
-            lwjglConfig.width = config.getWidth();
-            lwjglConfig.height = config.getHeight();
+            lwjglConfig.width = buffer.getWidth() * 8;
+            lwjglConfig.height = buffer.getHeight() * 16;
 
             ApplicationAdapter adapter = b.getNativeComponent();
             Thread uiThread = new Thread(() -> new LwjglApplication(adapter, lwjglConfig));
