@@ -13,8 +13,8 @@ import java.io.InputStream;
  */
 public class SwingBitmapBackend extends AbstractSwingBackend {
 
-    private static final int CHAR_WIDTH = 8;
-    private static final int CHAR_HEIGHT = 16;
+    private static final Integer CHAR_WIDTH = 8;
+    private static final Integer CHAR_HEIGHT = 16;
     private final BufferedImage fontAtlas;
 
     public SwingBitmapBackend(Screen buffer) {

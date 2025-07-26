@@ -12,8 +12,8 @@ import info.qbnet.jtvision.core.Screen;
  * LibGDX backend rendering console using TrueType font.
  */
 public class LibGdxTrueTypeBackend extends AbstractLibGdxBackend {
-    private static final int CHAR_WIDTH = 8;
-    private static final int CHAR_HEIGHT = 16;
+    private static final Integer CHAR_WIDTH = 8;
+    private static final Integer CHAR_HEIGHT = 16;
 
     private BitmapFont font;
 

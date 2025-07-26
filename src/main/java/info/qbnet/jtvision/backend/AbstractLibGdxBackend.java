@@ -24,8 +24,8 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         LibGdxFactory.LibGdxBackendWithInitialization, CharDimensions {
 
     private final Screen screen;
-    private final int charWidth;
-    private final int charHeight;
+    private final Integer charWidth;
+    private final Integer charHeight;
 
     private volatile Thread renderThread;
     private CountDownLatch initLatch;
@@ -103,12 +103,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     }
 
     @Override
-    public int getCharWidth() {
+    public Integer getCharWidth() {
         return charWidth;
     }
 
     @Override
-    public int getCharHeight() {
+    public Integer getCharHeight() {
         return charHeight;
     }
 

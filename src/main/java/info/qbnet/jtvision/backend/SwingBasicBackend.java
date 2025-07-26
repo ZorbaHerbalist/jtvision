@@ -9,8 +9,8 @@ import java.awt.*;
  */
 public class SwingBasicBackend extends AbstractSwingBackend {
 
-    private static final int CHAR_WIDTH = 8;
-    private static final int CHAR_HEIGHT = 16;
+    private static final Integer CHAR_WIDTH = 8;
+    private static final Integer CHAR_HEIGHT = 16;
 
     /**
      * Constructs a Swing rendering panel for the given screen.

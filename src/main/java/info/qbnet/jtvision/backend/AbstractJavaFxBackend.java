@@ -14,8 +14,8 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas>, Cha
 
     protected final Screen buffer;
     protected final Canvas canvas;
-    private final int charWidth;
-    private final int charHeight;
+    private final Integer charWidth;
+    private final Integer charHeight;
 
     protected AbstractJavaFxBackend(Screen buffer, int charWidth, int charHeight) {
         this.buffer = buffer;
@@ -50,12 +50,12 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas>, Cha
     protected abstract void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc);
 
     @Override
-    public int getCharWidth() {
+    public Integer getCharWidth() {
         return charWidth;
     }
 
     @Override
-    public int getCharHeight() {
+    public Integer getCharHeight() {
         return charHeight;
     }
 

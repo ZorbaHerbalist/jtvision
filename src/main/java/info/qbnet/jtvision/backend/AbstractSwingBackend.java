@@ -17,10 +17,10 @@ public abstract class AbstractSwingBackend extends JPanel
 
     protected final Screen buffer;
     protected final BufferedImage backBuffer;
-    private final int charWidth;
-    private final int charHeight;
+    private final Integer charWidth;
+    private final Integer charHeight;
 
-    protected AbstractSwingBackend(Screen buffer, int charWidth, int charHeight) {
+    protected AbstractSwingBackend(Screen buffer, Integer charWidth, Integer charHeight) {
         this.buffer = buffer;
         this.charWidth = charWidth;
         this.charHeight = charHeight;
@@ -58,12 +58,12 @@ public abstract class AbstractSwingBackend extends JPanel
     protected abstract void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc);
 
     @Override
-    public int getCharWidth() {
+    public Integer getCharWidth() {
         return charWidth;
     }
 
     @Override
-    public int getCharHeight() {
+    public Integer getCharHeight() {
         return charHeight;
     }
 
