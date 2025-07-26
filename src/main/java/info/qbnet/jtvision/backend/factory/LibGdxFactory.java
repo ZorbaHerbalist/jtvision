@@ -22,14 +22,13 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
     protected void initializeBackend(GuiComponent<ApplicationAdapter> backend,
                                     int pixelWidth, int pixelHeight,
                                     CountDownLatch latch, Thread mainThread) {
-        FactoryConfig config = createFactoryConfig(backend);
 
         if (backend instanceof LibGdxBackendWithInitialization initBackend) {
             initBackend.setInitializationLatch(latch);
         }
 
         LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
-        lwjglConfig.title = config.getTitle();
+        lwjglConfig.title = createWindowTitle(backend);
         lwjglConfig.width = pixelWidth;
         lwjglConfig.height = pixelHeight;
 

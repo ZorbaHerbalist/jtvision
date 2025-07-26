@@ -17,14 +17,10 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
                                     int pixelWidth, int pixelHeight,
                                     CountDownLatch latch, Thread mainThread) {
         SwingUtilities.invokeLater(() -> {
-            FactoryConfig config = createFactoryConfig(backend);
-
             JFrame frame = new JFrame();
-            frame.setTitle(config.getTitle());
+            frame.setTitle(createWindowTitle(backend));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-            JPanel panel = backend.getNativeComponent();
-            frame.setContentPane(panel);
+            frame.setContentPane(backend.getNativeComponent());
             frame.pack();
             frame.setVisible(true);
 

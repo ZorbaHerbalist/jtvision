@@ -39,7 +39,7 @@ public abstract class Factory<B extends Backend> {
      */
     public final B createBackend(Screen screen) {
         CountDownLatch latch = new CountDownLatch(1);
-        B backend = createBackendInstance(screen);
+        B backend = constructor.apply(screen);
         Thread mainThread = Thread.currentThread();
 
         int pixelWidth = screen.getWidth() * backend.getCharWidth();
@@ -48,13 +48,6 @@ public abstract class Factory<B extends Backend> {
         initializeBackend(backend, pixelWidth, pixelHeight, latch, mainThread);
         awaitInitialization(latch);
         return backend;
-    }
-
-    /**
-     * Create a backend instance using the stored constructor.
-     */
-    protected B createBackendInstance(Screen screen) {
-        return constructor.apply(screen);
     }
 
     /**
@@ -81,15 +74,10 @@ public abstract class Factory<B extends Backend> {
             throw new RuntimeException(e);
         }
     }
-    
-    /**
-     * Creates a window configuration with common parameters.
-     */
-    protected FactoryConfig createFactoryConfig(B backend) {
-        return new FactoryConfig(
-            libraryName,
-            backend.getClass().getSimpleName()
-        );
+
+    protected String createWindowTitle(B backend) {
+        return String.format("Console (Library: %s, Renderer: %s)",
+                libraryName, backend.getClass().getSimpleName());
     }
     
     /**

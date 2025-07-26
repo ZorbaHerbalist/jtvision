@@ -31,13 +31,11 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
                                     int pixelWidth, int pixelHeight,
                                     CountDownLatch latch, Thread mainThread) {
         Platform.runLater(() -> {
-            FactoryConfig config = createFactoryConfig(backend);
-
             Canvas canvas = backend.getNativeComponent();
             StackPane root = new StackPane(canvas);
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            stage.setTitle(config.getTitle());
+            stage.setTitle(createWindowTitle(backend));
             stage.setScene(scene);
             stage.setOnCloseRequest(event -> {
                 event.consume();
