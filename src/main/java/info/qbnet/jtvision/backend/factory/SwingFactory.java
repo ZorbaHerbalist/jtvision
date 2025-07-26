@@ -1,42 +1,37 @@
 package info.qbnet.jtvision.backend.factory;
 
-import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
-import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.function.Function;
 import java.util.concurrent.CountDownLatch;
 
-public class SwingFactory extends AbstractGuiFactory<SwingFactory.SwingBackendWithPanel> {
+public class SwingFactory extends AbstractGuiFactory<GuiComponent<JPanel>> {
 
-    public SwingFactory(Function<Screen, ? extends SwingBackendWithPanel> constructor) {
-        super(constructor);
+    public SwingFactory(Function<Screen, ? extends GuiComponent<JPanel>> constructor) {
+        super(constructor, "Swing");
     }
 
     @Override
-    public SwingBackendWithPanel createBackend(Screen buffer) {
+    public GuiComponent<JPanel> createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
         return createAndInitialize(buffer, (backend, latch) ->
                 SwingUtilities.invokeLater(() -> {
+                    WindowConfig config = createWindowConfig(backend, buffer);
+                    
                     JFrame frame = new JFrame();
-                    frame.setTitle("Console (Library: Swing, Renderer: " +
-                            backend.getClass().getSimpleName() + ")");
+                    frame.setTitle(config.getTitle());
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.setContentPane(backend.getPanel());
+                    
+                    JPanel panel = backend.getNativeComponent();
+                    frame.setContentPane(panel);
                     frame.pack();
                     frame.setVisible(true);
 
-                    Runnable dispose = () -> SwingUtilities.invokeLater(frame::dispose);
-                    ThreadWatcher.onTermination(mainThread, dispose);
-                    Runtime.getRuntime().addShutdownHook(new Thread(dispose));
+                    setupThreadCleanup(mainThread, () -> SwingUtilities.invokeLater(frame::dispose));
 
                     latch.countDown();
                 }));
-    }
-
-    public interface SwingBackendWithPanel extends Backend {
-        JPanel getPanel();
     }
 }

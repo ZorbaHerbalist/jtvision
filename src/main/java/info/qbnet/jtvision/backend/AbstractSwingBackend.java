@@ -1,6 +1,6 @@
 package info.qbnet.jtvision.backend;
 
-import info.qbnet.jtvision.backend.factory.SwingFactory;
+import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * logic. Subclasses only need to supply font specific setup and character
  * rendering.
  */
-public abstract class AbstractSwingBackend extends JPanel implements SwingFactory.SwingBackendWithPanel {
+public abstract class AbstractSwingBackend extends JPanel implements GuiComponent<JPanel> {
 
     protected final Screen buffer;
     protected final BufferedImage backBuffer;
@@ -65,7 +65,7 @@ public abstract class AbstractSwingBackend extends JPanel implements SwingFactor
     }
 
     @Override
-    public JPanel getPanel() {
+    public JPanel getNativeComponent() {
         return this;
     }
 }
