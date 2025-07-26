@@ -7,15 +7,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import java.util.function.Function;
 
 /**
  * Generic JavaFX backend factory using constructor injection.
  */
-public class JavaFxFactory extends AbstractGuiFactory<GuiComponent<Canvas>> {
+public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
 
     public JavaFxFactory(Function<Screen, ? extends GuiComponent<Canvas>> constructor) {
         super(constructor, "JavaFX");
@@ -37,7 +35,7 @@ public class JavaFxFactory extends AbstractGuiFactory<GuiComponent<Canvas>> {
         return createAndInitialize(buffer, (backend, latch) ->
                 Platform.runLater(() -> {
                     backendRef.set(backend);
-                    WindowConfig config = createWindowConfig(backend, buffer);
+                    FactoryConfig config = createFactoryConfig(backend);
 
                     Canvas canvas = backend.getNativeComponent();
                     StackPane root = new StackPane(canvas);

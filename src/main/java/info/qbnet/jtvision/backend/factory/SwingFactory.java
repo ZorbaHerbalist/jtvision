@@ -4,9 +4,8 @@ import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
 import java.util.function.Function;
-import java.util.concurrent.CountDownLatch;
 
-public class SwingFactory extends AbstractGuiFactory<GuiComponent<JPanel>> {
+public class SwingFactory extends Factory<GuiComponent<JPanel>> {
 
     public SwingFactory(Function<Screen, ? extends GuiComponent<JPanel>> constructor) {
         super(constructor, "Swing");
@@ -18,7 +17,7 @@ public class SwingFactory extends AbstractGuiFactory<GuiComponent<JPanel>> {
 
         return createAndInitialize(buffer, (backend, latch) ->
                 SwingUtilities.invokeLater(() -> {
-                    WindowConfig config = createWindowConfig(backend, buffer);
+                    FactoryConfig config = createFactoryConfig(backend);
                     
                     JFrame frame = new JFrame();
                     frame.setTitle(config.getTitle());

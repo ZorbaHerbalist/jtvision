@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * Generic LibGDX backend factory using constructor injection.
  */
-public class LibGdxFactory extends AbstractGuiFactory<GuiComponent<ApplicationAdapter>> {
+public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
 
     public LibGdxFactory(Function<Screen, ? extends GuiComponent<ApplicationAdapter>> constructor) {
         super(constructor, "LibGDX");
@@ -23,7 +23,7 @@ public class LibGdxFactory extends AbstractGuiFactory<GuiComponent<ApplicationAd
         Thread mainThread = Thread.currentThread();
 
         GuiComponent<ApplicationAdapter> backend = createAndInitialize(buffer, (b, latch) -> {
-            WindowConfig config = createWindowConfig(b, buffer);
+            FactoryConfig config = createFactoryConfig(b);
             
             // For LibGDX backends, we need to set the initialization latch
             if (b instanceof LibGdxBackendWithInitialization) {
