@@ -25,7 +25,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     }
 
     @Override
-    public void render() {
+    public void renderScreen() {
         Platform.runLater(this::drawToCanvas);
     }
 

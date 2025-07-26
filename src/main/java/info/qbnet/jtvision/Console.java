@@ -78,7 +78,7 @@ public class Console {
      */
     public void flush() {
         if (dirty) {
-            backend.render();
+            backend.renderScreen();
             dirty = false;
         }
     }

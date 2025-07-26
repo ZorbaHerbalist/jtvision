@@ -31,7 +31,7 @@ public abstract class AbstractSwingBackend extends JPanel
     }
 
     @Override
-    public void render() {
+    public void renderScreen() {
         drawToBackBuffer();
         repaint();
     }

@@ -8,7 +8,7 @@ public interface Backend {
     /**
      * Renders the given screen buffer.
      */
-    void render();
+    void renderScreen();
 
     /**
      * @return width of a single character cell in pixels
