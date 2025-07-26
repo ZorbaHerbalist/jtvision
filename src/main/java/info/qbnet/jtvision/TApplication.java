@@ -30,6 +30,7 @@ public class TApplication {
         console.clearScreen();
         drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
         console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
+        console.flush();
 
         try {
             Thread.sleep(2000);
@@ -38,6 +39,7 @@ public class TApplication {
         }
 
         console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
+        console.flush();
 
         try {
             Thread.sleep(2000);
@@ -45,7 +47,15 @@ public class TApplication {
             Thread.currentThread().interrupt();
         }
         // Measure how many characters per second we can print to the backend
-        //measureBackendSpeed(console);
+        measureBackendSpeed(console);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        console.shutdown();
     }
 
     private void measureBackendSpeed(Console console) {

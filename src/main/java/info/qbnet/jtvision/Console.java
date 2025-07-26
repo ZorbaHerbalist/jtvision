@@ -4,14 +4,20 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.Screen;
 
 import java.awt.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Console class provides a text-mode interface for writing to a screen buffer.
  */
+
 public class Console {
 
     private final Screen screen;
     private final Backend backend;
+    private final ScheduledExecutorService scheduler;
+    private volatile boolean dirty = false;
 
     /**
      * Constructs a Console with the given screen buffer and rendering backend.
@@ -19,8 +25,14 @@ public class Console {
      * @param backend the rendering backend
      */
     public Console(Screen screen, Backend backend) {
+        this(screen, backend, 33);
+    }
+
+    public Console(Screen screen, Backend backend, long flushIntervalMs) {
         this.screen = screen;
         this.backend = backend;
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.scheduler.scheduleAtFixedRate(this::flush, flushIntervalMs, flushIntervalMs, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -50,7 +62,7 @@ public class Console {
         for (int i = 0; i < len; i++) {
             screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
-        backend.render();
+        dirty = true;
     }
 
     /**
@@ -58,7 +70,24 @@ public class Console {
      */
     public void clearScreen() {
         screen.clear();
-        backend.render();
+        dirty = true;
+    }
+
+    /**
+     * Renders pending changes if the screen buffer is marked dirty.
+     */
+    public void flush() {
+        if (dirty) {
+            backend.render();
+            dirty = false;
+        }
+    }
+
+    /**
+     * Stops the internal flush scheduler.
+     */
+    public void shutdown() {
+        scheduler.shutdown();
     }
 
 }
