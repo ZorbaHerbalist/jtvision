@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import info.qbnet.jtvision.backend.AbstractLibGdxBackend;
 import info.qbnet.jtvision.core.Screen;
 
 import java.util.concurrent.CountDownLatch;
@@ -23,7 +24,7 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
                                     int pixelWidth, int pixelHeight,
                                     CountDownLatch latch, Thread mainThread) {
 
-        if (backend instanceof LibGdxBackendWithInitialization initBackend) {
+        if (backend instanceof AbstractLibGdxBackend initBackend) {
             initBackend.setInitializationLatch(latch);
         }
 
@@ -38,17 +39,5 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
         uiThread.start();
 
         setupThreadCleanup(mainThread, () -> Gdx.app.postRunnable(() -> Gdx.app.exit()));
-    }
-
-    /**
-     * Interface for LibGDX backends that need initialization support.
-     * This maintains compatibility with existing LibGDX backend implementations.
-     */
-    public interface LibGdxBackendWithInitialization {
-        /**
-         * Sets a latch that will be counted down once the LibGDX application
-         * has finished its initialization phase.
-         */
-        void setInitializationLatch(CountDownLatch latch);
     }
 }

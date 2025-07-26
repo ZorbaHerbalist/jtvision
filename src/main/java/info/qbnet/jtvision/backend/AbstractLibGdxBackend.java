@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
-import info.qbnet.jtvision.backend.factory.LibGdxFactory;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.core.Screen;
 
@@ -20,8 +19,7 @@ import java.util.concurrent.CountDownLatch;
  * logic. Subclasses only need to provide font specific setup and glyph drawing.
  */
 public abstract class AbstractLibGdxBackend extends ApplicationAdapter
-        implements GuiComponent<ApplicationAdapter>,
-        LibGdxFactory.LibGdxBackendWithInitialization {
+        implements GuiComponent<ApplicationAdapter> {
 
     private final Screen screen;
     private final Integer charWidth;
@@ -137,7 +135,6 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         return this;
     }
 
-    @Override
     public void setInitializationLatch(CountDownLatch latch) {
         this.initLatch = latch;
     }
