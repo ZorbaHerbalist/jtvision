@@ -9,7 +9,7 @@ import java.awt.*;
  */
 public class SwingBasicBackend extends AbstractSwingBackend {
 
-    private static final int CHAR_WIDTH = 9;
+    private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 16;
 
     /**
