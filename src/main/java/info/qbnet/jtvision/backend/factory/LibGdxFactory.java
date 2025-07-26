@@ -19,31 +19,26 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
     }
 
     @Override
-    public GuiComponent<ApplicationAdapter> createBackend(Screen buffer) {
-        Thread mainThread = Thread.currentThread();
+    protected void initializeBackend(GuiComponent<ApplicationAdapter> backend,
+                                    int pixelWidth, int pixelHeight,
+                                    CountDownLatch latch, Thread mainThread) {
+        FactoryConfig config = createFactoryConfig(backend);
 
-        GuiComponent<ApplicationAdapter> backend = createAndInitialize(buffer, (b, latch) -> {
-            FactoryConfig config = createFactoryConfig(b);
-            
-            // For LibGDX backends, we need to set the initialization latch
-            if (b instanceof LibGdxBackendWithInitialization) {
-                ((LibGdxBackendWithInitialization) b).setInitializationLatch(latch);
-            }
+        if (backend instanceof LibGdxBackendWithInitialization initBackend) {
+            initBackend.setInitializationLatch(latch);
+        }
 
-            LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
-            lwjglConfig.title = config.getTitle();
-            lwjglConfig.width = buffer.getWidth() * 8;
-            lwjglConfig.height = buffer.getHeight() * 16;
+        LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
+        lwjglConfig.title = config.getTitle();
+        lwjglConfig.width = pixelWidth;
+        lwjglConfig.height = pixelHeight;
 
-            ApplicationAdapter adapter = b.getNativeComponent();
-            Thread uiThread = new Thread(() -> new LwjglApplication(adapter, lwjglConfig));
-            uiThread.setDaemon(true);
-            uiThread.start();
-        });
+        ApplicationAdapter adapter = backend.getNativeComponent();
+        Thread uiThread = new Thread(() -> new LwjglApplication(adapter, lwjglConfig));
+        uiThread.setDaemon(true);
+        uiThread.start();
 
         setupThreadCleanup(mainThread, () -> Gdx.app.postRunnable(() -> Gdx.app.exit()));
-
-        return backend;
     }
 
     /**

@@ -7,8 +7,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Generic JavaFX backend factory using constructor injection.
@@ -27,36 +27,32 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
     }
 
     @Override
-    public GuiComponent<Canvas> createBackend(Screen buffer) {
-        Thread mainThread = Thread.currentThread();
+    protected void initializeBackend(GuiComponent<Canvas> backend,
+                                    int pixelWidth, int pixelHeight,
+                                    CountDownLatch latch, Thread mainThread) {
+        Platform.runLater(() -> {
+            FactoryConfig config = createFactoryConfig(backend);
 
-        AtomicReference<GuiComponent<Canvas>> backendRef = new AtomicReference<>();
+            Canvas canvas = backend.getNativeComponent();
+            StackPane root = new StackPane(canvas);
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setTitle(config.getTitle());
+            stage.setScene(scene);
+            stage.setOnCloseRequest(event -> {
+                event.consume();
+                Platform.exit();
+                System.exit(0);
+            });
+            stage.show();
 
-        return createAndInitialize(buffer, (backend, latch) ->
-                Platform.runLater(() -> {
-                    backendRef.set(backend);
-                    FactoryConfig config = createFactoryConfig(backend);
-
-                    Canvas canvas = backend.getNativeComponent();
-                    StackPane root = new StackPane(canvas);
-                    Scene scene = new Scene(root);
-                    Stage stage = new Stage();
-                    stage.setTitle(config.getTitle());
-                    stage.setScene(scene);
-                    stage.setOnCloseRequest(event -> {
-                        event.consume();
+            setupThreadCleanup(mainThread, () ->
+                    Platform.runLater(() -> {
+                        stage.close();
                         Platform.exit();
-                        System.exit(0);
-                    });
-                    stage.show();
+                    }));
 
-                    setupThreadCleanup(mainThread, () ->
-                            Platform.runLater(() -> {
-                                stage.close();
-                                Platform.exit();
-                            }));
-
-                    latch.countDown();
-                }));
+            latch.countDown();
+        });
     }
 }

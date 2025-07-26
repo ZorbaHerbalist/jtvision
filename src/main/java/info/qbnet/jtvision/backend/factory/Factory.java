@@ -1,11 +1,11 @@
 package info.qbnet.jtvision.backend.factory;
 
 import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.CharDimensions;
 import info.qbnet.jtvision.backend.util.ThreadWatcher;
 import info.qbnet.jtvision.core.Screen;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -35,10 +35,25 @@ public abstract class Factory<B extends Backend> {
     /**
      * Creates and returns a rendering backend for the given screen buffer.
      *
-     * @param buffer the screen buffer
+     * @param screen the screen buffer
      * @return a rendering backend instance
      */
-    public abstract B createBackend(Screen buffer);
+    public final B createBackend(Screen screen) {
+        CountDownLatch latch = new CountDownLatch(1);
+        B backend = createBackendInstance(screen);
+        Thread mainThread = Thread.currentThread();
+
+        int pixelWidth = 0;
+        int pixelHeight = 0;
+        if (backend instanceof CharDimensions dims) {
+            pixelWidth = screen.getWidth() * dims.getCharWidth();
+            pixelHeight = screen.getHeight() * dims.getCharHeight();
+        }
+
+        initializeBackend(backend, pixelWidth, pixelHeight, latch, mainThread);
+        awaitInitialization(latch);
+        return backend;
+    }
 
     /**
      * Create a backend instance using the stored constructor.
@@ -47,13 +62,18 @@ public abstract class Factory<B extends Backend> {
         return constructor.apply(screen);
     }
 
-    protected B createAndInitialize(Screen screen, BiConsumer<B, CountDownLatch> initializer) {
-        CountDownLatch latch = new CountDownLatch(1);
-        B backend = createBackendInstance(screen);
-        initializer.accept(backend, latch);
-        awaitInitialization(latch);
-        return backend;
-    }
+    /**
+     * Performs library specific initialization of the backend.
+     *
+     * @param backend      backend instance to initialize
+     * @param pixelWidth   computed window width in pixels
+     * @param pixelHeight  computed window height in pixels
+     * @param latch        latch used to signal completion
+     * @param mainThread   main thread creating the backend
+     */
+    protected abstract void initializeBackend(
+            B backend, int pixelWidth, int pixelHeight,
+            CountDownLatch latch, Thread mainThread);
 
     /**
      * Wait for initialization to complete and handle interruptions.

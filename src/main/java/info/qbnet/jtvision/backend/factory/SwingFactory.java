@@ -3,6 +3,7 @@ package info.qbnet.jtvision.backend.factory;
 import info.qbnet.jtvision.core.Screen;
 
 import javax.swing.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 public class SwingFactory extends Factory<GuiComponent<JPanel>> {
@@ -12,25 +13,24 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
     }
 
     @Override
-    public GuiComponent<JPanel> createBackend(Screen buffer) {
-        Thread mainThread = Thread.currentThread();
+    protected void initializeBackend(GuiComponent<JPanel> backend,
+                                    int pixelWidth, int pixelHeight,
+                                    CountDownLatch latch, Thread mainThread) {
+        SwingUtilities.invokeLater(() -> {
+            FactoryConfig config = createFactoryConfig(backend);
 
-        return createAndInitialize(buffer, (backend, latch) ->
-                SwingUtilities.invokeLater(() -> {
-                    FactoryConfig config = createFactoryConfig(backend);
-                    
-                    JFrame frame = new JFrame();
-                    frame.setTitle(config.getTitle());
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    
-                    JPanel panel = backend.getNativeComponent();
-                    frame.setContentPane(panel);
-                    frame.pack();
-                    frame.setVisible(true);
+            JFrame frame = new JFrame();
+            frame.setTitle(config.getTitle());
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-                    setupThreadCleanup(mainThread, () -> SwingUtilities.invokeLater(frame::dispose));
+            JPanel panel = backend.getNativeComponent();
+            frame.setContentPane(panel);
+            frame.pack();
+            frame.setVisible(true);
 
-                    latch.countDown();
-                }));
+            setupThreadCleanup(mainThread, () -> SwingUtilities.invokeLater(frame::dispose));
+
+            latch.countDown();
+        });
     }
 }

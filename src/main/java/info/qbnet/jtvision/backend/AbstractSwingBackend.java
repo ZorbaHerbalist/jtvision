@@ -12,7 +12,8 @@ import java.awt.image.BufferedImage;
  * logic. Subclasses only need to supply font specific setup and character
  * rendering.
  */
-public abstract class AbstractSwingBackend extends JPanel implements GuiComponent<JPanel> {
+public abstract class AbstractSwingBackend extends JPanel
+        implements GuiComponent<JPanel>, CharDimensions {
 
     protected final Screen buffer;
     protected final BufferedImage backBuffer;
@@ -56,11 +57,13 @@ public abstract class AbstractSwingBackend extends JPanel implements GuiComponen
 
     protected abstract void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc);
 
-    protected int getCharWidth() {
+    @Override
+    public int getCharWidth() {
         return charWidth;
     }
 
-    protected int getCharHeight() {
+    @Override
+    public int getCharHeight() {
         return charHeight;
     }
 

@@ -19,8 +19,9 @@ import java.util.concurrent.CountDownLatch;
  * Base class for LibGDX backends handling common initialization and rendering
  * logic. Subclasses only need to provide font specific setup and glyph drawing.
  */
-public abstract class AbstractLibGdxBackend extends ApplicationAdapter 
-        implements GuiComponent<ApplicationAdapter>, LibGdxFactory.LibGdxBackendWithInitialization {
+public abstract class AbstractLibGdxBackend extends ApplicationAdapter
+        implements GuiComponent<ApplicationAdapter>,
+        LibGdxFactory.LibGdxBackendWithInitialization, CharDimensions {
 
     private final Screen screen;
     private final int charWidth;
@@ -101,11 +102,13 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         disposeResources();
     }
 
-    protected int getCharWidth() {
+    @Override
+    public int getCharWidth() {
         return charWidth;
     }
 
-    protected int getCharHeight() {
+    @Override
+    public int getCharHeight() {
         return charHeight;
     }
 
