@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
  * logic. Subclasses only need to provide font specific setup and glyph drawing.
  */
 public abstract class AbstractLibGdxBackend extends ApplicationAdapter 
-        implements GuiComponent, LibGdxFactory.LibGdxBackendWithInitialization {
+        implements GuiComponent<ApplicationAdapter>, LibGdxFactory.LibGdxBackendWithInitialization {
 
     private final Screen screen;
     private final int charWidth;
@@ -130,7 +130,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     protected abstract void disposeResources();
 
     @Override
-    public Object getNativeComponent() {
+    public ApplicationAdapter getNativeComponent() {
         return this;
     }
 

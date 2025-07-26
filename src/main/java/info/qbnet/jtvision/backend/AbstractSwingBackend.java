@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * logic. Subclasses only need to supply font specific setup and character
  * rendering.
  */
-public abstract class AbstractSwingBackend extends JPanel implements GuiComponent {
+public abstract class AbstractSwingBackend extends JPanel implements GuiComponent<JPanel> {
 
     protected final Screen buffer;
     protected final BufferedImage backBuffer;
@@ -65,7 +65,7 @@ public abstract class AbstractSwingBackend extends JPanel implements GuiComponen
     }
 
     @Override
-    public Object getNativeComponent() {
+    public JPanel getNativeComponent() {
         return this;
     }
 }

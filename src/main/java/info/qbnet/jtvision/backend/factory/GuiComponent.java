@@ -5,18 +5,16 @@ import info.qbnet.jtvision.backend.Backend;
 /**
  * Unified interface for GUI components that can be embedded in different UI frameworks.
  * This replaces the separate FxBackendWithCanvas, LibGdxBackendWithAdapter, and SwingBackendWithPanel interfaces.
+ * 
+ * @param <T> the type of native GUI component (Canvas for JavaFX, JPanel for Swing, ApplicationAdapter for LibGDX)
  */
-public interface GuiComponent extends Backend {
+public interface GuiComponent<T> extends Backend {
     
     /**
      * Gets the native GUI component for embedding in the UI framework.
-     * The return type varies by implementation:
-     * - JavaFX: Canvas
-     * - Swing: JPanel  
-     * - LibGDX: ApplicationAdapter
      * 
-     * @return the native GUI component
+     * @return the native GUI component with strong typing
      */
-    Object getNativeComponent();
+    T getNativeComponent();
     
 }

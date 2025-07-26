@@ -10,7 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
  * Base class for JavaFX backends implementing common rendering logic.
  * Subclasses only need to provide font setup and glyph drawing.
  */
-public abstract class AbstractJavaFxBackend implements GuiComponent {
+public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
 
     protected final Screen buffer;
     protected final Canvas canvas;
@@ -58,7 +58,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent {
     }
 
     @Override
-    public Object getNativeComponent() {
+    public Canvas getNativeComponent() {
         return canvas;
     }
 }

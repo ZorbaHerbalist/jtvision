@@ -15,9 +15,9 @@ import java.util.function.Function;
 /**
  * Generic JavaFX backend factory using constructor injection.
  */
-public class JavaFxFactory extends AbstractGuiFactory<GuiComponent> {
+public class JavaFxFactory extends AbstractGuiFactory<GuiComponent<Canvas>> {
 
-    public JavaFxFactory(Function<Screen, ? extends GuiComponent> constructor) {
+    public JavaFxFactory(Function<Screen, ? extends GuiComponent<Canvas>> constructor) {
         super(constructor, "JavaFX");
     }
 
@@ -29,17 +29,17 @@ public class JavaFxFactory extends AbstractGuiFactory<GuiComponent> {
     }
 
     @Override
-    public GuiComponent createBackend(Screen buffer) {
+    public GuiComponent<Canvas> createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
-        AtomicReference<GuiComponent> backendRef = new AtomicReference<>();
+        AtomicReference<GuiComponent<Canvas>> backendRef = new AtomicReference<>();
 
         return createAndInitialize(buffer, (backend, latch) ->
                 Platform.runLater(() -> {
                     backendRef.set(backend);
                     WindowConfig config = createWindowConfig(backend, buffer);
 
-                    Canvas canvas = (Canvas) backend.getNativeComponent();
+                    Canvas canvas = backend.getNativeComponent();
                     StackPane root = new StackPane(canvas);
                     Scene scene = new Scene(root);
                     Stage stage = new Stage();

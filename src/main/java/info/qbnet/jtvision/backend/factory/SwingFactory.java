@@ -6,14 +6,14 @@ import javax.swing.*;
 import java.util.function.Function;
 import java.util.concurrent.CountDownLatch;
 
-public class SwingFactory extends AbstractGuiFactory<GuiComponent> {
+public class SwingFactory extends AbstractGuiFactory<GuiComponent<JPanel>> {
 
-    public SwingFactory(Function<Screen, ? extends GuiComponent> constructor) {
+    public SwingFactory(Function<Screen, ? extends GuiComponent<JPanel>> constructor) {
         super(constructor, "Swing");
     }
 
     @Override
-    public GuiComponent createBackend(Screen buffer) {
+    public GuiComponent<JPanel> createBackend(Screen buffer) {
         Thread mainThread = Thread.currentThread();
 
         return createAndInitialize(buffer, (backend, latch) ->
@@ -24,7 +24,7 @@ public class SwingFactory extends AbstractGuiFactory<GuiComponent> {
                     frame.setTitle(config.getTitle());
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     
-                    JPanel panel = (JPanel) backend.getNativeComponent();
+                    JPanel panel = backend.getNativeComponent();
                     frame.setContentPane(panel);
                     frame.pack();
                     frame.setVisible(true);
