@@ -6,11 +6,15 @@ import info.qbnet.jtvision.core.Screen;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for GUI backend factories providing common utilities.
  */
 public abstract class Factory<B extends Backend> {
+
+    private static final Logger log = LoggerFactory.getLogger(Factory.class);
 
     private final Function<Screen, ? extends B> constructor;
     private final String libraryName;
@@ -28,7 +32,7 @@ public abstract class Factory<B extends Backend> {
      * </p>
      */
     public void initialize() {
-        // no-op
+        log.debug("No initialization required for {}", libraryName);
     }
 
     /**
@@ -38,15 +42,21 @@ public abstract class Factory<B extends Backend> {
      * @return a rendering backend instance
      */
     public final B createBackend(Screen screen) {
-        CountDownLatch latch = new CountDownLatch(1);
+        log.info("Creating backend using library {}", libraryName);
         B backend = constructor.apply(screen);
+        log.debug("Backend instance created: {}", backend.getClass().getSimpleName());
+
+        CountDownLatch latch = new CountDownLatch(1);
         Thread mainThread = Thread.currentThread();
 
         int pixelWidth = screen.getWidth() * backend.getCharWidth();
         int pixelHeight = screen.getHeight() * backend.getCharHeight();
+        log.debug("Computed window size: {}x{}", pixelWidth, pixelHeight);
 
+        log.debug("Initializing backend...");
         initializeBackend(backend, pixelWidth, pixelHeight, latch, mainThread);
         awaitInitialization(latch);
+        log.info("Backend initialized");
         return backend;
     }
 
@@ -68,9 +78,12 @@ public abstract class Factory<B extends Backend> {
      */
     protected void awaitInitialization(CountDownLatch latch) {
         try {
+            log.debug("Waiting for UI initialization to complete... ");
             latch.await();
+            log.debug("UI initialization completed");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.warn("Initialization interrupted", e);
             throw new RuntimeException(e);
         }
     }
@@ -84,7 +97,8 @@ public abstract class Factory<B extends Backend> {
      * Sets up common thread cleanup for the main thread.
      */
     protected void setupThreadCleanup(Thread mainThread, Runnable cleanupAction) {
+        log.debug("Registering cleanup actions for main thread");
         ThreadWatcher.onTermination(mainThread, cleanupAction);
-        Runtime.getRuntime().addShutdownHook(new Thread(cleanupAction));
+        Runtime.getRuntime().addShutdownHook(new Thread(cleanupAction, "shutdown"));
     }
 }

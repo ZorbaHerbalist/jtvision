@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 import java.util.concurrent.CountDownLatch;
@@ -15,12 +17,16 @@ import java.util.concurrent.CountDownLatch;
  */
 public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
 
+    private static final Logger log = LoggerFactory.getLogger(JavaFxFactory.class);
+
     public JavaFxFactory(Function<Screen, ? extends GuiComponent<Canvas>> constructor) {
         super(constructor, "JavaFX");
+        log.debug("JavaFxFactory created");
     }
 
     @Override
     public void initialize() {
+        log.info("Starting JavaFX platform");
         Platform.startup(() -> {
             // no-op, just initialize JavaFX runtime
         });
@@ -30,7 +36,10 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
     protected void initializeBackend(GuiComponent<Canvas> backend,
                                     int pixelWidth, int pixelHeight,
                                     CountDownLatch latch, Thread mainThread) {
+        log.info("Starting JavaFX backend");
+
         Platform.runLater(() -> {
+            log.debug("Creating JavaFX stage");
             Canvas canvas = backend.getNativeComponent();
             StackPane root = new StackPane(canvas);
             Scene scene = new Scene(root);
@@ -39,13 +48,16 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
             stage.setScene(scene);
             stage.setOnCloseRequest(event -> {
                 event.consume();
+                log.debug("Closing JavaFX platform");
                 Platform.exit();
                 System.exit(0);
             });
             stage.show();
+            log.debug("Stage shown");
 
             setupThreadCleanup(mainThread, () ->
                     Platform.runLater(() -> {
+                        log.debug("Closing JavaFX stage");
                         stage.close();
                         Platform.exit();
                     }));

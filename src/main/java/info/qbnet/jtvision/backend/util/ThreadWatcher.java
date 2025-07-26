@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 public final class ThreadWatcher {
 
     private static final ExecutorService WATCHER = Executors.newCachedThreadPool(r -> {
-        Thread t = new Thread(r, "ThreadWatcher");
+        Thread t = new Thread(r, "watcher");
         t.setDaemon(true);
         return t;
     });
