@@ -13,22 +13,27 @@ import java.io.InputStream;
  */
 public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
 
-    private final Font font;
+    private Font font;
 
     public JavaFxTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
 
+        // initialization deferred until JavaFX stage is ready
+    }
+
+    // drawToCanvas() inherited
+
+    @Override
+    protected void initResources() {
         try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
-            if (fontStream == null) throw new RuntimeException("Font not found: PxPlus_IBM_VGA_9x16.ttf");
+            if (fontStream == null) {
+                throw new RuntimeException("Font not found: PxPlus_IBM_VGA_9x16.ttf");
+            }
             this.font = Font.loadFont(fontStream, 16);
         } catch (Exception e) {
             throw new RuntimeException("Failed to load TTF font", e);
         }
-
-        drawToCanvas();
     }
-
-    // drawToCanvas() inherited
 
     @Override
     protected void configureGraphics(GraphicsContext gc) {

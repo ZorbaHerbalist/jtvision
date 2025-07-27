@@ -21,28 +21,30 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
 
     private static final Logger log = LoggerFactory.getLogger(JavaFxBitmapBackend.class);
 
-    private final Image fontAtlas;
+    private Image fontAtlas;
 
     public JavaFxBitmapBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
 
+        // initialization deferred until JavaFX stage is ready
+    }
+
+    // drawToCanvas() inherited
+
+    @Override
+    protected void initResources() {
         log.info("Loading font atlas...");
         try (InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
             if (fontStream == null) {
                 log.error("Font image not found: font_white_8x16.png");
                 throw new RuntimeException("Font image not found: font_white_8x16.png");
             }
-            this.fontAtlas = new Image(fontStream, charWidth * 16, charHeight * 16, false, false);
+            this.fontAtlas = new Image(fontStream, getCharWidth() * 16, getCharHeight() * 16, false, false);
         } catch (IOException e) {
             log.error("Failed to load font atlas", e);
             throw new RuntimeException(e);
         }
-
-
-        drawToCanvas();
     }
-
-    // drawToCanvas() inherited
 
     @Override
     protected void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
