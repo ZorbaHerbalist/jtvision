@@ -34,7 +34,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         configureGraphics(gc);
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                drawChar(gc, x, y, screen.getChar(x, y));
+                drawGlyph(gc, x, y, screen.getChar(x, y));
             }
         }
     }
@@ -62,7 +62,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         // no-op
     }
 
-    protected abstract void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc);
+    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc);
 
     @Override
     public Integer getCharWidth() {

@@ -51,7 +51,7 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
         int sx = (charCode % 16) * getCharWidth();
         int sy = (charCode / 16) * getCharHeight();

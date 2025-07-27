@@ -44,7 +44,7 @@ public class SwingBasicBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         g.setColor(sc.getBackground());
         g.fillRect(x * getCharWidth(), y * getCharHeight(), getCharWidth(), getCharHeight());
         g.setColor(sc.getForeground());

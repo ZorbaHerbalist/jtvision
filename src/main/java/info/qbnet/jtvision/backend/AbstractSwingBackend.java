@@ -46,7 +46,7 @@ public abstract class AbstractSwingBackend extends JPanel
         configureGraphics(g2d);
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                drawChar(g2d, x, y, screen.getChar(x, y));
+                drawGlyph(g2d, x, y, screen.getChar(x, y));
             }
         }
         g2d.dispose();
@@ -60,7 +60,7 @@ public abstract class AbstractSwingBackend extends JPanel
         // no-op
     }
 
-    protected abstract void drawChar(Graphics2D g, int x, int y, Screen.ScreenChar sc);
+    protected abstract void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc);
 
     @Override
     public Integer getCharWidth() {

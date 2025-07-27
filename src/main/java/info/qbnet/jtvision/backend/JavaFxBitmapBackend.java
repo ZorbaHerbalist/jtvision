@@ -47,7 +47,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
         int sx = (charCode % 16) * getCharWidth();
         int sy = (charCode / 16) * getCharHeight();

@@ -42,7 +42,7 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawChar(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
         double dx = x * getCharWidth();
         double dy = (y + 1) * getCharHeight() - 3; // vertical align
 
