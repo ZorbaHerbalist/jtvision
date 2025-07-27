@@ -53,19 +53,19 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     @Override
     protected void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
-        int sx = (charCode % 16) * getCharWidth();
-        int sy = (charCode / 16) * getCharHeight();
+        int sx = (charCode % 16) * getCellWidth();
+        int sy = (charCode / 16) * getCellHeight();
 
-        int dx = x * getCharWidth();
-        int dy = y * getCharHeight();
+        int dx = x * getCellWidth();
+        int dy = y * getCellHeight();
 
         // Draw background
         g.setColor(sc.getBackground());
-        g.fillRect(dx, dy, getCharWidth(), getCharHeight());
+        g.fillRect(dx, dy, getCellWidth(), getCellHeight());
 
         // Apply foreground color to 1-bit glyph
-        for (int gy = 0; gy < getCharHeight(); gy++) {
-            for (int gx = 0; gx < getCharWidth(); gx++) {
+        for (int gy = 0; gy < getCellHeight(); gy++) {
+            for (int gx = 0; gx < getCellWidth(); gx++) {
                 int pixel = fontAtlas.getRGB(sx + gx, sy + gy) & 0xFFFFFF;
                 if (pixel != 0x000000) {
                     g.setColor(sc.getForeground());

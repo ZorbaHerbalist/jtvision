@@ -54,16 +54,16 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
     @Override
     protected void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
         g.setFont(font);
-        int px = x * getCharWidth();
-        int py = y * getCharHeight();
+        int px = x * getCellWidth();
+        int py = y * getCellHeight();
 
         g.setColor(sc.getBackground());
-        g.fillRect(px, py, getCharWidth(), getCharHeight());
+        g.fillRect(px, py, getCellWidth(), getCellHeight());
 
         g.setColor(sc.getForeground());
         FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv = font.createGlyphVector(frc, new char[] { sc.getCharacter() });
-        g.drawGlyphVector(gv, px, py + getCharHeight() - 3);
+        g.drawGlyphVector(gv, px, py + getCellHeight() - 3);
     }
 
 }

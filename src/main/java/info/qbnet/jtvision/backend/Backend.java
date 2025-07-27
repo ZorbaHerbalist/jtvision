@@ -19,11 +19,11 @@ public interface Backend {
     /**
      * @return width of a single character cell in pixels
      */
-    Integer getCharWidth();
+    Integer getCellWidth();
 
     /**
      * @return height of a single character cell in pixels
      */
-    Integer getCharHeight();
+    Integer getCellHeight();
 
 }

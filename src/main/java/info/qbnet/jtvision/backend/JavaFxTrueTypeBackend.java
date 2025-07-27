@@ -43,11 +43,11 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
 
     @Override
     protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
-        double dx = x * getCharWidth();
-        double dy = (y + 1) * getCharHeight() - 3; // vertical align
+        double dx = x * getCellWidth();
+        double dy = (y + 1) * getCellHeight() - 3; // vertical align
 
         gc.setFill(ColorUtil.toFx(sc.getBackground()));
-        gc.fillRect(dx, dy - getCharHeight() + 3, getCharWidth(), getCharHeight());
+        gc.fillRect(dx, dy - getCellHeight() + 3, getCellWidth(), getCellHeight());
 
         gc.setFill(ColorUtil.toFx(sc.getForeground()));
         gc.fillText(Character.toString(sc.getCharacter()), dx, dy);

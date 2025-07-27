@@ -111,12 +111,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     }
 
     @Override
-    public Integer getCharWidth() {
+    public Integer getCellWidth() {
         return charWidth;
     }
 
     @Override
-    public Integer getCharHeight() {
+    public Integer getCellHeight() {
         return charHeight;
     }
 

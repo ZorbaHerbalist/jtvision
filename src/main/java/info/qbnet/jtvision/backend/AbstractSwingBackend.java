@@ -63,12 +63,12 @@ public abstract class AbstractSwingBackend extends JPanel
     protected abstract void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc);
 
     @Override
-    public Integer getCharWidth() {
+    public Integer getCellWidth() {
         return charWidth;
     }
 
     @Override
-    public Integer getCharHeight() {
+    public Integer getCellHeight() {
         return charHeight;
     }
 

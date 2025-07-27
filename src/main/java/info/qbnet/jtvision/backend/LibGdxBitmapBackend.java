@@ -28,10 +28,10 @@ public class LibGdxBitmapBackend extends AbstractLibGdxBackend {
     protected void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int drawY) {
         batch.setColor(ColorUtil.toGdx(ch.getForeground()));
         int charCode = ch.getCharacter();
-        int srcX = (charCode % CHARS_PER_ROW) * getCharWidth();
-        int srcY = (charCode / CHARS_PER_ROW) * getCharHeight();
-        batch.draw(fontTexture, x * getCharWidth(), drawY, getCharWidth(), getCharHeight(),
-                srcX, srcY, getCharWidth(), getCharHeight(), false, false);
+        int srcX = (charCode % CHARS_PER_ROW) * getCellWidth();
+        int srcY = (charCode / CHARS_PER_ROW) * getCellHeight();
+        batch.draw(fontTexture, x * getCellWidth(), drawY, getCellWidth(), getCellHeight(),
+                srcX, srcY, getCellWidth(), getCellHeight(), false, false);
     }
 
     @Override

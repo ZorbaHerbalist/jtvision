@@ -14,14 +14,14 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
 
     protected final Screen screen;
     protected final Canvas canvas;
-    private final Integer charWidth;
-    private final Integer charHeight;
+    private final Integer cellWidth;
+    private final Integer cellHeight;
 
-    protected AbstractJavaFxBackend(Screen screen, int charWidth, int charHeight) {
+    protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
-        this.charWidth = charWidth;
-        this.charHeight = charHeight;
-        this.canvas = new Canvas(screen.getWidth() * charWidth, screen.getHeight() * charHeight);
+        this.cellWidth = cellWidth;
+        this.cellHeight = cellHeight;
+        this.canvas = new Canvas(screen.getWidth() * cellWidth, screen.getHeight() * cellHeight);
     }
 
     @Override
@@ -65,13 +65,13 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     protected abstract void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc);
 
     @Override
-    public Integer getCharWidth() {
-        return charWidth;
+    public Integer getCellWidth() {
+        return cellWidth;
     }
 
     @Override
-    public Integer getCharHeight() {
-        return charHeight;
+    public Integer getCellHeight() {
+        return cellHeight;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
                 log.error("Font image not found: font_white_8x16.png");
                 throw new RuntimeException("Font image not found: font_white_8x16.png");
             }
-            this.fontAtlas = new Image(fontStream, getCharWidth() * 16, getCharHeight() * 16, false, false);
+            this.fontAtlas = new Image(fontStream, getCellWidth() * 16, getCellHeight() * 16, false, false);
         } catch (IOException e) {
             log.error("Failed to load font atlas", e);
             throw new RuntimeException(e);
@@ -49,23 +49,23 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     @Override
     protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
-        int sx = (charCode % 16) * getCharWidth();
-        int sy = (charCode / 16) * getCharHeight();
-        double dx = x * getCharWidth();
-        double dy = y * getCharHeight();
+        int sx = (charCode % 16) * getCellWidth();
+        int sy = (charCode / 16) * getCellHeight();
+        double dx = x * getCellWidth();
+        double dy = y * getCellHeight();
 
         // Draw background
         gc.setFill(ColorUtil.toFx(sc.getBackground()));
-        gc.fillRect(dx, dy, getCharWidth(), getCharHeight());
+        gc.fillRect(dx, dy, getCellWidth(), getCellHeight());
 
         // Extract glyph from atlas
         PixelReader reader = fontAtlas.getPixelReader();
-        WritableImage glyph = new WritableImage(getCharWidth(), getCharHeight());
+        WritableImage glyph = new WritableImage(getCellWidth(), getCellHeight());
         PixelWriter writer = glyph.getPixelWriter();
         Color fg = ColorUtil.toFx(sc.getForeground());
 
-        for (int j = 0; j < getCharHeight(); j++) {
-            for (int i = 0; i < getCharWidth(); i++) {
+        for (int j = 0; j < getCellHeight(); j++) {
+            for (int i = 0; i < getCellWidth(); i++) {
                 Color color = reader.getColor(sx + i, sy + j);
                 // assume a white pixel means glyph, preserve alpha
                 if (color.getOpacity() > 0.1) {

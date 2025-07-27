@@ -36,8 +36,8 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
             initGdxBackend.setInitializationLatch(latch);
         }
 
-        int pixelWidth = screen.getWidth() * backend.getCharWidth();
-        int pixelHeight = screen.getHeight() * backend.getCharHeight();
+        int pixelWidth = screen.getWidth() * backend.getCellWidth();
+        int pixelHeight = screen.getHeight() * backend.getCellHeight();
 
         LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
         lwjglConfig.title = createWindowTitle(backend);
