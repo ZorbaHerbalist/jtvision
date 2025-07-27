@@ -55,9 +55,7 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
             stage.show();
             log.debug("Stage shown");
 
-            if (backend instanceof info.qbnet.jtvision.backend.AbstractJavaFxBackend fxBackend) {
-                fxBackend.initialize();
-            }
+            backend.initialize();
 
             setupThreadCleanup(mainThread, () ->
                     Platform.runLater(() -> {

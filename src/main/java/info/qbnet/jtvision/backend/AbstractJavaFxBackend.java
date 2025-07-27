@@ -43,6 +43,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
      * Initializes any JavaFX resources required by the backend. This method
      * is expected to be called on the JavaFX Application Thread.
      */
+    @Override
     public final void initialize() {
         initResources();
         drawToCanvas();

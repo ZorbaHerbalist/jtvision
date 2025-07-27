@@ -6,6 +6,12 @@ package info.qbnet.jtvision.backend;
 public interface Backend {
 
     /**
+     * Initializes the backend for a specific implementation. This method is expected
+     * to be called in a location appropriate for the library being used.
+     */
+    void initialize();
+
+    /**
      * Renders the given screen buffer.
      */
     void renderScreen();

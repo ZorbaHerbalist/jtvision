@@ -31,6 +31,8 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
             frame.setVisible(true);
             log.debug("Swing frame shown");
 
+            backend.initialize();
+
             setupThreadCleanup(mainThread, () -> {
                 log.debug("Forcefully terminating Swing frame...");
                 SwingUtilities.invokeLater(frame::dispose);
