@@ -32,8 +32,8 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
 
         log.info("Starting LibGDX backend");
 
-        if (backend instanceof AbstractLibGdxBackend initBackend) {
-            initBackend.setInitializationLatch(latch);
+        if (backend instanceof AbstractLibGdxBackend initGdxBackend) {
+            initGdxBackend.setInitializationLatch(latch);
         }
 
         int pixelWidth = screen.getWidth() * backend.getCharWidth();
