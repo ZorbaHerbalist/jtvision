@@ -1,7 +1,6 @@
 package info.qbnet.jtvision.backend;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -68,12 +67,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     @Override
     public void renderScreen() {
-        if (Gdx.app != null) {
-            Gdx.app.postRunnable(this::render);
-        }
-        else {
-            System.err.println("Rendering thread not ready. Ignoring render request.");
-        }
+        // no-op for LibGDX
     }
 
     @Override
