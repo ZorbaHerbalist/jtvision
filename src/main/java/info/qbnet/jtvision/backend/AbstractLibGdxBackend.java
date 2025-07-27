@@ -26,7 +26,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private final Integer charWidth;
     private final Integer charHeight;
 
-    private CountDownLatch initLatch;
+    private CountDownLatch initializationLatch;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -61,8 +61,8 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         camera.position.set(screen.getWidth() * charWidth / 2f, screen.getHeight() * charHeight / 2f, 0);
         camera.update();
 
-        if (initLatch != null) {
-            initLatch.countDown();
+        if (initializationLatch != null) {
+            initializationLatch.countDown();
         }
     }
 
@@ -86,12 +86,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
                 Screen.ScreenChar ch = screen.getChar(x, y);
-                int drawY = (screen.getHeight() - y - 1) * charHeight;
+                int pixelY = (screen.getHeight() - y - 1) * charHeight;
 
                 batch.setColor(ColorUtil.toGdx(ch.getBackground()));
-                batch.draw(pixel, x * charWidth, drawY, charWidth, charHeight);
+                batch.draw(pixel, x * charWidth, pixelY, charWidth, charHeight);
 
-                drawGlyph(batch, ch, x, drawY);
+                drawGlyph(batch, ch, x, pixelY);
             }
         }
 
@@ -131,9 +131,9 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
      * @param batch  sprite batch used for drawing
      * @param ch     screen character
      * @param x      cell x coordinate
-     * @param drawY  pixel y coordinate flipped for LibGDX
+     * @param pixelY  pixel y coordinate flipped for LibGDX
      */
-    protected abstract void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int drawY);
+    protected abstract void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int pixelY);
 
     /**
      * Dispose any resources allocated in {@link #initResources()}.
@@ -146,7 +146,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     }
 
     public void setInitializationLatch(CountDownLatch latch) {
-        this.initLatch = latch;
+        this.initializationLatch = latch;
     }
 }
 

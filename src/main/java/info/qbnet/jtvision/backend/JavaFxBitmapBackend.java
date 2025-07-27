@@ -49,14 +49,14 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     @Override
     protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
         int charCode = sc.getCharacter() & 0xFF;
-        int sx = (charCode % 16) * getCellWidth();
-        int sy = (charCode / 16) * getCellHeight();
-        double dx = x * getCellWidth();
-        double dy = y * getCellHeight();
+        int sourceX = (charCode % 16) * getCellWidth();
+        int sourceY = (charCode / 16) * getCellHeight();
+        double destX = x * getCellWidth();
+        double destY = y * getCellHeight();
 
         // Draw background
         gc.setFill(ColorUtil.toFx(sc.getBackground()));
-        gc.fillRect(dx, dy, getCellWidth(), getCellHeight());
+        gc.fillRect(destX, destY, getCellWidth(), getCellHeight());
 
         // Extract glyph from atlas
         PixelReader reader = fontAtlas.getPixelReader();
@@ -66,7 +66,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
 
         for (int j = 0; j < getCellHeight(); j++) {
             for (int i = 0; i < getCellWidth(); i++) {
-                Color color = reader.getColor(sx + i, sy + j);
+                Color color = reader.getColor(sourceX + i, sourceY + j);
                 // assume a white pixel means glyph, preserve alpha
                 if (color.getOpacity() > 0.1) {
                     writer.setColor(i, j, fg);
@@ -76,6 +76,6 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
             }
         }
 
-        gc.drawImage(glyph, dx, dy);
+        gc.drawImage(glyph, destX, destY);
     }
 }

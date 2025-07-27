@@ -30,9 +30,9 @@ public class LibGdxTrueTypeBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int drawY) {
+    protected void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int pixelY) {
         font.setColor(ColorUtil.toGdx(ch.getForeground()));
-        font.draw(batch, String.valueOf(ch.getCharacter()), x * getCellWidth(), drawY + getCellHeight() - 2);
+        font.draw(batch, String.valueOf(ch.getCharacter()), x * getCellWidth(), pixelY + getCellHeight() - 2);
     }
 
     @Override
