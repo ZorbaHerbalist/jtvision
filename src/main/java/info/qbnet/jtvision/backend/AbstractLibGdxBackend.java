@@ -23,8 +23,8 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         implements GuiComponent<ApplicationAdapter> {
 
     private final Screen screen;
-    private final Integer charWidth;
-    private final Integer charHeight;
+    private final Integer cellWidth;
+    private final Integer cellHeight;
 
     private CountDownLatch initializationLatch;
 
@@ -33,15 +33,15 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     protected OrthographicCamera camera;
     protected ScreenViewport viewport;
 
-    protected AbstractLibGdxBackend(Screen screen, int charWidth, int charHeight) {
+    protected AbstractLibGdxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
-        this.charWidth = charWidth;
-        this.charHeight = charHeight;
+        this.cellWidth = cellWidth;
+        this.cellHeight = cellHeight;
     }
 
     @Override
     public void afterInitialization() {
-        initResources();
+        initializeResources();
     }
 
     @Override
@@ -58,7 +58,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         camera = new OrthographicCamera();
         viewport = new ScreenViewport(camera);
         viewport.apply();
-        camera.position.set(screen.getWidth() * charWidth / 2f, screen.getHeight() * charHeight / 2f, 0);
+        camera.position.set(screen.getWidth() * cellWidth / 2f, screen.getHeight() * cellHeight / 2f, 0);
         camera.update();
 
         if (initializationLatch != null) {
@@ -85,11 +85,11 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                Screen.ScreenChar ch = screen.getChar(x, y);
-                int pixelY = (screen.getHeight() - y - 1) * charHeight;
+                Screen.CharacterCell ch = screen.getChar(x, y);
+                int pixelY = (screen.getHeight() - y - 1) * cellHeight;
 
                 batch.setColor(ColorUtil.toGdx(ch.getBackground()));
-                batch.draw(pixel, x * charWidth, pixelY, charWidth, charHeight);
+                batch.draw(pixel, x * cellWidth, pixelY, cellWidth, cellHeight);
 
                 drawGlyph(batch, ch, x, pixelY);
             }
@@ -112,18 +112,18 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     @Override
     public Integer getCellWidth() {
-        return charWidth;
+        return cellWidth;
     }
 
     @Override
     public Integer getCellHeight() {
-        return charHeight;
+        return cellHeight;
     }
 
     /**
      * Initialize font or texture resources required for rendering characters.
      */
-    protected abstract void initResources();
+    protected abstract void initializeResources();
 
     /**
      * Draw a single glyph at the specified cell.
@@ -133,15 +133,15 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
      * @param x      cell x coordinate
      * @param pixelY  pixel y coordinate flipped for LibGDX
      */
-    protected abstract void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int pixelY);
+    protected abstract void drawGlyph(SpriteBatch batch, Screen.CharacterCell ch, int x, int pixelY);
 
     /**
-     * Dispose any resources allocated in {@link #initResources()}.
+     * Dispose any resources allocated in {@link #initializeResources()}.
      */
     protected abstract void disposeResources();
 
     @Override
-    public ApplicationAdapter getNativeComponent() {
+    public ApplicationAdapter getUIComponent() {
         return this;
     }
 

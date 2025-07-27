@@ -11,21 +11,21 @@ import java.awt.*;
 public class TApplication {
 
     public TApplication() {
-        String backendName = System.getProperty("console.backend", "SWING_BITMAP");
+        String backendTypeName = System.getProperty("console.backend", "SWING_BITMAP");
         BackendType type;
         try {
-            type = BackendType.valueOf(backendName.toUpperCase());
+            type = BackendType.valueOf(backendTypeName.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            System.err.println("Unknown backend: " + backendName + ", using SWING_BITMAP");
+            System.err.println("Unknown backend: " + backendTypeName + ", using SWING_BITMAP");
             type = BackendType.SWING_BITMAP;
         }
 
         Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
 
-        Screen screenBuffer = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
-        Backend backend = factory.createBackend(screenBuffer);
-        Console console = new Console(screenBuffer, backend);
+        Screen screen = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
+        Backend backend = factory.createBackend(screen);
+        Console console = new Console(screen, backend);
 
         console.clearScreen();
         drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);

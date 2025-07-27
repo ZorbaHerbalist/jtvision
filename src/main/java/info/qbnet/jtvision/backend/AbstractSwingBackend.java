@@ -17,15 +17,15 @@ public abstract class AbstractSwingBackend extends JPanel
 
     protected final Screen screen;
     protected final BufferedImage backBuffer;
-    private final Integer charWidth;
-    private final Integer charHeight;
+    private final Integer cellWidth;
+    private final Integer cellHeight;
 
-    protected AbstractSwingBackend(Screen screen, Integer charWidth, Integer charHeight) {
+    protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
-        this.charWidth = charWidth;
-        this.charHeight = charHeight;
-        int width = screen.getWidth() * charWidth;
-        int height = screen.getHeight() * charHeight;
+        this.cellWidth = cellWidth;
+        this.cellHeight = cellHeight;
+        int width = screen.getWidth() * cellWidth;
+        int height = screen.getHeight() * cellHeight;
         this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         setPreferredSize(new Dimension(width, height));
     }
@@ -60,20 +60,20 @@ public abstract class AbstractSwingBackend extends JPanel
         // no-op
     }
 
-    protected abstract void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc);
+    protected abstract void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc);
 
     @Override
     public Integer getCellWidth() {
-        return charWidth;
+        return cellWidth;
     }
 
     @Override
     public Integer getCellHeight() {
-        return charHeight;
+        return cellHeight;
     }
 
     @Override
-    public JPanel getNativeComponent() {
+    public JPanel getUIComponent() {
         return this;
     }
 }

@@ -32,7 +32,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     // drawToCanvas() inherited
 
     @Override
-    protected void initResources() {
+    protected void initializeResources() {
         log.info("Loading font atlas...");
         try (InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
             if (fontStream == null) {
@@ -47,7 +47,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.CharacterCell sc) {
         int charCode = sc.getCharacter() & 0xFF;
         int sourceX = (charCode % 16) * getCellWidth();
         int sourceY = (charCode / 16) * getCellHeight();

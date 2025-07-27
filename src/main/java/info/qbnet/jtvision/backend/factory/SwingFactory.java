@@ -35,7 +35,7 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
             JFrame frame = new JFrame();
             frame.setTitle(createWindowTitle(backend));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(backend.getNativeComponent());
+            frame.setContentPane(backend.getUIComponent());
             frame.pack();
             frame.setVisible(true);
             log.debug("Swing frame shown");

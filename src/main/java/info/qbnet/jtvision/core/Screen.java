@@ -10,7 +10,7 @@ public class Screen {
     /**
      * Represents a single character cell on the screen.
      */
-    public static class ScreenChar {
+    public static class CharacterCell {
         char character;
         Color foreground;
         Color background;
@@ -21,7 +21,7 @@ public class Screen {
          * @param foreground foreground color
          * @param background background color
          */
-        public ScreenChar(char character, Color foreground, Color background) {
+        public CharacterCell(char character, Color foreground, Color background) {
             this.character = character;
             this.foreground = foreground;
             this.background = background;
@@ -42,10 +42,10 @@ public class Screen {
 
     private final int width;
     private final int height;
-    private final ScreenChar[][] buffer;
+    private final CharacterCell[][] buffer;
     private final Color defaultForeground;
     private final Color defaultBackground;
-    private final ScreenChar emptyCharTemplate;
+    private final CharacterCell emptyCellTemplate;
 
     /**
      * Constructs a screen buffer with a given number of columns and rows,
@@ -68,8 +68,8 @@ public class Screen {
         this.height = height;
         this.defaultForeground = defaultForeground;
         this.defaultBackground = defaultBackground;
-        this.emptyCharTemplate = new ScreenChar(' ', defaultForeground, defaultBackground);
-        buffer = new ScreenChar[height][width];
+        this.emptyCellTemplate = new CharacterCell(' ', defaultForeground, defaultBackground);
+        buffer = new CharacterCell[height][width];
         clear();
     }
 
@@ -101,7 +101,7 @@ public class Screen {
             System.err.printf("setChar(): null color at (%d,%d). Ignored.%n", x, y);
             return;
         }
-        buffer[y][x] = new ScreenChar(c, foreground, background);
+        buffer[y][x] = new CharacterCell(c, foreground, background);
     }
 
     /**
@@ -120,7 +120,7 @@ public class Screen {
      * @param y vertical coordinate
      * @return character cell at the position or null if out of bounds
      */
-    public ScreenChar getChar(int x, int y) {
+    public CharacterCell getChar(int x, int y) {
         if (isInBounds(x, y)) {
             return buffer[y][x];
         }
@@ -135,7 +135,7 @@ public class Screen {
     public void clear() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                buffer[y][x] = emptyCharTemplate;
+                buffer[y][x] = emptyCellTemplate;
             }
         }
     }

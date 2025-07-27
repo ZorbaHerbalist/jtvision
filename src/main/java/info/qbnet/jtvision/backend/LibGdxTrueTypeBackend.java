@@ -20,7 +20,7 @@ public class LibGdxTrueTypeBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void initResources() {
+    protected void initializeResources() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("PxPlus_IBM_VGA_9x16.ttf"));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = 16;
@@ -30,7 +30,7 @@ public class LibGdxTrueTypeBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int pixelY) {
+    protected void drawGlyph(SpriteBatch batch, Screen.CharacterCell ch, int x, int pixelY) {
         font.setColor(ColorUtil.toGdx(ch.getForeground()));
         font.draw(batch, String.valueOf(ch.getCharacter()), x * getCellWidth(), pixelY + getCellHeight() - 2);
     }

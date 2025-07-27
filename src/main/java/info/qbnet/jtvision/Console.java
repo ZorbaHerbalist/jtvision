@@ -17,7 +17,7 @@ public class Console {
     private final Screen screen;
     private final Backend backend;
     private final ScheduledExecutorService scheduler;
-    private volatile boolean screenDirty = false;
+    private volatile boolean isScreenDirty = false;
 
     /**
      * Constructs a Console with the given screen buffer and rendering backend.
@@ -28,11 +28,11 @@ public class Console {
         this(screen, backend, 33);
     }
 
-    public Console(Screen screen, Backend backend, long flushIntervalMs) {
+    public Console(Screen screen, Backend backend, long refreshIntervalMs) {
         this.screen = screen;
         this.backend = backend;
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
-        this.scheduler.scheduleAtFixedRate(this::flush, flushIntervalMs, flushIntervalMs, TimeUnit.MILLISECONDS);
+        this.scheduler.scheduleAtFixedRate(this::flush, refreshIntervalMs, refreshIntervalMs, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -62,7 +62,7 @@ public class Console {
         for (int i = 0; i < len; i++) {
             screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
-        screenDirty = true;
+        isScreenDirty = true;
     }
 
     /**
@@ -70,16 +70,16 @@ public class Console {
      */
     public void clearScreen() {
         screen.clear();
-        screenDirty = true;
+        isScreenDirty = true;
     }
 
     /**
      * Renders pending changes if the screen buffer is marked dirty.
      */
     public void flush() {
-        if (screenDirty) {
+        if (isScreenDirty) {
             backend.renderScreen();
-            screenDirty = false;
+            isScreenDirty = false;
         }
     }
 

@@ -24,7 +24,7 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
     // drawToCanvas() inherited
 
     @Override
-    protected void initResources() {
+    protected void initializeResources() {
         try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
             if (fontStream == null) {
                 throw new RuntimeException("Font not found: PxPlus_IBM_VGA_9x16.ttf");
@@ -42,7 +42,7 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.CharacterCell sc) {
         double dx = x * getCellWidth();
         double dy = (y + 1) * getCellHeight() - 3; // vertical align
 

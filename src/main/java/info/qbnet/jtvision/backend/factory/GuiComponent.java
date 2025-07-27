@@ -123,5 +123,5 @@ public interface GuiComponent<T> extends Backend {
      * @see #afterInitialization()
      * @see #renderScreen()
      */
-    T getNativeComponent();
+    T getUIComponent();
 }

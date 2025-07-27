@@ -44,7 +44,7 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
         lwjglConfig.width = pixelWidth;
         lwjglConfig.height = pixelHeight;
 
-        ApplicationAdapter adapter = backend.getNativeComponent();
+        ApplicationAdapter adapter = backend.getUIComponent();
         Thread uiThread = new Thread(() -> {
             log.debug("Starting LibGDX UI thread...");
             new LwjglApplication(adapter, lwjglConfig);

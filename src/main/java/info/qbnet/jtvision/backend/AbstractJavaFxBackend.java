@@ -45,14 +45,14 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
      */
     @Override
     public final void afterInitialization() {
-        initResources();
+        initializeResources();
         renderToCanvas();
     }
 
     /**
      * Hook for subclasses to load fonts or images before rendering.
      */
-    protected abstract void initResources();
+    protected abstract void initializeResources();
 
     /**
      * Hook for subclasses to configure the graphics context before drawing.
@@ -62,7 +62,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         // no-op
     }
 
-    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, Screen.ScreenChar sc);
+    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, Screen.CharacterCell sc);
 
     @Override
     public Integer getCellWidth() {
@@ -75,7 +75,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     }
 
     @Override
-    public Canvas getNativeComponent() {
+    public Canvas getUIComponent() {
         return canvas;
     }
 }

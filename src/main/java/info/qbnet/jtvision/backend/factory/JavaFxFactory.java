@@ -42,7 +42,7 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
 
         Platform.runLater(() -> {
             log.debug("Creating JavaFX stage");
-            Canvas canvas = backend.getNativeComponent();
+            Canvas canvas = backend.getUIComponent();
             StackPane root = new StackPane(canvas);
             Scene scene = new Scene(root);
             Stage stage = new Stage();

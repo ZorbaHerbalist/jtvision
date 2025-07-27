@@ -52,7 +52,7 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawGlyph(Graphics2D g, int x, int y, Screen.ScreenChar sc) {
+    protected void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc) {
         g.setFont(font);
         int pixelX = x * getCellWidth();
         int pixelY = y * getCellHeight();

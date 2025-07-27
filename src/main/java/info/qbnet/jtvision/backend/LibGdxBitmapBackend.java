@@ -19,13 +19,13 @@ public class LibGdxBitmapBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void initResources() {
+    protected void initializeResources() {
         fontTexture = new Texture(Gdx.files.internal("font_white_8x16_2.png"));
         fontTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
 
     @Override
-    protected void drawGlyph(SpriteBatch batch, Screen.ScreenChar ch, int x, int pixelY) {
+    protected void drawGlyph(SpriteBatch batch, Screen.CharacterCell ch, int x, int pixelY) {
         batch.setColor(ColorUtil.toGdx(ch.getForeground()));
         int charCode = ch.getCharacter();
         int sourceX = (charCode % CHARS_PER_ROW) * getCellWidth();
