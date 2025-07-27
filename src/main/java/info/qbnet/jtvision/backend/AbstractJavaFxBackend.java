@@ -26,10 +26,10 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
 
     @Override
     public void renderScreen() {
-        Platform.runLater(this::drawToCanvas);
+        Platform.runLater(this::renderToCanvas);
     }
 
-    protected void drawToCanvas() {
+    protected void renderToCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         configureGraphics(gc);
         for (int y = 0; y < screen.getHeight(); y++) {
@@ -46,7 +46,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     @Override
     public final void afterInitialization() {
         initResources();
-        drawToCanvas();
+        renderToCanvas();
     }
 
     /**
