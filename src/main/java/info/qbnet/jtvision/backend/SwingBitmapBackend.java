@@ -32,12 +32,12 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     /** Load font atlas and other resources. */
     protected void initResources() {
         log.info("Loading font atlas...");
-        try (InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
-            if (stream == null) {
+        try (InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
+            if (fontStream == null) {
                 log.error("Missing resource: font_white_8x16_2.png");
                 throw new RuntimeException("Missing resource: font_white_8x16_2.png");
             }
-            this.fontAtlas = ImageIO.read(stream);
+            this.fontAtlas = ImageIO.read(fontStream);
         } catch (IOException e) {
             log.error("Failed to load font atlas", e);
             throw new RuntimeException(e);
