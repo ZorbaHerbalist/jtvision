@@ -17,11 +17,20 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
     private static final Logger log = LoggerFactory.getLogger(SwingTrueTypeBackend.class);
 
-    private final Font font;
+    private Font font;
 
     public SwingTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
+        initialize();
+    }
 
+    @Override
+    public void initialize() {
+        initResources();
+    }
+
+    /** Load the TTF font resource. */
+    protected void initResources() {
         log.info("Loading TrueType font...");
         try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
             if (fontStream == null) {

@@ -17,11 +17,20 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
 
     private static final Logger log = LoggerFactory.getLogger(SwingBitmapBackend.class);
 
-    private final BufferedImage fontAtlas;
+    private BufferedImage fontAtlas;
 
     public SwingBitmapBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
+        initialize();
+    }
 
+    @Override
+    public void initialize() {
+        initResources();
+    }
+
+    /** Load font atlas and other resources. */
+    protected void initResources() {
         log.info("Loading font atlas...");
         try (InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
             if (stream == null) {

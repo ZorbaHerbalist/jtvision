@@ -18,6 +18,16 @@ public class SwingBasicBackend extends AbstractSwingBackend {
      */
     public SwingBasicBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
+        initialize();
+    }
+
+    @Override
+    public void initialize() {
+        initResources();
+    }
+
+    /** Load Swing resources such as fonts. */
+    protected void initResources() {
         setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
     }
 
