@@ -1,6 +1,8 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.core.Screen;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,19 +15,22 @@ import java.io.InputStream;
  */
 public class SwingBitmapBackend extends AbstractSwingBackend {
 
+    private static final Logger log = LoggerFactory.getLogger(SwingBitmapBackend.class);
+
     private final BufferedImage fontAtlas;
 
     public SwingBitmapBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
 
-        InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png");
-        if (stream == null) {
-            throw new RuntimeException("Missing resource: font_white_8x16_2.png");
-        }
-
-        try {
+        log.info("Loading font atlas...");
+        try (InputStream stream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
+            if (stream == null) {
+                log.error("Missing resource: font_white_8x16_2.png");
+                throw new RuntimeException("Missing resource: font_white_8x16_2.png");
+            }
             this.fontAtlas = ImageIO.read(stream);
         } catch (IOException e) {
+            log.error("Failed to load font atlas", e);
             throw new RuntimeException(e);
         }
     }

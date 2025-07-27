@@ -1,6 +1,8 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.core.Screen;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -13,17 +15,22 @@ import java.io.InputStream;
  */
 public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
+    private static final Logger log = LoggerFactory.getLogger(SwingTrueTypeBackend.class);
+
     private final Font font;
 
     public SwingTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
-        InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf");
-        if (fontStream == null) {
-            throw new RuntimeException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
-        }
-        try {
+
+        log.info("Loading TrueType font...");
+        try (InputStream fontStream = getClass().getResourceAsStream("/PxPlus_IBM_VGA_9x16.ttf")) {
+            if (fontStream == null) {
+                log.error("Font TTF IBM_VGA_9x16.ttf not found in resources.");
+                throw new RuntimeException("Font TTF IBM_VGA_9x16.ttf not found in resources.");
+            }
             this.font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(Font.PLAIN, 16f);
         } catch (FontFormatException | IOException e) {
+            log.error("Failed to load font TTF IBM_VGA_9x16.ttf", e);
             throw new RuntimeException(e);
         }
 

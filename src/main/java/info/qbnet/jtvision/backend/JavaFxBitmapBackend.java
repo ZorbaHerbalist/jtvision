@@ -8,7 +8,10 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import info.qbnet.jtvision.backend.util.ColorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -16,14 +19,25 @@ import java.io.InputStream;
  */
 public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
 
+    private static final Logger log = LoggerFactory.getLogger(JavaFxBitmapBackend.class);
+
     private final Image fontAtlas;
 
     public JavaFxBitmapBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
 
-        InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png");
-        if (fontStream == null) throw new RuntimeException("Font image not found: font_white_8x16.png");
-        this.fontAtlas = new Image(fontStream, charWidth * 16, charHeight * 16, false, false);
+        log.info("Loading font atlas...");
+        try (InputStream fontStream = getClass().getResourceAsStream("/font_white_8x16_2.png")) {
+            if (fontStream == null) {
+                log.error("Font image not found: font_white_8x16.png");
+                throw new RuntimeException("Font image not found: font_white_8x16.png");
+            }
+            this.fontAtlas = new Image(fontStream, charWidth * 16, charHeight * 16, false, false);
+        } catch (IOException e) {
+            log.error("Failed to load font atlas", e);
+            throw new RuntimeException(e);
+        }
+
 
         drawToCanvas();
     }
