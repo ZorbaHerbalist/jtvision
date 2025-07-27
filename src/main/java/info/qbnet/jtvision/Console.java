@@ -17,7 +17,7 @@ public class Console {
     private final Screen screen;
     private final Backend backend;
     private final ScheduledExecutorService scheduler;
-    private volatile boolean dirty = false;
+    private volatile boolean screenDirty = false;
 
     /**
      * Constructs a Console with the given screen buffer and rendering backend.
@@ -62,7 +62,7 @@ public class Console {
         for (int i = 0; i < len; i++) {
             screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
-        dirty = true;
+        screenDirty = true;
     }
 
     /**
@@ -70,16 +70,16 @@ public class Console {
      */
     public void clearScreen() {
         screen.clear();
-        dirty = true;
+        screenDirty = true;
     }
 
     /**
      * Renders pending changes if the screen buffer is marked dirty.
      */
     public void flush() {
-        if (dirty) {
+        if (screenDirty) {
             backend.renderScreen();
-            dirty = false;
+            screenDirty = false;
         }
     }
 
