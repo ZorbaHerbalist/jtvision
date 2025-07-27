@@ -31,7 +31,7 @@ public abstract class AbstractSwingBackend extends JPanel
     }
 
     @Override
-    public void initialize() {
+    public void afterInitialization() {
         // default implementation does nothing
     }
 

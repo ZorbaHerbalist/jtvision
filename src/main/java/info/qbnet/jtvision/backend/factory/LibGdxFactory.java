@@ -25,15 +25,19 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
     }
 
     @Override
-    protected void initializeBackend(GuiComponent<ApplicationAdapter> backend,
-                                    int pixelWidth, int pixelHeight,
-                                    CountDownLatch latch, Thread mainThread) {
+    protected GuiComponent<ApplicationAdapter> initializeBackend(Screen screen,
+                                                                 CountDownLatch latch,
+                                                                 Thread mainThread) {
+        GuiComponent<ApplicationAdapter> backend = constructor.apply(screen);
 
         log.info("Starting LibGDX backend");
 
         if (backend instanceof AbstractLibGdxBackend initBackend) {
             initBackend.setInitializationLatch(latch);
         }
+
+        int pixelWidth = screen.getWidth() * backend.getCharWidth();
+        int pixelHeight = screen.getHeight() * backend.getCharHeight();
 
         LwjglApplicationConfiguration lwjglConfig = new LwjglApplicationConfiguration();
         lwjglConfig.title = createWindowTitle(backend);
@@ -57,5 +61,7 @@ public class LibGdxFactory extends Factory<GuiComponent<ApplicationAdapter>> {
                 Gdx.app.postRunnable(() -> Gdx.app.exit());
             }
         });
+
+        return backend;
     }
 }

@@ -16,7 +16,19 @@ public abstract class Factory<B extends Backend> {
 
     private static final Logger log = LoggerFactory.getLogger(Factory.class);
 
-    private final Function<Screen, ? extends B> constructor;
+    /**
+     * Constructs and initializes a GUI backend instance for a given screen.
+     * This function is intended to be supplied by the implementing factory to facilitate
+     * the creation of a rendering backend tailored to a specific framework or library.
+     * <p>
+     * The constructor function accepts a {@link Screen} object as input and returns a backend
+     * instance of type {@code B}. It allows the factory to delegate the instantiation logic
+     * to a custom implementation, which may vary depending on the graphical framework being used.
+     * <p>
+     * It is protected so subclasses can directly create the backend when needed,
+     * e.g. on a dedicated UI thread.
+     */
+    protected final Function<Screen, ? extends B> constructor;
     private final String libraryName;
 
     protected Factory(Function<Screen, ? extends B> constructor, String libraryName) {
@@ -43,18 +55,12 @@ public abstract class Factory<B extends Backend> {
      */
     public final B createBackend(Screen screen) {
         log.info("Creating backend using library {}", libraryName);
-        B backend = constructor.apply(screen);
-        log.debug("Backend instance created: {}", backend.getClass().getSimpleName());
 
         CountDownLatch latch = new CountDownLatch(1);
         Thread mainThread = Thread.currentThread();
 
-        int pixelWidth = screen.getWidth() * backend.getCharWidth();
-        int pixelHeight = screen.getHeight() * backend.getCharHeight();
-        log.debug("Computed window size: {}x{}", pixelWidth, pixelHeight);
-
         log.debug("Initializing backend...");
-        initializeBackend(backend, pixelWidth, pixelHeight, latch, mainThread);
+        B backend = initializeBackend(screen, latch, mainThread);
         awaitInitialization(latch);
         log.info("Backend initialized");
         return backend;
@@ -62,16 +68,15 @@ public abstract class Factory<B extends Backend> {
 
     /**
      * Performs library specific initialization of the backend.
+     * Implementations are expected to create the backend instance and
+     * signal completion on the provided latch once the UI is ready.
      *
-     * @param backend      backend instance to initialize
-     * @param pixelWidth   computed window width in pixels
-     * @param pixelHeight  computed window height in pixels
-     * @param latch        latch used to signal completion
-     * @param mainThread   main thread creating the backend
+     * @param screen      screen buffer for the backend
+     * @param latch       latch used to signal completion
+     * @param mainThread  main thread creating the backend
      */
-    protected abstract void initializeBackend(
-            B backend, int pixelWidth, int pixelHeight,
-            CountDownLatch latch, Thread mainThread);
+    protected abstract B initializeBackend(
+            Screen screen, CountDownLatch latch, Thread mainThread);
 
     /**
      * Wait for initialization to complete and handle interruptions.

@@ -21,11 +21,11 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
     public SwingTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
-        initialize();
+        afterInitialization();
     }
 
     @Override
-    public void initialize() {
+    public void afterInitialization() {
         initResources();
     }
 

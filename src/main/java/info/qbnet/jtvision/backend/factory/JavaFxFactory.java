@@ -33,9 +33,11 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
     }
 
     @Override
-    protected void initializeBackend(GuiComponent<Canvas> backend,
-                                    int pixelWidth, int pixelHeight,
-                                    CountDownLatch latch, Thread mainThread) {
+    protected GuiComponent<Canvas> initializeBackend(Screen screen,
+                                                    CountDownLatch latch,
+                                                    Thread mainThread) {
+        GuiComponent<Canvas> backend = constructor.apply(screen);
+
         log.info("Starting JavaFX backend");
 
         Platform.runLater(() -> {
@@ -55,7 +57,7 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
             stage.show();
             log.debug("Stage shown");
 
-            backend.initialize();
+            backend.afterInitialization();
 
             setupThreadCleanup(mainThread, () ->
                     Platform.runLater(() -> {
@@ -66,5 +68,7 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
 
             latch.countDown();
         });
+
+        return backend;
     }
 }

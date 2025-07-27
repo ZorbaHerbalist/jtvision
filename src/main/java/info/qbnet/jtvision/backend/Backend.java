@@ -6,10 +6,10 @@ package info.qbnet.jtvision.backend;
 public interface Backend {
 
     /**
-     * Initializes the backend for a specific implementation. This method is expected
-     * to be called in a location appropriate for the library being used.
+     * Performs post-initialization actions after the backend has been initialized by a specific library.
+     * It should be called at a time appropriate for the library used to implement this class.
      */
-    void initialize();
+    void afterInitialization();
 
     /**
      * Renders the given screen buffer.

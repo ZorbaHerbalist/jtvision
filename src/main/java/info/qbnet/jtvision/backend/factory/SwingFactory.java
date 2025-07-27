@@ -18,11 +18,20 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
     }
 
     @Override
-    protected void initializeBackend(GuiComponent<JPanel> backend,
-                                    int pixelWidth, int pixelHeight,
-                                    CountDownLatch latch, Thread mainThread) {
+    protected GuiComponent<JPanel> initializeBackend(Screen screen,
+                                                    CountDownLatch latch,
+                                                    Thread mainThread) {
         log.info("Starting Swing backend");
+
+        // the backend is created inside the EDT, store it in an array so we
+        // can return it after initialization completes
+        final GuiComponent<JPanel>[] ref = new GuiComponent[1];
+
+        // perform all UI initialization on the Swing event dispatch thread
         SwingUtilities.invokeLater(() -> {
+            // create the backend inside the EDT to avoid threading issues
+            GuiComponent<JPanel> backend = constructor.apply(screen);
+
             JFrame frame = new JFrame();
             frame.setTitle(createWindowTitle(backend));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,14 +40,21 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
             frame.setVisible(true);
             log.debug("Swing frame shown");
 
-            backend.initialize();
+            backend.afterInitialization();
 
             setupThreadCleanup(mainThread, () -> {
                 log.debug("Forcefully terminating Swing frame...");
                 SwingUtilities.invokeLater(frame::dispose);
             });
 
+            // store backend reference for the caller and signal completion
+            ref[0] = backend;
             latch.countDown();
         });
+
+        // wait for the Swing thread to finish setting up the UI
+        awaitInitialization(latch);
+        // return the backend created on the EDT
+        return ref[0];
     }
 }

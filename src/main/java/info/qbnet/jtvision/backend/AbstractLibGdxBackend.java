@@ -41,7 +41,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     }
 
     @Override
-    public void initialize() {
+    public void afterInitialization() {
         initResources();
     }
 
@@ -49,7 +49,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     public void create() {
         renderThread = Thread.currentThread();
         batch = new SpriteBatch();
-        initialize();
+        afterInitialization();
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);

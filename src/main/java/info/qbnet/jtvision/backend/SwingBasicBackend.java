@@ -18,11 +18,11 @@ public class SwingBasicBackend extends AbstractSwingBackend {
      */
     public SwingBasicBackend(Screen buffer, int charWidth, int charHeight) {
         super(buffer, charWidth, charHeight);
-        initialize();
+        this.afterInitialization();
     }
 
     @Override
-    public void initialize() {
+    public void afterInitialization() {
         initResources();
     }
 
