@@ -26,7 +26,6 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private final Integer charWidth;
     private final Integer charHeight;
 
-    private volatile Thread renderThread;
     private CountDownLatch initLatch;
 
     protected SpriteBatch batch;
@@ -47,7 +46,6 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     @Override
     public void create() {
-        renderThread = Thread.currentThread();
         batch = new SpriteBatch();
         afterInitialization();
 
