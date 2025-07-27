@@ -15,8 +15,8 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
 
     private Font font;
 
-    public JavaFxTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
-        super(buffer, charWidth, charHeight);
+    public JavaFxTrueTypeBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
 
         // initialization deferred until JavaFX stage is ready
     }

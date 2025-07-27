@@ -12,16 +12,16 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
 
-    protected final Screen buffer;
+    protected final Screen screen;
     protected final Canvas canvas;
     private final Integer charWidth;
     private final Integer charHeight;
 
-    protected AbstractJavaFxBackend(Screen buffer, int charWidth, int charHeight) {
-        this.buffer = buffer;
+    protected AbstractJavaFxBackend(Screen screen, int charWidth, int charHeight) {
+        this.screen = screen;
         this.charWidth = charWidth;
         this.charHeight = charHeight;
-        this.canvas = new Canvas(buffer.getWidth() * charWidth, buffer.getHeight() * charHeight);
+        this.canvas = new Canvas(screen.getWidth() * charWidth, screen.getHeight() * charHeight);
     }
 
     @Override
@@ -32,9 +32,9 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     protected void drawToCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         configureGraphics(gc);
-        for (int y = 0; y < buffer.getHeight(); y++) {
-            for (int x = 0; x < buffer.getWidth(); x++) {
-                drawChar(gc, x, y, buffer.getChar(x, y));
+        for (int y = 0; y < screen.getHeight(); y++) {
+            for (int x = 0; x < screen.getWidth(); x++) {
+                drawChar(gc, x, y, screen.getChar(x, y));
             }
         }
     }

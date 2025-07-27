@@ -19,8 +19,8 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
 
     private BufferedImage fontAtlas;
 
-    public SwingBitmapBackend(Screen buffer, int charWidth, int charHeight) {
-        super(buffer, charWidth, charHeight);
+    public SwingBitmapBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
         afterInitialization();
     }
 

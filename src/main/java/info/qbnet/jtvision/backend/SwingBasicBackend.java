@@ -12,12 +12,12 @@ public class SwingBasicBackend extends AbstractSwingBackend {
     /**
      * Constructs a Swing rendering panel for the given screen.
      *
-     * @param buffer the screen buffer to render
+     * @param screen the screen buffer to render
      * @param charWidth width of a character cell in pixels
      * @param charHeight height of a character cell in pixels
      */
-    public SwingBasicBackend(Screen buffer, int charWidth, int charHeight) {
-        super(buffer, charWidth, charHeight);
+    public SwingBasicBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
         this.afterInitialization();
     }
 

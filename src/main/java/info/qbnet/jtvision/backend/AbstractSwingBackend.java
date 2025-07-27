@@ -15,17 +15,17 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractSwingBackend extends JPanel
         implements GuiComponent<JPanel> {
 
-    protected final Screen buffer;
+    protected final Screen screen;
     protected final BufferedImage backBuffer;
     private final Integer charWidth;
     private final Integer charHeight;
 
-    protected AbstractSwingBackend(Screen buffer, Integer charWidth, Integer charHeight) {
-        this.buffer = buffer;
+    protected AbstractSwingBackend(Screen screen, Integer charWidth, Integer charHeight) {
+        this.screen = screen;
         this.charWidth = charWidth;
         this.charHeight = charHeight;
-        int width = buffer.getWidth() * charWidth;
-        int height = buffer.getHeight() * charHeight;
+        int width = screen.getWidth() * charWidth;
+        int height = screen.getHeight() * charHeight;
         this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         setPreferredSize(new Dimension(width, height));
     }
@@ -44,9 +44,9 @@ public abstract class AbstractSwingBackend extends JPanel
     protected void drawToBackBuffer() {
         Graphics2D g2d = backBuffer.createGraphics();
         configureGraphics(g2d);
-        for (int y = 0; y < buffer.getHeight(); y++) {
-            for (int x = 0; x < buffer.getWidth(); x++) {
-                drawChar(g2d, x, y, buffer.getChar(x, y));
+        for (int y = 0; y < screen.getHeight(); y++) {
+            for (int x = 0; x < screen.getWidth(); x++) {
+                drawChar(g2d, x, y, screen.getChar(x, y));
             }
         }
         g2d.dispose();

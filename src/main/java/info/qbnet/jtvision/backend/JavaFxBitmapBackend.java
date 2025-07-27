@@ -23,8 +23,8 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
 
     private Image fontAtlas;
 
-    public JavaFxBitmapBackend(Screen buffer, int charWidth, int charHeight) {
-        super(buffer, charWidth, charHeight);
+    public JavaFxBitmapBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
 
         // initialization deferred until JavaFX stage is ready
     }

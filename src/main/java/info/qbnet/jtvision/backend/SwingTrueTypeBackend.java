@@ -19,8 +19,8 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
 
     private Font font;
 
-    public SwingTrueTypeBackend(Screen buffer, int charWidth, int charHeight) {
-        super(buffer, charWidth, charHeight);
+    public SwingTrueTypeBackend(Screen screen, int charWidth, int charHeight) {
+        super(screen, charWidth, charHeight);
         afterInitialization();
     }
 
