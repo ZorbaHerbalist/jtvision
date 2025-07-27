@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import info.qbnet.jtvision.backend.util.ColorUtil;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 /**
  * LibGDX backend rendering console using a bitmap font texture.

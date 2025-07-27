@@ -1,7 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.GuiComponent;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package info.qbnet.jtvision.core;
+package info.qbnet.jtvision.util;
 
 import java.awt.*;
 

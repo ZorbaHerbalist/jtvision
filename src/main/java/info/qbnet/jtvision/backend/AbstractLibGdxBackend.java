@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import java.util.concurrent.CountDownLatch;
 

@@ -1,7 +1,7 @@
 package info.qbnet.jtvision;
 
 import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import java.awt.*;
 import java.util.concurrent.Executors;

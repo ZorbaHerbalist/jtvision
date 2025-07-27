@@ -4,7 +4,7 @@ import info.qbnet.jtvision.backend.*;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import java.awt.*;
 

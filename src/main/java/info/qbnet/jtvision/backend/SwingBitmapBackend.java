@@ -1,6 +1,6 @@
 package info.qbnet.jtvision.backend;
 
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,7 @@ package info.qbnet.jtvision.backend.factory;
 
 import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.backend.util.ThreadWatcher;
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;

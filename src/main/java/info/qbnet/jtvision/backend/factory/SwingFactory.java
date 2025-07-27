@@ -1,6 +1,6 @@
 package info.qbnet.jtvision.backend.factory;
 
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 
 import javax.swing.*;
 import java.util.concurrent.CountDownLatch;

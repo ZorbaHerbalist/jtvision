@@ -1,6 +1,6 @@
 package info.qbnet.jtvision.backend.factory;
 
-import info.qbnet.jtvision.core.Screen;
+import info.qbnet.jtvision.util.Screen;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
