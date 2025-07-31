@@ -1,4 +1,4 @@
-package info.qbnet.jtvision;
+package info.qbnet.jtvision.core.app;
 
 public class TApplication {
 

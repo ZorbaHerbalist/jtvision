@@ -1,7 +1,7 @@
 package info.qbnet.jtvdemo;
 
 import info.qbnet.jtvision.Console;
-import info.qbnet.jtvision.TApplication;
+import info.qbnet.jtvision.core.app.TApplication;
 import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
