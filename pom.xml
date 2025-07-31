@@ -91,6 +91,13 @@
             <version>1.4.14</version>
         </dependency>
 
+        <!-- Lanterna terminal library -->
+        <dependency>
+            <groupId>com.googlecode.lanterna</groupId>
+            <artifactId>lanterna</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

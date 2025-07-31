@@ -10,5 +10,6 @@ public enum BackendType {
     JAVAFX_BITMAP,
     JAVAFX_TRUETYPE,
     LIBGDX_BITMAP,
-    LIBGDX_TRUETYPE
+    LIBGDX_TRUETYPE,
+    LANTERNA
 }

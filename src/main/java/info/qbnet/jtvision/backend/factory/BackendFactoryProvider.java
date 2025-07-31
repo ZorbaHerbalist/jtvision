@@ -30,6 +30,7 @@ public final class BackendFactoryProvider {
             case JAVAFX_TRUETYPE -> new JavaFxFactory(screen -> new JavaFxTrueTypeBackend(screen, charWidth, charHeight));
             case LIBGDX_BITMAP -> new LibGdxFactory(screen -> new LibGdxBitmapBackend(screen, charWidth, charHeight));
             case LIBGDX_TRUETYPE -> new LibGdxFactory(screen -> new LibGdxTrueTypeBackend(screen, charWidth, charHeight));
+            case LANTERNA -> new LanternaFactory(screen -> new LanternaBackend(screen, charWidth, charHeight));
         };
     }
 }
