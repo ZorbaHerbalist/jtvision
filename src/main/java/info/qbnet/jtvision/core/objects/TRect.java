@@ -1,4 +1,4 @@
-package info.qbnet.core.objects;
+package info.qbnet.jtvision.core.objects;
 
 public class TRect {
 
