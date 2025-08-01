@@ -14,4 +14,8 @@ public class TRect {
         this(new TPoint(), new TPoint());
     }
 
+    public TRect(int x1, int y1, int x2, int y2) {
+        this(new TPoint(x1, y1), new TPoint(x2, y2));
+    }
+
 }

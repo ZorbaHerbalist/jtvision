@@ -5,6 +5,7 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.util.Screen;
 
@@ -22,6 +23,8 @@ public class TProgram extends TGroup {
      * @param type the backend type used to render the console
      */
     public TProgram(BackendType type) {
+        super(new TRect(0, 0, 80, 25));
+
         Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
 
