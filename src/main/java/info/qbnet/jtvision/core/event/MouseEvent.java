@@ -1,17 +1,17 @@
 package info.qbnet.jtvision.core.event;
 
+import info.qbnet.jtvision.core.objects.TPoint;
+
 public final class MouseEvent implements Event {
 
     private final int buttons;
     private final boolean doubleClick;
-    private final int x;
-    private final int y;
+    private TPoint where;
 
-    public MouseEvent(int buttons, boolean doubleClick, int x, int y) {
+    public MouseEvent(int buttons, boolean doubleClick, TPoint where) {
         this.buttons = buttons;
         this.doubleClick = doubleClick;
-        this.x = x;
-        this.y = y;
+        this.where = where;
     }
 
     public int getButtons() {
@@ -22,11 +22,13 @@ public final class MouseEvent implements Event {
         return doubleClick;
     }
 
-    public int getX() {
-        return x;
+    public TPoint getWhere() {
+        return where;
     }
 
-    public int getY() {
-        return y;
+    @Override
+    public EventType getType() {
+        return EventType.EV_MOUSE;
     }
+
 }
