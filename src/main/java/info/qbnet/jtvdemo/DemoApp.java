@@ -2,32 +2,16 @@ package info.qbnet.jtvdemo;
 
 import info.qbnet.jtvision.Console;
 import info.qbnet.jtvision.core.app.TApplication;
-import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
-import info.qbnet.jtvision.backend.factory.Factory;
-import info.qbnet.jtvision.util.Screen;
 
 import java.awt.*;
 
 public class DemoApp extends TApplication {
 
     public DemoApp() {
-        String backendTypeName = System.getProperty("console.backend", "SWING_BITMAP");
-        BackendType type;
-        try {
-            type = BackendType.valueOf(backendTypeName.toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            System.err.println("Unknown backend: " + backendTypeName + ", using SWING_BITMAP");
-            type = BackendType.SWING_BITMAP;
-        }
+        super(determineBackendType());
 
-        Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
-        factory.initialize();
-
-        Screen screen = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
-        Backend backend = factory.createBackend(screen);
-        Console console = new Console(screen, backend);
+        Console console = getConsole();
 
         console.clearScreen();
         drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
@@ -58,6 +42,16 @@ public class DemoApp extends TApplication {
         }
 
         console.shutdown();
+    }
+
+    private static BackendType determineBackendType() {
+        String backendTypeName = System.getProperty("console.backend", "SWING_BITMAP");
+        try {
+            return BackendType.valueOf(backendTypeName.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            System.err.println("Unknown backend: " + backendTypeName + ", using SWING_BITMAP");
+            return BackendType.SWING_BITMAP;
+        }
     }
 
     private void measureBackendSpeed(Console console) {

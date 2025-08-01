@@ -1,11 +1,40 @@
 package info.qbnet.jtvision.core.app;
 
+import info.qbnet.jtvision.Console;
+import info.qbnet.jtvision.backend.Backend;
+import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
+import info.qbnet.jtvision.backend.factory.BackendType;
+import info.qbnet.jtvision.backend.factory.Factory;
 import info.qbnet.jtvision.core.views.TGroup;
+import info.qbnet.jtvision.util.Screen;
+
+import java.awt.*;
 
 public class TProgram extends TGroup {
 
-    public TProgram() {
+    private final Screen screen;
+    private final Backend backend;
+    private final Console console;
+
+    /**
+     * Creates a new program using the specified backend.
+     *
+     * @param type the backend type used to render the console
+     */
+    public TProgram(BackendType type) {
+        Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
+        factory.initialize();
+
+        this.screen = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
+        this.backend = factory.createBackend(screen);
+        this.console = new Console(screen, backend);
     }
 
+    /**
+     * Returns the console instance created for this program.
+     */
+    public Console getConsole() {
+        return console;
+    }
 
 }
