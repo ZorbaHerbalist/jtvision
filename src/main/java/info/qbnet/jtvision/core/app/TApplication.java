@@ -1,7 +1,9 @@
 package info.qbnet.jtvision.core.app;
 
-public class TApplication {
+public class TApplication extends TProgram {
 
-    public TApplication() {}
+    public TApplication()  {
+        super();
+    }
 
 }
