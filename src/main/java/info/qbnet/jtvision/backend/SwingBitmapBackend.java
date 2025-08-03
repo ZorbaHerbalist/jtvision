@@ -1,7 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
+import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

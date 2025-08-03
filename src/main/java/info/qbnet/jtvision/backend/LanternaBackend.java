@@ -6,7 +6,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
+import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 
 import java.io.IOException;
 

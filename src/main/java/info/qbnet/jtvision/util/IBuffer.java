@@ -1,4 +1,4 @@
-package info.qbnet.jtvision.util.buffer;
+package info.qbnet.jtvision.util;
 
 import java.awt.Color;
 
@@ -17,7 +17,7 @@ import java.awt.Color;
  * be ignored.
  * </p>
  */
-public interface CharacterBuffer {
+public interface IBuffer {
 
     /**
      * Writes a character with specified colors at given coordinates.

@@ -1,7 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
+import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;

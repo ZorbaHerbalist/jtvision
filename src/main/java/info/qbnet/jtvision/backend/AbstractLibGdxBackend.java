@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
+import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 
 import java.util.concurrent.CountDownLatch;
 

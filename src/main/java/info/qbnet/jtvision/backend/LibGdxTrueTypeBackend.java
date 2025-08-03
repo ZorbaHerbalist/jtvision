@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
+import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 
 /**
  * LibGDX backend rendering console using TrueType font.

@@ -1,15 +1,12 @@
 package info.qbnet.jtvision.util;
 
-import info.qbnet.jtvision.util.buffer.CharacterBuffer;
-import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
-
 import java.awt.Color;
 
 /**
- * Array-based implementation of {@link CharacterBuffer} using a 2D array of
+ * Array-based implementation of {@link IBuffer} using a 2D array of
  * {@link CharacterCell} objects.
  */
-public class ArrayCharacterBuffer implements CharacterBuffer {
+public class Buffer implements IBuffer {
 
     private final int width;
     private final int height;
@@ -26,7 +23,7 @@ public class ArrayCharacterBuffer implements CharacterBuffer {
      * @param defaultForeground default foreground color
      * @param defaultBackground default background color
      */
-    public ArrayCharacterBuffer(int width, int height, Color defaultForeground, Color defaultBackground) {
+    public Buffer(int width, int height, Color defaultForeground, Color defaultBackground) {
         if (width <= 0 || height <= 0) {
             System.err.printf("Invalid screen dimensions: cols=%d, rows=%d. Must be positive.%n", width, height);
             throw new IllegalArgumentException("Screen dimensions must be positive");
@@ -50,7 +47,7 @@ public class ArrayCharacterBuffer implements CharacterBuffer {
      * @param width  number of columns
      * @param height number of rows
      */
-    public ArrayCharacterBuffer(int width, int height) {
+    public Buffer(int width, int height) {
         this(width, height, Color.LIGHT_GRAY, Color.BLACK);
     }
 
