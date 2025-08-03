@@ -2,6 +2,7 @@ package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -62,7 +63,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         // no-op
     }
 
-    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, Screen.CharacterCell sc);
+    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, CharacterCell sc);
 
     @Override
     public Integer getCellWidth() {

@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,17 +53,17 @@ public class SwingTrueTypeBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc) {
+    protected void drawGlyph(Graphics2D g, int x, int y, CharacterCell sc) {
         g.setFont(font);
         int pixelX = x * getCellWidth();
         int pixelY = y * getCellHeight();
 
-        g.setColor(sc.getBackground());
+        g.setColor(sc.background());
         g.fillRect(pixelX, pixelY, getCellWidth(), getCellHeight());
 
-        g.setColor(sc.getForeground());
+        g.setColor(sc.foreground());
         FontRenderContext fontRenderContext = new FontRenderContext(null, false, false);
-        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, new char[] { sc.getCharacter() });
+        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, new char[] { sc.character() });
         g.drawGlyphVector(glyphVector, pixelX, pixelY + getCellHeight() - 3);
     }
 

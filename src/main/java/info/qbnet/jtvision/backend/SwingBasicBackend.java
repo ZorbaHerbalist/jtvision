@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 
 import java.awt.*;
 
@@ -44,11 +45,11 @@ public class SwingBasicBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc) {
-        g.setColor(sc.getBackground());
+    protected void drawGlyph(Graphics2D g, int x, int y, CharacterCell sc) {
+        g.setColor(sc.background());
         g.fillRect(x * getCellWidth(), y * getCellHeight(), getCellWidth(), getCellHeight());
-        g.setColor(sc.getForeground());
-        g.drawString(Character.toString(sc.getCharacter()), x * getCellWidth(), (y + 1) * getCellHeight() - 4);
+        g.setColor(sc.foreground());
+        g.drawString(Character.toString(sc.character()), x * getCellWidth(), (y + 1) * getCellHeight() - 4);
     }
 
 }

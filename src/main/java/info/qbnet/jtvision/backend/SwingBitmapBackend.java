@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,8 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
     }
 
     @Override
-    protected void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc) {
-        int charCode = sc.getCharacter() & 0xFF;
+    protected void drawGlyph(Graphics2D g, int x, int y, CharacterCell sc) {
+        int charCode = sc.character() & 0xFF;
         int sourceX = (charCode % 16) * getCellWidth();
         int sourceY = (charCode / 16) * getCellHeight();
 
@@ -60,7 +61,7 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
         int destY = y * getCellHeight();
 
         // Draw background
-        g.setColor(sc.getBackground());
+        g.setColor(sc.background());
         g.fillRect(destX, destY, getCellWidth(), getCellHeight());
 
         // Apply foreground color to 1-bit glyph
@@ -68,7 +69,7 @@ public class SwingBitmapBackend extends AbstractSwingBackend {
             for (int glyphX = 0; glyphX < getCellWidth(); glyphX++) {
                 int pixelColor = fontAtlas.getRGB(sourceX + glyphX, sourceY + glyphY) & 0xFFFFFF;
                 if (pixelColor != 0x000000) {
-                    g.setColor(sc.getForeground());
+                    g.setColor(sc.foreground());
                     g.fillRect(destX + glyphX, destY + glyphY, 1, 1);
                 }
             }

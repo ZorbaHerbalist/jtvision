@@ -2,6 +2,7 @@ package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,7 +61,7 @@ public abstract class AbstractSwingBackend extends JPanel
         // no-op
     }
 
-    protected abstract void drawGlyph(Graphics2D g, int x, int y, Screen.CharacterCell sc);
+    protected abstract void drawGlyph(Graphics2D g, int x, int y, CharacterCell sc);
 
     @Override
     public Integer getCellWidth() {

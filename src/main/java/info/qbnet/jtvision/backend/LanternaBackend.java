@@ -6,6 +6,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 
 import java.io.IOException;
 
@@ -46,10 +47,10 @@ public class LanternaBackend implements GuiComponent<Screen> {
         TextGraphics tg = terminalScreen.newTextGraphics();
         for (int y = 0; y < screenBuffer.getHeight(); y++) {
             for (int x = 0; x < screenBuffer.getWidth(); x++) {
-                info.qbnet.jtvision.util.Screen.CharacterCell ch = screenBuffer.getChar(x, y);
-                tg.setForegroundColor(toLanterna(ch.getForeground()));
-                tg.setBackgroundColor(toLanterna(ch.getBackground()));
-                tg.putString(x, y, String.valueOf(ch.getCharacter()));
+                CharacterCell ch = screenBuffer.getChar(x, y);
+                tg.setForegroundColor(toLanterna(ch.foreground()));
+                tg.setBackgroundColor(toLanterna(ch.background()));
+                tg.putString(x, y, String.valueOf(ch.character()));
             }
         }
         try {

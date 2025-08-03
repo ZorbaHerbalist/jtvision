@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -79,10 +80,10 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                Screen.CharacterCell ch = screen.getChar(x, y);
+                CharacterCell ch = screen.getChar(x, y);
                 int pixelY = (screen.getHeight() - y - 1) * cellHeight;
 
-                batch.setColor(ColorUtil.toGdx(ch.getBackground()));
+                batch.setColor(ColorUtil.toGdx(ch.background()));
                 batch.draw(pixel, x * cellWidth, pixelY, cellWidth, cellHeight);
 
                 drawGlyph(batch, ch, x, pixelY);
@@ -127,7 +128,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
      * @param x      cell x coordinate
      * @param pixelY  pixel y coordinate flipped for LibGDX
      */
-    protected abstract void drawGlyph(SpriteBatch batch, Screen.CharacterCell ch, int x, int pixelY);
+    protected abstract void drawGlyph(SpriteBatch batch, CharacterCell ch, int x, int pixelY);
 
     /**
      * Dispose any resources allocated in {@link #initializeResources()}.

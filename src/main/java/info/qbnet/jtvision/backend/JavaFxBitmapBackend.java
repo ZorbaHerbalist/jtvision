@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.buffer.CharacterBuffer.CharacterCell;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -47,22 +48,22 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawGlyph(GraphicsContext gc, int x, int y, Screen.CharacterCell sc) {
-        int charCode = sc.getCharacter() & 0xFF;
+    protected void drawGlyph(GraphicsContext gc, int x, int y, CharacterCell sc) {
+        int charCode = sc.character() & 0xFF;
         int sourceX = (charCode % 16) * getCellWidth();
         int sourceY = (charCode / 16) * getCellHeight();
         double destX = x * getCellWidth();
         double destY = y * getCellHeight();
 
         // Draw background
-        gc.setFill(ColorUtil.toFx(sc.getBackground()));
+        gc.setFill(ColorUtil.toFx(sc.background()));
         gc.fillRect(destX, destY, getCellWidth(), getCellHeight());
 
         // Extract glyph from atlas
         PixelReader reader = fontAtlas.getPixelReader();
         WritableImage glyph = new WritableImage(getCellWidth(), getCellHeight());
         PixelWriter writer = glyph.getPixelWriter();
-        Color fg = ColorUtil.toFx(sc.getForeground());
+        Color fg = ColorUtil.toFx(sc.foreground());
 
         for (int j = 0; j < getCellHeight(); j++) {
             for (int i = 0; i < getCellWidth(); i++) {
