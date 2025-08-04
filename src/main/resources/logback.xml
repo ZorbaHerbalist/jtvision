@@ -1,11 +1,15 @@
 <configuration>
+    <!-- Allow overriding the log level via the LOG_LEVEL system property or
+         environment variable. Defaults to DEBUG when not provided. -->
+    <property name="LOG_LEVEL" value="${LOG_LEVEL:-DEBUG}" />
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level [%-8thread] [%-36logger{36}] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="debug">
+    <root level="${LOG_LEVEL}">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
