@@ -31,6 +31,8 @@ public class TProgram extends TGroup {
         this.screen = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
         this.backend = factory.createBackend(screen);
         this.console = new Console(screen, backend);
+
+        setBuffer(screen);
     }
 
     /**

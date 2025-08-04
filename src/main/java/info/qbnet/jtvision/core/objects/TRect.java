@@ -41,7 +41,8 @@ public class TRect {
      * @param yb y-coordinate of bottom-right corner
      */
     public TRect(int xa, int ya, int xb, int yb) {
-        assign(xa, ya, xb, yb);
+        this.a = new TPoint(xa, ya);
+        this.b = new TPoint(xb, yb);
     }
 
     /**

@@ -3,18 +3,334 @@ package info.qbnet.jtvision.core.views;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 
+/**
+ * Base class for all visible user interface elements in the Turbo Vision-style framework.
+ * <p>
+ * {@code TView} provides the foundational geometry, ownership, and linking functionality
+ * common to all UI elements. It defines basic fields like position, size, and ownership,
+ * and serves as the root of the view hierarchy.
+ * </p>
+ * <p>
+ * {@code TView} is rarely instantiated directly. Instead, it is designed to be extended by
+ * more specialized view types such as windows, buttons, scrollbars, or text editors.
+ * </p>
+ */
 public class TView {
 
-    private TPoint origin;
-    private TPoint size;
+    /**
+     * Points to the {@link TGroup} object that owns this view.
+     * <p>
+     * If {@code null}, the view has no owner. The view is displayed within its owner's view
+     * and will be clipped by the owner's bounding rectangle.
+     * </p>
+     */
+    private TGroup owner = null;
 
+    /**
+     * Pointer to the next peer view in Z-order.
+     * <p>
+     * If this is the last subview, {@code next} points to the owner's first subview.
+     * This field is used to navigate sibling views within the same owner group.
+     * </p>
+     */
+    private TView next = null;
+
+    /**
+     * The (X, Y) coordinates of the view’s top-left corner, relative to the owner’s origin.
+     */
+    protected TPoint origin;
+
+    /**
+     * The size of the view.
+     */
+    protected TPoint size;
+
+    public class State {
+        public static final int SF_VISIBLE      = 1 << 0;
+        public static final int SF_CURSOR_VIS   = 1 << 1;
+        public static final int SF_CURSOR_INS   = 1 << 2;
+        public static final int SF_SHADOW       = 1 << 3;
+        public static final int SF_ACTIVE       = 1 << 4;
+        public static final int SF_SELECTED     = 1 << 5;
+        public static final int SF_FOCUSED      = 1 << 6;
+        public static final int SF_DRAGGING     = 1 << 7;
+        public static final int SF_DISABLED     = 1 << 8;
+        public static final int SF_MODAL        = 1 << 9;
+        public static final int SF_DEFAULT      = 1 << 10;
+        public static final int SF_EXPOSED      = 1 << 11;
+    }
+
+    private int state = State.SF_VISIBLE;
+
+    public class Options {
+        public static final int OF_SELECTABLE   = 1 << 0;
+        public static final int OF_TOP_SELECT   = 1 << 1;
+        public static final int OF_FIRST_CLICK  = 1 << 2;
+        public static final int OF_FRAMED       = 1 << 3;
+        public static final int OF_PRE_PROCESS  = 1 << 4;
+        public static final int OF_POST_PROCESS = 1 << 5;
+        public static final int OF_BUFFERED     = 1 << 6;
+        public static final int OF_TILEABLE     = 1 << 7;
+        public static final int OF_CENTER_X     = 1 << 8;
+        public static final int OF_CENTER_Y     = 1 << 9;
+        public static final int OF_CENTER       = OF_CENTER_X | OF_CENTER_Y;
+        public static final int OF_VALIDATE     = 1 << 10;
+    }
+
+    private int options = 0;
+
+    /**
+     * Creates a {@code TView} object with the given {@code bounds} rectangle.
+     *
+     * @param bounds The rectangle defining the position and size of the view.
+     */
     public TView(TRect bounds) {
         setBounds(bounds);
     }
 
+    /**
+     * Sets the bounding rectangle of the view to the value given by the {@code bounds} parameter.
+     * <p>
+     * The {@code origin} field is set to {@code bounds.a}, and the {@code size} field is set
+     * to the difference between {@code bounds.b} and {@code bounds.a}.
+     * </p>
+     * <p>
+     * This method is intended to be called only from within an overridden {@code changeBounds}
+     * method. You should never call {@code setBounds} directly.
+     * </p>
+     *
+     * @param bounds The rectangle defining the new bounds of the view.
+     */
     private void setBounds(TRect bounds) {
         this.origin = bounds.a;
         this.size = bounds.b;
+    }
+
+    /**
+     * Sets the extent rectangle of the view into the provided {@code extent} parameter.
+     * <p>
+     * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
+     * of the view. This represents the local coordinate space of the view itself.
+     * </p>
+     *
+     * @param extent The {@link TRect} instance to be populated with the extent.
+     */
+    public void getExtent(TRect extent) {
+        extent.a = new TPoint(0, 0);
+        extent.b = new TPoint(size.x, size.y);
+    }
+
+    /**
+     * Returns the owner of this view.
+     *
+     * @return The {@link TGroup} that owns this view, or {@code null} if it has no owner.
+     */
+    public TGroup getOwner() {
+        return owner;
+    }
+
+    /**
+     * Sets the owner of this view.
+     *
+     * @param owner The {@link TGroup} to set as the owner of this view.
+     */
+    public void setOwner(TGroup owner) {
+        this.owner = owner;
+    }
+
+    public void draw() {
+        System.err.println("TView::draw()");
+        // TODO
+    }
+
+    public void drawHide(TView lastView) {
+//        drawCursor(); TODO
+        drawUnderView((state & State.SF_SHADOW) != 0, lastView);
+    }
+
+    public void drawShow(TView lastView) {
+        drawView();
+        if ((state & State.SF_SHADOW) != 0) {
+            drawUnderView(true, lastView);
+        }
+    }
+
+    private void drawUnderRect(TRect rect, TView lastView) {
+        owner.clip.intersect(rect);
+        owner.drawSubViews(nextView(), lastView);
+        owner.getExtent(owner.clip);
+    }
+
+    private void drawUnderView(boolean doShadow, TView lastView) {
+        TRect r = new TRect();
+        getBounds(r);
+        if (doShadow) {
+            r.b.x++; // TODO ShadowSize.X
+            r.b.y++; // TODO ShadowSize.Y
+        }
+        drawUnderRect(r, lastView);
+    }
+
+    public void drawView() {
+        if (exposed()) {
+            draw();
+//            drawCursor(); TODO
+        }
+    }
+
+    private boolean isRowExposed(int y, int xStart, int xEnd) {
+        if (owner == null || owner.last == null) return true;
+
+        TView target = this;
+        TView current = owner.last.getNext();
+        do {
+            if (current == target) break;
+
+            if ((current.getState() & State.SF_VISIBLE) != 0) {
+                int cy = current.origin.y;
+                int ch = current.size.y;
+                if (y >= cy && y < cy + ch) {
+                    int cx1 = current.origin.x;
+                    int cx2 = cx1 + current.size.x;
+
+                    // Case: current covers left part of our row
+                    if (cx1 <= xStart && cx2 > xStart) {
+                        xStart = cx2;
+                        if (xStart >= xEnd) return false;
+                    }
+                    // Case: current cuts into right part
+                    else if (cx1 < xEnd && cx2 >= xEnd) {
+                        xEnd = cx1;
+                        if (xStart >= xEnd) return false;
+                    }
+                    // Case: current entirely covers [xStart, xEnd)
+                    else if (cx1 <= xStart && cx2 >= xEnd) {
+                        return false;
+                    }
+                }
+            }
+            current = current.getNext();
+        } while (current != owner.last.getNext());
+
+        return xStart < xEnd;
+    }
+
+    public boolean exposed() {
+        if ((state & State.SF_VISIBLE) == 0) return false;
+        if ((size.x <= 0) || (size.y <= 0)) return false;
+
+        for (int y = 0; y < size.y; y++) {
+            int rowY = origin.y + y;
+            int xStart = origin.x;
+            int xEnd = origin.x + size.x;
+
+            // Clip to owner's clip rect
+            if (owner == null) return false;
+            TRect clip = owner.clip;
+            if (rowY < clip.a.y || rowY >= clip.b.y) continue;
+
+            int visibleXStart = Math.max(clip.a.x, xStart);
+            int visibleXEnd = Math.min(clip.b.x, xEnd);
+
+            if (visibleXStart >= visibleXEnd) continue;
+
+            if (isRowExposed(rowY, visibleXStart, visibleXEnd)) return true;
+        }
+
+        return false;
+    }
+
+    void getBounds(TRect bounds) {
+        bounds.a = origin;
+        bounds.b = new TPoint(origin.x + size.x, origin.y + size.y);
+    }
+
+    public void hide() {
+        if ((state & State.SF_VISIBLE) != 0) {
+            setState(State.SF_VISIBLE, false);
+        }
+    }
+
+    public TView nextView() {
+        if (owner.last == this) {
+            return null;
+        } else {
+            return next;
+        }
+    }
+
+    /**
+     * Returns the next view in the sibling chain.
+     *
+     * @return The next {@link TView} in the sibling list, or {@code null} if this is the last.
+     */
+    public TView getNext() {
+        return next;
+    }
+
+    /**
+     * Sets the next view in the sibling chain.
+     *
+     * @param next The {@link TView} to set as the next sibling view.
+     */
+    public void setNext(TView next) {
+        this.next = next;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state, boolean enable) {
+        if (Integer.bitCount(state) != 1) {
+            throw new IllegalArgumentException("setState expects exactly one bit set in state");
+        }
+
+        if (enable) {
+            this.state |= state;
+        } else {
+            this.state &= ~state;
+        }
+
+        if (owner == null) return;
+
+        switch (state) {
+            case State.SF_VISIBLE:
+                if ((owner.getState() & State.SF_EXPOSED) != 0) {
+                    setState(State.SF_EXPOSED, enable);
+                }
+                if (enable) {
+                    drawShow(null);
+                } else {
+                    drawHide(null);
+                }
+                if ((options & Options.OF_SELECTABLE) != 0) {
+                    owner.resetCurrent();
+                }
+                break;
+
+//            case State.SF_CURSOR_VIS:
+//            case State.SF_CURSOR_INS:
+//                drawCursor(null);
+//                break;
+//
+//            case State.SF_SHADOW:
+//                drawUnderView(true, null);
+//                break;
+//
+//            case State.SF_FOCUSED:
+//                resetCursor();
+//                int command = enable ? cmReceivedFocus : cmReleasedFocus;
+//                message(owner, Event.BROADCAST, command, this);
+//                break;
+
+            default:
+                break;
+        }
+    }
+
+    public int getOptions() {
+        return options;
     }
 
 }
