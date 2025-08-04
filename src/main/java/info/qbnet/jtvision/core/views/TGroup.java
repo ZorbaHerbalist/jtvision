@@ -23,6 +23,8 @@ public class TGroup extends TView {
     public TGroup(TRect bounds) {
         super(bounds);
         getExtent(clip);
+
+        logger.debug("{} created", getLogName());
     }
 
     public IBuffer getBuffer() {
@@ -35,6 +37,8 @@ public class TGroup extends TView {
 
     @Override
     public void draw() {
+        logger.debug("{} draw()", getLogName());
+        super.draw();
         // TODO
     }
 
@@ -64,10 +68,12 @@ public class TGroup extends TView {
     }
 
     public void insert(TView view) {
+        logger.debug("{} insert({})", getLogName(), view != null ? view.getLogName() : "null");
         insertBefore(view, getFirst());
     }
 
     public void insertBefore(TView p, TView target) {
+        logger.debug("{} insertBefore({}, {})", getLogName(), p != null ? p.getLogName() : "null", target != null ? target.getLogName() : "null");
         if (p != null && p.getOwner() == null && (target == null || target.getOwner() == this)) {
             if ((p.getOptions() & Options.OF_CENTER_X) != 0) {
                 p.origin.x = (size.x - p.size.x) / 2;
@@ -91,12 +97,14 @@ public class TGroup extends TView {
     }
 
     public void lock() {
+        logger.debug("{} lock()", getLogName());
         if (buffer != null || lockFlag != 0) {
             lockFlag++;
         }
     }
 
     public void unlock() {
+        logger.debug("{} unlock()", getLogName());
         if (lockFlag != 0) {
             lockFlag--;
             if (lockFlag == 0) {
@@ -106,22 +114,26 @@ public class TGroup extends TView {
     }
 
     protected void resetCurrent() {
+        logger.debug("{} resetCurrent()", getLogName());
         setCurrent(firstMatch(State.SF_VISIBLE, Options.OF_SELECTABLE), SelectMode.NORMAL_SELECT);
     }
 
     private void focusView(TView v, boolean enable) {
+        logger.debug("{} focusView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
         if ((this.getState() & State.SF_FOCUSED) != 0 && v != null) {
             v.setState(State.SF_FOCUSED, enable);
         }
     }
 
     private void selectView(TView v, boolean enable) {
+        logger.debug("{} selectView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
         if (v != null) {
             v.setState(State.SF_SELECTED, enable);
         }
     }
 
     private void setCurrent(TView v, SelectMode mode) {
+        logger.debug("{} setCurrent({}, {})", getLogName(), v != null ? v.getLogName() : "null", mode);
         if (current != v) {
             lock();
             focusView(current, false);

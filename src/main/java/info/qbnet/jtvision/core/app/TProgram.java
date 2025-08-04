@@ -24,6 +24,7 @@ public class TProgram extends TGroup {
      */
     public TProgram(BackendType type) {
         super(new TRect(0, 0, 80, 25));
+        logger.debug("{} TProgram({})", getLogName(), type);
 
         Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();

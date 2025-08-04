@@ -9,6 +9,7 @@ public class TApplication extends TProgram {
      */
     public TApplication(BackendType type)  {
         super(type);
+        logger.debug("{} TApplication({})", getLogName(), type);
     }
 
 }

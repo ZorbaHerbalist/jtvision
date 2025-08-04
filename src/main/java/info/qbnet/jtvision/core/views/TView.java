@@ -2,6 +2,11 @@ package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base class for all visible user interface elements in the Turbo Vision-style framework.
@@ -16,6 +21,11 @@ import info.qbnet.jtvision.core.objects.TRect;
  * </p>
  */
 public class TView {
+
+    private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
+
+    protected final Logger logger;
+    private final String logName;
 
     /**
      * Points to the {@link TGroup} object that owns this view.
@@ -85,6 +95,12 @@ public class TView {
      * @param bounds The rectangle defining the position and size of the view.
      */
     public TView(TRect bounds) {
+        logger = LoggerFactory.getLogger(getClass());
+        AtomicInteger counter = CLASS_COUNTERS.computeIfAbsent(getClass(), k -> new AtomicInteger());
+        logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
+
+        logger.debug("{} created", logName);
+
         setBounds(bounds);
     }
 
@@ -138,17 +154,28 @@ public class TView {
         this.owner = owner;
     }
 
+    public String getLogName() {
+        return logName;
+    }
+
+    @Override
+    public String toString() {
+        return logName;
+    }
+
     public void draw() {
-        System.err.println("TView::draw()");
+        logger.debug("{} draw()", logName);
         // TODO
     }
 
     public void drawHide(TView lastView) {
+        logger.debug("{} drawHide()", logName);
 //        drawCursor(); TODO
         drawUnderView((state & State.SF_SHADOW) != 0, lastView);
     }
 
     public void drawShow(TView lastView) {
+        logger.debug("{} drawShow()", logName);
         drawView();
         if ((state & State.SF_SHADOW) != 0) {
             drawUnderView(true, lastView);
@@ -162,6 +189,7 @@ public class TView {
     }
 
     private void drawUnderView(boolean doShadow, TView lastView) {
+        logger.debug("{} drawUnderView(doShadow={})", logName, doShadow);
         TRect r = new TRect();
         getBounds(r);
         if (doShadow) {
@@ -172,6 +200,7 @@ public class TView {
     }
 
     public void drawView() {
+        logger.debug("{} drawView()", logName);
         if (exposed()) {
             draw();
 //            drawCursor(); TODO
@@ -246,6 +275,7 @@ public class TView {
     }
 
     public void hide() {
+        logger.debug("{} hide()", logName);
         if ((state & State.SF_VISIBLE) != 0) {
             setState(State.SF_VISIBLE, false);
         }
