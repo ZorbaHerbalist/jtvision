@@ -24,7 +24,8 @@ public class TProgram extends TGroup {
      */
     public TProgram(BackendType type) {
         super(new TRect(0, 0, 80, 25));
-        logger.debug("{} TProgram({})", getLogName(), type);
+
+        logger.debug("{} TProgram@TProgram(type={})", getLogName(), type);
 
         Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
@@ -40,6 +41,8 @@ public class TProgram extends TGroup {
      * Returns the console instance created for this program.
      */
     public Console getConsole() {
+        logger.trace("{} TProgram@getConsole()", getLogName());
+
         return console;
     }
 

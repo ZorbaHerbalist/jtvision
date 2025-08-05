@@ -10,7 +10,8 @@ public class TBackground extends TView {
     public TBackground(TRect bounds, char pattern) {
         super(bounds);
         this.pattern = pattern;
-        logger.debug("{} TBackground(pattern={})", getLogName(), pattern);
+
+        logger.debug("{} TBackground@TBackground(bounds={}, pattern={})", getLogName(), bounds, (int) pattern);
     }
 
 }

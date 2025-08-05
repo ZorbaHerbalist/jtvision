@@ -9,14 +9,17 @@ public class TDesktop extends TGroup {
 
     public TDesktop(TRect bounds) {
         super(bounds);
-        logger.debug("{} TDesktop()", getLogName());
+
+        logger.debug("{} TDesktop@TDesktop(bounds={})", getLogName(), bounds);
+
         if (background != null) {
 
         }
     }
 
     public void initBackground() {
-        logger.debug("{} initBackground()", getLogName());
+        logger.trace("{} TDesktop@initBackground()", getLogName());
+
         TRect rect = new TRect();
         getExtent(rect);
         background = new TBackground(rect, (char) 176);

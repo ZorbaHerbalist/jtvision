@@ -24,20 +24,25 @@ public class TGroup extends TView {
         super(bounds);
         getExtent(clip);
 
-        logger.debug("{} created", getLogName());
+        logger.debug("{} TGroup@TGroup(bounds={})", getLogName(), bounds);
     }
 
     public IBuffer getBuffer() {
+        logger.trace("{} TGroup@getBuffer()", getLogName());
+
         return buffer;
     }
 
     public void setBuffer(IBuffer buffer) {
+        logger.trace("{} TGroup@setBuffer({})", getLogName(), buffer);
+
         this.buffer = buffer;
     }
 
     @Override
     public void draw() {
-        logger.debug("{} draw()", getLogName());
+        logger.trace("{} TGroup@draw()", getLogName());
+
         super.draw();
         // TODO
     }
@@ -68,12 +73,15 @@ public class TGroup extends TView {
     }
 
     public void insert(TView view) {
-        logger.debug("{} insert({})", getLogName(), view != null ? view.getLogName() : "null");
+        logger.trace("{} TGroup@insert({})", getLogName(), view != null ? view.getLogName() : "null");
+
         insertBefore(view, getFirst());
     }
 
     public void insertBefore(TView p, TView target) {
-        logger.debug("{} insertBefore({}, {})", getLogName(), p != null ? p.getLogName() : "null", target != null ? target.getLogName() : "null");
+        logger.trace("{} TGroup@insertBefore({}, {})", getLogName(), p != null ? p.getLogName() : "null",
+                target != null ? target.getLogName() : "null");
+
         if (p != null && p.getOwner() == null && (target == null || target.getOwner() == this)) {
             if ((p.getOptions() & Options.OF_CENTER_X) != 0) {
                 p.origin.x = (size.x - p.size.x) / 2;
@@ -97,14 +105,16 @@ public class TGroup extends TView {
     }
 
     public void lock() {
-        logger.debug("{} lock()", getLogName());
+        logger.trace("{} TGroup@lock()", getLogName());
+
         if (buffer != null || lockFlag != 0) {
             lockFlag++;
         }
     }
 
     public void unlock() {
-        logger.debug("{} unlock()", getLogName());
+        logger.trace("{} TGRoup@unlock()", getLogName());
+
         if (lockFlag != 0) {
             lockFlag--;
             if (lockFlag == 0) {
@@ -114,26 +124,30 @@ public class TGroup extends TView {
     }
 
     protected void resetCurrent() {
-        logger.debug("{} resetCurrent()", getLogName());
+        logger.trace("{} TGroup@resetCurrent()", getLogName());
+
         setCurrent(firstMatch(State.SF_VISIBLE, Options.OF_SELECTABLE), SelectMode.NORMAL_SELECT);
     }
 
     private void focusView(TView v, boolean enable) {
-        logger.debug("{} focusView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
+        logger.trace("{} TGroup@focusView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
+
         if ((this.getState() & State.SF_FOCUSED) != 0 && v != null) {
             v.setState(State.SF_FOCUSED, enable);
         }
     }
 
     private void selectView(TView v, boolean enable) {
-        logger.debug("{} selectView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
+        logger.trace("{} TGroup@selectView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
+
         if (v != null) {
             v.setState(State.SF_SELECTED, enable);
         }
     }
 
     private void setCurrent(TView v, SelectMode mode) {
-        logger.debug("{} setCurrent({}, {})", getLogName(), v != null ? v.getLogName() : "null", mode);
+        logger.trace("{} TGroup@setCurrent({}, {})", getLogName(), v != null ? v.getLogName() : "null", mode);
+
         if (current != v) {
             lock();
             focusView(current, false);
