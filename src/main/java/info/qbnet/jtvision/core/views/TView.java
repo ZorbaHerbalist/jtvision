@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TView {
 
     /**
-     * Points to the {@link TGroup} object that owns this view.
+     * Reference to the {@link TGroup} object that owns this view.
      * <p>
      * If {@code null}, the view has no owner. The view is displayed within its owner's view
      * and will be clipped by the owner's bounding rectangle.
@@ -32,7 +32,7 @@ public class TView {
     private TGroup owner = null;
 
     /**
-     * Pointer to the next peer view in Z-order.
+     * Reference to the next peer view in Z-order.
      * <p>
      * If this is the last subview, {@code next} points to the owner's first subview.
      * This field is used to navigate sibling views within the same owner group.
@@ -291,7 +291,7 @@ public class TView {
     }
 
     /**
-     * Returns a pointer to the next subview in the owner's subview list.
+     * Returns a reference to the next subview in the owner's subview list.
      * <p>
      * {@code null} is returned if the calling view is the last one in its owner's list.
      * </p>
