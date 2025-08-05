@@ -99,7 +99,7 @@ public class TView {
         AtomicInteger counter = CLASS_COUNTERS.computeIfAbsent(getClass(), k -> new AtomicInteger());
         logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
 
-        logger.debug("{} created", logName);
+        logger.debug("{} TView@TView(bounds={})", logName, bounds.toString());
 
         setBounds(bounds);
     }
@@ -164,18 +164,21 @@ public class TView {
     }
 
     public void draw() {
-        logger.debug("{} draw()", logName);
+        logger.trace("{} TView@draw()", logName);
+
         // TODO
     }
 
     public void drawHide(TView lastView) {
-        logger.debug("{} drawHide()", logName);
+        logger.trace("{} TView@drawHide(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
+
 //        drawCursor(); TODO
         drawUnderView((state & State.SF_SHADOW) != 0, lastView);
     }
 
     public void drawShow(TView lastView) {
-        logger.debug("{} drawShow()", logName);
+        logger.trace("{} TView@drawShow(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
+
         drawView();
         if ((state & State.SF_SHADOW) != 0) {
             drawUnderView(true, lastView);
@@ -189,7 +192,9 @@ public class TView {
     }
 
     private void drawUnderView(boolean doShadow, TView lastView) {
-        logger.debug("{} drawUnderView(doShadow={})", logName, doShadow);
+        logger.trace("{} TView@drawUnderView(doShadow={}, lastView={})", logName, doShadow,
+                lastView != null ? lastView.getLogName() : "null");
+
         TRect r = new TRect();
         getBounds(r);
         if (doShadow) {
@@ -200,7 +205,8 @@ public class TView {
     }
 
     public void drawView() {
-        logger.debug("{} drawView()", logName);
+        logger.trace("{} TView@drawView()", logName);
+
         if (exposed()) {
             draw();
 //            drawCursor(); TODO
@@ -275,7 +281,8 @@ public class TView {
     }
 
     public void hide() {
-        logger.debug("{} hide()", logName);
+        logger.trace("{} TView@hide()", logName);
+
         if ((state & State.SF_VISIBLE) != 0) {
             setState(State.SF_VISIBLE, false);
         }
