@@ -13,21 +13,8 @@ import static info.qbnet.jtvision.core.views.TView.State.*;
 class TViewTest {
 
     static class TestableTView extends TView {
-        boolean drawShowCalled = false;
-        boolean drawHideCalled = false;
-
         TestableTView(TRect bounds) {
             super(bounds);
-        }
-
-        @Override
-        public void drawShow(TView lastView) {
-            drawShowCalled = true;
-        }
-
-        @Override
-        public void drawHide(TView lastView) {
-            drawHideCalled = true;
         }
 
         @Override
@@ -104,7 +91,7 @@ class TViewTest {
     }
 
     @Test
-    void setStateVisibleInvokesDrawAndOwnerResetCurrent() throws Exception {
+    void setStateVisibleInvokesOwnerResetCurrent() throws Exception {
         TestGroup g = new TestGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
         TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         v.setOwner(g);
@@ -114,14 +101,13 @@ class TViewTest {
         optionsField.setInt(v, OF_SELECTABLE);
 
         v.setState(SF_VISIBLE, false);
-        assertTrue(v.drawHideCalled);
+        assertEquals(0, v.getState() & SF_VISIBLE);
         assertTrue(g.resetCurrentCalled);
 
-        v.drawHideCalled = false;
         g.resetCurrentCalled = false;
 
         v.setState(SF_VISIBLE, true);
-        assertTrue(v.drawShowCalled);
+        assertEquals(SF_VISIBLE, v.getState() & SF_VISIBLE);
         assertTrue(g.resetCurrentCalled);
     }
 }

@@ -22,11 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TView {
 
-    private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
-
-    protected final Logger logger;
-    private final String logName;
-
     /**
      * Points to the {@link TGroup} object that owns this view.
      * <p>
@@ -89,6 +84,11 @@ public class TView {
 
     private int options = 0;
 
+    private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
+
+    protected final Logger logger;
+    private final String logName;
+
     /**
      * Creates a {@code TView} object with the given {@code bounds} rectangle.
      *
@@ -105,78 +105,32 @@ public class TView {
     }
 
     /**
-     * Sets the bounding rectangle of the view to the value given by the {@code bounds} parameter.
+     * Called whenever the view must draw (display) itself.
      * <p>
-     * The {@code origin} field is set to {@code bounds.a}, and the {@code size} field is set
-     * to the difference between {@code bounds.b} and {@code bounds.a}.
+     * This method must be overridden by each descendant to perform custom rendering.
+     * It must draw the entire area of the view. Typically, this method is not called directly;
+     * instead, {@link #drawView()} is used to draw only views that are exposed — that is,
+     * partially or fully visible on the screen.
      * </p>
      * <p>
-     * This method is intended to be called only from within an overridden {@code changeBounds}
-     * method. You should never call {@code setBounds} directly.
+     * If needed, {@code draw()} may call {@code getClipRect()} to obtain
+     * the region that needs redrawing, allowing for more efficient rendering of complex views.
      * </p>
-     *
-     * @param bounds The rectangle defining the new bounds of the view.
      */
-    private void setBounds(TRect bounds) {
-        this.origin = bounds.a;
-        this.size = bounds.b;
-    }
-
-    /**
-     * Sets the extent rectangle of the view into the provided {@code extent} parameter.
-     * <p>
-     * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
-     * of the view. This represents the local coordinate space of the view itself.
-     * </p>
-     *
-     * @param extent The {@link TRect} instance to be populated with the extent.
-     */
-    public void getExtent(TRect extent) {
-        extent.a = new TPoint(0, 0);
-        extent.b = new TPoint(size.x, size.y);
-    }
-
-    /**
-     * Returns the owner of this view.
-     *
-     * @return The {@link TGroup} that owns this view, or {@code null} if it has no owner.
-     */
-    public TGroup getOwner() {
-        return owner;
-    }
-
-    /**
-     * Sets the owner of this view.
-     *
-     * @param owner The {@link TGroup} to set as the owner of this view.
-     */
-    public void setOwner(TGroup owner) {
-        this.owner = owner;
-    }
-
-    public String getLogName() {
-        return logName;
-    }
-
-    @Override
-    public String toString() {
-        return logName;
-    }
-
     public void draw() {
         logger.trace("{} TView@draw()", logName);
 
         // TODO
     }
 
-    public void drawHide(TView lastView) {
+    private void drawHide(TView lastView) {
         logger.trace("{} TView@drawHide(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
 
 //        drawCursor(); TODO
         drawUnderView((state & State.SF_SHADOW) != 0, lastView);
     }
 
-    public void drawShow(TView lastView) {
+    private void drawShow(TView lastView) {
         logger.trace("{} TView@drawShow(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
 
         drawView();
@@ -204,6 +158,14 @@ public class TView {
         drawUnderRect(r, lastView);
     }
 
+    /**
+     * Calls {@code draw()} if {@link #exposed()} returns {@code true}, indicating that the view is exposed.
+     * <p>
+     * This is the preferred method to invoke when a view needs to be redrawn after changes
+     * affecting its visual appearance. It ensures that drawing only occurs when the view is
+     * (partially) visible on screen.
+     * </p>
+     */
     public void drawView() {
         logger.trace("{} TView@drawView()", logName);
 
@@ -250,6 +212,15 @@ public class TView {
         return xStart < xEnd;
     }
 
+    /**
+     * Returns {@code true} if any part of the view is visible on the screen.
+     * <p>
+     * This includes checking whether the view is marked as visible and whether
+     * it is not fully obscured by overlapping sibling views.
+     * </p>
+     *
+     * @return {@code true} if the view is at least partially visible on screen; otherwise {@code false}.
+     */
     public boolean exposed() {
         if ((state & State.SF_VISIBLE) == 0) return false;
         if ((size.x <= 0) || (size.y <= 0)) return false;
@@ -275,11 +246,38 @@ public class TView {
         return false;
     }
 
+    /**
+     * Returns, in the {@code bounds} parameter, the bounding rectangle of the view
+     * in its owner's coordinate system.
+     * <p>
+     * {@code bounds.a} is set to {@code origin}, and {@code bounds.b} is set to the sum
+     * of {@code origin} and {@code size}.
+     * </p>
+     *
+     * @param bounds The {@link TRect} object to populate with the view's bounds.
+     */
     void getBounds(TRect bounds) {
         bounds.a = origin;
         bounds.b = new TPoint(origin.x + size.x, origin.y + size.y);
     }
 
+    /**
+     * Sets the extent rectangle of the view into the provided {@code extent} parameter.
+     * <p>
+     * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
+     * of the view. This represents the local coordinate space of the view itself.
+     * </p>
+     *
+     * @param extent The {@link TRect} instance to be populated with the extent.
+     */
+    public void getExtent(TRect extent) {
+        extent.a = new TPoint(0, 0);
+        extent.b = new TPoint(size.x, size.y);
+    }
+
+    /**
+     * Hides the view by calling {@link #setState} to clear the {@code SF_VISIBLE} flag in {@code state}.
+     */
     public void hide() {
         logger.trace("{} TView@hide()", logName);
 
@@ -288,6 +286,14 @@ public class TView {
         }
     }
 
+    /**
+     * Returns a pointer to the next subview in the owner's subview list.
+     * <p>
+     * {@code null} is returned if the calling view is the last one in its owner's list.
+     * </p>
+     *
+     * @return The next subview, or {@code null} if this is the last in the list.
+     */
     public TView nextView() {
         if (owner.last == this) {
             return null;
@@ -297,27 +303,40 @@ public class TView {
     }
 
     /**
-     * Returns the next view in the sibling chain.
+     * Sets the bounding rectangle of the view to the value given by the {@code bounds} parameter.
+     * <p>
+     * The {@code origin} field is set to {@code bounds.a}, and the {@code size} field is set
+     * to the difference between {@code bounds.b} and {@code bounds.a}.
+     * </p>
+     * <p>
+     * This method is intended to be called only from within an overridden {@code changeBounds}
+     * method. You should never call {@code setBounds} directly.
+     * </p>
      *
-     * @return The next {@link TView} in the sibling list, or {@code null} if this is the last.
+     * @param bounds The rectangle defining the new bounds of the view.
      */
-    public TView getNext() {
-        return next;
+    private void setBounds(TRect bounds) {
+        this.origin = bounds.a;
+        this.size = bounds.b;
     }
 
     /**
-     * Sets the next view in the sibling chain.
+     * Sets or clears a state flag in the {@code TView.state} field.
+     * <p>
+     * The {@code state} parameter specifies the flag to modify (see {@code SF_XXX} constants),
+     * and the {@code enable} parameter determines whether to turn the flag on ({@code true})
+     * or off ({@code false}).
+     * </p>
+     * <p>
+     * This method then performs any necessary actions to reflect the new state, such as redrawing views
+     * that become exposed when visibility changes, or resetting the owner's current view if the state
+     * affects visibility or selection.
+     * </p>
      *
-     * @param next The {@link TView} to set as the next sibling view.
+     * @param state The single-bit state flag to change.
+     * @param enable {@code true} to enable the flag, {@code false} to disable it.
+     * @throws IllegalArgumentException if more than one bit is set in {@code state}.
      */
-    public void setNext(TView next) {
-        this.next = next;
-    }
-
-    public int getState() {
-        return state;
-    }
-
     public void setState(int state, boolean enable) {
         if (Integer.bitCount(state) != 1) {
             throw new IllegalArgumentException("setState expects exactly one bit set in state");
@@ -366,8 +385,61 @@ public class TView {
         }
     }
 
+    // Getters and setters
+
+    /**
+     * Returns the owner of this view.
+     *
+     * @return The {@link TGroup} that owns this view, or {@code null} if it has no owner.
+     */
+    public TGroup getOwner() {
+        return owner;
+    }
+
+    /**
+     * Sets the owner of this view.
+     *
+     * @param owner The {@link TGroup} to set as the owner of this view.
+     */
+    public void setOwner(TGroup owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * Returns the next view in the sibling chain.
+     *
+     * @return The next {@link TView} in the sibling list, or {@code null} if this is the last.
+     */
+    public TView getNext() {
+        return next;
+    }
+
+    /**
+     * Sets the next view in the sibling chain.
+     *
+     * @param next The {@link TView} to set as the next sibling view.
+     */
+    public void setNext(TView next) {
+        this.next = next;
+    }
+
+    public int getState() {
+        return state;
+    }
+
     public int getOptions() {
         return options;
+    }
+
+    // Logging
+
+    public String getLogName() {
+        return logName;
+    }
+
+    @Override
+    public String toString() {
+        return logName;
     }
 
 }
