@@ -165,6 +165,18 @@ public class TView {
         // TODO
     }
 
+    /**
+     * Redraws the region beneath this view when it becomes hidden.
+     * <p>
+     * Called from {@link #setState(int, boolean)} when the {@code SF_VISIBLE}
+     * flag is cleared (e.g., via {@link #hide()}). It delegates to
+     * {@link #drawUnderView(boolean, TView)} to refresh any exposed background
+     * or shadowed area.
+     * </p>
+     *
+     * @param lastView the last sibling view up to which the owner should
+     *                 repaint; may be {@code null} to repaint all.
+     */
     private void drawHide(TView lastView) {
         logger.trace("{} TView@drawHide(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
 
@@ -172,6 +184,17 @@ public class TView {
         drawUnderView((state & State.SF_SHADOW) != 0, lastView);
     }
 
+    /**
+     * Displays this view and optionally its shadow when it becomes visible.
+     * <p>
+     * Invoked by {@link #setState(int, boolean)} when the {@code SF_VISIBLE}
+     * flag is enabled. It first draws the view via {@link #drawView()} and then
+     * calls {@link #drawUnderView(boolean, TView)} to render any shadow.
+     * </p>
+     *
+     * @param lastView the last sibling view up to which the owner should
+     *                 repaint; may be {@code null} to repaint all.
+     */
     private void drawShow(TView lastView) {
         logger.trace("{} TView@drawShow(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
 
@@ -181,12 +204,39 @@ public class TView {
         }
     }
 
+    /**
+     * Repaints sibling views underneath a specified rectangle.
+     * <p>
+     * Used by {@link #drawUnderView(boolean, TView)} when parts of this view
+     * are uncovered or when a shadow must be redrawn. It clips the owner's
+     * drawing region to {@code rect} before delegating to
+     * {@link TGroup#drawSubViews(TView, TView)}.
+     * </p>
+     *
+     * @param rect     rectangle describing the region to repaint.
+     * @param lastView last sibling view to stop repainting at; {@code null}
+     *                 repaints all.
+     */
     private void drawUnderRect(TRect rect, TView lastView) {
         owner.clip.intersect(rect);
         owner.drawSubViews(nextView(), lastView);
         owner.getExtent(owner.clip);
     }
 
+    /**
+     * Calculates the area beneath this view (and optionally its shadow) and
+     * repaints the obscured siblings.
+     * <p>
+     * Serves as a helper for {@link #drawHide(TView)} and
+     * {@link #drawShow(TView)}, bridging those private methods with the public
+     * drawing routine {@link #drawView()}.
+     * </p>
+     *
+     * @param doShadow {@code true} to include the shadow region when
+     *                 repainting.
+     * @param lastView the last sibling view up to which repainting should
+     *                 occur; {@code null} repaints all.
+     */
     private void drawUnderView(boolean doShadow, TView lastView) {
         logger.trace("{} TView@drawUnderView(doShadow={}, lastView={})", logName, doShadow,
                 lastView != null ? lastView.getLogName() : "null");
@@ -217,6 +267,19 @@ public class TView {
         }
     }
 
+    /**
+     * Determines whether a horizontal segment of this view is visible.
+     * <p>
+     * Used internally by the public {@link #exposed()} method to check if a
+     * given row of the view is entirely covered by higher Z-order siblings.
+     * </p>
+     *
+     * @param y      the absolute Y coordinate of the row being tested.
+     * @param xStart starting X coordinate of the segment (inclusive).
+     * @param xEnd   ending X coordinate of the segment (exclusive).
+     * @return {@code true} if any pixel in the range is exposed; otherwise
+     *         {@code false}.
+     */
     private boolean isRowExposed(int y, int xStart, int xEnd) {
         if (owner == null || owner.last == null) return true;
 
