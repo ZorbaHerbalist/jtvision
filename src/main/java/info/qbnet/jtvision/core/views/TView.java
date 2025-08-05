@@ -54,35 +54,73 @@ public class TView {
      */
     protected TPoint size;
 
+    /**
+     * Bit flags representing the runtime state of a view.
+     * <p>
+     * Each {@code SF_*} value defines a single state; multiple states can be
+     * combined using the bitwise OR operator.
+     * </p>
+     */
     public class State {
+        /** Bit flag indicating the view is visible. */
         public static final int SF_VISIBLE      = 1 << 0;
+        /** Bit flag showing the cursor is visible. */
         public static final int SF_CURSOR_VIS   = 1 << 1;
+        /** Bit flag showing the cursor is in insert mode. */
         public static final int SF_CURSOR_INS   = 1 << 2;
+        /** Bit flag that enables the view's shadow. */
         public static final int SF_SHADOW       = 1 << 3;
+        /** Bit flag marking the view as active. */
         public static final int SF_ACTIVE       = 1 << 4;
+        /** Bit flag marking the view as selected. */
         public static final int SF_SELECTED     = 1 << 5;
+        /** Bit flag marking the view as focused. */
         public static final int SF_FOCUSED      = 1 << 6;
+        /** Bit flag indicating the view is being dragged. */
         public static final int SF_DRAGGING     = 1 << 7;
+        /** Bit flag marking the view as disabled. */
         public static final int SF_DISABLED     = 1 << 8;
+        /** Bit flag indicating the view is modal. */
         public static final int SF_MODAL        = 1 << 9;
+        /** Bit flag marking the view as the default choice. */
         public static final int SF_DEFAULT      = 1 << 10;
+        /** Bit flag indicating the view is currently exposed. */
         public static final int SF_EXPOSED      = 1 << 11;
     }
 
     private int state = State.SF_VISIBLE;
 
+    /**
+     * Bit flags that configure optional behaviour of a view.
+     * <p>
+     * {@code OF_*} values may be combined with bitwise OR to enable multiple
+     * options simultaneously.
+     * </p>
+     */
     public class Options {
+        /** Bit flag allowing the view to be selected. */
         public static final int OF_SELECTABLE   = 1 << 0;
+        /** Bit flag giving the view top selection priority. */
         public static final int OF_TOP_SELECT   = 1 << 1;
+        /** Bit flag enabling activation on the first mouse click. */
         public static final int OF_FIRST_CLICK  = 1 << 2;
+        /** Bit flag drawing a frame around the view. */
         public static final int OF_FRAMED       = 1 << 3;
+        /** Bit flag requesting pre-processing of events. */
         public static final int OF_PRE_PROCESS  = 1 << 4;
+        /** Bit flag requesting post-processing of events. */
         public static final int OF_POST_PROCESS = 1 << 5;
+        /** Bit flag for double-buffered drawing. */
         public static final int OF_BUFFERED     = 1 << 6;
+        /** Bit flag allowing the view to tile its owner. */
         public static final int OF_TILEABLE     = 1 << 7;
+        /** Bit flag centring the view horizontally. */
         public static final int OF_CENTER_X     = 1 << 8;
+        /** Bit flag centring the view vertically. */
         public static final int OF_CENTER_Y     = 1 << 9;
+        /** Combined bit flag for centring in both axes (OF_CENTER_X | OF_CENTER_Y). */
         public static final int OF_CENTER       = OF_CENTER_X | OF_CENTER_Y;
+        /** Bit flag enabling validation before changes. */
         public static final int OF_VALIDATE     = 1 << 10;
     }
 
