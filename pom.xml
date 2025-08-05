@@ -92,13 +92,21 @@
         </dependency>
 
         <!-- Lanterna terminal library -->
-        <dependency>
-            <groupId>com.googlecode.lanterna</groupId>
-            <artifactId>lanterna</artifactId>
-            <version>3.1.1</version>
-        </dependency>
+      <dependency>
+          <groupId>com.googlecode.lanterna</groupId>
+          <artifactId>lanterna</artifactId>
+          <version>3.1.1</version>
+      </dependency>
 
-    </dependencies>
+      <!-- Testing -->
+      <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+          <version>5.10.0</version>
+          <scope>test</scope>
+      </dependency>
+
+   </dependencies>
 
     <repositories>
         <repository>
@@ -107,5 +115,17 @@
         </repository>
     </repositories>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
