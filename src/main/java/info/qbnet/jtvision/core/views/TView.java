@@ -46,7 +46,11 @@ public class TView {
     protected TPoint origin;
 
     /**
-     * The size of the view.
+     * The dimensions of the view.
+     * <p>
+     * The {@code x} and {@code y} components represent the width and height of the view,
+     * i.e. the difference between the bottom-right and top-left coordinates.
+     * </p>
      */
     protected TPoint size;
 
@@ -317,7 +321,7 @@ public class TView {
      */
     private void setBounds(TRect bounds) {
         this.origin = bounds.a;
-        this.size = bounds.b;
+        this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);
     }
 
     /**
