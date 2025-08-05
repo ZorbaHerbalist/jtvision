@@ -528,10 +528,20 @@ public class TView {
         this.next = next;
     }
 
+    /**
+     * Retrieves the current state flags for this view.
+     *
+     * @return the view's current state flags
+     */
     public int getState() {
         return state;
     }
 
+    /**
+     * Retrieves the current option flags for this view.
+     *
+     * @return the view's current option flags
+     */
     public int getOptions() {
         return options;
     }
