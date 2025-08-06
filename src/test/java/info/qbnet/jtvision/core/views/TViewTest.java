@@ -64,19 +64,6 @@ class TViewTest {
     }
 
     @Test
-    void ownerAndNextAreSettable() {
-        TestableTView v1 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView v2 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestGroup g = new TestGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-
-        v1.setOwner(g);
-        assertSame(g, v1.getOwner());
-
-        v1.setNext(v2);
-        assertSame(v2, v1.getNext());
-    }
-
-    @Test
     void hideClearsVisibleState() {
         TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         v.hide();

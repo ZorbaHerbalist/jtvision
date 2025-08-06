@@ -38,7 +38,7 @@ public class TView {
      * This field is used to navigate sibling views within the same owner group.
      * </p>
      */
-    private TView next = null;
+    protected TView next = null;
 
     /**
      * The (X, Y) coordinates of the view’s top-left corner, relative to the owner’s origin.
@@ -88,7 +88,7 @@ public class TView {
         public static final int SF_EXPOSED      = 1 << 11;
     }
 
-    private int state = State.SF_VISIBLE;
+    protected int state = State.SF_VISIBLE;
 
     /**
      * Bit flags that configure optional behaviour of a view.
@@ -124,7 +124,7 @@ public class TView {
         public static final int OF_VALIDATE     = 1 << 10;
     }
 
-    private int options = 0;
+    protected int options = 0;
 
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
@@ -408,6 +408,39 @@ public class TView {
     }
 
     /**
+     * Returns a reference to the previous subview in the owner's subview list.
+     * <p>
+     * If the calling view is the first one in its owner's list, {@code prev()} returns the last view
+     * in the list. Note that {@code prev()} treats the list as circular, whereas {@code prevView()}
+     * treats the list linearly.
+     * </p>
+     *
+     * @return The previous {@link TView}, or {@code null} if this is the only view in the list.
+     */
+    public TView prev() {
+        TView current = null;
+        TView candidate = null;
+
+        while (true) {
+            TView previous = candidate;
+            candidate = candidate.next;
+
+            // If we reached the end or looped back to the current view
+            if (candidate == null || candidate == current) {
+                break;
+            }
+
+            // Check if this view points to the current one
+            if (candidate.next == current) {
+                return candidate;
+            }
+        }
+
+        // No previous view found (e.g., this is the only item in the list)
+        return null;
+    }
+
+    /**
      * Sets the bounding rectangle of the view to the value given by the {@code bounds} parameter.
      * <p>
      * The {@code origin} field is set to {@code bounds.a}, and the {@code size} field is set
@@ -490,6 +523,17 @@ public class TView {
         }
     }
 
+    /**
+     * Shows the view by calling {@link #setState} to set the {@code SF_VISIBLE} flag in {@code state}.
+     */
+    public void show() {
+        logger.trace("{} TView@show()", logName);
+
+        if ((state & State.SF_VISIBLE) == 0) {
+            setState(State.SF_VISIBLE, true);
+        }
+    }
+
     // Getters and setters
 
     /**
@@ -517,15 +561,6 @@ public class TView {
      */
     public TView getNext() {
         return next;
-    }
-
-    /**
-     * Sets the next view in the sibling chain.
-     *
-     * @param next The {@link TView} to set as the next sibling view.
-     */
-    public void setNext(TView next) {
-        this.next = next;
     }
 
     /**

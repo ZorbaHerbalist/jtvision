@@ -13,6 +13,9 @@ import java.awt.*;
 
 public class TProgram extends TGroup {
 
+    public static TProgram application = null;
+    public static TDesktop desktop = null;
+
     private final Screen screen;
     private final Backend backend;
     private final Console console;
@@ -34,8 +37,28 @@ public class TProgram extends TGroup {
         this.backend = factory.createBackend(screen);
         this.console = new Console(screen, backend);
 
-        setBuffer(screen);
+        application = this;
+
+        this.state = State.SF_VISIBLE | State.SF_SELECTED | State.SF_FOCUSED | State.SF_MODAL | State.SF_EXPOSED;
+        this.options = 0;
+        this.buffer = screen;
+
+        initDesktop();
+
+        if (desktop != null) {
+            insert(desktop);
+        }
     }
+
+    public void initDesktop() {
+        TRect r = new TRect();
+        getExtent(r);
+        r.a.y++;
+        r.b.y--;
+        desktop = new TDesktop(r);
+    }
+
+    // Getters and setters
 
     /**
      * Returns the console instance created for this program.

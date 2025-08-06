@@ -12,8 +12,9 @@ public class TDesktop extends TGroup {
 
         logger.debug("{} TDesktop@TDesktop(bounds={})", getLogName(), bounds);
 
+        initBackground();
         if (background != null) {
-
+            insert(background);
         }
     }
 

@@ -62,7 +62,7 @@ public class TGroup extends TView {
      * automatically, unless the OF_BUFFERED flag is cleared in the group's Options
      * field.
      */
-    private IBuffer buffer = null;
+    protected IBuffer buffer = null;
 
     /**
      * Stores the clipping rectangle for the group.
@@ -189,17 +189,37 @@ public class TGroup extends TView {
             }
             int saveState = p.getState();
             p.hide();
-            // TODO
+            insertView(p, target);
+            if ((saveState & State.SF_VISIBLE) != 0) {
+                p.show();
+            }
+            if ((state & State.SF_ACTIVE) != 0) {
+                p.setState(State.SF_ACTIVE, true);
+            }
         }
+    }
 
-        if (target == null) {
-            last = p;
-        } else {
-            target.setOwner(this);
-            target.setNext(p);
-        }
+    /**
+     * Inserts the view {@code p} into the circular subview list before {@code target}.
+     * If {@code target} is null, {@code p} is appended to the end of the list.
+     */
+    private void insertView(TView p, TView target) {
+        logger.trace("{} TGroup@insertView({}, {})", getLogName(), p, target);
+
         p.setOwner(this);
-        p.setNext(target);
+        if (target != null) {
+            target = target.prev();
+            p.next = target.next;
+            target.next = p;
+        } else {
+            if (last == null) {
+                p.next = p;
+            } else {
+                p.next = last.next;
+                last.next = p;
+            }
+            last = p;
+        }
     }
 
     /**
@@ -306,12 +326,4 @@ public class TGroup extends TView {
         return buffer;
     }
 
-    /**
-     * Sets the offscreen drawing buffer.
-     */
-    public void setBuffer(IBuffer buffer) {
-        logger.trace("{} TGroup@setBuffer({})", getLogName(), buffer);
-
-        this.buffer = buffer;
-    }
 }
