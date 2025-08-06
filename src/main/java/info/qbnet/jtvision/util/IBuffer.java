@@ -2,6 +2,10 @@ package info.qbnet.jtvision.util;
 
 import java.awt.Color;
 
+// Palette utilities
+import static info.qbnet.jtvision.util.DosPalette.getBackground;
+import static info.qbnet.jtvision.util.DosPalette.getForeground;
+
 /**
  * Generic 2D buffer of characters with foreground and background colors.
  * <p>
@@ -29,6 +33,22 @@ public interface IBuffer {
      * @param background background color, must not be {@code null}
      */
     void setChar(int x, int y, char c, Color foreground, Color background);
+
+    /**
+     * Writes a character using a Turbo Vision-style color attribute byte.
+     *
+     * <p>The attribute layout is compatible with the DOS palette:
+     * bits 0-3 encode the foreground color, bits 4-6 encode the background,
+     * and bit 7 is the background intensity bit.</p>
+     *
+     * @param x        zero-based column index
+     * @param y        zero-based row index
+     * @param c        character to place
+     * @param attribute color attribute byte
+     */
+    default void setChar(int x, int y, char c, int attribute) {
+        setChar(x, y, c, getForeground(attribute), getBackground(attribute));
+    }
 
     /**
      * Reads the character cell at given coordinates.

@@ -2,6 +2,7 @@ package info.qbnet.jtvision;
 
 import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.util.Screen;
+import info.qbnet.jtvision.util.DosPalette;
 
 import java.awt.*;
 import java.util.concurrent.Executors;
@@ -63,6 +64,18 @@ public class Console {
             screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
         isScreenDirty = true;
+    }
+
+    /**
+     * Prints a string using a Turbo Vision-style color attribute byte.
+     *
+     * @param x         horizontal position
+     * @param y         vertical position
+     * @param text      the text to print
+     * @param attribute color attribute encoded as in DOS Turbo Vision
+     */
+    public void putString(int x, int y, String text, int attribute) {
+        putString(x, y, text, DosPalette.getForeground(attribute), DosPalette.getBackground(attribute));
     }
 
     /**
