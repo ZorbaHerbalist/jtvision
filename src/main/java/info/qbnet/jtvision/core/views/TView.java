@@ -534,6 +534,10 @@ public class TView {
         }
     }
 
+    private void writeView(int y, int x, int count, short[] budder) {
+        // TODO
+    }
+
     // Getters and setters
 
     /**
