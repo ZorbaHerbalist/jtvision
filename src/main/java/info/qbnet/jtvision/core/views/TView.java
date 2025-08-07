@@ -2,9 +2,11 @@ package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.util.IBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -534,8 +536,143 @@ public class TView {
         }
     }
 
-    private void writeView(int y, int x, int count, short[] budffer, int offset) {
-        // TODO
+    /**
+     * Writes a rectangular block of character cells to this view.
+     * <p>
+     * The buffer is expected to contain {@code w*h} entries where each entry is a
+     * {@code short} value encoding the character in the low byte and the colour
+     * attribute in the high byte. The first {@code w} entries represent the
+     * topmost row, the next {@code w} the following row and so on.
+     * </p>
+     *
+     * @param x   starting column within the view
+     * @param y   starting row within the view
+     * @param w   width of the block in cells
+     * @param h   height of the block in cells
+     * @param buf buffer containing cells to write
+     */
+    protected void writeBuf(int x, int y, int w, int h, short[] buf) {
+        if (buf == null || w <= 0 || h <= 0) return;
+        for (int row = 0; row < h; row++) {
+            writeView(y + row, x, w, buf, row * w);
+        }
+    }
+
+    /**
+     * Writes the same character cell repeatedly to the view.
+     *
+     * @param x     column within the view
+     * @param y     row within the view
+     * @param c     character to draw
+     * @param color attribute byte describing foreground/background colours
+     * @param count number of times to repeat
+     */
+    protected void writeChar(int x, int y, char c, int color, int count) {
+        if (count <= 0) return;
+        short[] line = new short[count];
+        short cell = (short) (((color & 0xFF) << 8) | (c & 0xFF));
+        Arrays.fill(line, cell);
+        writeView(y, x, count, line, 0);
+    }
+
+    /**
+     * Writes a horizontal line stored in {@code buf} repeatedly for {@code h} rows.
+     *
+     * @param x   column within the view
+     * @param y   starting row within the view
+     * @param w   width of the line in cells
+     * @param h   number of rows to draw
+     * @param buf buffer containing {@code w} cells representing a single line
+     */
+    protected void writeLine(int x, int y, int w, int h, short[] buf) {
+        if (buf == null || w <= 0 || h <= 0) return;
+        for (int row = 0; row < h; row++) {
+            writeView(y + row, x, w, buf, 0);
+        }
+    }
+
+    /**
+     * Writes a string using the specified colour attribute.
+     *
+     * @param x     column within the view
+     * @param y     row within the view
+     * @param str   string to draw
+     * @param color attribute byte describing foreground/background colours
+     */
+    protected void writeStr(int x, int y, String str, int color) {
+        if (str == null || str.isEmpty()) return;
+        int len = str.length();
+        short[] line = new short[len];
+        for (int i = 0; i < len; i++) {
+            line[i] = (short) (((color & 0xFF) << 8) | (str.charAt(i) & 0xFF));
+        }
+        writeView(y, x, len, line, 0);
+    }
+
+    /**
+     * Writes a horizontal sequence of cells to this view after applying clipping
+     * and owner translations.
+     *
+     * @param y       row within the view
+     * @param x       starting column within the view
+     * @param count   number of cells to write
+     * @param buffer  source buffer containing the cells
+     * @param offset  offset within {@code buffer} from which to start reading
+     */
+    private void writeView(int y, int x, int count, short[] buffer, int offset) {
+        if (owner == null || buffer == null || count <= 0) return;
+
+        // Clip vertically to this view's bounds
+        if (y < 0 || y >= size.y) return;
+
+        int start = x;
+        int end = x + count;
+        if (start < 0) {
+            offset += -start;
+            start = 0;
+        }
+        if (end > size.x) {
+            end = size.x;
+        }
+        int length = end - start;
+        if (length <= 0) return;
+
+        int destX = origin.x + start;
+        int destY = origin.y + y;
+        int bufIndex = offset + (start - x);
+
+        TGroup g = owner;
+        // Traverse up the owner chain applying clipping and coordinate translation
+        while (true) {
+            // Clip against current group's clipping rectangle
+            if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
+            int clipStart = Math.max(destX, g.clip.a.x);
+            int clipEnd = Math.min(destX + length, g.clip.b.x);
+            if (clipStart >= clipEnd) return;
+            bufIndex += (clipStart - destX);
+            length = clipEnd - clipStart;
+            destX = clipStart;
+
+            // Stop when we've reached the top-most group
+            if (g.getOwner() == null) {
+                break;
+            }
+
+            destX += g.origin.x;
+            destY += g.origin.y;
+            g = g.getOwner();
+        }
+
+        IBuffer target = g.getBuffer();
+        if (target == null) return;
+
+        int available = Math.min(length, buffer.length - bufIndex);
+        for (int i = 0; i < available; i++) {
+            short cell = buffer[bufIndex + i];
+            char ch = (char) (cell & 0xFF);
+            int attr = (cell >>> 8) & 0xFF;
+            target.setChar(destX + i, destY, ch, attr);
+        }
     }
 
     // Getters and setters
