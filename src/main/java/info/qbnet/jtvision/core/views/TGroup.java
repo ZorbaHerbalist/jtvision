@@ -105,8 +105,22 @@ public class TGroup extends TView {
     public void draw() {
         logger.trace("{} TGroup@draw()", getLogName());
 
-        super.draw();
-        // TODO
+        if (buffer == null) {
+            getBuffer();
+            if (buffer != null) {
+                lockFlag++;
+                redraw();
+                lockFlag--;
+            }
+        }
+
+        if (buffer != null) {
+            writeBuf(0, 0, size.x, size.y, buffer.getData());
+        } else {
+            getClipRect(clip);
+            redraw();
+            getExtent(clip);
+        }
     }
 
     /**
@@ -116,7 +130,7 @@ public class TGroup extends TView {
         if (p != null) {
             while (p != bottom) {
                 p.drawView();
-                p = p.getNext();
+                p = p.nextView();
             }
         }
     }

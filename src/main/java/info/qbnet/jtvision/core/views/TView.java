@@ -368,7 +368,7 @@ public class TView {
      * @param bounds The {@link TRect} object to populate with the view's bounds.
      */
     void getBounds(TRect bounds) {
-        bounds.a = origin;
+        bounds.a = new TPoint(origin.x, origin.y);
         bounds.b = new TPoint(origin.x + size.x, origin.y + size.y);
     }
 
