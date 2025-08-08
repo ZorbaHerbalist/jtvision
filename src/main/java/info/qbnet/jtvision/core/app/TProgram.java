@@ -7,9 +7,12 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TGroup;
+import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.util.Screen;
 
 import java.awt.*;
+
+import static info.qbnet.jtvision.core.views.TPalette.parseHexString;
 
 public class TProgram extends TGroup {
 
@@ -19,6 +22,18 @@ public class TProgram extends TGroup {
     private final Screen screen;
     private final Backend backend;
     private final Console console;
+
+    public static final TPalette C_APP_COLOR = new TPalette(parseHexString(
+            "\\x71\\x70\\x78\\x74\\x20\\x28\\x24\\x17\\x1F\\x1A" +
+            "\\x31\\x31\\x1E\\x71\\x1F" +
+            "\\x37\\x3F\\x3A\\x13\\x13\\x3E\\x21\\x3F\\x70\\x7F\\x7A\\x13\\x13\\x70\\x7F\\x7E" +
+            "\\x70\\x7F\\x7A\\x13\\x13\\x70\\x70\\x7F\\x7E\\x20\\x2B\\x2F\\x78\\x2E\\x70\\x30" +
+            "\\x3F\\x3E\\x1F\\x2F\\x1A\\x20\\x72\\x31\\x31\\x30\\x2F\\x3E\\x31\\x13\\x38\\x00" +
+            "\\x17\\x1F\\x1A\\x71\\x71\\x1E\\x17\\x1F\\x1E\\x20\\x2B\\x2F\\x78\\x2E\\x10\\x30" +
+            "\\x3F\\x3E\\x70\\x2F\\x7A\\x20\\x12\\x31\\x31\\x30\\x2F\\x3E\\x31\\x13\\x38\\x00" +
+            "\\x37\\x3F\\x3A\\x13\\x13\\x3E\\x30\\x3F\\x3E\\x20\\x2B\\x2F\\x78\\x2E\\x30\\x70" +
+            "\\x7F\\x7E\\x1F\\x2F\\x1A\\x20\\x32\\x31\\x71\\x70\\x2F\\x7E\\x71\\x13\\x38\\x00"
+    ));
 
     /**
      * Creates a new program using the specified backend.
@@ -48,6 +63,11 @@ public class TProgram extends TGroup {
         if (desktop != null) {
             insert(desktop);
         }
+    }
+
+    @Override
+    public TPalette getPalette() {
+        return C_APP_COLOR;
     }
 
     public void initDesktop() {
