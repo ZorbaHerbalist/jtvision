@@ -16,6 +16,7 @@ public class Buffer implements IBuffer {
     private final Color defaultForeground;
     private final Color defaultBackground;
     private final short emptyCell;
+    private Runnable dirtyListener;
 
     /**
      * Creates a new buffer with the specified dimensions and default colors.
@@ -61,6 +62,7 @@ public class Buffer implements IBuffer {
             return;
         }
         buffer[y * width + x] = (short) ((attribute << 8) | (c & 0xFF));
+        if (dirtyListener != null) dirtyListener.run();
     }
 
     /**
@@ -82,6 +84,7 @@ public class Buffer implements IBuffer {
     @Override
     public void clear() {
         Arrays.fill(buffer, emptyCell);
+        if (dirtyListener != null) dirtyListener.run();
     }
 
     /**
@@ -111,6 +114,11 @@ public class Buffer implements IBuffer {
     @Override
     public short[] getData() {
         return buffer;
+    }
+
+    @Override
+    public void setDirtyListener(Runnable listener) {
+        this.dirtyListener = listener;
     }
 }
 

@@ -81,4 +81,12 @@ public interface IBuffer {
      * @return the internal buffer array
      */
     short[] getData();
+
+    /**
+     * Registers a listener that is invoked whenever the buffer's
+     * contents are modified.
+     *
+     * @param listener callback executed on buffer changes; may be {@code null}
+     */
+    void setDirtyListener(Runnable listener);
 }

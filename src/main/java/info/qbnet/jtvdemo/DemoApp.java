@@ -12,7 +12,7 @@ public class DemoApp extends TApplication {
         super(determineBackendType());
 
         Console console = getConsole();
-        console.putString(1, 1, "X", Color.WHITE, Color.BLACK);
+        //console.putString(1, 1, "X", Color.WHITE, Color.BLACK);
 
         try {
             Thread.sleep(2000);

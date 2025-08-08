@@ -32,6 +32,7 @@ public class Console {
     public Console(Screen screen, Backend backend, long refreshIntervalMs) {
         this.screen = screen;
         this.backend = backend;
+        this.screen.setDirtyListener(() -> isScreenDirty = true);
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::flush, refreshIntervalMs, refreshIntervalMs, TimeUnit.MILLISECONDS);
     }
@@ -63,7 +64,6 @@ public class Console {
         for (int i = 0; i < len; i++) {
             screen.setChar(x + i, y, text.charAt(i), foreground, background);
         }
-        isScreenDirty = true;
     }
 
     /**
@@ -83,7 +83,6 @@ public class Console {
      */
     public void clearScreen() {
         screen.clear();
-        isScreenDirty = true;
     }
 
     /**

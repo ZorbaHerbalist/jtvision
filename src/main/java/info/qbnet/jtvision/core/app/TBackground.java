@@ -27,6 +27,8 @@ public class TBackground extends TView {
         TDrawBuffer buf = new TDrawBuffer();
         buf.moveChar(0, pattern, getColor((short) 1), size.x);
         writeLine(0,0, size.x, size.y, buf.buffer);
+
+        logger.trace("{} Background color {}", getLogName(), getColor((short) 1));
     }
 
     @Override
