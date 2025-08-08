@@ -1,17 +1,18 @@
 package info.qbnet.jtvision.util;
 
 import java.awt.Color;
+import java.util.Arrays;
 
 /**
- * Array-based implementation of {@link IBuffer} using a 2D array of packed
- * {@code short} values. Each cell stores the character in the low byte and the
- * colour attribute in the high byte.
+ * Array-based implementation of {@link IBuffer} using a flat array of packed
+ * {@code short} values in row-major order. Each cell stores the character in the
+ * low byte and the colour attribute in the high byte.
  */
 public class Buffer implements IBuffer {
 
     private final int width;
     private final int height;
-    private final short[][] buffer;
+    private final short[] buffer;
     private final Color defaultForeground;
     private final Color defaultBackground;
     private final short emptyCell;
@@ -39,7 +40,7 @@ public class Buffer implements IBuffer {
         this.defaultBackground = defaultBackground;
         int attr = DosPalette.toAttribute(defaultForeground, defaultBackground);
         this.emptyCell = (short) ((attr << 8) | ' ');
-        this.buffer = new short[height][width];
+        this.buffer = new short[width * height];
         clear();
     }
 
@@ -59,7 +60,7 @@ public class Buffer implements IBuffer {
             System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
-        buffer[y][x] = (short) ((attribute << 8) | (c & 0xFF));
+        buffer[y * width + x] = (short) ((attribute << 8) | (c & 0xFF));
     }
 
     /**
@@ -72,7 +73,7 @@ public class Buffer implements IBuffer {
     @Override
     public short getCell(int x, int y) {
         if (isInBounds(x, y)) {
-            return buffer[y][x];
+            return buffer[y * width + x];
         }
         System.err.printf("getCell(): coordinates out of bounds (%d,%d). Returning 0.%n", x, y);
         return 0;
@@ -80,11 +81,7 @@ public class Buffer implements IBuffer {
 
     @Override
     public void clear() {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                buffer[y][x] = emptyCell;
-            }
-        }
+        Arrays.fill(buffer, emptyCell);
     }
 
     /**
@@ -92,7 +89,7 @@ public class Buffer implements IBuffer {
      */
     public boolean isInBounds(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
-        }
+    }
 
     /**
      * Validates that the provided colors are non-null.
@@ -109,6 +106,11 @@ public class Buffer implements IBuffer {
     @Override
     public int getHeight() {
         return height;
+    }
+
+    @Override
+    public short[] getData() {
+        return buffer;
     }
 }
 

@@ -72,4 +72,13 @@ public interface IBuffer {
      * @return height of the buffer in rows
      */
     int getHeight();
+
+    /**
+     * Provides direct access to the underlying buffer storage as a flat
+     * array of packed cells in row-major order. Modifications to the
+     * returned array affect the contents of the buffer.
+     *
+     * @return the internal buffer array
+     */
+    short[] getData();
 }
