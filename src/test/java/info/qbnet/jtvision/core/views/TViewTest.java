@@ -13,13 +13,25 @@ import static info.qbnet.jtvision.core.views.TView.State.*;
 class TViewTest {
 
     static class TestableTView extends TView {
+        private final TPalette palette;
+
         TestableTView(TRect bounds) {
+            this(bounds, null);
+        }
+
+        TestableTView(TRect bounds, TPalette palette) {
             super(bounds);
+            this.palette = palette;
         }
 
         @Override
         public void draw() {
             // no-op
+        }
+
+        @Override
+        public TPalette getPalette() {
+            return palette;
         }
 
         TPoint getOriginField() {
@@ -33,14 +45,25 @@ class TViewTest {
 
     static class TestGroup extends TGroup {
         boolean resetCurrentCalled = false;
+        private final TPalette palette;
 
         TestGroup(TRect bounds) {
+            this(bounds, null);
+        }
+
+        TestGroup(TRect bounds, TPalette palette) {
             super(bounds);
+            this.palette = palette;
         }
 
         @Override
         protected void resetCurrent() {
             resetCurrentCalled = true;
+        }
+
+        @Override
+        public TPalette getPalette() {
+            return palette;
         }
     }
 
@@ -96,5 +119,29 @@ class TViewTest {
         v.setState(SF_VISIBLE, true);
         assertEquals(SF_VISIBLE, v.getState() & SF_VISIBLE);
         assertTrue(g.resetCurrentCalled);
+    }
+
+    @Test
+    void mapColorMapsThroughOwnershipChain() {
+        TRect r = new TRect(new TPoint(0,0), new TPoint(1,1));
+        TestGroup root = new TestGroup(r, new TPalette(new byte[]{0x11, 0x22, 0x33}));
+        TestGroup child = new TestGroup(r, new TPalette(new byte[]{2, 3, 1}));
+        TestableTView leaf = new TestableTView(r, new TPalette(new byte[]{3, 1, 2}));
+        child.setOwner(root);
+        leaf.setOwner(child);
+
+        short mapped = leaf.getColor((short)0x0201);
+        assertEquals((short)0x2211, mapped);
+    }
+
+    @Test
+    void mapColorReturnsErrorForInvalidOrZero() {
+        TRect r = new TRect(new TPoint(0,0), new TPoint(1,1));
+        TestableTView view = new TestableTView(r, new TPalette(new byte[]{0x11}));
+        assertEquals((short)0xCFCF, view.getColor((short)0x0202));
+        assertEquals((short)0xCFCF, view.getColor((short)0x0000));
+
+        TestableTView zeroMap = new TestableTView(r, new TPalette(new byte[]{0x00}));
+        assertEquals((short)0xCFCF, zeroMap.getColor((short)0x0101));
     }
 }

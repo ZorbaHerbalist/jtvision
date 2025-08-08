@@ -464,17 +464,15 @@ public class TView {
         TView view = this;
         while (view != null) {
             TPalette palette = view.getPalette();
-            if (palette != null && color <= palette.length()) {
-                int attr = palette.get(color);
-                if (attr != 0) {
-                    return attr;
-                }
+            if (palette != null) {
+                if (color > palette.length()) return ERROR_ATTR;
+                color = palette.get(color);
+                if (color == 0) return ERROR_ATTR;
             }
-
             view = view.owner;
         }
 
-        return ERROR_ATTR;
+        return color;
     }
 
     /**
