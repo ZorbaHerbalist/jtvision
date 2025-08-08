@@ -3,7 +3,7 @@ package info.qbnet.jtvision.core.views;
 public class TDrawBuffer {
 
     public static final int MAX_VIEW_LENGTH = 132;
-    private final short[] buffer = new short[MAX_VIEW_LENGTH];
+    public final short[] buffer = new short[MAX_VIEW_LENGTH];
 
     /**
      * Fills the buffer with a repeated character and attribute.

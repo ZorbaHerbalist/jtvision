@@ -128,6 +128,8 @@ public class TView {
 
     protected int options = 0;
 
+    protected static final int ERROR_ATTR = 0xCF;
+
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
     protected final Logger logger;
@@ -164,7 +166,9 @@ public class TView {
     public void draw() {
         logger.trace("{} TView@draw()", logName);
 
-        // TODO
+        TDrawBuffer buf = new TDrawBuffer();
+        buf.moveChar(0,'w', getColor((short) 1), size.x);
+        writeLine(0,0, size.x, size.y, buf.buffer);
     }
 
     /**
@@ -369,6 +373,21 @@ public class TView {
     }
 
     /**
+     * Maps the palette indexes in the low and high bytes of {@code color} into physical
+     * character attributes by tracing through the palette of the view and the palettes
+     * of all its owners.
+     * <p>
+     * This is a public wrapper around {@code mapCPair()}.
+     * </p>
+     *
+     * @param color color pair encoded in a 16-bit word
+     * @return mapped attribute pair
+     */
+    public short getColor(short color) {
+        return mapCPair(color);
+    }
+
+    /**
      * Sets the extent rectangle of the view into the provided {@code extent} parameter.
      * <p>
      * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
@@ -383,6 +402,27 @@ public class TView {
     }
 
     /**
+     * Returns the palette for this view.
+     * <p>
+     * {@code getPalette()} must return a reference to the view's palette, or {@code null}
+     * if the view has no palette.
+     * </p>
+     * <p>
+     * {@code getPalette()} is called by methods like {@code getColor()}, {@code writeChar()}, and
+     * {@code writeStr()} (not yet implemented) when converting palette indexes to actual
+     * character attributes. A return value of {@code null} indicates that no color translation
+     * should be performed by this view.
+     * </p>
+     * <p>
+     * This method is almost always overridden in descendant object types. The default
+     * implementation returns {@code null}.
+     * </p>
+     */
+    public TPalette getPalette() {
+        return null;
+    }
+
+    /**
      * Hides the view by calling {@link #setState} to clear the {@code SF_VISIBLE} flag in {@code state}.
      */
     public void hide() {
@@ -391,6 +431,45 @@ public class TView {
         if ((state & State.SF_VISIBLE) != 0) {
             setState(State.SF_VISIBLE, false);
         }
+    }
+
+    /**
+     * Convert a color value into an attribute using the palette chain.
+     * @param color color index (1..n)
+     * @return attribute value
+     */
+    private int mapColor(int color) {
+        if (color == 0) return ERROR_ATTR;
+
+        TView view = this;
+        while (view != null) {
+            TPalette palette = view.getPalette();
+            if (palette != null && color <= palette.length()) {
+                int attr = palette.get(color);
+                if (attr != 0) {
+                    return attr;
+                }
+            }
+
+            view = view.owner;
+        }
+
+        return ERROR_ATTR;
+    }
+
+    /**
+     * Maps a color pair into an attribute pair.
+     * @param colorPair low byte foreground, high byte background
+     * @return mapped attribute pair
+     */
+    private short mapCPair(short colorPair) {
+        int background = (colorPair >> 8) & 0xff;
+        int foreground = colorPair & 0xff;
+        if (background != 0) {
+            background = mapColor(background);
+        }
+        foreground = mapColor(foreground);
+        return (short) (background << 8 | foreground & 0xff);
     }
 
     /**
@@ -663,7 +742,7 @@ public class TView {
             g = g.getOwner();
         }
 
-        IBuffer target = g.getBuffer();
+        IBuffer target = g.buffer;
         if (target == null) return;
 
         int available = Math.min(length, buffer.length - bufIndex);

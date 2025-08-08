@@ -320,10 +320,10 @@ public class TGroup extends TView {
     /**
      * Returns the current offscreen buffer used for drawing.
      */
-    public IBuffer getBuffer() {
-        logger.trace("{} TGroup@getBuffer()", getLogName());
-
-        return buffer;
-    }
+//    public IBuffer getBuffer() {
+//        logger.trace("{} TGroup@getBuffer()", getLogName());
+//
+//        return buffer;
+//    }
 
 }
