@@ -373,6 +373,26 @@ public class TView {
     }
 
     /**
+     * Returns, in {@code clip}, the minimum rectangle that needs redrawing during a
+     * call to {@code draw()}. For complicated views, this method can help improve
+     * performance noticeably by avoiding unnecessary redraws.
+     * <p>
+     * The method returns the intersection of the view’s bounding rectangle and its owner's
+     * clip rectangle. It adjusts the coordinates so that the result is in the view's
+     * local space (i.e., relative to the view’s origin).
+     * </p>
+     *
+     * @param clip The {@link TRect} to populate with the clip rectangle.
+     */
+    public void getClipRect(TRect clip) {
+        getBounds(clip);
+        if (owner != null) {
+            clip.intersect(owner.clip);
+        }
+        clip.move(-origin.x, -origin.y);
+    }
+
+    /**
      * Maps the palette indexes in the low and high bytes of {@code color} into physical
      * character attributes by tracing through the palette of the view and the palettes
      * of all its owners.

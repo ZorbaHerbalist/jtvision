@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
 import java.util.function.Predicate;
@@ -157,6 +158,12 @@ public class TGroup extends TView {
         return null;
     }
 
+    private void getBuffer() {
+        if (buffer != null && ((getState() & State.SF_EXPOSED) != 0) && ((getOptions() & Options.OF_BUFFERED) != 0)) {
+            buffer = new Buffer(size.x, size.y);
+        }
+    }
+
     /**
      * Inserts the view into the group's subview list. The new subview is placed
      * on top of all other subviews (before the first one in the list).
@@ -245,6 +252,18 @@ public class TGroup extends TView {
         if (buffer != null || lockFlag != 0) {
             lockFlag++;
         }
+    }
+
+    /**
+     * Redraws the group's subviews in Z-order.
+     *
+     * <p>TGroup.redraw differs from TGroup.draw in that redraw will never draw from
+     * the cache buffer.
+     */
+    public void redraw() {
+        logger.trace("{} TGroup@redraw()", getLogName());
+
+        drawSubViews(first(), null);
     }
 
     /**
