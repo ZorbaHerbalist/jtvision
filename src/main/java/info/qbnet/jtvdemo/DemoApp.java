@@ -13,6 +13,12 @@ public class DemoApp extends TApplication {
 
         Console console = getConsole();
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         console.clearScreen();
         drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
         console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
