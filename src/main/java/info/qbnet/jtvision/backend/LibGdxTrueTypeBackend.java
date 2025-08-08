@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 
 /**
  * LibGDX backend rendering console using TrueType font.
@@ -31,9 +30,9 @@ public class LibGdxTrueTypeBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void drawGlyph(SpriteBatch batch, CharacterCell ch, int x, int pixelY) {
-        font.setColor(ColorUtil.toGdx(ch.foreground()));
-        font.draw(batch, String.valueOf(ch.character()), x * getCellWidth(), pixelY + getCellHeight() - 2);
+    protected void drawGlyph(SpriteBatch batch, char ch, java.awt.Color fg, int x, int pixelY) {
+        font.setColor(ColorUtil.toGdx(fg));
+        font.draw(batch, String.valueOf(ch), x * getCellWidth(), pixelY + getCellHeight() - 2);
     }
 
     @Override

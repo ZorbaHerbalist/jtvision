@@ -2,7 +2,7 @@ package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
+import info.qbnet.jtvision.util.DosPalette;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,7 +47,12 @@ public abstract class AbstractSwingBackend extends JPanel
         configureGraphics(g2d);
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                drawGlyph(g2d, x, y, screen.getChar(x, y));
+                short cell = screen.getCell(x, y);
+                char ch = (char) (cell & 0xFF);
+                int attr = (cell >>> 8) & 0xFF;
+                java.awt.Color fg = DosPalette.getForeground(attr);
+                java.awt.Color bg = DosPalette.getBackground(attr);
+                drawGlyph(g2d, x, y, ch, fg, bg);
             }
         }
         g2d.dispose();
@@ -61,7 +66,8 @@ public abstract class AbstractSwingBackend extends JPanel
         // no-op
     }
 
-    protected abstract void drawGlyph(Graphics2D g, int x, int y, CharacterCell sc);
+    protected abstract void drawGlyph(Graphics2D g, int x, int y, char ch,
+                                      java.awt.Color fg, java.awt.Color bg);
 
     @Override
     public Integer getCellWidth() {

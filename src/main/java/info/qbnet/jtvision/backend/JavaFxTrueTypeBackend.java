@@ -2,7 +2,6 @@ package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
@@ -43,15 +42,16 @@ public class JavaFxTrueTypeBackend extends AbstractJavaFxBackend {
     }
 
     @Override
-    protected void drawGlyph(GraphicsContext gc, int x, int y, CharacterCell sc) {
+    protected void drawGlyph(GraphicsContext gc, int x, int y, char ch,
+                              java.awt.Color fg, java.awt.Color bg) {
         double dx = x * getCellWidth();
         double dy = (y + 1) * getCellHeight() - 3; // vertical align
 
-        gc.setFill(ColorUtil.toFx(sc.background()));
+        gc.setFill(ColorUtil.toFx(bg));
         gc.fillRect(dx, dy - getCellHeight() + 3, getCellWidth(), getCellHeight());
 
-        gc.setFill(ColorUtil.toFx(sc.foreground()));
-        gc.fillText(Character.toString(sc.character()), dx, dy);
+        gc.setFill(ColorUtil.toFx(fg));
+        gc.fillText(Character.toString(ch), dx, dy);
     }
 }
 

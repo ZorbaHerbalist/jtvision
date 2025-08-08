@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
+import info.qbnet.jtvision.util.DosPalette;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -80,13 +80,17 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                CharacterCell ch = screen.getChar(x, y);
+                short cell = screen.getCell(x, y);
+                char ch = (char) (cell & 0xFF);
+                int attr = (cell >>> 8) & 0xFF;
+                java.awt.Color fg = DosPalette.getForeground(attr);
+                java.awt.Color bg = DosPalette.getBackground(attr);
                 int pixelY = (screen.getHeight() - y - 1) * cellHeight;
 
-                batch.setColor(ColorUtil.toGdx(ch.background()));
+                batch.setColor(ColorUtil.toGdx(bg));
                 batch.draw(pixel, x * cellWidth, pixelY, cellWidth, cellHeight);
 
-                drawGlyph(batch, ch, x, pixelY);
+                drawGlyph(batch, ch, fg, x, pixelY);
             }
         }
 
@@ -124,11 +128,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
      * Draw a single glyph at the specified cell.
      *
      * @param batch  sprite batch used for drawing
-     * @param ch     screen character
+     * @param ch     character to draw
+     * @param fg     foreground colour
      * @param x      cell x coordinate
-     * @param pixelY  pixel y coordinate flipped for LibGDX
+     * @param pixelY pixel y coordinate flipped for LibGDX
      */
-    protected abstract void drawGlyph(SpriteBatch batch, CharacterCell ch, int x, int pixelY);
+    protected abstract void drawGlyph(SpriteBatch batch, char ch, java.awt.Color fg, int x, int pixelY);
 
     /**
      * Dispose any resources allocated in {@link #initializeResources()}.

@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
 
 /**
  * LibGDX backend rendering console using a bitmap font texture.
@@ -26,9 +25,9 @@ public class LibGdxBitmapBackend extends AbstractLibGdxBackend {
     }
 
     @Override
-    protected void drawGlyph(SpriteBatch batch, CharacterCell ch, int x, int pixelY) {
-        batch.setColor(ColorUtil.toGdx(ch.foreground()));
-        int charCode = ch.character();
+    protected void drawGlyph(SpriteBatch batch, char ch, java.awt.Color fg, int x, int pixelY) {
+        batch.setColor(ColorUtil.toGdx(fg));
+        int charCode = ch;
         int sourceX = (charCode % CHARS_PER_ROW) * getCellWidth();
         int sourceY = (charCode / CHARS_PER_ROW) * getCellHeight();
         batch.draw(fontTexture, x * getCellWidth(), pixelY, getCellWidth(), getCellHeight(),

@@ -34,5 +34,31 @@ public final class DosPalette {
         }
         return DosColor.fromIndex(backgroundIndex);
     }
+
+    /**
+     * Converts the given foreground and background colours into a Turbo Vision
+     * attribute byte.
+     */
+    public static int toAttribute(Color foreground, Color background) {
+        int fg = indexOf(foreground);
+        int bg = indexOf(background);
+        int attr = fg & 0x0F;
+        attr |= (bg & 0x07) << 4;
+        if ((bg & 0x08) != 0) {
+            attr |= 0x80;
+        }
+        return attr & 0xFF;
+    }
+
+    private static int indexOf(Color color) {
+        if (color == null) return 0;
+        DosColor[] values = DosColor.values();
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].toAwt().equals(color)) {
+                return i;
+            }
+        }
+        return 0;
+    }
 }
 

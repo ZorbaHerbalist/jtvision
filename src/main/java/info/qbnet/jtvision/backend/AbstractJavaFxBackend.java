@@ -2,7 +2,7 @@ package info.qbnet.jtvision.backend;
 
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
-import info.qbnet.jtvision.util.IBuffer.CharacterCell;
+import info.qbnet.jtvision.util.DosPalette;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -35,7 +35,12 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         configureGraphics(gc);
         for (int y = 0; y < screen.getHeight(); y++) {
             for (int x = 0; x < screen.getWidth(); x++) {
-                drawGlyph(gc, x, y, screen.getChar(x, y));
+                short cell = screen.getCell(x, y);
+                char ch = (char) (cell & 0xFF);
+                int attr = (cell >>> 8) & 0xFF;
+                java.awt.Color fg = DosPalette.getForeground(attr);
+                java.awt.Color bg = DosPalette.getBackground(attr);
+                drawGlyph(gc, x, y, ch, fg, bg);
             }
         }
     }
@@ -63,7 +68,8 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         // no-op
     }
 
-    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, CharacterCell sc);
+    protected abstract void drawGlyph(GraphicsContext gc, int x, int y, char ch,
+                                      java.awt.Color fg, java.awt.Color bg);
 
     @Override
     public Integer getCellWidth() {

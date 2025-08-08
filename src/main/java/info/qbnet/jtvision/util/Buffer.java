@@ -3,17 +3,18 @@ package info.qbnet.jtvision.util;
 import java.awt.Color;
 
 /**
- * Array-based implementation of {@link IBuffer} using a 2D array of
- * {@link CharacterCell} objects.
+ * Array-based implementation of {@link IBuffer} using a 2D array of packed
+ * {@code short} values. Each cell stores the character in the low byte and the
+ * colour attribute in the high byte.
  */
 public class Buffer implements IBuffer {
 
     private final int width;
     private final int height;
-    private final CharacterCell[][] buffer;
+    private final short[][] buffer;
     private final Color defaultForeground;
     private final Color defaultBackground;
-    private final CharacterCell emptyCellTemplate;
+    private final short emptyCell;
 
     /**
      * Creates a new buffer with the specified dimensions and default colors.
@@ -36,8 +37,9 @@ public class Buffer implements IBuffer {
         this.height = height;
         this.defaultForeground = defaultForeground;
         this.defaultBackground = defaultBackground;
-        this.emptyCellTemplate = new CharacterCell(' ', defaultForeground, defaultBackground);
-        this.buffer = new CharacterCell[height][width];
+        int attr = DosPalette.toAttribute(defaultForeground, defaultBackground);
+        this.emptyCell = (short) ((attr << 8) | ' ');
+        this.buffer = new short[height][width];
         clear();
     }
 
@@ -52,39 +54,35 @@ public class Buffer implements IBuffer {
     }
 
     @Override
-    public void setChar(int x, int y, char c, Color foreground, Color background) {
+    public void setChar(int x, int y, char c, int attribute) {
         if (!isInBounds(x, y)) {
             System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
-        if (!isValidColor(foreground, background)) {
-            System.err.printf("setChar(): null color at (%d,%d). Ignored.%n", x, y);
-            return;
-        }
-        buffer[y][x] = new CharacterCell(c, foreground, background);
+        buffer[y][x] = (short) ((attribute << 8) | (c & 0xFF));
     }
 
     /**
-     * Writes a character using the buffer's default colors.
+     * Writes a character using the buffer's default colours.
      */
     public void setChar(int x, int y, char c) {
-        setChar(x, y, c, defaultForeground, defaultBackground);
+        setChar(x, y, c, DosPalette.toAttribute(defaultForeground, defaultBackground));
     }
 
     @Override
-    public CharacterCell getChar(int x, int y) {
+    public short getCell(int x, int y) {
         if (isInBounds(x, y)) {
             return buffer[y][x];
         }
-        System.err.printf("getChar(): coordinates out of bounds (%d,%d). Returning null.%n", x, y);
-        return null;
+        System.err.printf("getCell(): coordinates out of bounds (%d,%d). Returning 0.%n", x, y);
+        return 0;
     }
 
     @Override
     public void clear() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                buffer[y][x] = emptyCellTemplate;
+                buffer[y][x] = emptyCell;
             }
         }
     }
