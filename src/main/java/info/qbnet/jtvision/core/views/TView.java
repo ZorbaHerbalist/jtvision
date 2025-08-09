@@ -63,7 +63,7 @@ public class TView {
      * combined using the bitwise OR operator.
      * </p>
      */
-    public class State {
+    public static class State {
         /** Bit flag indicating the view is visible. */
         public static final int SF_VISIBLE      = 1 << 0;
         /** Bit flag showing the cursor is visible. */
@@ -99,7 +99,7 @@ public class TView {
      * options simultaneously.
      * </p>
      */
-    public class Options {
+    public static class Options {
         /** Bit flag allowing the view to be selected. */
         public static final int OF_SELECTABLE   = 1 << 0;
         /** Bit flag giving the view top selection priority. */
@@ -128,7 +128,35 @@ public class TView {
 
     protected int options = 0;
 
+    /**
+     * Defines how a view resizes when its owner changes size.
+     * Each constant represents a growth behavior for a specific edge or scaling mode.
+     */
+    public static class GrowMode {
+        /** If set, the left-hand side of the view will maintain a constant distance from its owner's
+         * right-hand side. */
+        public static final int GF_GROW_LO_X    = 1 << 0;
+        /** If set, the top of the view will maintain a constant distance from the bottom of its owner. */
+        public static final int GF_GROW_LO_Y    = 1 << 1;
+        /** If set, the right-hand side of the view will maintain a constant distance from its owner's right side. */
+        public static final int GF_GROW_HI_X    = 1 << 2;
+        /** If set, the bottom of the view will maintain a constant distance from the bottom of its owner's. */
+        public static final int GF_GROW_HI_Y    = 1 << 3;
+        /** All edges adjust to owner's resize, moving with the lower-right corner of its owner. */
+        public static final int GF_GROW_ALL     = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
+        /** For TWindow objects in the desktop: The view will change size relative to the owner's size. */
+        public static final int GF_GROW_REL     = 1 << 4;
+    }
+
+    /** Current grow mode flags controlling how this view resizes with its owner. */
+    protected int growMode = 0;
+
     protected static final int ERROR_ATTR = 0xCF;
+
+    public class HelpContext {
+        public static final int HC_NO_CONTEXT   = 0;
+        public static final int HC_DRAGGING     = 1;
+    }
 
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
@@ -517,26 +545,15 @@ public class TView {
      * @return The previous {@link TView}, or {@code null} if this is the only view in the list.
      */
     public TView prev() {
-        TView current = null;
-        TView candidate = null;
+        TView previous = this;
+        TView np = next;
 
-        while (true) {
-            TView previous = candidate;
-            candidate = candidate.next;
-
-            // If we reached the end or looped back to the current view
-            if (candidate == null || candidate == current) {
-                break;
-            }
-
-            // Check if this view points to the current one
-            if (candidate.next == current) {
-                return candidate;
-            }
+        while ((np != null) && (np != this)) {
+            previous = np;
+            np = np.next;
         }
 
-        // No previous view found (e.g., this is the only item in the list)
-        return null;
+        return previous;
     }
 
     /**

@@ -5,6 +5,10 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.core.menus.TMenuBar;
+import info.qbnet.jtvision.core.menus.TStatusDef;
+import info.qbnet.jtvision.core.menus.TStatusItem;
+import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
@@ -18,6 +22,8 @@ public class TProgram extends TGroup {
 
     public static TProgram application = null;
     public static TDesktop desktop = null;
+    public static TMenuBar menuBar = null;
+    public static TStatusLine statusLine = null;
 
     private final Screen screen;
     private final Backend backend;
@@ -59,9 +65,17 @@ public class TProgram extends TGroup {
         this.buffer = screen;
 
         initDesktop();
+        initStatusLine();
+        initMenuBar();
 
         if (desktop != null) {
             insert(desktop);
+        }
+        if (statusLine != null) {
+            insert(statusLine);
+        }
+        if (menuBar != null) {
+            insert(menuBar);
         }
     }
 
@@ -76,6 +90,35 @@ public class TProgram extends TGroup {
         r.a.y++;
         r.b.y--;
         desktop = new TDesktop(r);
+    }
+
+    public void initMenuBar() {
+        TRect r = new TRect();
+        getExtent(r);
+        r.b.y = r.a.y + 1;
+//        menuBar = new TMenuBar(r, null);
+        // TODO
+        menuBar = new TMenuBar(r, TMenuBar.newMenu(
+                TMenuBar.newSubmenu("~F~ile", 0, null,
+                TMenuBar.newSubmenu("~E~dit", 0, null,
+                null))
+        ));
+    }
+
+    public static TStatusItem stdStatusKeys(TStatusItem next) {
+        //TODO
+        return next;
+    }
+
+    public void initStatusLine() {
+        TRect r = new TRect();
+        getExtent(r);
+        r.a.y = r.b.y - 1;
+        statusLine = new TStatusLine(r,
+                new TStatusDef(0, 0xFFFF,
+                        new TStatusItem("~Alt-X~ Exit", 0, 0,
+                        stdStatusKeys(null)),
+                null));
     }
 
     // Getters and setters
