@@ -27,12 +27,12 @@ public interface Backend {
     Integer getCellHeight();
 
     /**
-     * Retrieves the next pending keyboard event if one is available.
-     * Implementations should return an {@link java.util.Optional#empty()} value
-     * when no key has been pressed since the last call.
+     * Retrieves the next pending event if one is available. Implementations
+     * should return an {@link java.util.Optional#empty()} value when no input
+     * has been received since the last call.
      *
-     * @return optional key event describing the key that was pressed
+     * @return optional event describing the input that occurred
      */
-    java.util.Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent();
+    java.util.Optional<info.qbnet.jtvision.core.event.TEvent> pollEvent();
 
 }

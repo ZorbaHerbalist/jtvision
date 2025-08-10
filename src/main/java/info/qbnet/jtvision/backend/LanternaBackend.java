@@ -11,6 +11,7 @@ import info.qbnet.jtvision.util.DosPalette;
 
 import java.io.IOException;
 import java.util.Optional;
+import info.qbnet.jtvision.core.event.TEvent;
 
 /**
  * Backend implementation using the Lanterna library to render the console.
@@ -86,7 +87,7 @@ public class LanternaBackend implements GuiComponent<Screen> {
     }
 
     @Override
-    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+    public Optional<TEvent> pollEvent() {
         try {
             if (terminalScreen == null) {
                 return Optional.empty();
@@ -95,10 +96,15 @@ public class LanternaBackend implements GuiComponent<Screen> {
             if (ks == null) {
                 return Optional.empty();
             }
-            if (ks.getCharacter() != null) {
-                return Optional.of(new info.qbnet.jtvision.core.event.KeyEvent(ks.getCharacter(), ks.getKeyType().ordinal()));
-            }
-            return Optional.of(new info.qbnet.jtvision.core.event.KeyEvent(ks.getKeyType().ordinal()));
+            int code = ks.getKeyType().ordinal();
+            char ch = ks.getCharacter() != null ? ks.getCharacter() : 0;
+            int scan = code;
+            TEvent ev = new TEvent();
+            ev.what = TEvent.EV_KEYDOWN;
+            ev.key.keyCode = code;
+            ev.key.charCode = ch;
+            ev.key.scanCode = (byte) scan;
+            return Optional.of(ev);
         } catch (IOException e) {
             return Optional.empty();
         }

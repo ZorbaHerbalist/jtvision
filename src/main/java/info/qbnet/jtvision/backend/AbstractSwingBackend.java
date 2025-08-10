@@ -7,6 +7,8 @@ import info.qbnet.jtvision.util.DosPalette;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import info.qbnet.jtvision.core.event.KeyCodeMapper;
+import info.qbnet.jtvision.core.event.TEvent;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.Queue;
@@ -24,7 +26,7 @@ public abstract class AbstractSwingBackend extends JPanel
     protected final BufferedImage backBuffer;
     private final Integer cellWidth;
     private final Integer cellHeight;
-    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
@@ -39,7 +41,19 @@ public abstract class AbstractSwingBackend extends JPanel
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
-                keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(e.getKeyCode()));
+                int code = mapKeyCode(e.getKeyCode());
+                boolean shift = e.isShiftDown();
+                boolean ctrl = e.isControlDown();
+                boolean alt = e.isAltDown();
+                int withMods = KeyCodeMapper.applyModifiers(code, shift, ctrl, alt);
+                char ch = KeyCodeMapper.toChar(code, shift);
+                int scan = code;
+                TEvent ev = new TEvent();
+                ev.what = TEvent.EV_KEYDOWN;
+                ev.key.keyCode = withMods;
+                ev.key.charCode = ch;
+                ev.key.scanCode = (byte) scan;
+                keyEvents.add(ev);
             }
         });
     }
@@ -97,8 +111,16 @@ public abstract class AbstractSwingBackend extends JPanel
         return this;
     }
 
+    /**
+     * Maps the Swing key code to the unified scheme. Swing already uses the
+     * standard AWT codes so the value is returned unchanged.
+     */
+    public static int mapKeyCode(int keyCode) {
+        return keyCode;
+    }
+
     @Override
-    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+    public Optional<TEvent> pollEvent() {
         return Optional.ofNullable(keyEvents.poll());
     }
 }

@@ -3,6 +3,8 @@ package info.qbnet.jtvision.backend;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
+import info.qbnet.jtvision.core.event.KeyCodeMapper;
+import info.qbnet.jtvision.core.event.TEvent;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -22,7 +24,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     protected final Canvas canvas;
     private final Integer cellWidth;
     private final Integer cellHeight;
-    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
@@ -30,7 +32,21 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         this.cellHeight = cellHeight;
         this.canvas = new Canvas(screen.getWidth() * cellWidth, screen.getHeight() * cellHeight);
         this.canvas.setFocusTraversable(true);
-        this.canvas.setOnKeyPressed(e -> keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(e.getCode().getCode())));
+        this.canvas.setOnKeyPressed(e -> {
+            int code = mapKeyCode(e.getCode().getCode());
+            boolean shift = e.isShiftDown();
+            boolean ctrl = e.isControlDown();
+            boolean alt = e.isAltDown();
+            int withMods = KeyCodeMapper.applyModifiers(code, shift, ctrl, alt);
+            char ch = KeyCodeMapper.toChar(code, shift);
+            int scan = code;
+            TEvent ev = new TEvent();
+            ev.what = TEvent.EV_KEYDOWN;
+            ev.key.keyCode = withMods;
+            ev.key.charCode = ch;
+            ev.key.scanCode = (byte) scan;
+            keyEvents.add(ev);
+        });
     }
 
     @Override
@@ -94,8 +110,16 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         return canvas;
     }
 
+    /**
+     * Maps the JavaFX key code to the unified scheme. JavaFX uses the same
+     * numeric values as AWT so the value is returned unchanged.
+     */
+    public static int mapKeyCode(int keyCode) {
+        return keyCode;
+    }
+
     @Override
-    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+    public Optional<TEvent> pollEvent() {
         return Optional.ofNullable(keyEvents.poll());
     }
 }

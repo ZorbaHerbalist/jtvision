@@ -3,6 +3,7 @@ package info.qbnet.jtvision.backend;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -14,6 +15,8 @@ import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
+import info.qbnet.jtvision.core.event.KeyCodeMapper;
+import info.qbnet.jtvision.core.event.TEvent;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -32,7 +35,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private final Integer cellHeight;
 
     private CountDownLatch initializationLatch;
-    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -70,7 +73,22 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(keycode));
+                int code = mapKeyCode(keycode);
+                boolean shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ||
+                        Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+                boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) ||
+                        Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
+                boolean alt = Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) ||
+                        Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT);
+                int withMods = KeyCodeMapper.applyModifiers(code, shift, ctrl, alt);
+                char ch = KeyCodeMapper.toChar(code, shift);
+                int scan = code;
+                TEvent ev = new TEvent();
+                ev.what = TEvent.EV_KEYDOWN;
+                ev.key.keyCode = withMods;
+                ev.key.charCode = ch;
+                ev.key.scanCode = (byte) scan;
+                keyEvents.add(ev);
                 return true;
             }
         });
@@ -159,12 +177,49 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         return this;
     }
 
+    /**
+     * Maps a LibGDX key code to the unified scheme based on AWT constants.
+     */
+    public static int mapKeyCode(int keyCode) {
+        if (keyCode >= Input.Keys.A && keyCode <= Input.Keys.Z) {
+            return java.awt.event.KeyEvent.VK_A + (keyCode - Input.Keys.A);
+        }
+        if (keyCode >= Input.Keys.NUM_0 && keyCode <= Input.Keys.NUM_9) {
+            return java.awt.event.KeyEvent.VK_0 + (keyCode - Input.Keys.NUM_0);
+        }
+        switch (keyCode) {
+            case Input.Keys.F1:  return java.awt.event.KeyEvent.VK_F1;
+            case Input.Keys.F2:  return java.awt.event.KeyEvent.VK_F2;
+            case Input.Keys.F3:  return java.awt.event.KeyEvent.VK_F3;
+            case Input.Keys.F4:  return java.awt.event.KeyEvent.VK_F4;
+            case Input.Keys.F5:  return java.awt.event.KeyEvent.VK_F5;
+            case Input.Keys.F6:  return java.awt.event.KeyEvent.VK_F6;
+            case Input.Keys.F7:  return java.awt.event.KeyEvent.VK_F7;
+            case Input.Keys.F8:  return java.awt.event.KeyEvent.VK_F8;
+            case Input.Keys.F9:  return java.awt.event.KeyEvent.VK_F9;
+            case Input.Keys.F10: return java.awt.event.KeyEvent.VK_F10;
+            case Input.Keys.F11: return java.awt.event.KeyEvent.VK_F11;
+            case Input.Keys.F12: return java.awt.event.KeyEvent.VK_F12;
+            case Input.Keys.LEFT:  return java.awt.event.KeyEvent.VK_LEFT;
+            case Input.Keys.RIGHT: return java.awt.event.KeyEvent.VK_RIGHT;
+            case Input.Keys.UP:    return java.awt.event.KeyEvent.VK_UP;
+            case Input.Keys.DOWN:  return java.awt.event.KeyEvent.VK_DOWN;
+            case Input.Keys.ENTER: return java.awt.event.KeyEvent.VK_ENTER;
+            case Input.Keys.SPACE: return java.awt.event.KeyEvent.VK_SPACE;
+            case Input.Keys.ESCAPE:return java.awt.event.KeyEvent.VK_ESCAPE;
+            case Input.Keys.TAB:   return java.awt.event.KeyEvent.VK_TAB;
+            case Input.Keys.BACKSPACE: return java.awt.event.KeyEvent.VK_BACK_SPACE;
+            default:
+                return keyCode;
+        }
+    }
+
     public void setInitializationLatch(CountDownLatch latch) {
         this.initializationLatch = latch;
     }
 
     @Override
-    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+    public Optional<TEvent> pollEvent() {
         return Optional.ofNullable(keyEvents.poll());
     }
 }

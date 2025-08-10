@@ -91,13 +91,9 @@ public class TProgram extends TGroup {
             return;
         }
 
-        Optional<info.qbnet.jtvision.core.event.KeyEvent> opt = application.backend.pollKeyEvent();
+        Optional<TEvent> opt = application.backend.pollEvent();
         if (opt.isPresent()) {
-            info.qbnet.jtvision.core.event.KeyEvent ke = opt.get();
-            event.what = TEvent.EV_KEYDOWN;
-            event.key.keyCode = ke.getKeyCode();
-            event.key.charCode = ke.getCharCode();
-            event.key.scanCode = (byte) ke.getScanCode();
+            event.copyFrom(opt.get());
         } else {
             event.what = TEvent.EV_NOTHING;
         }
