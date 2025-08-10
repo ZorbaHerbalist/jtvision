@@ -5,6 +5,8 @@ import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
+import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
 import info.qbnet.jtvision.core.menus.TStatusItem;
@@ -40,6 +42,8 @@ public class TProgram extends TGroup {
             "\\x37\\x3F\\x3A\\x13\\x13\\x3E\\x30\\x3F\\x3E\\x20\\x2B\\x2F\\x78\\x2E\\x30\\x70" +
             "\\x7F\\x7E\\x1F\\x2F\\x1A\\x20\\x32\\x31\\x71\\x70\\x2F\\x7E\\x71\\x13\\x38\\x00"
     ));
+
+    private static TEvent pending = new TEvent();
 
     /**
      * Creates a new program using the specified backend.
@@ -79,9 +83,53 @@ public class TProgram extends TGroup {
         }
     }
 
+    public static void getKeyEvent(TEvent event) {
+        // TODO
+        event.what = TEvent.EV_NOTHING;
+    }
+
+    public static void getMouseEvent(TEvent event) {
+        // TODO
+        event.what =  TEvent.EV_NOTHING;
+    }
+
+    @Override
+    public void getEvent(TEvent event) {
+        if (pending.what != TEvent.EV_NOTHING) {
+            event.copyFrom(pending);
+            pending.what = TEvent.EV_NOTHING;
+        } else {
+            getMouseEvent(event);
+            if (event.what == TEvent.EV_NOTHING) {
+                getKeyEvent(event);
+                if (event.what == TEvent.EV_NOTHING) {
+                    idle();
+                }
+            }
+        }
+
+        // TODO
+    }
+
     @Override
     public TPalette getPalette() {
         return C_APP_COLOR;
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        // TODO event.what = evKeyDown
+        super.handleEvent(event);
+        if (event.what == TEvent.EV_COMMAND) {
+            if (event.msg.command == Command.CM_QUIT) {
+                endModal(Command.CM_QUIT);
+                clearEvent(event);
+            }
+        }
+    }
+
+    public void idle() {
+        // TODO
     }
 
     public void initDesktop() {
@@ -119,6 +167,10 @@ public class TProgram extends TGroup {
                         new TStatusItem("~Alt-X~ Exit", 0, 0,
                         stdStatusKeys(null)),
                 null));
+    }
+
+    public void run() {
+        execute();
     }
 
     // Getters and setters

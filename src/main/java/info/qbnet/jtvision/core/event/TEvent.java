@@ -19,6 +19,9 @@ public class TEvent {
     public static final int EV_KEYBOARD     = 0x0010;
     public static final int EV_MESSAGE      = 0xFF00;
 
+    public static final int POSITIONAL_EVENTS   = EV_MOUSE;
+    public static final int FOCUSED_EVENTS      = EV_KEYBOARD + EV_COMMAND;
+
     /** Identifies the active variant of this event. */
     public int what = EV_NOTHING;
 
@@ -47,6 +50,23 @@ public class TEvent {
         msg.infoWord = 0;
         msg.infoByte = 0;
         msg.infoChar = 0;
+    }
+
+    public void copyFrom(TEvent other) {
+        this.what = other.what;
+        this.mouse.buttons = other.mouse.buttons;
+        this.mouse.isDouble = other.mouse.isDouble;
+        this.mouse.where = other.mouse.where;
+        this.key.keyCode = other.key.keyCode;
+        this.key.charCode = other.key.charCode;
+        this.key.scanCode = other.key.scanCode;
+        this.msg.command = other.msg.command;
+        this.msg.infoPtr = other.msg.infoPtr;
+        this.msg.infoInt = other.msg.infoInt;
+        this.msg.infoLong = other.msg.infoLong;
+        this.msg.infoWord = other.msg.infoWord;
+        this.msg.infoByte = other.msg.infoByte;
+        this.msg.infoChar = other.msg.infoChar;
     }
 
     /** Data carried by mouse events. */

@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.core.app;
 
 import info.qbnet.jtvision.backend.factory.BackendType;
+import info.qbnet.jtvision.core.event.TEvent;
 
 public class TApplication extends TProgram {
 
@@ -13,4 +14,10 @@ public class TApplication extends TProgram {
         logger.debug("{} TApplication@TApplication(type={})", getLogName(), type);
     }
 
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+
+        // TODO EV_COMMAND
+    }
 }

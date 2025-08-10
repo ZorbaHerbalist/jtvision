@@ -1,5 +1,7 @@
 package info.qbnet.jtvision.core.views;
 
+import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.util.IBuffer;
@@ -31,7 +33,7 @@ public class TView {
      * and will be clipped by the owner's bounding rectangle.
      * </p>
      */
-    private TGroup owner = null;
+    protected TGroup owner = null;
 
     /**
      * Reference to the next peer view in Z-order.
@@ -129,6 +131,16 @@ public class TView {
     protected int options = 0;
 
     /**
+     * Bit mask that determines which event classes will be recognized by the view.
+     * <p>
+     * The default {@code eventMask} enables mouse down, key down, and command events.
+     * Assigning {@code 0xFFFF} to {@code eventMask} causes the view to react to all event
+     * classes. Conversely, a value of zero prevents the view from reacting to any events.
+     * </p>
+     */
+    protected int eventMask;
+
+    /**
      * Defines how a view resizes when its owner changes size.
      * Each constant represents a growth behavior for a specific edge or scaling mode.
      */
@@ -158,6 +170,11 @@ public class TView {
         public static final int HC_DRAGGING     = 1;
     }
 
+    /**
+     * Explicit top view pointer; when non-null it overrides the automatic search.
+     */
+    private static TView theTopView = null;
+
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
     protected final Logger logger;
@@ -176,6 +193,21 @@ public class TView {
         logger.debug("{} TView@TView(bounds={})", logName, bounds.toString());
 
         setBounds(bounds);
+        eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
+    }
+
+    /**
+     * Standard method used in {@code handleEvent} to signal that the view has successfully handled the event.
+     * <p>
+     * Sets {@code event.what} to {@code EV_NOTHING} and {@code event.msg.infoPtr} to {@code this},
+     * marking it as processed so it will not be handled again.
+     * </p>
+     *
+     * @param event the {@link TEvent} to clear after handling
+     */
+    public void clearEvent(TEvent event) {
+        event.what = TEvent.EV_NOTHING;
+        event.msg.infoPtr = this;
     }
 
     /**
@@ -302,6 +334,39 @@ public class TView {
     }
 
     /**
+     * Terminates the current modal state and returns {@code command} as the result of the
+     * {@code execView} function call that created the modal state.
+     * <p>
+     * This implementation finds the topmost view and calls its {@code endModal} method
+     * with the given command. If no top view exists, no action is taken.
+     * </p>
+     *
+     * @param command the command value to return from the modal state
+     */
+    public void endModal(int command) {
+        TView p = topView();
+        if (p != null) {
+            p.endModal(command);
+        }
+    }
+
+    /**
+     * Called from {@code TGroup.execView} whenever a view becomes modal.
+     * <p>
+     * If a view supports modal execution, it should override this method to implement its own event loop.
+     * The result returned by {@code execute} becomes the value returned from {@code TGroup.execView}.
+     * </p>
+     * <p>
+     * The default implementation immediately returns {@link Command#CM_CANCEL}.
+     * </p>
+     *
+     * @return the command result of executing the view
+     */
+    public int execute() {
+        return Command.CM_CANCEL;
+    }
+
+    /**
      * Determines whether a horizontal segment of this view is visible.
      * <p>
      * Used internally by the public {@link #exposed()} method to check if a
@@ -386,6 +451,37 @@ public class TView {
     }
 
     /**
+     * Attempts to give focus to this view.
+     * <p>
+     * If the view is neither selected nor modal, it requests focus from its owner. If granted,
+     * and if the current focused view either has no validation requirement or validates successfully,
+     * this view is selected. Otherwise, focus is denied.
+     * </p>
+     *
+     * @return {@code true} if the focus was successfully set to this view, {@code false} otherwise
+     */
+    public boolean focus() {
+        boolean result = true;
+        if ((state & (State.SF_SELECTED | State.SF_MODAL)) == 0) {
+            if (owner != null) {
+                result = owner.focus();
+                if (result) {
+                    TView current = owner.current;
+                    if (current == null ||
+                            (current.options & Options.OF_VALIDATE) == 0 ||
+                            current.valid(Command.CM_RELEASED_FOCUS)) {
+                        select();
+                    } else {
+                        result = false;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+    /**
      * Returns, in the {@code bounds} parameter, the bounding rectangle of the view
      * in its owner's coordinate system.
      * <p>
@@ -436,6 +532,21 @@ public class TView {
     }
 
     /**
+     * Returns the next available event in the given {@link TEvent} argument.
+     * <p>
+     * If no event is available, this method should set the event to evNothing.
+     * By default, it calls the owner's {@code getEvent} method to retrieve the event.
+     * </p>
+     *
+     * @param event the {@link TEvent} object that will receive the next available event
+     */
+    public void getEvent(TEvent event) {
+        if (owner != null) {
+            owner.getEvent(event);
+        }
+    }
+
+    /**
      * Sets the extent rectangle of the view into the provided {@code extent} parameter.
      * <p>
      * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
@@ -471,6 +582,31 @@ public class TView {
     }
 
     /**
+     * Central method through which all event handling in Turbo Vision is implemented.
+     * <p>
+     * The {@code what} field of the {@link TEvent} parameter contains the event class (evXXXX),
+     * and the remaining event fields further describe the event. To indicate that it has handled
+     * an event, {@code handleEvent} should call {@link #clearEvent(TEvent)}.
+     * </p>
+     * <p>
+     * This base implementation handles {@code evMouseDown} events by checking whether the
+     * view is not selected and not disabled, and whether it is selectable. If so, it attempts
+     * to select itself by calling {@link #focus()}. No other events are handled here.
+     * </p>
+     *
+     * @param event the event to process
+     */
+    public void handleEvent(TEvent event) {
+        if (event.what == TEvent.EV_MOUSE_DOWN) {
+            if ((state & (State.SF_SELECTED + State.SF_DISABLED)) == 0 && (options & Options.OF_SELECTABLE) != 0) {
+                if (!focus() || (options & Options.OF_FIRST_CLICK) == 0) {
+                    clearEvent(event);
+                }
+            }
+        }
+    }
+
+    /**
      * Hides the view by calling {@link #setState} to clear the {@code SF_VISIBLE} flag in {@code state}.
      */
     public void hide() {
@@ -479,6 +615,65 @@ public class TView {
         if ((state & State.SF_VISIBLE) != 0) {
             setState(State.SF_VISIBLE, false);
         }
+    }
+
+    /**
+     * Moves the view to the top of its owner's subview list.
+     * <p>
+     * Equivalent to calling {@code putInFrontOf(owner.first())}.
+     * </p>
+     */
+    public void makeFirst() {
+        putInFrontOf(owner.first());
+    }
+
+    /**
+     * Converts the {@code source} point coordinates from local (view) coordinates to
+     * global (screen) coordinates and stores the result in {@code dest}.
+     * <p>
+     * This method walks up the ownership chain, adding each view's origin offset to
+     * the coordinates until the top-level owner is reached. {@code source} and
+     * {@code dest} may refer to the same object.
+     * </p>
+     *
+     * @param source the point in local coordinates
+     * @param dest the destination point to receive the global coordinates
+     */
+    public void makeGlobal(TPoint source, TPoint dest) {
+        TView current = this;
+        dest.x = source.x;
+        dest.y = source.y;
+        do {
+            dest.x += current.origin.x;
+            dest.y += current.origin.y;
+            current = current.owner;
+        } while (current != null);
+    }
+
+    /**
+     * Converts the {@code source} point coordinates from global (screen) coordinates to
+     * local (view) coordinates and stores the result in {@code dest}.
+     * <p>
+     * Useful for converting an {@code evMouse} event's {@code where} field from
+     * global coordinates to local coordinates. For example:
+     * {@code makeLocal(event.where, mouseLoc)}.
+     * This method walks up the ownership chain, subtracting each view's origin offset from
+     * the coordinates until the top-level owner is reached. {@code source} and
+     * {@code dest} may refer to the same object.
+     * </p>
+     *
+     * @param source the point in global coordinates
+     * @param dest the destination point to receive the local coordinates
+     */
+    public void makeLocal(TPoint source, TPoint dest) {
+        TView current = this;
+        dest.x = source.x;
+        dest.y = source.y;
+        do {
+            dest.x -= current.origin.x;
+            dest.y -= current.origin.y;
+            current = current.owner;
+        } while (current != null);
     }
 
     /**
@@ -519,6 +714,24 @@ public class TView {
     }
 
     /**
+     * Returns {@code true} if the specified mouse position (given in global/screen coordinates)
+     * lies within the calling view's boundaries.
+     * <p>
+     * The method converts the mouse position to the view's local coordinates using
+     * {@link #makeLocal(TPoint, TPoint)}, obtains the view's extent rectangle via
+     * {@link #getExtent(TRect)}, and checks whether the converted point is contained within it.
+     * </p>
+     * @param mouse the mouse position in global coordinates
+     * @return {@code true} if the mouse is inside the view, {@code false} otherwise
+     */
+    public boolean mouseInView(TPoint mouse) {
+        TRect extent = new TRect();
+        makeLocal(mouse, mouse);
+        getExtent(extent);
+        return extent.contains(mouse);
+    }
+
+    /**
      * Returns a reference to the next subview in the owner's subview list.
      * <p>
      * {@code null} is returned if the calling view is the last one in its owner's list.
@@ -554,6 +767,78 @@ public class TView {
         }
 
         return previous;
+    }
+
+    private void moveView(TView target) {
+        owner.removeView(this);
+        owner.insertView(this, target);
+    }
+
+    /**
+     * Moves the calling view in front of the specified {@code target} in the owner's subview list.
+     * <p>
+     * The call {@code putInFrontOf(owner.first())} is equivalent to {@link #makeFirst()}.
+     * This method works by changing pointers in the subview list. Depending on the
+     * position of other views and their visibility states, {@code putInFrontOf} may cause
+     * this view to obscure (clip) underlying views. If the view is selectable
+     * ({@link Options#OF_SELECTABLE}) and is moved in front of all other subviews,
+     * it becomes the selected view.
+     * </p>
+     *
+     * @param target the view in front of which this view should be placed.
+     */
+    public void putInFrontOf(TView target) {
+        if (owner != null && target != this && target != nextView() && (target == null || target.owner == owner)) {
+            if ((state & State.SF_VISIBLE) == 0) {
+                moveView(target);
+            } else {
+                TView lastView = nextView();
+                if (lastView != null) {
+                    TView p = target;
+                    while (p != null && p != lastView) {
+                        p = p.nextView();
+                    }
+                    if (p == null) {
+                        lastView = target;
+                    }
+                }
+                state &= ~State.SF_VISIBLE;
+                if (lastView == target) {
+                    drawHide(lastView);
+                }
+                moveView(target);
+                state |= State.SF_VISIBLE;
+                if (lastView != target) {
+                    drawShow(lastView);
+                }
+                if ((options & Options.OF_SELECTABLE) != 0) {
+                    owner.resetCurrent();
+                    // TODO
+                    // owner.resetCursor()
+                }
+            }
+        }
+    }
+
+    /**
+     * Selects this view (sets {@link State#SF_SELECTED} flag). If the view's owner is focused,
+     * the view also becomes focused ({@link State#SF_FOCUSED}).
+     * <p>
+     * If the {@link Options#OF_TOP_SELECT} flag is set in this view's {@code options}, the view is moved
+     * to the top of its owner's subview list via {@link #makeFirst()}. Otherwise, the owner's
+     * current view is set to this view using {@link TGroup #setCurrent(TView, int)}.
+     * </p>
+     */
+    public void select() {
+        if ((options & Options.OF_SELECTABLE) != 0) {
+            if ((options & Options.OF_TOP_SELECT) != 0) {
+                makeFirst();
+            } else {
+                if (owner != null) {
+                    owner.setCurrent(this, TGroup.SelectMode.NORMAL_SELECT);
+                }
+            }
+        }
     }
 
     /**
@@ -648,6 +933,40 @@ public class TView {
         if ((state & State.SF_VISIBLE) == 0) {
             setState(State.SF_VISIBLE, true);
         }
+    }
+
+    /**
+     * Returns the current modal view, or null if none exists.
+     */
+    public TView topView() {
+        if (theTopView == null) {
+            TView p = this;
+            while (p != null && (p.state & State.SF_MODAL) == 0) {
+                p = p.owner;
+            }
+            return p;
+        } else {
+            return theTopView;
+        }
+    }
+
+    /**
+     * Checks whether the view is valid in its current state or after construction.
+     * <p>
+     * If {@code command} is {@code CM_VALID} (zero), this method verifies that the view
+     * was successfully constructed and is ready for use. For any other command, it checks
+     * the view's validity before a modal state ends (for example, before closing a window).
+     * If the {@code OF_VALIDATE} option is set, it may also be called before releasing focus.
+     * Subclasses can override this method to perform validation and optionally alert the user
+     * if the view is invalid.
+     * </p>
+     * The default implementation always returns {@code true}.
+     *
+     * @param command validation context or command code
+     * @return {@code true} if the view is valid, {@code false} otherwise
+     */
+    public boolean valid(int command) {
+        return true;
     }
 
     /**

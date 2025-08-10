@@ -1,9 +1,12 @@
 package info.qbnet.jtvision.core.views;
 
+import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -57,6 +60,10 @@ public class TGroup extends TView {
      */
     protected TView current = null;
 
+    protected enum Phase { FOCUSED, PRE_PROCESS, POST_PROCESS }
+
+    protected Phase phase = Phase.FOCUSED;
+
     /**
      * Points to a buffer used to cache redraw operations, or is null if the group
      * has no cache buffer. Cache buffers are created and destroyed
@@ -64,6 +71,8 @@ public class TGroup extends TView {
      * field.
      */
     protected IBuffer buffer = null;
+
+    protected int endState = 0;
 
     /**
      * Stores the clipping rectangle for the group.
@@ -92,6 +101,7 @@ public class TGroup extends TView {
     public TGroup(TRect bounds) {
         super(bounds);
         getExtent(clip);
+        eventMask = 0xFFFF;
 
         logger.debug("{} TGroup@TGroup(bounds={})", getLogName(), bounds);
     }
@@ -135,6 +145,37 @@ public class TGroup extends TView {
         }
     }
 
+    @Override
+    public void endModal(int command) {
+        if ((state & State.SF_MODAL) != 0) {
+            endState = command;
+        } else {
+            super.endModal(command);
+        }
+    }
+
+    public void eventError(TEvent event) {
+        if (owner != null) {
+            owner.eventError(event);
+        }
+    }
+
+    @Override
+    public int execute() {
+        TEvent e = new TEvent();
+        do {
+            endState = 0;
+            do {
+                getEvent(e);
+                handleEvent(e);
+                if (e.what != TEvent.EV_NOTHING) {
+                    eventError(e);
+                }
+            } while (endState == 0);
+        } while (!valid(endState));
+        return endState;
+    }
+
     /**
      * Returns a reference to the first subview (the one closest to the top in Z-order),
      * or null if the group has no subviews.
@@ -172,9 +213,58 @@ public class TGroup extends TView {
         return null;
     }
 
+    public void forEach(Consumer<TView> action) {
+        if (last == null) return;
+
+        TView current = last.getNext();
+        do {
+            action.accept(current);
+            current = current.getNext();
+        } while (current != last.getNext());
+    }
+
     private void getBuffer() {
         if (buffer != null && ((getState() & State.SF_EXPOSED) != 0) && ((getOptions() & Options.OF_BUFFERED) != 0)) {
             buffer = new Buffer(size.x, size.y);
+        }
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        Consumer<TView> doHandleEvent = p -> {
+            if (p == null || ((p.state & State.SF_DISABLED) != 0 && (event.what & (TEvent.POSITIONAL_EVENTS | TEvent.FOCUSED_EVENTS)) != 0)) {
+                return;
+            }
+            switch (phase) {
+                case PRE_PROCESS:
+                    if ((p.options & Options.OF_PRE_PROCESS) == 0) return;
+                    break;
+                case POST_PROCESS:
+                    if ((p.options & Options.OF_POST_PROCESS) == 0) return;
+                    break;
+            }
+            if ((event.what & p.eventMask) != 0)
+                p.handleEvent(event);
+        };
+
+        Predicate<TView> containsMouse = p ->
+                ((p.state & State.SF_VISIBLE) != 0) && p.mouseInView(event.mouse.where);
+
+        super.handleEvent(event);
+
+        if ((event.what & TEvent.FOCUSED_EVENTS) != 0) {
+            phase = Phase.PRE_PROCESS;
+            forEach(doHandleEvent);
+            phase = Phase.FOCUSED;
+            doHandleEvent.accept(current);
+            phase = Phase.POST_PROCESS;
+            forEach(doHandleEvent);
+        } else {
+            phase = Phase.FOCUSED;
+            if ((event.what & TEvent.POSITIONAL_EVENTS) != 0)
+                doHandleEvent.accept(firstThat(containsMouse));
+            else
+                forEach(doHandleEvent);
         }
     }
 
@@ -224,7 +314,7 @@ public class TGroup extends TView {
      * Inserts the view {@code p} into the circular subview list before {@code target}.
      * If {@code target} is null, {@code p} is appended to the end of the list.
      */
-    private void insertView(TView p, TView target) {
+    protected void insertView(TView p, TView target) {
         logger.trace("{} TGroup@insertView({}, {})", getLogName(), p, target);
 
         p.setOwner(this);
@@ -280,6 +370,28 @@ public class TGroup extends TView {
         drawSubViews(first(), null);
     }
 
+    void removeView(TView p) {
+        if (p == null || last == null) {
+            return;       // nothing to remove
+        }
+
+        TView current = last;
+        do {
+            TView candidate = current.next;     // candidate to remove
+            if (candidate == p) {
+                // unlink p
+                current.next = p.next;
+
+                // adjust 'last' pointer if we removed the last element
+                if (last == p) {
+                    last = (p.next == p) ? null : current;  // list becomes empty or shift last
+                }
+                break;            // removal complete
+            }
+            current = candidate;                 // advance around the ring
+        } while (current != last);       // stop after full circle if p not found
+    }
+
     /**
      * Sets the current view to the first visible and selectable view.
      */
@@ -314,7 +426,7 @@ public class TGroup extends TView {
     /**
      * Changes the current view and updates selection and focus states.
      */
-    private void setCurrent(TView v, SelectMode mode) {
+    protected void setCurrent(TView v, SelectMode mode) {
         logger.trace("{} TGroup@setCurrent({}, {})", getLogName(), v != null ? v.getLogName() : "null", mode);
 
         if (current != v) {
@@ -346,6 +458,17 @@ public class TGroup extends TView {
                 drawView();
             }
         }
+    }
+
+    @Override
+    public boolean valid(int command) {
+        if (command == Command.CM_RELEASED_FOCUS) {
+            if (current != null && (current.options & Options.OF_VALIDATE) != 0) {
+                return current.valid(command);
+            }
+        }
+
+        return firstThat(v -> !v.valid(command)) == null;
     }
 
     // Getters and setters

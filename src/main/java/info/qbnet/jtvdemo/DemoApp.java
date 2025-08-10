@@ -94,6 +94,7 @@ public class DemoApp extends TApplication {
         System.out.println("Hello world!");
 
         DemoApp app = new DemoApp();
+        app.run();
 
         System.out.println("Finished!!!");
     }

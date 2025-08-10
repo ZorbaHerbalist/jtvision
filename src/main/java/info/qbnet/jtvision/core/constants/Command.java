@@ -5,8 +5,11 @@ import java.util.Map;
 
 public class Command {
 
+    public static final int CM_QUIT = 1;
     public static final int CM_OK = 10;
     public static final int CM_CANCEL = 11;
+
+    public static final int CM_RELEASED_FOCUS = 51;
 
 //    private static final Map<Integer, Command> registry = new HashMap<>();
 //
