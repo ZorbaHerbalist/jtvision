@@ -16,6 +16,8 @@ import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.util.Screen;
 
+import java.util.Optional;
+
 import java.awt.*;
 
 import static info.qbnet.jtvision.core.views.TPalette.parseHexString;
@@ -84,8 +86,21 @@ public class TProgram extends TGroup {
     }
 
     public static void getKeyEvent(TEvent event) {
-        // TODO
-        event.what = TEvent.EV_NOTHING;
+        if (application == null) {
+            event.what = TEvent.EV_NOTHING;
+            return;
+        }
+
+        Optional<info.qbnet.jtvision.core.event.KeyEvent> opt = application.backend.pollKeyEvent();
+        if (opt.isPresent()) {
+            info.qbnet.jtvision.core.event.KeyEvent ke = opt.get();
+            event.what = TEvent.EV_KEYDOWN;
+            event.key.keyCode = ke.getKeyCode();
+            event.key.charCode = ke.getCharCode();
+            event.key.scanCode = (byte) ke.getScanCode();
+        } else {
+            event.what = TEvent.EV_NOTHING;
+        }
     }
 
     public static void getMouseEvent(TEvent event) {
@@ -106,6 +121,11 @@ public class TProgram extends TGroup {
                     idle();
                 }
             }
+        }
+
+        if (event.what == TEvent.EV_KEYDOWN) {
+            logger.trace("{} TProgram@getEvent() key=[keyCode={}, charCode={}, scanCode={}]", getLogName(),
+                    event.key.keyCode, (int) event.key.charCode, event.key.scanCode);
         }
 
         // TODO

@@ -1,6 +1,8 @@
 package info.qbnet.jtvision.backend;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -13,6 +15,9 @@ import info.qbnet.jtvision.backend.util.ColorUtil;
 import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
 
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -27,6 +32,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private final Integer cellHeight;
 
     private CountDownLatch initializationLatch;
+    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -60,6 +66,14 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         viewport.apply();
         camera.position.set(screen.getWidth() * cellWidth / 2f, screen.getHeight() * cellHeight / 2f, 0);
         camera.update();
+
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(keycode));
+                return true;
+            }
+        });
 
         if (initializationLatch != null) {
             initializationLatch.countDown();
@@ -147,6 +161,11 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     public void setInitializationLatch(CountDownLatch latch) {
         this.initializationLatch = latch;
+    }
+
+    @Override
+    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+        return Optional.ofNullable(keyEvents.poll());
     }
 }
 

@@ -3,12 +3,14 @@ package info.qbnet.jtvision.backend;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.DosPalette;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Backend implementation using the Lanterna library to render the console.
@@ -81,6 +83,25 @@ public class LanternaBackend implements GuiComponent<Screen> {
     @Override
     public Screen getUIComponent() {
         return terminalScreen;
+    }
+
+    @Override
+    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+        try {
+            if (terminalScreen == null) {
+                return Optional.empty();
+            }
+            KeyStroke ks = terminalScreen.pollInput();
+            if (ks == null) {
+                return Optional.empty();
+            }
+            if (ks.getCharacter() != null) {
+                return Optional.of(new info.qbnet.jtvision.core.event.KeyEvent(ks.getCharacter(), ks.getKeyType().ordinal()));
+            }
+            return Optional.of(new info.qbnet.jtvision.core.event.KeyEvent(ks.getKeyType().ordinal()));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
     }
 
     /** Stops the Lanterna screen. */

@@ -6,7 +6,11 @@ import info.qbnet.jtvision.util.DosPalette;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Base class for Swing based backends implementing the common buffering
@@ -20,6 +24,7 @@ public abstract class AbstractSwingBackend extends JPanel
     protected final BufferedImage backBuffer;
     private final Integer cellWidth;
     private final Integer cellHeight;
+    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
@@ -29,6 +34,14 @@ public abstract class AbstractSwingBackend extends JPanel
         int height = screen.getHeight() * cellHeight;
         this.backBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         setPreferredSize(new Dimension(width, height));
+
+        setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(e.getKeyCode()));
+            }
+        });
     }
 
     @Override
@@ -82,5 +95,10 @@ public abstract class AbstractSwingBackend extends JPanel
     @Override
     public JPanel getUIComponent() {
         return this;
+    }
+
+    @Override
+    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+        return Optional.ofNullable(keyEvents.poll());
     }
 }

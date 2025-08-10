@@ -6,6 +6,11 @@ import info.qbnet.jtvision.util.DosPalette;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
+
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Base class for JavaFX backends implementing common rendering logic.
@@ -17,12 +22,15 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     protected final Canvas canvas;
     private final Integer cellWidth;
     private final Integer cellHeight;
+    private final Queue<info.qbnet.jtvision.core.event.KeyEvent> keyEvents = new ConcurrentLinkedQueue<>();
 
     protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
         this.cellWidth = cellWidth;
         this.cellHeight = cellHeight;
         this.canvas = new Canvas(screen.getWidth() * cellWidth, screen.getHeight() * cellHeight);
+        this.canvas.setFocusTraversable(true);
+        this.canvas.setOnKeyPressed(e -> keyEvents.add(new info.qbnet.jtvision.core.event.KeyEvent(e.getCode().getCode())));
     }
 
     @Override
@@ -84,5 +92,10 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     @Override
     public Canvas getUIComponent() {
         return canvas;
+    }
+
+    @Override
+    public Optional<info.qbnet.jtvision.core.event.KeyEvent> pollKeyEvent() {
+        return Optional.ofNullable(keyEvents.poll());
     }
 }
