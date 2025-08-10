@@ -11,44 +11,44 @@ public class DemoApp extends TApplication {
     public DemoApp() {
         super(determineBackendType());
 
-        Console console = getConsole();
+//        Console console = getConsole();
         //console.putString(1, 1, "X", Color.WHITE, Color.BLACK);
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        console.clearScreen();
-        drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
-        console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
-        console.flush();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
-        console.flush();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        // Measure how many characters per second we can print to the backend
-        measureBackendSpeed(console);
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        console.shutdown();
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//
+//        console.clearScreen();
+//        drawDoubleFrame(console, 2, 2, 76, 21, Color.WHITE, Color.BLACK);
+//        console.putString(10, 6, "Hello, DOS World!", Color.WHITE, Color.BLUE);
+//        console.flush();
+//
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//
+//        console.putString(10, 7, "Java Swing Emulator", Color.YELLOW, Color.RED);
+//        console.flush();
+//
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//        // Measure how many characters per second we can print to the backend
+//        measureBackendSpeed(console);
+//
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        }
+//
+//        console.shutdown();
     }
 
     private static BackendType determineBackendType() {
