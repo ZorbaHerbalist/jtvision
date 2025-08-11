@@ -10,19 +10,19 @@ public final class KeyCodeMapper {
     private KeyCodeMapper() {}
 
     /** Modifier flag for the shift key. */
-    public static final int SHIFT = 1 << 16;
+    public static final int SHIFT = 1 << 8;
     /** Modifier flag for the control key. */
-    public static final int CTRL  = 1 << 17;
+    public static final int CTRL  = 1 << 9;
     /** Modifier flag for the alt key. */
-    public static final int ALT   = 1 << 18;
+    public static final int ALT   = 1 << 10;
 
     /** Left/right variants of the modifier keys. */
-    public static final int SHIFT_LEFT  = 1 << 19;
-    public static final int SHIFT_RIGHT = 1 << 20;
-    public static final int CTRL_LEFT   = 1 << 21;
-    public static final int CTRL_RIGHT  = 1 << 22;
-    public static final int ALT_LEFT    = 1 << 23;
-    public static final int ALT_RIGHT   = 1 << 24;
+    public static final int SHIFT_LEFT  = 1 << 11;
+    public static final int SHIFT_RIGHT = 1 << 12;
+    public static final int CTRL_LEFT   = 1 << 13;
+    public static final int CTRL_RIGHT  = 1 << 14;
+    public static final int ALT_LEFT    = 1 << 15;
+    public static final int ALT_RIGHT   = 1 << 16;
 
     /**
      * Applies modifier flags to the provided key code.
