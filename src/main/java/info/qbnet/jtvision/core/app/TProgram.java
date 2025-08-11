@@ -201,7 +201,11 @@ public class TProgram extends TGroup {
     }
 
     public void run() {
-        execute();
+        try {
+            execute();
+        } finally {
+            console.shutdown();
+        }
     }
 
     // Getters and setters
