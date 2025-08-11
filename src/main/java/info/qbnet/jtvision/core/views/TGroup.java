@@ -230,6 +230,18 @@ public class TGroup extends TView {
     }
 
     @Override
+    public int getHelpCtx() {
+        int h = HelpContext.HC_NO_CONTEXT;
+        if (current != null) {
+            h = current.getHelpCtx();
+        }
+        if (h == HelpContext.HC_NO_CONTEXT) {
+            h = super.getHelpCtx();
+        }
+        return h;
+    }
+
+    @Override
     public void handleEvent(TEvent event) {
         boolean logEvent = event.what != TEvent.EV_NOTHING;
         if (logEvent) {

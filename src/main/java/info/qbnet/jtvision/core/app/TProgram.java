@@ -179,8 +179,14 @@ public class TProgram extends TGroup {
     }
 
     public static TStatusItem stdStatusKeys(TStatusItem next) {
-        //TODO
-        return next;
+        return new TStatusItem("", KeyCode.KB_ALT_X, Command.CM_QUIT,
+               new TStatusItem("", KeyCode.KB_F10, Command.CM_MENU,
+               new TStatusItem("", KeyCode.KB_ALT_F3, Command.CM_QUIT,
+               new TStatusItem("", KeyCode.KB_F5, Command.CM_ZOOM,
+               new TStatusItem("", KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
+               new TStatusItem("", KeyCode.KB_F6, Command.CM_NEXT,
+               new TStatusItem("", KeyCode.KB_SHIFT_F6, Command.CM_PREV,
+               null)))))));
     }
 
     public void initStatusLine() {
@@ -190,8 +196,7 @@ public class TProgram extends TGroup {
         statusLine = new TStatusLine(r,
                 new TStatusDef(0, 0xFFFF,
                         new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
-                        new TStatusItem("", KeyCode.KB_F10, Command.CM_MENU,
-                        stdStatusKeys(null))),
+                        stdStatusKeys(null)),
                 null));
     }
 

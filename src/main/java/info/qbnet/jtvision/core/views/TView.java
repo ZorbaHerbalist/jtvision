@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,6 +60,36 @@ public class TView {
      * </p>
      */
     protected TPoint size;
+
+    /**
+     * Defines how a view resizes when its owner changes size.
+     * Each constant represents a growth behavior for a specific edge or scaling mode.
+     */
+    public static class GrowMode {
+        /** If set, the left-hand side of the view will maintain a constant distance from its owner's
+         * right-hand side. */
+        public static final int GF_GROW_LO_X    = 1 << 0;
+        /** If set, the top of the view will maintain a constant distance from the bottom of its owner. */
+        public static final int GF_GROW_LO_Y    = 1 << 1;
+        /** If set, the right-hand side of the view will maintain a constant distance from its owner's right side. */
+        public static final int GF_GROW_HI_X    = 1 << 2;
+        /** If set, the bottom of the view will maintain a constant distance from the bottom of its owner's. */
+        public static final int GF_GROW_HI_Y    = 1 << 3;
+        /** All edges adjust to owner's resize, moving with the lower-right corner of its owner. */
+        public static final int GF_GROW_ALL     = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
+        /** For TWindow objects in the desktop: The view will change size relative to the owner's size. */
+        public static final int GF_GROW_REL     = 1 << 4;
+    }
+
+    /** Current grow mode flags controlling how this view resizes with its owner. */
+    protected int growMode = 0;
+
+    public static class HelpContext {
+        public static final int HC_NO_CONTEXT   = 0;
+        public static final int HC_DRAGGING     = 1;
+    }
+
+    protected int helpCtx = HelpContext.HC_NO_CONTEXT;
 
     /**
      * Bit flags representing the runtime state of a view.
@@ -140,40 +173,35 @@ public class TView {
      */
     protected int eventMask;
 
-    /**
-     * Defines how a view resizes when its owner changes size.
-     * Each constant represents a growth behavior for a specific edge or scaling mode.
-     */
-    public static class GrowMode {
-        /** If set, the left-hand side of the view will maintain a constant distance from its owner's
-         * right-hand side. */
-        public static final int GF_GROW_LO_X    = 1 << 0;
-        /** If set, the top of the view will maintain a constant distance from the bottom of its owner. */
-        public static final int GF_GROW_LO_Y    = 1 << 1;
-        /** If set, the right-hand side of the view will maintain a constant distance from its owner's right side. */
-        public static final int GF_GROW_HI_X    = 1 << 2;
-        /** If set, the bottom of the view will maintain a constant distance from the bottom of its owner's. */
-        public static final int GF_GROW_HI_Y    = 1 << 3;
-        /** All edges adjust to owner's resize, moving with the lower-right corner of its owner. */
-        public static final int GF_GROW_ALL     = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
-        /** For TWindow objects in the desktop: The view will change size relative to the owner's size. */
-        public static final int GF_GROW_REL     = 1 << 4;
-    }
-
-    /** Current grow mode flags controlling how this view resizes with its owner. */
-    protected int growMode = 0;
-
     protected static final int ERROR_ATTR = 0xCF;
-
-    public class HelpContext {
-        public static final int HC_NO_CONTEXT   = 0;
-        public static final int HC_DRAGGING     = 1;
-    }
 
     /**
      * Explicit top view pointer; when non-null it overrides the automatic search.
      */
     private static TView theTopView = null;
+
+    /**
+     * Current command set. All commands from 0..255 are enabled except the
+     * standard window commands.
+     */
+    protected static Set<Integer> curCommandSet = new HashSet<>();
+
+    static {
+        for (int i = 0; i < 256; i++) {
+            curCommandSet.add(i);
+        }
+        // TODO: Remove this once the standard window commands are disabled
+        curCommandSet.remove(Command.CM_ZOOM);
+        curCommandSet.remove(Command.CM_CLOSE);
+        curCommandSet.remove(Command.CM_RESIZE);
+        curCommandSet.remove(Command.CM_NEXT);
+        curCommandSet.remove(Command.CM_PREV);
+    }
+
+    /**
+     * True if the command set has changed since it was last reset.
+     */
+    protected static boolean commandSetChanged = false;
 
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
@@ -208,6 +236,38 @@ public class TView {
     public void clearEvent(TEvent event) {
         event.what = TEvent.EV_NOTHING;
         event.msg.infoPtr = this;
+    }
+
+    /**
+     * Determines whether a specific command is currently enabled for this view.
+     * <p>
+     * Returns {@code true} if the {@code command} is currently enabled; otherwise returns {@code false}.
+     * When modal states change, commands can be enabled or disabled as needed. When returning
+     * to a previous modal state, the original command set will be restored.
+     * </p>
+     *
+     * @param command the command identifier to check
+     * @return {@code true} if the command is enabled, {@code false} otherwise
+     */
+    public boolean commandEnabled(int command) {
+        return command < 255 && curCommandSet.contains(command);
+    }
+
+    /**
+     * Disables the specified set of commands for this view.
+     * <p>
+     * If any of the commands to be disabled are currently enabled, the {@code commandSetChanged}
+     * flag is set to indicate that the command set has been modified. The specified commands are
+     * then removed from the current command set.
+     * </p>
+     *
+     * @param commands the set of command identifiers to disable
+     */
+    public void disableCommands(Set<Integer> commands) {
+        if (!Collections.disjoint(curCommandSet, commands)) {
+            commandSetChanged = true;
+        }
+        curCommandSet.removeAll(commands);
     }
 
     /**
@@ -331,6 +391,23 @@ public class TView {
             draw();
 //            drawCursor(); TODO
         }
+    }
+
+    /**
+     * Enables the specified set of commands for this view.
+     * <p>
+     * If any of the commands to be enabled are not already present in the current command set,
+     * the {@code commandSetChanged} flag is set to indicate a modification. The specified commands
+     * are then added to the current command set.
+     * </p>
+     *
+     * @param commands the set of command identifiers to enable
+     */
+    public void enableCommands(Set<Integer> commands) {
+        if (!curCommandSet.containsAll(commands)) {
+            commandSetChanged = true;
+        }
+        curCommandSet.addAll(commands);
     }
 
     /**
@@ -532,6 +609,19 @@ public class TView {
     }
 
     /**
+     * Returns a copy of the current command set for this view.
+     * <p>
+     * The returned set contains all currently enabled command identifiers. Modifying the returned
+     * set will not affect the view's actual command set.
+     * </p>
+     *
+     * @return a new {@link Set} containing the enabled commands
+     */
+    public Set<Integer> getCommands() {
+        return new HashSet<>(curCommandSet);
+    }
+
+    /**
      * Returns the next available event in the given {@link TEvent} argument.
      * <p>
      * If no event is available, this method should set the event to evNothing.
@@ -558,6 +648,24 @@ public class TView {
     public void getExtent(TRect extent) {
         extent.a = new TPoint(0, 0);
         extent.b = new TPoint(size.x, size.y);
+    }
+
+    /**
+     * Returns the help context identifier for this view.
+     * <p>
+     * By default, returns the value stored in the view's {@code helpCtx} field.
+     * If the view is currently being dragged (SF_DRAGGING flag set), returns
+     * {@link HelpContext#HC_DRAGGING} instead.
+     * </p>
+     *
+     * @return the current help context identifier
+     */
+    public int getHelpCtx() {
+        if ((state & State.SF_DRAGGING) != 0) {
+            return HelpContext.HC_DRAGGING;
+        } else {
+            return helpCtx;
+        }
     }
 
     /**
@@ -867,6 +975,22 @@ public class TView {
     private void setBounds(TRect bounds) {
         this.origin = bounds.a;
         this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);
+    }
+
+    /**
+     * Replaces the current command set for this view with the specified set.
+     * <p>
+     * If the new set differs from the existing one, the {@code commandSetChanged} flag is set.
+     * A defensive copy of the provided set is stored internally.
+     * </p>
+     *
+     * @param commands the new set of command identifiers to assign
+     */
+    public void setCommands(Set<Integer> commands) {
+        if (!curCommandSet.equals(commands)) {
+            commandSetChanged = true;
+        }
+        curCommandSet = new HashSet<>(commands);
     }
 
     /**

@@ -32,7 +32,7 @@ public class TStatusLine extends TView {
         drawSelect(null);
     }
 
-    private void drawSelect(TStatusDef selected) {
+    private void drawSelect(TStatusItem selected) {
         TDrawBuffer buf = new TDrawBuffer();
 
         short cNormal = getColor((short) 0x0301);
@@ -48,8 +48,20 @@ public class TStatusLine extends TView {
             if (t.text() != null) {
                 int l = CString.cStrLen(t.text());
                 if (i + l < size.x) {
-                    // TODO
-                    short color = cNormal;
+                    short color;
+                    if (commandEnabled(t.command())) {
+                        if (t == selected) {
+                            color = cSelect;
+                        } else {
+                            color = cNormal;
+                        }
+                    } else {
+                        if (t == selected) {
+                            color = cSelDisabled;
+                        } else {
+                            color = cNormDisabled;
+                        }
+                    }
                     buf.moveChar(i, ' ' , (char) color, 1);
                     buf.moveCStr(i + 1, t.text(), color);
                     buf.moveChar(i + l + 1, ' ', (char) color, 1);
@@ -58,17 +70,31 @@ public class TStatusLine extends TView {
             }
             t = t.next();
         }
-        // TODO
+
+        if (i < size.x - 2) {
+            String hintBuf = hint(helpCtx);
+            if (hintBuf != null && hintBuf.length() > 0) {
+                buf.moveChar(i, (char) 179, cNormal, 1);
+                i += 2;
+                if (i + hintBuf.length() > size.x) {
+                    hintBuf = hintBuf.substring(0, size.x - i);
+                }
+                buf.moveCStr(i, hintBuf, (byte) cNormal);
+            }
+        }
 
         writeLine(0, 0, size.x, 1, buf.buffer);
     }
 
     private void findItems() {
-        // TODO
-        if (defs != null) {
-            items = defs.items();
-        } else {
+        TStatusDef p = defs;
+        while (p != null && (helpCtx < p.min() || helpCtx > p.max())) {
+            p = p.next();
+        }
+        if (p == null) {
             items = null;
+        } else {
+            items = p.items();
         }
     }
 
@@ -76,4 +102,34 @@ public class TStatusLine extends TView {
     public TPalette getPalette() {
         return C_STATUS_LINE;
     }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        switch (event.what) {
+            case TEvent.EV_MOUSE_DOWN:
+                // TODO
+                break;
+            case TEvent.EV_KEYDOWN:
+                TStatusItem t = items;
+                while (t != null) {
+                    if (event.key.keyCode == t.keyCode() && commandEnabled(t.command())) {
+                        event.what = TEvent.EV_COMMAND;
+                        event.msg.command = t.command();
+                        event.msg.infoPtr = null;
+                        return;
+                    }
+                    t = t.next();
+                }
+                break;
+            case TEvent.EV_BROADCAST:
+                // TODO
+                break;
+        }
+    }
+
+    public String hint(int helpCtx) {
+        return "";
+    }
+
 }
