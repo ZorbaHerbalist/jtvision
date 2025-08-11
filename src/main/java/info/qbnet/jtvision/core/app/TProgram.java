@@ -6,6 +6,7 @@ import info.qbnet.jtvision.backend.factory.BackendFactoryProvider;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.backend.factory.Factory;
 import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
@@ -188,8 +189,9 @@ public class TProgram extends TGroup {
         r.a.y = r.b.y - 1;
         statusLine = new TStatusLine(r,
                 new TStatusDef(0, 0xFFFF,
-                        new TStatusItem("~Alt-X~ Exit", 0, 0,
-                        stdStatusKeys(null)),
+                        new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
+                        new TStatusItem("", KeyCode.KB_F10, Command.CM_MENU,
+                        stdStatusKeys(null))),
                 null));
     }
 

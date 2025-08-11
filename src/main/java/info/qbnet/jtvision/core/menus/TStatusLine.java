@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.core.menus;
 
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TPalette;
@@ -15,6 +16,9 @@ public class TStatusLine extends TView {
 
     public TStatusLine(TRect bounds, TStatusDef defs) {
         super(bounds);
+        this.options |= Options.OF_PRE_PROCESS;
+        this.eventMask |= TEvent.EV_BROADCAST;
+        this.growMode = GrowMode.GF_GROW_LO_Y | GrowMode.GF_GROW_HI_X | GrowMode.GF_GROW_HI_Y;
         this.defs = defs;
         findItems();
 

@@ -6,6 +6,7 @@ import java.util.Map;
 public class Command {
 
     public static final int CM_QUIT = 1;
+    public static final int CM_MENU = 3;
     public static final int CM_OK = 10;
     public static final int CM_CANCEL = 11;
 
