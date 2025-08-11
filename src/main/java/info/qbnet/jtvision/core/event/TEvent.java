@@ -97,4 +97,35 @@ public class TEvent {
         public char infoChar;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(eventName(what));
+        if ((what & EV_MOUSE) != 0) {
+            sb.append(" buttons=").append(mouse.buttons)
+              .append(" where=").append(mouse.where)
+              .append(" double=").append(mouse.isDouble);
+        } else if (what == EV_KEYDOWN) {
+            sb.append(" keyCode=").append(key.keyCode)
+              .append(" charCode=").append((int) key.charCode)
+              .append(" scanCode=").append(key.scanCode);
+        } else if ((what & EV_MESSAGE) != 0) {
+            sb.append(" command=").append(msg.command);
+        }
+        return sb.toString();
+    }
+
+    private static String eventName(int what) {
+        return switch (what) {
+            case EV_MOUSE_DOWN -> "EV_MOUSE_DOWN";
+            case EV_MOUSE_UP -> "EV_MOUSE_UP";
+            case EV_MOUSE_MOVE -> "EV_MOUSE_MOVE";
+            case EV_MOUSE_AUTO -> "EV_MOUSE_AUTO";
+            case EV_KEYDOWN -> "EV_KEYDOWN";
+            case EV_COMMAND -> "EV_COMMAND";
+            case EV_BROADCAST -> "EV_BROADCAST";
+            case EV_NOTHING -> "EV_NOTHING";
+            default -> "EV_0x" + Integer.toHexString(what);
+        };
+    }
 }

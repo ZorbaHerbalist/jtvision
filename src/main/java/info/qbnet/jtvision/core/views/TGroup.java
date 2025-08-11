@@ -231,6 +231,11 @@ public class TGroup extends TView {
 
     @Override
     public void handleEvent(TEvent event) {
+        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        if (logEvent) {
+            logger.trace("{} TGroup@handleEvent(event={})", getLogName(), event);
+        }
+
         Consumer<TView> doHandleEvent = p -> {
             if (p == null || ((p.state & State.SF_DISABLED) != 0 && (event.what & (TEvent.POSITIONAL_EVENTS | TEvent.FOCUSED_EVENTS)) != 0)) {
                 return;
@@ -243,8 +248,19 @@ public class TGroup extends TView {
                     if ((p.options & Options.OF_POST_PROCESS) == 0) return;
                     break;
             }
-            if ((event.what & p.eventMask) != 0)
+            if ((event.what & p.eventMask) != 0) {
+                boolean childLog = event.what != TEvent.EV_NOTHING;
+                if (childLog) {
+                    logger.trace("{} TGroup@handleEvent -> {} event={}", getLogName(),
+                            p.getLogName(), event);
+                }
+                int before = event.what;
                 p.handleEvent(event);
+                if (childLog) {
+                    logger.trace("{} TGroup@handleEvent <- {} handled={} event={}", getLogName(),
+                            p.getLogName(), event.what == TEvent.EV_NOTHING && before != TEvent.EV_NOTHING, event);
+                }
+            }
         };
 
         Predicate<TView> containsMouse = p ->
@@ -265,6 +281,11 @@ public class TGroup extends TView {
                 doHandleEvent.accept(firstThat(containsMouse));
             else
                 forEach(doHandleEvent);
+        }
+
+        if (logEvent) {
+            logger.trace("{} TGroup@handleEvent() eventAfter={} handled={}",
+                    getLogName(), event, event.what == TEvent.EV_NOTHING);
         }
     }
 

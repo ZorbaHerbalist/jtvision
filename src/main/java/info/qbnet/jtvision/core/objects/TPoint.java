@@ -33,4 +33,9 @@ public class TPoint {
     public TPoint() {
         this(0, 0);
     }
+
+    @Override
+    public String toString() {
+        return "TPoint{" + "x=" + x + ", y=" + y + '}';
+    }
 }

@@ -597,12 +597,22 @@ public class TView {
      * @param event the event to process
      */
     public void handleEvent(TEvent event) {
+        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        if (logEvent) {
+            logger.trace("{} TView@handleEvent(event={})", logName, event);
+        }
+
         if (event.what == TEvent.EV_MOUSE_DOWN) {
             if ((state & (State.SF_SELECTED + State.SF_DISABLED)) == 0 && (options & Options.OF_SELECTABLE) != 0) {
                 if (!focus() || (options & Options.OF_FIRST_CLICK) == 0) {
                     clearEvent(event);
                 }
             }
+        }
+
+        if (logEvent) {
+            logger.trace("{} TView@handleEvent() eventAfter={} handled={}",
+                    logName, event, event.what == TEvent.EV_NOTHING);
         }
     }
 

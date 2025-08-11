@@ -16,8 +16,16 @@ public class TApplication extends TProgram {
 
     @Override
     public void handleEvent(TEvent event) {
+        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        if (logEvent) {
+            logger.trace("{} TApplication@handleEvent(event={})", getLogName(), event);
+        }
         super.handleEvent(event);
 
         // TODO EV_COMMAND
+        if (logEvent) {
+            logger.trace("{} TApplication@handleEvent() eventAfter={} handled={}",
+                    getLogName(), event, event.what == TEvent.EV_NOTHING);
+        }
     }
 }

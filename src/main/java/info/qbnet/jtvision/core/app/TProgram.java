@@ -134,6 +134,10 @@ public class TProgram extends TGroup {
 
     @Override
     public void handleEvent(TEvent event) {
+        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        if (logEvent) {
+            logger.trace("{} TProgram@handleEvent(event={})", getLogName(), event);
+        }
         // TODO event.what = evKeyDown
         super.handleEvent(event);
         if (event.what == TEvent.EV_COMMAND) {
@@ -141,6 +145,10 @@ public class TProgram extends TGroup {
                 endModal(Command.CM_QUIT);
                 clearEvent(event);
             }
+        }
+        if (logEvent) {
+            logger.trace("{} TProgram@handleEvent() eventAfter={} handled={}",
+                    getLogName(), event, event.what == TEvent.EV_NOTHING);
         }
     }
 
