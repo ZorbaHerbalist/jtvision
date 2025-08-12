@@ -172,8 +172,8 @@ public class TProgram extends TGroup {
 //        menuBar = new TMenuBar(r, null);
         // TODO
         menuBar = new TMenuBar(r, TMenuBar.newMenu(
-                TMenuBar.newSubmenu("~F~ile", 0, null,
-                TMenuBar.newSubmenu("~E~dit", 0, null,
+                TMenuBar.newSubmenu("~F~ile", 0, TMenuBar.newMenu(null),
+                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(null),
                 null))
         ));
     }
@@ -198,6 +198,11 @@ public class TProgram extends TGroup {
                         new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
                         stdStatusKeys(null)),
                 null));
+    }
+
+    @Override
+    public void putEvent(TEvent event) {
+        pending.copyFrom(event);
     }
 
     public void run() {

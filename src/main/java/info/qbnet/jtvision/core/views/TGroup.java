@@ -6,6 +6,8 @@ import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -106,6 +108,19 @@ public class TGroup extends TView {
         logger.debug("{} TGroup@TGroup(bounds={})", getLogName(), bounds);
     }
 
+    public void delete(TView p) {
+        logger.trace("{} TGroup@delete({})", getLogName(), p.getLogName());
+
+        int saveState = p.state;
+        p.hide();
+        removeView(p);
+        p.owner = null;
+        p.next = null;
+        if ((saveState & State.SF_VISIBLE) != 0) {
+            p.show();
+        }
+    }
+
     /**
      * Overrides TView.draw. If a cache buffer exists (see TGroup.buffer field),
      * then the buffer is written to the screen using TView.writeBuf.
@@ -174,6 +189,35 @@ public class TGroup extends TView {
             } while (endState == 0);
         } while (!valid(endState));
         return endState;
+    }
+
+    public int execView(TView p) {
+        int result = Command.CM_CANCEL;
+        if (p != null) {
+            int saveOptions = p.options;
+            TGroup saveOwner = p.owner;
+            TView saveTopView = theTopView;
+            TView saveCurrent = current;
+            Set<Integer> saveCommands = getCommands();
+            theTopView = p;
+            p.options = saveOptions & ~Options.OF_SELECTABLE;
+            p.setState(State.SF_MODAL, true);
+            setCurrent(p, SelectMode.ENTER_SELECT);
+            if (saveOwner != null) {
+                insert(p);
+            }
+            result = p.execute();
+            if (saveOwner != null) {
+                delete(p);
+            }
+            setCurrent(saveCurrent, SelectMode.LEAVE_SELECT);
+            p.setState(State.SF_MODAL, false);
+            p.options = saveOptions;
+            theTopView = saveTopView;
+            setCommands(saveCommands);
+        }
+
+        return result;
     }
 
     /**

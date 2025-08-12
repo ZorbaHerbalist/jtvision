@@ -178,7 +178,7 @@ public class TView {
     /**
      * Explicit top view pointer; when non-null it overrides the automatic search.
      */
-    private static TView theTopView = null;
+    protected static TView theTopView = null;
 
     /**
      * Current command set. All commands from 0..255 are enabled except the
@@ -887,6 +887,28 @@ public class TView {
         return previous;
     }
 
+    /**
+     * Puts the given event into the event queue, making it the next event returned by {@code getEvent}.
+     * <p>
+     * Only one event can be pushed onto the event queue in this way. Often used by views to generate
+     * command events, for example:
+     * <pre>
+     * Event.what = TEvent.EV_COMMAND;
+     * Event.command = Command.CM_SAVE_ALL;
+     * Event.infoPtr = null;
+     * putEvent(Event);
+     * </pre>
+     * The default implementation forwards the event to the view's owner.
+     * </p>
+     *
+     * @param event the event to enqueue
+     */
+    public void putEvent(TEvent event) {
+        if (owner != null) {
+            owner.putEvent(event);
+        }
+    }
+
     private void moveView(TView target) {
         owner.removeView(this);
         owner.insertView(this, target);
@@ -1260,6 +1282,10 @@ public class TView {
      */
     public void setOwner(TGroup owner) {
         this.owner = owner;
+    }
+
+    public TPoint getSize() {
+        return size;
     }
 
     /**

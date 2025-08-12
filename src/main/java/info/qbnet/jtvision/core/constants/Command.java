@@ -19,6 +19,7 @@ public class Command {
     public static final int CM_CANCEL   = 11;
 
     public static final int CM_RELEASED_FOCUS   = 51;
+    public static final int CM_COMMAND_SET_CHANGED = 52;
 
 //    private static final Map<Integer, Command> registry = new HashMap<>();
 //

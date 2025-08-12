@@ -54,7 +54,7 @@ public class TMenuBar extends TMenuView {
                     int l = CString.cStrLen(p.name());
                     if (x + l < size.x) {
                         short color;
-                        if (p.disabled()) {
+                        if (p.disabled) {
                             if (p == current) {
                                 color = cSelDisabled;
                             } else {
@@ -78,5 +78,21 @@ public class TMenuBar extends TMenuView {
         }
 
         writeLine(0, 0, size.x, 1, buf.buffer);
+    }
+
+    @Override
+    public void getItemRect(TMenuItem item, TRect rect) {
+        rect.assign(1, 0, 1, 1);
+        TMenuItem p = menu.items();
+        while (true) {
+            rect.a.x = rect.b.x;
+            if (p.name() != null) {
+                rect.b.x += CString.cStrLen(p.name()) + 2;
+            }
+            if (p == item) {
+                return;
+            }
+            p = p.next();
+        }
     }
 }

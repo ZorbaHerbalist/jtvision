@@ -2,7 +2,11 @@ package info.qbnet.jtvision.core.constants;
 
 public class KeyCode {
 
+    public static final int KB_NO_KEY       = 0x0000;
+
     public static final int KB_ESC          = 0x001B;
+    public static final int KB_ENTER        = 0x000A;
+    public static final int KB_ALT_SPACE    = 0x0420;
 
     public static final int KB_ALT_A        = 0x0441;
     public static final int KB_ALT_B        = 0x0442;
@@ -44,6 +48,17 @@ public class KeyCode {
     public static final int KB_F11          = 0x007A;
     public static final int KB_F12          = 0x007B;
 
+    public static final int KB_HOME         = 0x0024;
+    public static final int KB_END          = 0x0023;
+    public static final int KB_UP           = 0x0026;
+    public static final int KB_DOWN         = 0x0028;
+    public static final int KB_LEFT         = 0x0025;
+    public static final int KB_RIGHT        = 0x0027;
+    public static final int KB_PAGE_UP      = 0x0021;
+    public static final int KB_PAGE_DOWN    = 0x0022;
+    public static final int KB_GRAY_MINUS   = 0x006D;
+    public static final int KB_GRAY_PLUS    = 0x006B;
+
     public static final int KB_SHIFT_F1     = 0x0170;
     public static final int KB_SHIFT_F2     = 0x0171;
     public static final int KB_SHIFT_F3     = 0x0172;
@@ -83,5 +98,45 @@ public class KeyCode {
     public static final int KB_ALT_F11      = 0x047A;
     public static final int KB_ALT_F12      = 0x047B;
 
+    public static final int KB_ALT_0        = 0x0430;
+    public static final int KB_ALT_1        = 0x0431;
+    public static final int KB_ALT_2        = 0x0432;
+    public static final int KB_ALT_3        = 0x0433;
+    public static final int KB_ALT_4        = 0x0434;
+    public static final int KB_ALT_5        = 0x0435;
+    public static final int KB_ALT_6        = 0x0436;
+    public static final int KB_ALT_7        = 0x0437;
+    public static final int KB_ALT_8        = 0x0438;
+    public static final int KB_ALT_9        = 0x0439;
+    public static final int KB_ALT_MINUS    = 0x042D;
+    public static final int KB_ALT_EQUAL    = 0x043D;
 
+
+    public static int ctrlToArrow(int keyCode) {
+        // TODO
+        return keyCode;
+    }
+
+    public static char getAltChar(int keyCode) {
+        char result = '\0';
+
+        int lo = keyCode & 0x00FF;
+        int hi = (keyCode & 0xFF00) >> 8;
+
+        if (hi == 0x04) {
+            if (lo >= 0x41 && lo <= 0x5A) {
+                result = (char) (lo);
+            } else if (lo >= 0x30 && lo <= 0x39) {
+                result = (char) (lo);
+            } else if (lo == 0x20) {
+                result = ' ';
+            } else if (lo == 0x2D) {
+                result = '-';
+            } else if (lo == 0x3D) {
+                result = '=';
+            }
+        }
+
+        return result;
+    }
 }
