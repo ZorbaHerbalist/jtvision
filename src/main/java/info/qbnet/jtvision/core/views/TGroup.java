@@ -203,11 +203,11 @@ public class TGroup extends TView {
             p.options = saveOptions & ~Options.OF_SELECTABLE;
             p.setState(State.SF_MODAL, true);
             setCurrent(p, SelectMode.ENTER_SELECT);
-            if (saveOwner != null) {
+            if (saveOwner == null) {
                 insert(p);
             }
             result = p.execute();
-            if (saveOwner != null) {
+            if (saveOwner == null) {
                 delete(p);
             }
             setCurrent(saveCurrent, SelectMode.LEAVE_SELECT);
