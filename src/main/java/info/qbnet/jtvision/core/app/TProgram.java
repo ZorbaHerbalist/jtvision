@@ -125,7 +125,12 @@ public class TProgram extends TGroup {
                     event.key.keyCode, (int) event.key.charCode, event.key.scanCode);
         }
 
-        // TODO
+        // TODO mouse handling
+        if (statusLine != null) {
+            if ((event.what & TEvent.EV_KEYDOWN) != 0) {
+                statusLine.handleEvent(event);
+            }
+        }
     }
 
     @Override
