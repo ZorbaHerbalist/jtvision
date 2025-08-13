@@ -995,7 +995,8 @@ public class TView {
      * @param bounds The rectangle defining the new bounds of the view.
      */
     private void setBounds(TRect bounds) {
-        this.origin = bounds.a;
+//        this.origin = bounds.a;
+        this.origin = new TPoint(bounds.a.x, bounds.a.y);
         this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);
     }
 

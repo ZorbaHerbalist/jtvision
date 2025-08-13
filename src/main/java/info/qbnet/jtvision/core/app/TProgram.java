@@ -174,13 +174,7 @@ public class TProgram extends TGroup {
         TRect r = new TRect();
         getExtent(r);
         r.b.y = r.a.y + 1;
-//        menuBar = new TMenuBar(r, null);
-        // TODO
-        menuBar = new TMenuBar(r, TMenuBar.newMenu(
-                TMenuBar.newSubmenu("~F~ile", 0, TMenuBar.newMenu(null),
-                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(null),
-                null))
-        ));
+        menuBar = new TMenuBar(r, null);
     }
 
     public static TStatusItem stdStatusKeys(TStatusItem next) {

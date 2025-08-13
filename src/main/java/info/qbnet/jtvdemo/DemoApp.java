@@ -3,6 +3,10 @@ package info.qbnet.jtvdemo;
 import info.qbnet.jtvision.Console;
 import info.qbnet.jtvision.core.app.TApplication;
 import info.qbnet.jtvision.backend.factory.BackendType;
+import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.menus.TMenuBar;
+import info.qbnet.jtvision.core.objects.TRect;
 
 import java.awt.*;
 
@@ -88,6 +92,22 @@ public class DemoApp extends TApplication {
         }
 
         console.putString(x, y + height - 1, (char)200 + horizontal + (char)188, fg, bg);
+    }
+
+    @Override
+    public void initMenuBar() {
+        TRect r = new TRect();
+        getExtent(r);
+        r.b.y = r.a.y + 1;
+        menuBar = new TMenuBar(r, TMenuBar.newMenu(
+                TMenuBar.newSubmenu("~F~ile", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~N~ew", "", KeyCode.KB_NO_KEY, Command.CM_NEW, HelpContext.HC_NO_CONTEXT,
+                        TMenuBar.newItem("~O~pen...", "F3", KeyCode.KB_F3, Command.CM_OPEN, HelpContext.HC_NO_CONTEXT,
+                        TMenuBar.newLine(
+                        TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT, null))))),
+                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(null),
+                null))
+        ));
     }
 
     public static void main(String[] args) {

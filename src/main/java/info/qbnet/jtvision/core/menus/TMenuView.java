@@ -68,9 +68,9 @@ public class TMenuView extends TView {
         char ch;
         int result = 0;
         TMenuItem itemShown = null;
+        current = menu.defaultItem;
         TMenuItem p;
         TMenuView target;
-        TRect r = new TRect();
         TEvent e = new TEvent();
         // TODO
         // this.mouseActive = false;
@@ -188,6 +188,7 @@ public class TMenuView extends TView {
                         if ((e.what & (TEvent.EV_MOUSE_DOWN + TEvent.EV_MOUSE_MOVE)) != 0) {
                             putEvent(e);
                         }
+                        TRect r = new TRect();
                         getItemRect(current, r);
                         r.a.x += origin.x;
                         r.a.y = r.b.y + origin.y;
@@ -195,7 +196,7 @@ public class TMenuView extends TView {
                         if (size.y == 1) {
                             r.a.x--;
                         }
-                        target = topMenu().newSubMenu(r, current.subMenu(), this);
+                        target = topMenu().newSubView(r, current.subMenu(), this);
                         result = owner.execView(target);
                         // assume disposal handled elsewhere
                     } else if (action == MenuAction.DO_SELECT) {
@@ -362,9 +363,8 @@ public class TMenuView extends TView {
         }
     }
 
-    public TMenuView newSubMenu(TRect bounds, TMenu menu, TMenuView parentMenu) {
-        // TODO
-        return null;
+    public TMenuView newSubView(TRect bounds, TMenu menu, TMenuView parentMenu) {
+        return new TMenuBox(bounds, menu, parentMenu);
     }
 
 }

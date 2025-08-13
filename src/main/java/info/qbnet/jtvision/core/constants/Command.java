@@ -5,21 +5,29 @@ import java.util.Map;
 
 public class Command {
 
-    public static final int CM_VALID    = 0;
-    public static final int CM_QUIT     = 1;
-    public static final int CM_ERROR    = 2;
-    public static final int CM_MENU     = 3;
-    public static final int CM_CLOSE    = 4;
-    public static final int CM_ZOOM     = 5;
-    public static final int CM_RESIZE   = 6;
-    public static final int CM_NEXT     = 7;
-    public static final int CM_PREV     = 8;
-    public static final int CM_HELP     = 9;
-    public static final int CM_OK       = 10;
-    public static final int CM_CANCEL   = 11;
+    public static final int CM_VALID                = 0;
+    public static final int CM_QUIT                 = 1;
+    public static final int CM_ERROR                = 2;
+    public static final int CM_MENU                 = 3;
+    public static final int CM_CLOSE                = 4;
+    public static final int CM_ZOOM                 = 5;
+    public static final int CM_RESIZE               = 6;
+    public static final int CM_NEXT                 = 7;
+    public static final int CM_PREV                 = 8;
+    public static final int CM_HELP                 = 9;
+    public static final int CM_OK                   = 10;
+    public static final int CM_CANCEL               = 11;
 
-    public static final int CM_RELEASED_FOCUS   = 51;
-    public static final int CM_COMMAND_SET_CHANGED = 52;
+    public static final int CM_NEW                  = 30;
+    public static final int CM_OPEN                 = 31;
+    public static final int CM_SAVE                 = 32;
+    public static final int CM_SAVE_AS              = 33;
+    public static final int CM_SAVE_ALL             = 34;
+    public static final int CM_CHANGE_DIR           = 35;
+    public static final int CM_CLOSE_ALL            = 37;
+
+    public static final int CM_RELEASED_FOCUS       = 51;
+    public static final int CM_COMMAND_SET_CHANGED  = 52;
 
 //    private static final Map<Integer, Command> registry = new HashMap<>();
 //
