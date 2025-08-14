@@ -847,9 +847,10 @@ public class TView {
      */
     public boolean mouseInView(TPoint mouse) {
         TRect extent = new TRect();
-        makeLocal(mouse, mouse);
+        TPoint local = new TPoint(mouse.x, mouse.y);
+        makeLocal(mouse, local);
         getExtent(extent);
-        return extent.contains(mouse);
+        return extent.contains(local);
     }
 
     /**
