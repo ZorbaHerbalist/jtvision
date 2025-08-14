@@ -181,9 +181,12 @@ public class TProgram extends TGroup {
                     event.key.keyCode, (int) event.key.charCode, event.key.scanCode);
         }
 
-        // TODO mouse handling
         if (statusLine != null) {
-            if ((event.what & TEvent.EV_KEYDOWN) != 0) {
+            boolean keyDown = (event.what & TEvent.EV_KEYDOWN) != 0;
+            boolean mouseDown = (event.what & TEvent.EV_MOUSE_DOWN) != 0
+                    && firstThat(p -> ((p.getState() & State.SF_VISIBLE) != 0)
+                    && p.mouseInView(event.mouse.where)) == statusLine;
+            if (keyDown || mouseDown) {
                 statusLine.handleEvent(event);
             }
         }
