@@ -1221,7 +1221,7 @@ public class TView {
         int start = x;
         int end = x + count;
         if (start < 0) {
-            offset += -start;
+            offset -= start;
             start = 0;
         }
         if (end > size.x) {
@@ -1234,9 +1234,11 @@ public class TView {
         int destY = origin.y + y;
         int bufIndex = offset + (start - x);
 
+        // Ascend the owner chain, clipping and translating coordinates to the
+        // top-most group without storing intermediate results.
         TGroup g = owner;
-        // Traverse up the owner chain applying clipping and coordinate translation
-        while (true) {
+        TGroup top = g;
+        while (g != null) {
             // Clip against current group's clipping rectangle
             if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
             int clipStart = Math.max(destX, g.clip.a.x);
@@ -1244,27 +1246,65 @@ public class TView {
             if (clipStart >= clipEnd) return;
             bufIndex += (clipStart - destX);
             length = clipEnd - clipStart;
-            destX = clipStart;
-
-            // Stop when we've reached the top-most group
-            if (g.getOwner() == null) {
-                break;
-            }
-
-            destX += g.origin.x;
+            destX = clipStart + g.origin.x;
             destY += g.origin.y;
-            g = g.getOwner();
+
+            top = g;
+            g = g.owner;
         }
 
-        IBuffer target = g.buffer;
+        IBuffer target = top.buffer;
         if (target == null) return;
 
         int available = Math.min(length, buffer.length - bufIndex);
+        TPoint tmp = new TPoint();
         for (int i = 0; i < available; i++) {
             short cell = buffer[bufIndex + i];
             char ch = (char) (cell & 0xFF);
             int attr = (cell >>> 8) & 0xFF;
-            target.setChar(destX + i, destY, ch, attr);
+            int outAttr = attr;
+            boolean covered = false;
+
+            int globalX = destX + i;
+            int globalY = destY;
+
+            // For each ancestor level, check siblings drawn before this view
+            TView child = this;
+            for (TGroup parent = owner; parent != null && !covered; parent = parent.owner) {
+                for (TView s = parent.first(); s != null && s != child; s = s.nextView()) {
+                    if ((s.state & State.SF_VISIBLE) == 0) continue;
+
+                    tmp.x = 0;
+                    tmp.y = 0;
+                    s.makeGlobal(tmp, tmp);
+                    int sx1 = tmp.x;
+                    int sy1 = tmp.y;
+                    int sx2 = sx1 + s.size.x;
+                    int sy2 = sy1 + s.size.y;
+
+                    if (globalY >= sy1 && globalY < sy2 && globalX >= sx1 && globalX < sx2) {
+                        covered = true;
+                        break;
+                    }
+
+                    if ((s.state & State.SF_SHADOW) != 0) {
+                        int shx1 = sx1 + s.shadowSize.x;
+                        int shy1 = sy1 + s.shadowSize.y;
+                        int shx2 = shx1 + s.size.x;
+                        int shy2 = shy1 + s.size.y;
+                        if (globalY >= shy1 && globalY < shy2 && globalX >= shx1 && globalX < shx2) {
+                            if (outAttr == attr) {
+                                outAttr = s.shadowAttr & 0xFF;
+                            }
+                        }
+                    }
+                }
+                child = parent;
+            }
+
+            if (!covered) {
+                target.setChar(globalX, globalY, ch, outAttr);
+            }
         }
     }
 
