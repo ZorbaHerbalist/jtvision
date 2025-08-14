@@ -187,7 +187,6 @@ public class TView {
         for (int i = 0; i < 256; i++) {
             curCommandSet.add(i);
         }
-        // TODO: Remove this once the standard window commands are disabled
         curCommandSet.remove(Command.CM_ZOOM);
         curCommandSet.remove(Command.CM_CLOSE);
         curCommandSet.remove(Command.CM_RESIZE);
