@@ -3,6 +3,7 @@ package info.qbnet.jtvision.core.menus;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
@@ -61,6 +62,43 @@ public class TMenuView extends TView {
         return p;
     }
 
+    // Placeholder fields used by helpers
+    private boolean mouseActive;
+
+    private boolean mouseInOwner(TEvent e) {
+        if (parentMenu != null && parentMenu.size.y == 1) {
+            TPoint mouse = new TPoint();
+            TRect r = new TRect();
+            parentMenu.makeLocal(e.mouse.where, mouse);
+            parentMenu.getItemRect(parentMenu.current, r);
+            return r.contains(mouse);
+        }
+        return false;
+    }
+
+    private void trackMouse(TEvent e) {
+        TPoint mouse = new TPoint();
+        TRect r = new TRect();
+        makeLocal(e.mouse.where, mouse);
+        current = menu != null ? menu.items : null;
+        while (current != null) {
+            getItemRect(current, r);
+            if (r.contains(mouse)) {
+                mouseActive = true;
+                break;
+            }
+            current = current.next;
+        }
+    }
+
+    private boolean mouseInMenus(TEvent e) {
+        TMenuView p = parentMenu;
+        while (p != null && !mouseInView(e.mouse.where)) {
+            p = p.parentMenu;
+        }
+        return p != null;
+    }
+
     @Override
     public int execute() {
         boolean autoSelect = false;
@@ -72,8 +110,7 @@ public class TMenuView extends TView {
         TMenuItem p;
         TMenuView target;
         TEvent e = new TEvent();
-        // TODO
-        // this.mouseActive = false;
+        this.mouseActive = false;
 
         current = menu != null ? menu.defaultItem : null;
 
@@ -82,13 +119,42 @@ public class TMenuView extends TView {
             getEvent(e);
             switch (e.what) {
                 case TEvent.EV_MOUSE_DOWN:
-                    // TODO
+                    if (mouseInView(e.mouse.where) || mouseInOwner(e)) {
+                        trackMouse(e);
+                        if (size.y == 1) {
+                            autoSelect = true;
+                        }
+                    } else {
+                        action = MenuAction.DO_RETURN;
+                    }
                     break;
                 case TEvent.EV_MOUSE_UP:
-                    // TODO
+                    trackMouse(e);
+                    if (mouseInOwner(e)) {
+                        if (menu != null) {
+                            current = menu.defaultItem;
+                        }
+                    } else if (current != null && current.name != null) {
+                        action = MenuAction.DO_SELECT;
+                    } else if (this.mouseActive || mouseInView(e.mouse.where)) {
+                        action = MenuAction.DO_RETURN;
+                    } else {
+                        if (menu != null) {
+                            current = menu.defaultItem;
+                            if (current == null) {
+                                current = menu.items;
+                            }
+                        }
+                        action = MenuAction.DO_NOTHING;
+                    }
                     break;
                 case TEvent.EV_MOUSE_MOVE:
-                    // TODO
+                    if (e.mouse.buttons != 0) {
+                        trackMouse(e);
+                        if (!(mouseInView(e.mouse.where) || mouseInOwner(e)) && mouseInMenus(e)) {
+                            action = MenuAction.DO_RETURN;
+                        }
+                    }
                     break;
                 case TEvent.EV_KEYDOWN:
                     switch (KeyCode.ctrlToArrow(e.key.keyCode)) {
