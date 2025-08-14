@@ -104,8 +104,11 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("~N~ew", "", KeyCode.KB_NO_KEY, Command.CM_NEW, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~O~pen...", "F3", KeyCode.KB_F3, Command.CM_OPEN, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newLine(
-                        TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT, null))))),
-                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(null),
+                        TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT,
+                        null))))),
+                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~U~ndo", "", KeyCode.KB_NO_KEY, Command.CM_UNDO, HelpContext.HC_NO_CONTEXT,
+                        null)),
                 null))
         ));
     }

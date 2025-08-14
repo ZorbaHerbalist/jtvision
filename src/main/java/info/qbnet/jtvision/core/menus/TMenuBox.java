@@ -50,7 +50,7 @@ public class TMenuBox extends TMenuView {
         this.size = new TPoint(r.b.x - r.a.x, r.b.y - r.a.y);
 
         // TODO: not working yet
-//        this.state |= State.SF_SHADOW;
+        this.state |= State.SF_SHADOW;
         this.options |= Options.OF_PRE_PROCESS;
         this.menu = menu;
         this.parentMenu = parentMenu;

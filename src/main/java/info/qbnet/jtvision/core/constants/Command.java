@@ -18,6 +18,8 @@ public class Command {
     public static final int CM_OK                   = 10;
     public static final int CM_CANCEL               = 11;
 
+    public static final int CM_UNDO                 = 23;
+
     public static final int CM_NEW                  = 30;
     public static final int CM_OPEN                 = 31;
     public static final int CM_SAVE                 = 32;

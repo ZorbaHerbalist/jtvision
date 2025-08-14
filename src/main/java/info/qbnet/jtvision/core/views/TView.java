@@ -203,6 +203,9 @@ public class TView {
      */
     protected static boolean commandSetChanged = false;
 
+    private TPoint shadowSize = new TPoint(2,1);
+    private byte shadowAttr = 0x08;
+
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
 
     protected final Logger logger;
@@ -370,8 +373,8 @@ public class TView {
         TRect r = new TRect();
         getBounds(r);
         if (doShadow) {
-            r.b.x++; // TODO ShadowSize.X
-            r.b.y++; // TODO ShadowSize.Y
+            r.b.x += shadowSize.x;
+            r.b.y += shadowSize.y;
         }
         drawUnderRect(r, lastView);
     }
@@ -1066,9 +1069,9 @@ public class TView {
 //                drawCursor(null);
 //                break;
 //
-//            case State.SF_SHADOW:
-//                drawUnderView(true, null);
-//                break;
+            case State.SF_SHADOW:
+                drawUnderView(true, null);
+                break;
 //
 //            case State.SF_FOCUSED:
 //                resetCursor();
