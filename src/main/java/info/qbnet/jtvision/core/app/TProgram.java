@@ -215,7 +215,13 @@ public class TProgram extends TGroup {
     }
 
     public void idle() {
-        // TODO
+        if (statusLine != null) {
+            statusLine.update();
+        }
+        if (commandSetChanged) {
+            message(this, TEvent.EV_BROADCAST, Command.CM_COMMAND_SET_CHANGED, null);
+            commandSetChanged = false;
+        }
     }
 
     public void initDesktop() {

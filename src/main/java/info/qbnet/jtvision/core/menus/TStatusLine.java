@@ -1,6 +1,9 @@
 package info.qbnet.jtvision.core.menus;
 
+import info.qbnet.jtvision.core.app.TProgram;
+import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TPalette;
@@ -98,6 +101,25 @@ public class TStatusLine extends TView {
         }
     }
 
+    private TStatusItem itemMouseIsIn(TPoint mouse) {
+        if (mouse.y != 0) {
+            return null;
+        }
+        int i = 0;
+        TStatusItem t = items;
+        while (t != null) {
+            if (t.text() != null) {
+                int k = i + CString.cStrLen(t.text()) + 2;
+                if (mouse.x >= i && mouse.x < k) {
+                    return t;
+                }
+                i = k;
+            }
+            t = t.next();
+        }
+        return null;
+    }
+
     @Override
     public TPalette getPalette() {
         return C_STATUS_LINE;
@@ -107,10 +129,32 @@ public class TStatusLine extends TView {
     public void handleEvent(TEvent event) {
         super.handleEvent(event);
         switch (event.what) {
-            case TEvent.EV_MOUSE_DOWN:
-                // TODO
+            case TEvent.EV_MOUSE_DOWN: {
+                TStatusItem t = null;
+                TPoint mouse = new TPoint();
+                while (true) {
+                    makeLocal(event.mouse.where, mouse);
+                    TStatusItem in = itemMouseIsIn(mouse);
+                    if (t != in) {
+                        t = in;
+                        drawSelect(t);
+                    }
+                    TProgram.getMouseEvent(event);
+                    if (event.what != TEvent.EV_MOUSE_MOVE) {
+                        break;
+                    }
+                }
+                if (t != null && commandEnabled(t.command())) {
+                    event.what = TEvent.EV_COMMAND;
+                    event.msg.command = t.command();
+                    event.msg.infoPtr = null;
+                    putEvent(event);
+                }
+                clearEvent(event);
+                drawView();
                 break;
-            case TEvent.EV_KEYDOWN:
+            }
+            case TEvent.EV_KEYDOWN: {
                 TStatusItem t = items;
                 while (t != null) {
                     if (event.key.keyCode == t.keyCode() && commandEnabled(t.command())) {
@@ -122,14 +166,38 @@ public class TStatusLine extends TView {
                     t = t.next();
                 }
                 break;
+            }
             case TEvent.EV_BROADCAST:
-                // TODO
+                if (event.msg.command == Command.CM_COMMAND_SET_CHANGED) {
+                    drawView();
+                }
                 break;
         }
     }
 
     public String hint(int helpCtx) {
         return "";
+    }
+
+    /**
+     * Updates the status line based on the help context of the top-most view.
+     *
+     * <p>If the help context has changed since the last update, this method
+     * refreshes the status line's items and redraws the view.</p>
+     */
+    public void update() {
+        TView p = topView();
+        int h;
+        if (p != null) {
+            h = p.getHelpCtx();
+        } else {
+            h = HelpContext.HC_NO_CONTEXT;
+        }
+        if (h != helpCtx) {
+            helpCtx = h;
+            findItems();
+            drawView();
+        }
     }
 
 }

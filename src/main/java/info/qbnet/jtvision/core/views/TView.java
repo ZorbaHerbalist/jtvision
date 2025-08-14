@@ -8,10 +8,7 @@ import info.qbnet.jtvision.util.IBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -1307,6 +1304,20 @@ public class TView {
                 target.setChar(globalX, globalY, ch, outAttr);
             }
         }
+    }
+
+    public static Object message(TView receiver, int what, int command, Object infoPtr) {
+        if (receiver != null) {
+            TEvent event = new TEvent();
+            event.what = what;
+            event.msg.command = command;
+            event.msg.infoPtr = infoPtr;
+            receiver.handleEvent(event);
+            if (event.what == TEvent.EV_NOTHING) {
+                return event.msg.infoPtr;
+            }
+        }
+        return null;
     }
 
     // Getters and setters
