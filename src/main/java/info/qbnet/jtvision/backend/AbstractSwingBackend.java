@@ -7,8 +7,12 @@ import info.qbnet.jtvision.util.DosPalette;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import info.qbnet.jtvision.core.event.KeyCodeMapper;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.Queue;
@@ -26,7 +30,10 @@ public abstract class AbstractSwingBackend extends JPanel
     protected final BufferedImage backBuffer;
     private final Integer cellWidth;
     private final Integer cellHeight;
-    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> events = new ConcurrentLinkedQueue<>();
+    private volatile int mouseButtons = 0;
+    private volatile int mouseX = 0;
+    private volatile int mouseY = 0;
 
     protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
@@ -53,9 +60,52 @@ public abstract class AbstractSwingBackend extends JPanel
                 ev.key.keyCode = withMods;
                 ev.key.charCode = ch;
                 ev.key.scanCode = (byte) scan;
-                keyEvents.add(ev);
+                events.add(ev);
             }
         });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                updateMousePosition(e);
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    mouseButtons |= 1;
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    mouseButtons |= 2;
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                updateMousePosition(e);
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    mouseButtons &= ~1;
+                } else if (e.getButton() == MouseEvent.BUTTON3) {
+                    mouseButtons &= ~2;
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                updateMousePosition(e);
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                updateMousePosition(e);
+            }
+        });
+    }
+
+    private void updateMousePosition(MouseEvent e) {
+        int x = e.getX() / cellWidth;
+        int y = e.getY() / cellHeight;
+        x = Math.max(0, Math.min(screen.getWidth() - 1, x));
+        y = Math.max(0, Math.min(screen.getHeight() - 1, y));
+        mouseX = x;
+        mouseY = y;
     }
 
     @Override
@@ -121,6 +171,16 @@ public abstract class AbstractSwingBackend extends JPanel
 
     @Override
     public Optional<TEvent> pollEvent() {
-        return Optional.ofNullable(keyEvents.poll());
+        return Optional.ofNullable(events.poll());
+    }
+
+    @Override
+    public int getMouseButtons() {
+        return mouseButtons;
+    }
+
+    @Override
+    public TPoint getMouseLocation() {
+        return new TPoint(mouseX, mouseY);
     }
 }

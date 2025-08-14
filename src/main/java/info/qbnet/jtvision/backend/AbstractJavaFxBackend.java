@@ -5,10 +5,12 @@ import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
 import info.qbnet.jtvision.core.event.KeyCodeMapper;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -24,7 +26,10 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     protected final Canvas canvas;
     private final Integer cellWidth;
     private final Integer cellHeight;
-    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> events = new ConcurrentLinkedQueue<>();
+    private volatile int mouseButtons = 0;
+    private volatile int mouseX = 0;
+    private volatile int mouseY = 0;
 
     protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
@@ -45,8 +50,36 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
             ev.key.keyCode = withMods;
             ev.key.charCode = ch;
             ev.key.scanCode = (byte) scan;
-            keyEvents.add(ev);
+            events.add(ev);
         });
+
+        this.canvas.setOnMousePressed(e -> {
+            updateMousePosition(e.getX(), e.getY());
+            switch (e.getButton()) {
+                case PRIMARY -> mouseButtons |= 1;
+                case SECONDARY -> mouseButtons |= 2;
+            }
+        });
+
+        this.canvas.setOnMouseReleased(e -> {
+            updateMousePosition(e.getX(), e.getY());
+            switch (e.getButton()) {
+                case PRIMARY -> mouseButtons &= ~1;
+                case SECONDARY -> mouseButtons &= ~2;
+            }
+        });
+
+        this.canvas.setOnMouseMoved(e -> updateMousePosition(e.getX(), e.getY()));
+        this.canvas.setOnMouseDragged(e -> updateMousePosition(e.getX(), e.getY()));
+    }
+
+    private void updateMousePosition(double px, double py) {
+        int x = (int) (px / cellWidth);
+        int y = (int) (py / cellHeight);
+        x = Math.max(0, Math.min(screen.getWidth() - 1, x));
+        y = Math.max(0, Math.min(screen.getHeight() - 1, y));
+        mouseX = x;
+        mouseY = y;
     }
 
     @Override
@@ -120,6 +153,16 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
 
     @Override
     public Optional<TEvent> pollEvent() {
-        return Optional.ofNullable(keyEvents.poll());
+        return Optional.ofNullable(events.poll());
+    }
+
+    @Override
+    public int getMouseButtons() {
+        return mouseButtons;
+    }
+
+    @Override
+    public TPoint getMouseLocation() {
+        return new TPoint(mouseX, mouseY);
     }
 }

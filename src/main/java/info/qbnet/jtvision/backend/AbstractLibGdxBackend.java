@@ -17,6 +17,7 @@ import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
 import info.qbnet.jtvision.core.event.KeyCodeMapper;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -35,7 +36,10 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private final Integer cellHeight;
 
     private CountDownLatch initializationLatch;
-    private final Queue<TEvent> keyEvents = new ConcurrentLinkedQueue<>();
+    private final Queue<TEvent> events = new ConcurrentLinkedQueue<>();
+    private volatile int mouseButtons = 0;
+    private volatile int mouseX = 0;
+    private volatile int mouseY = 0;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -88,7 +92,41 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
                 ev.key.keyCode = withMods;
                 ev.key.charCode = ch;
                 ev.key.scanCode = (byte) scan;
-                keyEvents.add(ev);
+                events.add(ev);
+                return true;
+            }
+
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                updateMousePosition(screenX, screenY);
+                if (button == Input.Buttons.LEFT) {
+                    mouseButtons |= 1;
+                } else if (button == Input.Buttons.RIGHT) {
+                    mouseButtons |= 2;
+                }
+                return true;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                updateMousePosition(screenX, screenY);
+                if (button == Input.Buttons.LEFT) {
+                    mouseButtons &= ~1;
+                } else if (button == Input.Buttons.RIGHT) {
+                    mouseButtons &= ~2;
+                }
+                return true;
+            }
+
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                updateMousePosition(screenX, screenY);
+                return true;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+                updateMousePosition(screenX, screenY);
                 return true;
             }
         });
@@ -220,7 +258,26 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     @Override
     public Optional<TEvent> pollEvent() {
-        return Optional.ofNullable(keyEvents.poll());
+        return Optional.ofNullable(events.poll());
+    }
+
+    @Override
+    public int getMouseButtons() {
+        return mouseButtons;
+    }
+
+    @Override
+    public TPoint getMouseLocation() {
+        return new TPoint(mouseX, mouseY);
+    }
+
+    private void updateMousePosition(int screenX, int screenY) {
+        int x = screenX / cellWidth;
+        int y = screenY / cellHeight;
+        x = Math.max(0, Math.min(screen.getWidth() - 1, x));
+        y = Math.max(0, Math.min(screen.getHeight() - 1, y));
+        mouseX = x;
+        mouseY = y;
     }
 }
 

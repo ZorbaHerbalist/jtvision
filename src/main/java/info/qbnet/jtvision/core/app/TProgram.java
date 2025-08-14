@@ -13,6 +13,7 @@ import info.qbnet.jtvision.core.menus.TStatusDef;
 import info.qbnet.jtvision.core.menus.TStatusItem;
 import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.util.Screen;
@@ -47,6 +48,17 @@ public class TProgram extends TGroup {
     ));
 
     private static TEvent pending = new TEvent();
+
+    private static final long DOUBLE_DELAY = 300; // milliseconds
+    private static final long REPEAT_DELAY = 100; // milliseconds
+
+    private static int lastMouseButtons = 0;
+    private static TPoint lastMousePos = new TPoint();
+    private static boolean lastMouseDouble = false;
+    private static long lastClickTime = 0;
+    private static int lastClickButton = 0;
+    private static TPoint lastClickPos = new TPoint();
+    private static long lastMouseEventTime = 0;
 
     /**
      * Creates a new program using the specified backend.
@@ -101,8 +113,52 @@ public class TProgram extends TGroup {
     }
 
     public static void getMouseEvent(TEvent event) {
-        // TODO
-        event.what =  TEvent.EV_NOTHING;
+        if (application == null) {
+            event.what = TEvent.EV_NOTHING;
+            return;
+        }
+
+        int buttons = application.backend.getMouseButtons();
+        TPoint where = application.backend.getMouseLocation();
+        long now = System.currentTimeMillis();
+
+        boolean buttonChanged = buttons != lastMouseButtons;
+        boolean moved = where.x != lastMousePos.x || where.y != lastMousePos.y;
+
+        event.mouse.buttons = (byte) buttons;
+        event.mouse.where = new TPoint(where.x, where.y);
+
+        if (buttonChanged) {
+            if ((buttons & ~lastMouseButtons) != 0) {
+                int pressed = buttons & ~lastMouseButtons;
+                boolean isDouble = pressed == lastClickButton &&
+                        (now - lastClickTime) < DOUBLE_DELAY &&
+                        where.x == lastClickPos.x && where.y == lastClickPos.y;
+                event.what = TEvent.EV_MOUSE_DOWN;
+                event.mouse.isDouble = isDouble;
+                lastMouseDouble = isDouble;
+                lastClickTime = now;
+                lastClickButton = pressed;
+                lastClickPos = new TPoint(where.x, where.y);
+            } else {
+                event.what = TEvent.EV_MOUSE_UP;
+                event.mouse.isDouble = lastMouseDouble;
+            }
+            lastMouseEventTime = now;
+        } else if (moved) {
+            event.what = TEvent.EV_MOUSE_MOVE;
+            event.mouse.isDouble = lastMouseDouble;
+            lastMouseEventTime = now;
+        } else if (buttons != 0 && now - lastMouseEventTime >= REPEAT_DELAY) {
+            event.what = TEvent.EV_MOUSE_AUTO;
+            event.mouse.isDouble = lastMouseDouble;
+            lastMouseEventTime = now;
+        } else {
+            event.what = TEvent.EV_NOTHING;
+        }
+
+        lastMouseButtons = buttons;
+        lastMousePos = new TPoint(where.x, where.y);
     }
 
     @Override

@@ -27,6 +27,25 @@ public interface Backend {
     Integer getCellHeight();
 
     /**
+     * Returns a bit mask of currently pressed mouse buttons. Bit {@code 0}
+     * represents the left button and bit {@code 1} the right button.
+     *
+     * <p>The returned coordinates are already translated to console cell
+     * coordinates by the backend implementation.</p>
+     *
+     * @return mask of pressed mouse buttons
+     */
+    int getMouseButtons();
+
+    /**
+     * Returns the current mouse cursor location in character cell
+     * coordinates.
+     *
+     * @return current cursor position
+     */
+    info.qbnet.jtvision.core.objects.TPoint getMouseLocation();
+
+    /**
      * Retrieves the next pending event if one is available. Implementations
      * should return an {@link java.util.Optional#empty()} value when no input
      * has been received since the last call.

@@ -12,6 +12,7 @@ import info.qbnet.jtvision.util.DosPalette;
 import java.io.IOException;
 import java.util.Optional;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 
 /**
  * Backend implementation using the Lanterna library to render the console.
@@ -108,6 +109,16 @@ public class LanternaBackend implements GuiComponent<Screen> {
         } catch (IOException e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public int getMouseButtons() {
+        return 0;
+    }
+
+    @Override
+    public TPoint getMouseLocation() {
+        return new TPoint();
     }
 
     /** Stops the Lanterna screen. */
