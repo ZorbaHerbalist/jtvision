@@ -128,7 +128,7 @@ public class TMenuBox extends TMenuView {
     public void getItemRect(TMenuItem item, TRect rect) {
         int y = 1;
         TMenuItem p = menu.items;
-        while (p != null) {
+        while (p != item) {
             y++;
             p = p.next;
         }
