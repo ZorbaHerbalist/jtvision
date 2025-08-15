@@ -6,6 +6,9 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.menus.TMenuBar;
+import info.qbnet.jtvision.core.menus.TStatusDef;
+import info.qbnet.jtvision.core.menus.TStatusItem;
+import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
 
 import java.awt.*;
@@ -106,11 +109,27 @@ public class DemoApp extends TApplication {
                         TMenuBar.newLine(
                         TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT,
                         null))))),
-                TMenuBar.newSubmenu("~E~dit", 0, TMenuBar.newMenu(
-                        TMenuBar.newItem("~U~ndo", "", KeyCode.KB_NO_KEY, Command.CM_UNDO, HelpContext.HC_NO_CONTEXT,
-                        null)),
+                TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
+                        TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
+                        null))),
                 null))
         ));
+    }
+
+    @Override
+    public void initStatusLine() {
+        TRect r = new TRect();
+        getExtent(r);
+        r.a.y = r.b.y - 1;
+        statusLine = new TStatusLine(r,
+                new TStatusDef(0, 0xFFFF,
+                        new TStatusItem(null, KeyCode.KB_F10, Command.CM_MENU,
+                        new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
+                        new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
+                        new TStatusItem("~Alt-F3~ Close", KeyCode.KB_ALT_F3, Command.CM_CLOSE,
+                        null)))),
+                null));
     }
 
     public static void main(String[] args) {
