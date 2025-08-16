@@ -164,7 +164,7 @@ public class TFrame extends TView {
         }
         if ((state & State.SF_ACTIVE) != 0) {
             if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_CLOSE) != 0) {
-                if ((frameMode & FM_CLOSE_CLICKED) != 0) {
+                if ((frameMode & FM_CLOSE_CLICKED) == 0) {
                     buf.moveCStr(2, "[~" + (char) 254 + "~]", cFrame);
                 } else {
                     buf.moveCStr(2, "[~" + (char) 15 + "~]", cFrame);
