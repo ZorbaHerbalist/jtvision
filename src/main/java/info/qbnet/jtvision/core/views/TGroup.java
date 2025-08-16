@@ -293,7 +293,7 @@ public class TGroup extends TView {
 
     @Override
     public void handleEvent(TEvent event) {
-        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
         if (logEvent) {
             logger.trace("{} TGroup@handleEvent(event={})", getLogName(), event);
         }
@@ -311,7 +311,7 @@ public class TGroup extends TView {
                     break;
             }
             if ((event.what & p.eventMask) != 0) {
-                boolean childLog = event.what != TEvent.EV_NOTHING;
+                boolean childLog = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
                 if (childLog) {
                     logger.trace("{} TGroup@handleEvent -> {} event={}", getLogName(),
                             p.getLogName(), event);

@@ -16,7 +16,7 @@ public class TApplication extends TProgram {
 
     @Override
     public void handleEvent(TEvent event) {
-        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
         if (logEvent) {
             logger.trace("{} TApplication@handleEvent(event={})", getLogName(), event);
         }

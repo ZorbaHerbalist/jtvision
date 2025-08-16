@@ -199,7 +199,7 @@ public class TProgram extends TGroup {
 
     @Override
     public void handleEvent(TEvent event) {
-        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
         if (logEvent) {
             logger.trace("{} TProgram@handleEvent(event={})", getLogName(), event);
         }

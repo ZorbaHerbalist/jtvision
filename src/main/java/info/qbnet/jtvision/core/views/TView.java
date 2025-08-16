@@ -199,6 +199,16 @@ public class TView {
      */
     protected static boolean commandSetChanged = false;
 
+    /**
+     * Controls whether {@code handleEvent} calls emit trace logs.
+     * <p>
+     * This value can be overridden with the VM parameter
+     * {@code -Djtvision.logEvents=false} to disable event logging.
+     * </p>
+     */
+    protected static final boolean LOG_EVENTS =
+            Boolean.parseBoolean(System.getProperty("jtvision.logEvents", "true"));
+
     private TPoint shadowSize = new TPoint(2,1);
     private byte shadowAttr = 0x08;
 
@@ -707,7 +717,7 @@ public class TView {
      * @param event the event to process
      */
     public void handleEvent(TEvent event) {
-        boolean logEvent = event.what != TEvent.EV_NOTHING;
+        boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
         if (logEvent) {
             logger.trace("{} TView@handleEvent(event={})", logName, event);
         }
