@@ -265,6 +265,7 @@ public class TMenuView extends TView {
                         target = topMenu().newSubView(r, current.subMenu(), this);
                         result = owner.execView(target);
                         // assume disposal handled elsewhere
+                        target.done();
                     } else if (action == MenuAction.DO_SELECT) {
                         result = current.command();
                     }

@@ -102,6 +102,7 @@ public class TGroup extends TView {
      */
     public TGroup(TRect bounds) {
         super(bounds);
+        options |= Options.OF_SELECTABLE | Options.OF_BUFFERED;
         getExtent(clip);
         eventMask = 0xFFFF;
 
@@ -119,6 +120,25 @@ public class TGroup extends TView {
         if ((saveState & State.SF_VISIBLE) != 0) {
             p.show();
         }
+    }
+
+    @Override
+    protected void done() {
+        hide();
+        TView p = last;
+        if (p != null) {
+            do {
+                p.hide();
+                p = p.prev();
+            } while (p != last);
+            do {
+                TView t = p.prev();
+                p.done();
+                p = t;
+            } while (last != null);
+        }
+        freeBuffer();
+        super.done();
     }
 
     /**
@@ -334,6 +354,9 @@ public class TGroup extends TView {
             phase = Phase.PRE_PROCESS;
             forEach(doHandleEvent);
             phase = Phase.FOCUSED;
+            if (current == null) {
+                System.err.println("TGroup@handleEvent() current is null");
+            }
             doHandleEvent.accept(current);
             phase = Phase.POST_PROCESS;
             forEach(doHandleEvent);

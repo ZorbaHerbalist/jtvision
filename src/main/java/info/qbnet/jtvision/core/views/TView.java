@@ -279,6 +279,14 @@ public class TView {
         curCommandSet.removeAll(commands);
     }
 
+    protected void done() {
+        logger.trace("{} TView@done()", logName);
+        hide();
+        if (owner != null) {
+            owner.delete(this);
+        }
+    }
+
     /**
      * Called whenever the view must draw (display) itself.
      * <p>

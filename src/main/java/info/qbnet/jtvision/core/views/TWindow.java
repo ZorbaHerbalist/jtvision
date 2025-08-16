@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 
@@ -54,6 +55,13 @@ public class TWindow extends TGroup {
         getBounds(zoomRect);
     }
 
+    public void close() {
+        logger.trace("{} TWindow@close()", getLogName());
+        if (valid(Command.CM_CLOSE)) {
+            done();
+        }
+    }
+
     @Override
     public TPalette getPalette() {
         switch (palette) {
@@ -72,6 +80,34 @@ public class TWindow extends TGroup {
             return "";
         }
         return title;
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        // TODO
+        if (event.what == TEvent.EV_COMMAND) {
+            switch (event.msg.command) {
+                case Command.CM_RESIZE:
+                    break;
+                case Command.CM_CLOSE:
+                    if (((flags & WindowFlag.WF_CLOSE) != 0) && (event.msg.infoPtr == null || event.msg.infoPtr == this)) {
+                        clearEvent(event);
+                        if ((state & State.SF_MODAL) == 0) {
+                            // TODO
+                            close();
+                        } else {
+                            event.what = TEvent.EV_COMMAND;
+                            event.msg.command = Command.CM_CANCEL;
+                            putEvent(event);
+                            clearEvent(event);
+                        }
+                    }
+                    break;
+                case Command.CM_ZOOM:
+                    break;
+            }
+        }
     }
 
     public void initFrame() {
