@@ -13,6 +13,15 @@ public class TFrame extends TView {
 
     private int frameMode = 0;
 
+    private static final byte[] INIT_FRAME = {
+            0x06, 0x0A, 0x0C, 0x05, 0x00, 0x05, 0x03, 0x0A, 0x09,
+            0x16, 0x1A, 0x1C, 0x15, 0x00, 0x15, 0x13, 0x1A, 0x19
+    };
+
+    private static final String FRAME_CHARS =
+            "   \u00C0 \u00B3\u00DA\u00C3 \u00D9\u00C4\u00C1\u00BF\u00B4\u00C2\u00C5   \u00C8 \u00BA\u00C9\u00C7 \u00BC"
+                    + "\u00CD\u00CF\u00BB\u00B6\u00D1 ";
+
     public TFrame(TRect bounds) {
         super(bounds);
         this.growMode |= GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y;
@@ -20,7 +29,86 @@ public class TFrame extends TView {
     }
 
     private void frameLine(TDrawBuffer buf, int y, int n, byte color) {
-        // TODO
+        int width = size.x;
+        if (width <= 0) {
+            return;
+        }
+
+        int[] frameMask = new int[width];
+
+        frameMask[0] = INIT_FRAME[n] & 0xFF;
+        if (width > 1) {
+            int middle = INIT_FRAME[n + 1] & 0xFF;
+            for (int i = 1; i < width - 1; i++) {
+                frameMask[i] = middle;
+            }
+            frameMask[width - 1] = INIT_FRAME[n + 2] & 0xFF;
+        }
+
+        if (owner != null && owner.last != null) {
+            TView p = owner.last;
+            int dx = width - 1;
+            while (true) {
+                p = p.next;
+                if (p == this) {
+                    break;
+                }
+                if ((p.options & Options.OF_FRAMED) == 0) {
+                    continue;
+                }
+                if ((p.state & State.SF_VISIBLE) == 0) {
+                    continue;
+                }
+
+                int ax = y - p.origin.y;
+                int al, ah;
+                if (ax >= 0) {
+                    if (ax > p.size.y) {
+                        continue;
+                    }
+                    al = 0x05;
+                    ah = 0x00;
+                    if (ax == p.size.y) {
+                        al = 0x03;
+                        ah = 0x0A;
+                    }
+                } else {
+                    ax++;
+                    if (ax != 0) {
+                        continue;
+                    }
+                    al = 0x06;
+                    ah = 0x0A;
+                }
+
+                int si = p.origin.x;
+                int di = p.origin.x + p.size.x;
+                if (si < 1) {
+                    si = 1;
+                }
+                if (di > dx) {
+                    di = dx;
+                }
+                if (si >= di) {
+                    continue;
+                }
+
+                frameMask[si - 1] |= al;
+                al ^= ah;
+                frameMask[di] |= al;
+                if (ah != 0) {
+                    for (int i = si; i < di; i++) {
+                        frameMask[i] |= ah;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < width; i++) {
+            int idx = frameMask[i] & 0x1F;
+            char ch = FRAME_CHARS.charAt(idx);
+            buf.buffer[i] = (short) (((color & 0xFF) << 8) | (ch & 0xFF));
+        }
     }
 
     @Override
