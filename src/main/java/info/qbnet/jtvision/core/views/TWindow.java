@@ -84,7 +84,7 @@ public class TWindow extends TGroup {
     public void setState(int state, boolean enable) {
         super.setState(state, enable);
         if (state == State.SF_SELECTED) {
-            setState(State.SF_ACTIVE, true);
+            setState(State.SF_ACTIVE, enable);
         }
         if (state == State.SF_SELECTED || (state == State.SF_EXPOSED && (this.state & State.SF_SELECTED) != 0)) {
             Set<Integer> windowCommands = new HashSet<>();
