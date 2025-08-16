@@ -5,15 +5,20 @@ import info.qbnet.jtvision.core.app.TApplication;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
 import info.qbnet.jtvision.core.menus.TStatusItem;
 import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.views.TWindow;
 
 import java.awt.*;
+import java.util.Random;
 
 public class DemoApp extends TApplication {
+
+    public int winCount = 0;
 
     public DemoApp() {
         super(determineBackendType());
@@ -118,6 +123,21 @@ public class DemoApp extends TApplication {
     }
 
     @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        if (event.what == TEvent.EV_COMMAND) {
+            switch (event.msg.command) {
+                case Command.CM_NEW:
+                    newWindow();
+                    break;
+                default:
+                    return;
+            }
+            clearEvent(event);
+        }
+    }
+
+    @Override
     public void initStatusLine() {
         TRect r = new TRect();
         getExtent(r);
@@ -130,6 +150,15 @@ public class DemoApp extends TApplication {
                         new TStatusItem("~Alt-F3~ Close", KeyCode.KB_ALT_F3, Command.CM_CLOSE,
                         null)))),
                 null));
+    }
+
+    public void newWindow() {
+        winCount++;
+        TRect r = new TRect(0, 0, 26, 7);
+        Random rand = new Random();
+        r.move(rand.nextInt(58), rand.nextInt(16));
+        TWindow window = new TWindow(r, "Demo Window", winCount);
+        desktop.insert(window);
     }
 
     public static void main(String[] args) {

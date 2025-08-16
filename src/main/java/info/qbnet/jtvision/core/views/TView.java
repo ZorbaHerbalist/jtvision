@@ -1092,6 +1092,18 @@ public class TView {
         }
     }
 
+    public void sizeLimits(TPoint min, TPoint max) {
+        min.x = 0;
+        min.y = 0;
+        if (owner != null) {
+            max.x = owner.size.x;
+            max.y = owner.size.y;
+        } else {
+            max.x = Short.MAX_VALUE;
+            max.y = Short.MAX_VALUE;
+        }
+    }
+
     /**
      * Returns the current modal view, or null if none exists.
      */
