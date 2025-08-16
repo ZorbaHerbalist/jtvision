@@ -515,10 +515,10 @@ public class TGroup extends TView {
         if (current != v) {
             lock();
             focusView(current, false);
-            if (mode == SelectMode.ENTER_SELECT) {
+            if (mode != SelectMode.ENTER_SELECT) {
                 selectView(current, false);
             }
-            if (mode == SelectMode.LEAVE_SELECT) {
+            if (mode != SelectMode.LEAVE_SELECT) {
                 selectView(v, true);
             }
             focusView(v, true);
