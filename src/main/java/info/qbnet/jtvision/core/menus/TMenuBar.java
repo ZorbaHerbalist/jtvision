@@ -2,13 +2,14 @@ package info.qbnet.jtvision.core.menus;
 
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
+import info.qbnet.jtvision.core.views.TView;
 import info.qbnet.jtvision.util.CString;
 
 public class TMenuBar extends TMenuView {
 
     public static TMenuItem newItem(String name, String param, int keyCode, int command, int helpCtx, TMenuItem next) {
         if (name != null && name.length() > 0 && command != 0) {
-            return new TMenuItem(next, name, command, false, keyCode, helpCtx, param, null);
+            return new TMenuItem(next, name, command, !TView.commandEnabled(command), keyCode, helpCtx, param, null);
         }
         return next;
     }

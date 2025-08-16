@@ -258,7 +258,7 @@ public class TView {
      * @param command the command identifier to check
      * @return {@code true} if the command is enabled, {@code false} otherwise
      */
-    public boolean commandEnabled(int command) {
+    public static boolean commandEnabled(int command) {
         return command < 255 && curCommandSet.contains(command);
     }
 
@@ -272,7 +272,7 @@ public class TView {
      *
      * @param commands the set of command identifiers to disable
      */
-    public void disableCommands(Set<Integer> commands) {
+    public static void disableCommands(Set<Integer> commands) {
         if (!Collections.disjoint(curCommandSet, commands)) {
             commandSetChanged = true;
         }
@@ -412,7 +412,7 @@ public class TView {
      *
      * @param commands the set of command identifiers to enable
      */
-    public void enableCommands(Set<Integer> commands) {
+    public static void enableCommands(Set<Integer> commands) {
         if (!curCommandSet.containsAll(commands)) {
             commandSetChanged = true;
         }
@@ -628,7 +628,7 @@ public class TView {
      *
      * @return a new {@link Set} containing the enabled commands
      */
-    public Set<Integer> getCommands() {
+    public static Set<Integer> getCommands() {
         return new HashSet<>(curCommandSet);
     }
 
@@ -1022,7 +1022,7 @@ public class TView {
      *
      * @param commands the new set of command identifiers to assign
      */
-    public void setCommands(Set<Integer> commands) {
+    public static void setCommands(Set<Integer> commands) {
         if (!curCommandSet.equals(commands)) {
             commandSetChanged = true;
         }
