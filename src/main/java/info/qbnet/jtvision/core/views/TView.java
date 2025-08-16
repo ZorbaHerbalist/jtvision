@@ -548,7 +548,6 @@ public class TView {
      */
     public boolean focus() {
         logger.trace("{} TView@focus()", logName);
-        System.err.println("focus: " + getLogName());
 
         boolean result = true;
         if ((state & (State.SF_SELECTED | State.SF_MODAL)) == 0) {

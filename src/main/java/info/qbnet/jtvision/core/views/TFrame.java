@@ -146,7 +146,7 @@ public class TFrame extends TView {
             if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_ZOOM) != 0) {
                 i = 7;
             }
-            buf.buffer[width - i] = (short) ((buf.buffer[width - i] & 0xFF00) & ((((TWindow) owner).number) + 0x30));
+            buf.buffer[width - i] = (short) ((buf.buffer[width - i] & 0xFF00) | (((TWindow) owner).number) + 0x30);
         }
         String title = ((TWindow) owner).getTitle(l);
         if (!title.isEmpty()) {
@@ -207,7 +207,6 @@ public class TFrame extends TView {
     public void setState(int state, boolean enable) {
         super.setState(state, enable);
         if ((state & (State.SF_ACTIVE | State.SF_DRAGGING)) != 0) {
-            System.err.println("TADAM");
             drawView();
         }
     }
