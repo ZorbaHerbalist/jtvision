@@ -537,6 +537,9 @@ public class TView {
      * @return {@code true} if the focus was successfully set to this view, {@code false} otherwise
      */
     public boolean focus() {
+        logger.trace("{} TView@focus()", logName);
+        System.err.println("focus: " + getLogName());
+
         boolean result = true;
         if ((state & (State.SF_SELECTED | State.SF_MODAL)) == 0) {
             if (owner != null) {
@@ -970,6 +973,7 @@ public class TView {
      * </p>
      */
     public void select() {
+        logger.trace("{} TView@select()", logName);
         if ((options & Options.OF_SELECTABLE) != 0) {
             if ((options & Options.OF_TOP_SELECT) != 0) {
                 makeFirst();

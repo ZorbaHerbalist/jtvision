@@ -267,6 +267,12 @@ public class TGroup extends TView {
         } while (current != last.getNext());
     }
 
+    private void freeBuffer() {
+        if ((options & Options.OF_BUFFERED) != 0 && buffer != null) {
+            buffer = null;
+        }
+    }
+
     private void getBuffer() {
         if (buffer != null && ((getState() & State.SF_EXPOSED) != 0) && ((getOptions() & Options.OF_BUFFERED) != 0)) {
             buffer = new Buffer(size.x, size.y);
@@ -518,6 +524,34 @@ public class TGroup extends TView {
             focusView(v, true);
             current = v;
             unlock();
+        }
+    }
+
+    @Override
+    public void setState(int state, boolean enable) {
+        super.setState(state, enable);
+        switch (state) {
+            case State.SF_ACTIVE:
+            case State.SF_DISABLED:
+                lock();
+                forEach(p -> p.setState(state, enable));
+                unlock();
+                break;
+            case State.SF_FOCUSED:
+                if (current != null) {
+                    current.setState(state, enable);
+                }
+                break;
+            case State.SF_EXPOSED:
+                forEach(p -> {
+                    if ((p.state & State.SF_VISIBLE) != 0) {
+                        p.setState(state, enable);
+                    }
+                });
+                if (!enable) {
+                    freeBuffer();
+                }
+                break;
         }
     }
 

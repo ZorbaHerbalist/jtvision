@@ -207,6 +207,7 @@ public class TFrame extends TView {
     public void setState(int state, boolean enable) {
         super.setState(state, enable);
         if ((state & (State.SF_ACTIVE | State.SF_DRAGGING)) != 0) {
+            System.err.println("TADAM");
             drawView();
         }
     }
