@@ -67,6 +67,15 @@ class TViewTest {
         }
     }
 
+    static class DrawCharView extends TView {
+        DrawCharView(TRect bounds) { super(bounds); }
+
+        @Override
+        public void draw() {
+            writeChar(0, 0, 'X', 0x07, 1);
+        }
+    }
+
     @Test
     void constructorInitializesGeometry() {
         TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
@@ -143,5 +152,20 @@ class TViewTest {
 
         TestableTView zeroMap = new TestableTView(r, new TPalette(new byte[]{0x00}));
         assertEquals((short)0xCFCF, zeroMap.getColor((short)0x0101));
+    }
+
+    @Test
+    void writeViewTargetsNearestBufferedAncestor() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.setState(SF_EXPOSED, true);
+        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.insert(mid);
+        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        mid.insert(leaf);
+
+        root.draw();
+
+        assertNotNull(mid.buffer);
+        assertEquals('X', (char) (mid.buffer.getCell(0,0) & 0xFF));
     }
 }

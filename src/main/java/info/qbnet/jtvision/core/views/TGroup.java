@@ -84,7 +84,7 @@ public class TGroup extends TView {
     /**
      * Used to lock view updates during complex operations.
      */
-    private int lockFlag = 0;
+    protected int lockFlag = 0;
 
     /**
      * Enumerates selection modes when changing the current view.
@@ -294,7 +294,8 @@ public class TGroup extends TView {
     }
 
     private void getBuffer() {
-        if (buffer != null && ((getState() & State.SF_EXPOSED) != 0) && ((getOptions() & Options.OF_BUFFERED) != 0)) {
+        if (buffer == null && ((getState() & State.SF_EXPOSED) != 0)
+                && ((getOptions() & Options.OF_BUFFERED) != 0)) {
             buffer = new Buffer(size.x, size.y);
         }
     }
@@ -604,16 +605,5 @@ public class TGroup extends TView {
 
         return firstThat(v -> !v.valid(command)) == null;
     }
-
-    // Getters and setters
-
-    /**
-     * Returns the current offscreen buffer used for drawing.
-     */
-//    public IBuffer getBuffer() {
-//        logger.trace("{} TGroup@getBuffer()", getLogName());
-//
-//        return buffer;
-//    }
 
 }

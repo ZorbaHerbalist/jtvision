@@ -1264,30 +1264,37 @@ public class TView {
         int destY = origin.y + y;
         int bufIndex = offset + (start - x);
 
-        // Ascend the owner chain, clipping and translating coordinates to the
-        // top-most group without storing intermediate results.
+        // Ascend the owner chain, clipping and translating until we reach the
+        // nearest ancestor that owns a buffer or is locked.
         TGroup g = owner;
-        TGroup top = g;
+        TGroup top = null;
         while (g != null) {
-            // Clip against current group's clipping rectangle
             if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
             int clipStart = Math.max(destX, g.clip.a.x);
             int clipEnd = Math.min(destX + length, g.clip.b.x);
             if (clipStart >= clipEnd) return;
             bufIndex += (clipStart - destX);
             length = clipEnd - clipStart;
-            destX = clipStart + g.origin.x;
-            destY += g.origin.y;
+            destX = clipStart;
 
-            top = g;
+            if (g.buffer != null || g.lockFlag != 0) {
+                top = g;
+                break;
+            }
+
+            destX += g.origin.x;
+            destY += g.origin.y;
             g = g.owner;
         }
 
+        if (top == null) return;
         IBuffer target = top.buffer;
         if (target == null) return;
 
         int available = Math.min(length, buffer.length - bufIndex);
         TPoint tmp = new TPoint();
+        TPoint topOrigin = new TPoint(0, 0);
+        top.makeGlobal(topOrigin, topOrigin);
         for (int i = 0; i < available; i++) {
             short cell = buffer[bufIndex + i];
             char ch = (char) (cell & 0xFF);
@@ -1295,8 +1302,8 @@ public class TView {
             int outAttr = attr;
             boolean covered = false;
 
-            int globalX = destX + i;
-            int globalY = destY;
+            int globalX = topOrigin.x + destX + i;
+            int globalY = topOrigin.y + destY;
 
             // For each ancestor level, check siblings drawn before this view
             TView child = this;
@@ -1333,7 +1340,7 @@ public class TView {
             }
 
             if (!covered) {
-                target.setChar(globalX, globalY, ch, outAttr);
+                target.setChar(destX + i, destY, ch, outAttr);
             }
         }
     }
