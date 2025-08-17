@@ -1,0 +1,27 @@
+package info.qbnet.jtvdemo;
+
+import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.views.TWindow;
+
+public class DemoWindow extends TWindow {
+
+    public DemoWindow(TRect bounds, String title, int count) {
+        super(bounds, title, count);
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        if (event.what == TEvent.EV_COMMAND) {
+            if (event.msg.command == DemoApp.CM_HIDE_WINDOW) {
+                onHideWindow();
+            }
+        }
+    }
+
+    private void onHideWindow() {
+        hide();
+    }
+}
