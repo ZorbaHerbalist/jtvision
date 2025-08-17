@@ -233,6 +233,50 @@ public class TView {
         eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
     }
 
+    private int growValue(int value, int s, int d) {
+        if ((growMode & GrowMode.GF_GROW_REL) == 0)
+            return value + d;
+        else
+            return (value * s + ((s - d) >> 1)) / (s - d);
+    }
+
+    public void calcBounds(TRect bounds, TPoint delta) {
+        getBounds(bounds);
+
+        int sx = owner.size.x;
+        int dx = delta.x;
+        if ((growMode & GrowMode.GF_GROW_LO_X) != 0) {
+            bounds.a.x = growValue(bounds.a.x, sx, dx);
+        }
+        if ((growMode & GrowMode.GF_GROW_HI_X) != 0) {
+            bounds.b.x = growValue(bounds.b.x, sx, dx);
+        }
+        if (bounds.b.x - bounds.a.x > TDrawBuffer.MAX_VIEW_LENGTH) {
+            bounds.b.x = bounds.a.x + TDrawBuffer.MAX_VIEW_LENGTH;
+        }
+
+        int sy = owner.size.y;
+        int dy = delta.y;
+        if ((growMode & GrowMode.GF_GROW_LO_Y) != 0) {
+            bounds.a.y = growValue(bounds.a.y, sy, dy);
+        }
+        if ((growMode & GrowMode.GF_GROW_HI_Y) != 0) {
+            bounds.b.y = growValue(bounds.b.y, sy, dy);
+        }
+
+        TPoint min = new TPoint();
+        TPoint max = new TPoint();
+        sizeLimits(min, max);
+        bounds.b.x = bounds.a.x + range(bounds.b.x - bounds.a.x, min.x, max.x);
+        bounds.b.y = bounds.a.y + range(bounds.b.y - bounds.a.y, min.y, max.y);
+    }
+
+    public void changeBounds(TRect bounds) {
+        logger.trace("{} TView@changeBounds(bounds={})", logName, bounds.toString());
+        setBounds(bounds);
+        drawView();
+    }
+
     /**
      * Standard method used in {@code handleEvent} to signal that the view has successfully handled the event.
      * <p>
@@ -754,6 +798,33 @@ public class TView {
         }
     }
 
+    private int range(int value, int min, int max) {
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
+    }
+
+    public void locate(TRect bounds) {
+        TPoint min = new TPoint();
+        TPoint max = new TPoint();
+        sizeLimits(min, max);
+        bounds.b.x = bounds.a.x + range(bounds.b.x - bounds.a.x, min.x, max.x);
+        bounds.b.y = bounds.a.y + range(bounds.b.y - bounds.a.y, min.y, max.y);
+        TRect r = new TRect();
+        getBounds(r);
+        if (!bounds.equals(r)) {
+            changeBounds(bounds);
+            if (owner != null && (state & State.SF_VISIBLE) != 0) {
+                if ((state & State.SF_SHADOW) != 0) {
+                    r.union(bounds);
+                    r.b.x += shadowSize.x;
+                    r.b.y += shadowSize.y;
+                }
+                drawUnderRect(r, null);
+            }
+        }
+    }
+
     /**
      * Moves the view to the top of its owner's subview list.
      * <p>
@@ -1015,7 +1086,7 @@ public class TView {
      *
      * @param bounds The rectangle defining the new bounds of the view.
      */
-    private void setBounds(TRect bounds) {
+    protected void setBounds(TRect bounds) {
 //        this.origin = bounds.a;
         this.origin = new TPoint(bounds.a.x, bounds.a.y);
         this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);

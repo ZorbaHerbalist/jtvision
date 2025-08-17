@@ -94,7 +94,6 @@ public class TWindow extends TGroup {
                     if (((flags & WindowFlag.WF_CLOSE) != 0) && (event.msg.infoPtr == null || event.msg.infoPtr == this)) {
                         clearEvent(event);
                         if ((state & State.SF_MODAL) == 0) {
-                            // TODO
                             close();
                         } else {
                             event.what = TEvent.EV_COMMAND;
@@ -105,6 +104,10 @@ public class TWindow extends TGroup {
                     }
                     break;
                 case Command.CM_ZOOM:
+                    if (((flags & WindowFlag.WF_ZOOM) != 0) && (event.msg.infoPtr == null || event.msg.infoPtr == this)) {
+                        zoom();
+                        clearEvent(event);
+                    }
                     break;
             }
         }
@@ -148,5 +151,18 @@ public class TWindow extends TGroup {
         super.sizeLimits(min, max);
         min.x = minWinSize.x;
         min.y = minWinSize.y;
+    }
+
+    public void zoom() {
+        TPoint min = new TPoint();
+        TPoint max = new TPoint();
+        sizeLimits(min, max);
+        if (size.x != max.x || size.y != max.y) {
+            getBounds(zoomRect);
+            TRect r = new TRect(0, 0, max.x, max.y);
+            locate(r);
+        } else {
+            locate(zoomRect);
+        }
     }
 }

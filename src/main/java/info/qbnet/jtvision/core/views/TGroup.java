@@ -2,6 +2,7 @@ package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
@@ -107,6 +108,27 @@ public class TGroup extends TView {
         eventMask = 0xFFFF;
 
         logger.debug("{} TGroup@TGroup(bounds={})", getLogName(), bounds);
+    }
+
+    @Override
+    public void changeBounds(TRect bounds) {
+        TPoint d = new TPoint(bounds.b.x - bounds.a.x - size.x, bounds.b.y - bounds.a.y - size.y);
+        if (d.x == 0 && d.y == 0) {
+            setBounds(bounds);
+            drawView();
+        } else {
+            freeBuffer();
+            setBounds(bounds);
+            getExtent(clip);
+            getBuffer();
+            lock();
+            forEach(p -> {
+                TRect r = new TRect();
+                p.calcBounds(r, d);
+                p.changeBounds(r);
+            });
+            unlock();
+        }
     }
 
     public void delete(TView p) {
