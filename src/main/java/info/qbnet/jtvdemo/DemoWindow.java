@@ -1,5 +1,6 @@
 package info.qbnet.jtvdemo;
 
+import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TRect;
@@ -22,6 +23,10 @@ public class DemoWindow extends TWindow {
     }
 
     private void onHideWindow() {
+        System.err.println("BEGIN");
+        logger.error("{} DemoWindow@onHideWindow()", getLogName());
         hide();
+        System.err.println("END");
+        logger.error("{} DemoWindow@onHideWindow() - DONE", getLogName());
     }
 }

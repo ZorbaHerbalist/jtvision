@@ -1059,6 +1059,8 @@ public class TView {
             throw new IllegalArgumentException("setState expects exactly one bit set in state");
         }
 
+        logger.trace("{} TView@setState(state={}, enable={})", logName, state, enable);
+
         if (enable) {
             this.state |= state;
         } else {
