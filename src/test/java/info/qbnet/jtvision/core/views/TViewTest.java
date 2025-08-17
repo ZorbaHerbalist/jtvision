@@ -168,4 +168,33 @@ class TViewTest {
         assertNotNull(mid.buffer);
         assertEquals('X', (char) (mid.buffer.getCell(0,0) & 0xFF));
     }
+
+    @Test
+    void writeViewSkipsDrawingWhenAncestorHidden() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.setState(SF_EXPOSED, true);
+
+        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.insert(mid);
+
+        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        mid.insert(leaf);
+
+        // Initial draw to allocate buffers and ensure mid has its own buffer.
+        root.draw();
+        assertNotNull(mid.buffer);
+
+        // Hiding the mid group frees its buffer and clears its exposed state.
+        mid.hide();
+        assertNull(mid.buffer);
+
+        // Capture the state of the root buffer before attempting to draw the leaf.
+        int before = root.buffer.getCell(0, 0);
+
+        // Drawing the leaf should not alter the root buffer because its ancestors
+        // are no longer visible/exposed.
+        leaf.draw();
+
+        assertEquals(before, root.buffer.getCell(0, 0));
+    }
 }

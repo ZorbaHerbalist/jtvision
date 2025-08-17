@@ -1247,6 +1247,16 @@ public class TView {
     private void writeView(int y, int x, int count, short[] buffer, int offset) {
         if (owner == null || buffer == null || count <= 0) return;
 
+        // Do not draw if this view itself isn't both visible and exposed.
+        // SF_VISIBLE ensures the view is intended to be shown, while
+        // SF_EXPOSED indicates that it and all of its ancestors currently
+        // have valid screen representation.  When either flag is cleared we
+        // stop immediately to avoid drawing into higher-level buffers when a
+        // view (e.g. a window being hidden) has already discarded its own
+        // buffer.
+        int required = State.SF_VISIBLE | State.SF_EXPOSED;
+        if ((state & required) != required) return;
+
         // Clip vertically to this view's bounds
         if (y < 0 || y >= size.y) return;
 
@@ -1271,6 +1281,11 @@ public class TView {
         TGroup g = owner;
         TGroup top = null;
         while (g != null) {
+            // Abort if any ancestor isn't both visible and exposed. This
+            // prevents drawing when an intermediate owner (like a hidden
+            // window) has already released its buffer.
+            if ((g.state & required) != required) return;
+
             if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
             int clipStart = Math.max(destX, g.clip.a.x);
             int clipEnd = Math.min(destX + length, g.clip.b.x);
