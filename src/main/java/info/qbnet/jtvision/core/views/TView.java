@@ -1316,120 +1316,136 @@ public class TView {
      * @param offset  offset within {@code buffer} from which to start reading
      */
     private void writeView(int y, int x, int count, short[] buffer, int offset) {
-        if (owner == null || buffer == null || count <= 0) return;
+        // Iteratively ascend the ownership chain, copying the affected region
+        // into each ancestor's buffer while its lock flag remains cleared.
+        final int required = State.SF_VISIBLE | State.SF_EXPOSED;
 
-        // Do not draw if this view itself isn't both visible and exposed.
-        // SF_VISIBLE ensures the view is intended to be shown, while
-        // SF_EXPOSED indicates that it and all of its ancestors currently
-        // have valid screen representation.  When either flag is cleared we
-        // stop immediately to avoid drawing into higher-level buffers when a
-        // view (e.g. a window being hidden) has already discarded its own
-        // buffer.
-        int required = State.SF_VISIBLE | State.SF_EXPOSED;
-        if ((state & required) != required) return;
+        TView view = this;
+        int curY = y;
+        int curX = x;
+        int curCount = count;
+        int curOffset = offset;
+        short[] curBuffer = buffer;
 
-        // Clip vertically to this view's bounds
-        if (y < 0 || y >= size.y) return;
+        while (true) {
+            if (view.owner == null || curBuffer == null || curCount <= 0) return;
 
-        int start = x;
-        int end = x + count;
-        if (start < 0) {
-            offset -= start;
-            start = 0;
-        }
-        if (end > size.x) {
-            end = size.x;
-        }
-        int length = end - start;
-        if (length <= 0) return;
+            // Abort if the current view isn't both visible and exposed.
+            if ((view.state & required) != required) return;
 
-        int destX = origin.x + start;
-        int destY = origin.y + y;
-        int bufIndex = offset + (start - x);
+            // Clip vertically to the view's bounds
+            if (curY < 0 || curY >= view.size.y) return;
 
-        // Ascend the owner chain, clipping and translating until we reach the
-        // nearest ancestor that owns a buffer or is locked.
-        TGroup g = owner;
-        TGroup top = null;
-        while (g != null) {
-            // Abort if any ancestor isn't both visible and exposed. This
-            // prevents drawing when an intermediate owner (like a hidden
-            // window) has already released its buffer.
-            if ((g.state & required) != required) return;
+            int start = curX;
+            int end = curX + curCount;
+            if (start < 0) {
+                curOffset -= start;
+                start = 0;
+            }
+            if (end > view.size.x) {
+                end = view.size.x;
+            }
+            int length = end - start;
+            if (length <= 0) return;
 
-            if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
-            int clipStart = Math.max(destX, g.clip.a.x);
-            int clipEnd = Math.min(destX + length, g.clip.b.x);
-            if (clipStart >= clipEnd) return;
-            bufIndex += (clipStart - destX);
-            length = clipEnd - clipStart;
-            destX = clipStart;
+            int destX = view.origin.x + start;
+            int destY = view.origin.y + curY;
+            int bufIndex = curOffset + (start - curX);
 
-            if (g.buffer != null || g.lockFlag != 0) {
-                top = g;
-                break;
+            // Ascend the owner chain, clipping and translating until we reach
+            // the nearest ancestor that owns a buffer or is locked.
+            TGroup g = view.owner;
+            TGroup top = null;
+            while (g != null) {
+                if ((g.state & required) != required) return;
+
+                if (destY < g.clip.a.y || destY >= g.clip.b.y) return;
+                int clipStart = Math.max(destX, g.clip.a.x);
+                int clipEnd = Math.min(destX + length, g.clip.b.x);
+                if (clipStart >= clipEnd) return;
+                bufIndex += (clipStart - destX);
+                length = clipEnd - clipStart;
+                destX = clipStart;
+
+                if (g.buffer != null || g.lockFlag != 0) {
+                    top = g;
+                    break;
+                }
+
+                destX += g.origin.x;
+                destY += g.origin.y;
+                g = g.owner;
             }
 
-            destX += g.origin.x;
-            destY += g.origin.y;
-            g = g.owner;
-        }
+            if (top == null) return;
+            IBuffer target = top.buffer;
+            if (target == null) return;
 
-        if (top == null) return;
-        IBuffer target = top.buffer;
-        if (target == null) return;
+            int available = Math.min(length, curBuffer.length - bufIndex);
+            TPoint tmp = new TPoint();
+            TPoint topOrigin = new TPoint(0, 0);
+            top.makeGlobal(topOrigin, topOrigin);
+            for (int i = 0; i < available; i++) {
+                short cell = curBuffer[bufIndex + i];
+                char ch = (char) (cell & 0xFF);
+                int attr = (cell >>> 8) & 0xFF;
+                int outAttr = attr;
+                boolean covered = false;
 
-        int available = Math.min(length, buffer.length - bufIndex);
-        TPoint tmp = new TPoint();
-        TPoint topOrigin = new TPoint(0, 0);
-        top.makeGlobal(topOrigin, topOrigin);
-        for (int i = 0; i < available; i++) {
-            short cell = buffer[bufIndex + i];
-            char ch = (char) (cell & 0xFF);
-            int attr = (cell >>> 8) & 0xFF;
-            int outAttr = attr;
-            boolean covered = false;
+                int globalX = topOrigin.x + destX + i;
+                int globalY = topOrigin.y + destY;
 
-            int globalX = topOrigin.x + destX + i;
-            int globalY = topOrigin.y + destY;
+                // For each ancestor level, check siblings drawn before this view
+                TView child = view;
+                for (TGroup parent = view.owner; parent != null && !covered; parent = parent.owner) {
+                    for (TView s = parent.first(); s != null && s != child; s = s.nextView()) {
+                        if ((s.state & State.SF_VISIBLE) == 0) continue;
 
-            // For each ancestor level, check siblings drawn before this view
-            TView child = this;
-            for (TGroup parent = owner; parent != null && !covered; parent = parent.owner) {
-                for (TView s = parent.first(); s != null && s != child; s = s.nextView()) {
-                    if ((s.state & State.SF_VISIBLE) == 0) continue;
+                        tmp.x = 0;
+                        tmp.y = 0;
+                        s.makeGlobal(tmp, tmp);
+                        int sx1 = tmp.x;
+                        int sy1 = tmp.y;
+                        int sx2 = sx1 + s.size.x;
+                        int sy2 = sy1 + s.size.y;
 
-                    tmp.x = 0;
-                    tmp.y = 0;
-                    s.makeGlobal(tmp, tmp);
-                    int sx1 = tmp.x;
-                    int sy1 = tmp.y;
-                    int sx2 = sx1 + s.size.x;
-                    int sy2 = sy1 + s.size.y;
+                        if (globalY >= sy1 && globalY < sy2 && globalX >= sx1 && globalX < sx2) {
+                            covered = true;
+                            break;
+                        }
 
-                    if (globalY >= sy1 && globalY < sy2 && globalX >= sx1 && globalX < sx2) {
-                        covered = true;
-                        break;
-                    }
-
-                    if ((s.state & State.SF_SHADOW) != 0) {
-                        int shx1 = sx1 + s.shadowSize.x;
-                        int shy1 = sy1 + s.shadowSize.y;
-                        int shx2 = shx1 + s.size.x;
-                        int shy2 = shy1 + s.size.y;
-                        if (globalY >= shy1 && globalY < shy2 && globalX >= shx1 && globalX < shx2) {
-                            if (outAttr == attr) {
-                                outAttr = s.shadowAttr & 0xFF;
+                        if ((s.state & State.SF_SHADOW) != 0) {
+                            int shx1 = sx1 + s.shadowSize.x;
+                            int shy1 = sy1 + s.shadowSize.y;
+                            int shx2 = shx1 + s.size.x;
+                            int shy2 = shy1 + s.size.y;
+                            if (globalY >= shy1 && globalY < shy2 && globalX >= shx1 && globalX < shx2) {
+                                if (outAttr == attr) {
+                                    outAttr = s.shadowAttr & 0xFF;
+                                }
                             }
                         }
                     }
+                    child = parent;
                 }
-                child = parent;
+
+                if (!covered) {
+                    target.setChar(destX + i, destY, ch, outAttr);
+                }
             }
 
-            if (!covered) {
-                target.setChar(destX + i, destY, ch, outAttr);
+            // If the ancestor isn't locked and has a further owner, propagate
+            // the drawing upward. Otherwise we're done.
+            if (top.lockFlag != 0 || top.owner == null) {
+                return;
             }
+
+            view = top;
+            curY = destY;
+            curX = destX;
+            curCount = length;
+            curBuffer = target.getData();
+            curOffset = curY * view.size.x + curX;
         }
     }
 

@@ -197,4 +197,54 @@ class TViewTest {
 
         assertEquals(before, root.buffer.getCell(0, 0));
     }
+
+    @Test
+    void writeViewPropagatesThroughUnlockedAncestors() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.setState(SF_EXPOSED, true);
+
+        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.insert(mid);
+
+        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        mid.insert(leaf);
+
+        // Allocate buffers
+        root.draw();
+
+        // Clear any previous characters
+        root.buffer.setChar(0, 0, ' ', 0);
+        mid.buffer.setChar(0, 0, ' ', 0);
+
+        leaf.draw();
+
+        assertEquals('X', (char) (mid.buffer.getCell(0,0) & 0xFF));
+        assertEquals('X', (char) (root.buffer.getCell(0,0) & 0xFF));
+    }
+
+    @Test
+    void writeViewStopsAtLockedAncestor() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.setState(SF_EXPOSED, true);
+
+        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.insert(mid);
+
+        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        mid.insert(leaf);
+
+        root.draw();
+
+        root.buffer.setChar(0, 0, ' ', 0);
+        mid.buffer.setChar(0, 0, ' ', 0);
+
+        mid.lock();
+        leaf.draw();
+
+        assertEquals('X', (char) (mid.buffer.getCell(0,0) & 0xFF));
+        assertEquals(' ', (char) (root.buffer.getCell(0,0) & 0xFF));
+
+        // Clean up lock to avoid side-effects
+        mid.unlock();
+    }
 }
