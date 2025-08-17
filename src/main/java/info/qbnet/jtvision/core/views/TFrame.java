@@ -176,9 +176,9 @@ public class TFrame extends TView {
                 TPoint max = new TPoint();
                 owner.sizeLimits(min, max);
                 if ((frameMode & FM_ZOOM_CLICKED) != 0) {
-                    buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) & 15);
+                    buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 15);
                 } else if ((owner.size.x == max.x) && (owner.size.y == max.y)) {
-                    buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) & 18);
+                    buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 18);
                 }
             }
         }
