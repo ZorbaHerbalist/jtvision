@@ -240,6 +240,23 @@ public class TView {
             return (value * s + ((s - d) >> 1)) / (s - d);
     }
 
+    /**
+     * Calculates the new bounds of the view when the owner's size changes.
+     * <p>
+     * This method is called when the owner resizes and must compute the updated bounds of the view
+     * given the change in the owner's size (specified by {@code delta}). The calculation is controlled
+     * by the {@code growMode} flags, which determine how each side of the view reacts to the owner's
+     * resizing. The resulting bounds are clamped by the view's minimum and maximum size limits.
+     * </p>
+     * <p>
+     * According to the Turbo Vision documentation: When a view's owner changes size, the owner calls
+     * {@code calcBounds} and {@code changeBounds} for all its subviews. {@code calcBounds} must calculate
+     * the new bounds using the flags specified in {@code growMode}.
+     * </p>
+     *
+     * @param bounds output rectangle that will contain the calculated bounds
+     * @param delta the change in owner's size
+     */
     public void calcBounds(TRect bounds, TPoint delta) {
         getBounds(bounds);
 
@@ -271,6 +288,19 @@ public class TView {
         bounds.b.y = bounds.a.y + range(bounds.b.y - bounds.a.y, min.y, max.y);
     }
 
+    /**
+     * Changes the bounds of the view and redraws it.
+     * <p>
+     * This method must update the view's {@code origin} and {@code size} fields to match the
+     * new rectangle provided in {@code bounds}. After updating, it triggers a redraw of the view.
+     * </p>
+     * <p>
+     * According to Turbo Vision documentation: {@code changeBounds} is called by various
+     * {@code TView} methods but should never be called directly.
+     * </p>
+     *
+     * @param bounds the new rectangle bounds for the view
+     */
     public void changeBounds(TRect bounds) {
         logger.trace("{} TView@changeBounds(bounds={})", logName, bounds.toString());
         setBounds(bounds);
@@ -323,6 +353,13 @@ public class TView {
         curCommandSet.removeAll(commands);
     }
 
+    /**
+     * Finalizes the view's lifecycle by hiding it and requesting its owner to delete it.
+     * <p>
+     * {@code done} is called to remove the view from the screen and ensure it is properly
+     * deleted by its owner.
+     * </p>
+     */
     protected void done() {
         logger.trace("{} TView@done()", logName);
         hide();
@@ -620,7 +657,6 @@ public class TView {
         return result;
     }
 
-
     /**
      * Returns, in the {@code bounds} parameter, the bounding rectangle of the view
      * in its owner's coordinate system.
@@ -804,6 +840,20 @@ public class TView {
         return value;
     }
 
+    /**
+     * Changes the bounds of the view to the specified {@code bounds} and redraws the view at its new location.
+     * <p>
+     * This method first calls {@code sizeLimits} to ensure that the given {@code bounds} are valid.
+     * If the new bounds differ from the current bounds, it updates the view's position and size by calling
+     * {@code changeBounds}. If the view is visible, it also redraws the underlying area (including shadows if present).
+     * </p>
+     * <p>
+     * According to Turbo Vision documentation: {@code locate} must validate bounds with {@code sizeLimits},
+     * call {@code changeBounds} to update them, and then redraw the view.
+     * </p>
+     *
+     * @param bounds the target rectangle bounds for the view
+     */
     public void locate(TRect bounds) {
         TPoint min = new TPoint();
         TPoint max = new TPoint();
@@ -919,6 +969,30 @@ public class TView {
         }
         foreground = mapColor(foreground);
         return (short) (background << 8 | foreground & 0xff);
+    }
+
+    /**
+     * Returns the next mouse event in the {@code event} argument.
+     * <p>
+     * This method repeatedly calls {@code getEvent} until an event occurs whose type matches the
+     * specified {@code mask} or is a mouse button release ({@code EV_MOUSE_UP}). It then stores the
+     * event in the {@code event} parameter and returns {@code true} if it matched the mask, or
+     * {@code false} if a mouse button release occurred.
+     * </p>
+     * <p>
+     * According to Turbo Vision documentation: {@code mouseEvent} lets you track a mouse while its
+     * button is down, such as in block-marking operations for text editors.
+     * </p>
+     *
+     * @param event the event structure to be filled with the received event
+     * @param mask the mask specifying which mouse events to wait for
+     * @return {@code true} if a matching event occurred, {@code false} if a mouse button release occurred
+     */
+    public boolean mouseEvent(TEvent event, int mask) {
+        do {
+            getEvent(event);
+        } while ((event.what & (mask | TEvent.EV_MOUSE_UP)) == 0);
+        return event.what != TEvent.EV_MOUSE_UP;
     }
 
     /**
@@ -1087,7 +1161,6 @@ public class TView {
      * @param bounds The rectangle defining the new bounds of the view.
      */
     protected void setBounds(TRect bounds) {
-//        this.origin = bounds.a;
         this.origin = new TPoint(bounds.a.x, bounds.a.y);
         this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);
     }
@@ -1186,6 +1259,21 @@ public class TView {
         }
     }
 
+    /**
+     * Sets {@code min} and {@code max} to the minimum and maximum values that the {@code size}
+     * field can assume.
+     * <p>
+     * This method is used by {@link #locate(TRect)} to ensure that a view's dimensions remain
+     * within valid bounds. {@code locate} will not allow the view to be larger than these limits.
+     * </p>
+     * <p>
+     * According to Turbo Vision documentation: The default implementation of {@code sizeLimits}
+     * returns (0,0) in {@code min} and the owner's {@code size} in {@code max}.
+     * </p>
+     *
+     * @param min output parameter that receives the minimum allowed size
+     * @param max output parameter that receives the maximum allowed size
+     */
     public void sizeLimits(TPoint min, TPoint max) {
         min.x = 0;
         min.y = 0;
@@ -1449,6 +1537,25 @@ public class TView {
         }
     }
 
+    /**
+     * Dispatches a message to the given receiver view.
+     * <p>
+     * This method constructs a {@code TEvent} with the specified parameters and passes it to
+     * {@code handleEvent} of the receiver. If the receiver handles the event (i.e., clears it by
+     * calling {@code clearEvent}), this method returns the possibly modified {@code infoPtr}
+     * field from the event. Otherwise, it returns {@code null}.
+     * </p>
+     * <p>
+     * According to Turbo Vision documentation: {@code message} is a utility function that allows
+     * sending command or information events to views in a standardized way.
+     * </p>
+     *
+     * @param receiver the target view to receive the message
+     * @param what the event class identifier
+     * @param command the command code associated with the event
+     * @param infoPtr optional additional information to attach to the event
+     * @return the {@code infoPtr} if the receiver handled the event, or {@code null} otherwise
+     */
     public static Object message(TView receiver, int what, int command, Object infoPtr) {
         if (receiver != null) {
             TEvent event = new TEvent();

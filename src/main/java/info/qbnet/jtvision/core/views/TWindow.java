@@ -17,7 +17,7 @@ public class TWindow extends TGroup {
         public static final int WF_ZOOM     = 0x08;
     }
 
-    protected static int flags;
+    protected int flags;
 
     private TRect zoomRect = new TRect();
     private TFrame frame;

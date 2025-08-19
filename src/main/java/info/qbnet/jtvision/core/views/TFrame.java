@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.core.views;
 
+import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
@@ -201,6 +202,60 @@ public class TFrame extends TView {
     @Override
     public TPalette getPalette() {
         return C_FRAME;
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+
+        if (event.what == TEvent.EV_MOUSE_DOWN) {
+            TPoint mouse = new TPoint();
+            makeLocal(event.mouse.where, mouse);
+            if (mouse.y == 0) {
+                if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_CLOSE) != 0 &&
+                        (state & State.SF_ACTIVE) != 0 && mouse.x >= 2 && mouse.x <= 4) {
+                    do {
+                        makeLocal(event.mouse.where, mouse);
+                        if (mouse.x >= 2 && mouse.x <= 4 && mouse.y == 0) {
+                            frameMode |= FM_CLOSE_CLICKED;
+                        } else {
+                            frameMode = 0;
+                        }
+                        drawView();
+                    } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE + TEvent.EV_MOUSE_AUTO));
+                    frameMode = 0;
+                    if (mouse.x >= 2 && mouse.x <= 4 && mouse.y == 0) {
+                        event.what = TEvent.EV_COMMAND;
+                        event.msg.command = Command.CM_CLOSE;
+                        event.msg.infoPtr = owner;
+                        putEvent(event);
+                    }
+                    clearEvent(event);
+                    drawView();
+                } else if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_ZOOM) != 0 && (state & State.SF_ACTIVE) != 0 && (event.mouse.isDouble || (mouse.x >= size.x - 5 && mouse.x <= size.x - 3))) {
+                    if (!event.mouse.isDouble) {
+                        do {
+                            makeLocal(event.mouse.where, mouse);
+                            if (mouse.x >= size.x - 5 && mouse.x <= size.x - 3 && mouse.y == 0) {
+                                frameMode |= FM_ZOOM_CLICKED;
+                            } else {
+                                frameMode = 0;
+                            }
+                            drawView();
+                        } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE + TEvent.EV_MOUSE_AUTO));
+                    }
+                    frameMode = 0;
+                    if (((mouse.x >= size.x - 5 && mouse.x <= size.x - 3 && mouse.y == 0)) || event.mouse.isDouble) {
+                        event.what = TEvent.EV_COMMAND;
+                        event.msg.command = Command.CM_ZOOM;
+                        event.msg.infoPtr = owner;
+                        putEvent(event);
+                    }
+                    clearEvent(event);
+                    drawView();
+                } // TODO else if
+            }
+        }
     }
 
     @Override
