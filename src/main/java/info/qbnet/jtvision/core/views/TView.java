@@ -27,20 +27,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TView {
 
     /**
-     * Reference to the {@link TGroup} object that owns this view.
-     * <p>
-     * If {@code null}, the view has no owner. The view is displayed within its owner's view
-     * and will be clipped by the owner's bounding rectangle.
-     * </p>
+     * Owning {@link TGroup}; {@code null} for top-level views. Used to resolve
+     * relative coordinates and clipping within the container.
      */
     protected TGroup owner = null;
 
     /**
-     * Reference to the next peer view in Z-order.
-     * <p>
-     * If this is the last subview, {@code next} points to the owner's first subview.
-     * This field is used to navigate sibling views within the same owner group.
-     * </p>
+     * Next sibling view in Z-order. Enables traversal of peers and wraps to the
+     * owner's first child when this is the last subview.
      */
     protected TView next = null;
 
@@ -259,6 +253,19 @@ public class TView {
         eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
     }
 
+    /**
+     * Computes a new coordinate or size value when the owner of this view is resized.
+     * <p>
+     * If relative growth ({@link GrowMode#GF_GROW_REL}) is disabled, the value is simply
+     * offset by {@code d}. Otherwise, the value is scaled proportionally to the change in
+     * the owner's size.
+     * </p>
+     *
+     * @param value the original coordinate or dimension to adjust
+     * @param s     the owner's current size along the relevant axis
+     * @param d     the change in the owner's size along the same axis
+     * @return the adjusted value after applying the growth rules
+     */
     private int growValue(int value, int s, int d) {
         if ((growMode & GrowMode.GF_GROW_REL) == 0)
             return value + d;
@@ -800,8 +807,8 @@ public class TView {
      * </p>
      * <p>
      * {@code getPalette()} is called by methods like {@code getColor()}, {@code writeChar()}, and
-     * {@code writeStr()} (not yet implemented) when converting palette indexes to actual
-     * character attributes. A return value of {@code null} indicates that no color translation
+     * {@code writeStr()} when converting palette indexes to actual character attributes.
+     * A return value of {@code null} indicates that no color translation
      * should be performed by this view.
      * </p>
      * <p>
@@ -859,6 +866,16 @@ public class TView {
         }
     }
 
+    /**
+     * Ensures that {@code value} falls within the inclusive range defined by
+     * {@code min} and {@code max}.
+     *
+     * @param value the value to be checked
+     * @param min   the minimum permitted value
+     * @param max   the maximum permitted value
+     * @return {@code min} if {@code value} is below the range, {@code max} if above,
+     *         otherwise {@code value} unchanged
+     */
     private int range(int value, int min, int max) {
         if (value < min) return min;
         if (value > max) return max;
@@ -982,6 +999,9 @@ public class TView {
 
     /**
      * Maps a color pair into an attribute pair.
+     *
+     * <p>Converts a packed foreground/background value into a curses attribute pair.</p>
+     *
      * @param colorPair low byte foreground, high byte background
      * @return mapped attribute pair
      */
@@ -1097,6 +1117,17 @@ public class TView {
         }
     }
 
+    /**
+     * Relocates this view within its owner's subview list relative to a
+     * specified {@code target} view.
+     * <p>
+     * The method removes the view from its current position and reinserts it
+     * before {@code target}, effectively reordering the owner's child views.
+     * Used internally when changing z-order.
+     * </p>
+     *
+     * @param target the view before which this view should be inserted
+     */
     private void moveView(TView target) {
         owner.removeView(this);
         owner.insertView(this, target);
