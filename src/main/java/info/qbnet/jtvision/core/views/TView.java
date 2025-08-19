@@ -70,19 +70,26 @@ public class TView {
         public static final int GF_GROW_LO_Y    = 1 << 1;
         /** If set, the right-hand side of the view will maintain a constant distance from its owner's right side. */
         public static final int GF_GROW_HI_X    = 1 << 2;
-        /** If set, the bottom of the view will maintain a constant distance from the bottom of its owner's. */
+        /** If set, the bottom edge of the view maintains a constant distance from the owner's bottom edge. */
         public static final int GF_GROW_HI_Y    = 1 << 3;
-        /** All edges adjust to owner's resize, moving with the lower-right corner of its owner. */
+        /** If set, all four edges maintain a constant distance from the owner's edges, causing the view to grow or shrink with the owner's size. */
         public static final int GF_GROW_ALL     = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
-        /** For TWindow objects in the desktop: The view will change size relative to the owner's size. */
+        /** If set, the view resizes in direct proportion to the owner's size, typically used for TWindow objects on the desktop. */
         public static final int GF_GROW_REL     = 1 << 4;
     }
 
     /** Current grow mode flags controlling how this view resizes with its owner. */
     protected int growMode = 0;
 
+    /**
+     * Collection of predefined help contexts that map view states to
+     * context-sensitive help topics.
+     */
     public static class HelpContext {
+        /** Default context indicating that no help topic is associated. */
         public static final int HC_NO_CONTEXT   = 0;
+
+        /** Context used while a view is being dragged. */
         public static final int HC_DRAGGING     = 1;
     }
 
@@ -125,7 +132,7 @@ public class TView {
     protected int state = State.SF_VISIBLE;
 
     /**
-     * Bit flags that configure optional behaviour of a view.
+     * Bit flags that configure optional behavior of a view.
      * <p>
      * {@code OF_*} values may be combined with bitwise OR to enable multiple
      * options simultaneously.
@@ -148,11 +155,11 @@ public class TView {
         public static final int OF_BUFFERED     = 1 << 6;
         /** Bit flag allowing the view to tile its owner. */
         public static final int OF_TILEABLE     = 1 << 7;
-        /** Bit flag centring the view horizontally. */
+        /** Bit flag centering the view horizontally. */
         public static final int OF_CENTER_X     = 1 << 8;
-        /** Bit flag centring the view vertically. */
+        /** Bit flag centering the view vertically. */
         public static final int OF_CENTER_Y     = 1 << 9;
-        /** Combined bit flag for centring in both axes (OF_CENTER_X | OF_CENTER_Y). */
+        /** Combined bit flag for centering in both axes (OF_CENTER_X | OF_CENTER_Y). */
         public static final int OF_CENTER       = OF_CENTER_X | OF_CENTER_Y;
         /** Bit flag enabling validation before changes. */
         public static final int OF_VALIDATE     = 1 << 10;
@@ -178,8 +185,14 @@ public class TView {
     protected static TView theTopView = null;
 
     /**
-     * Current command set. All commands from 0..255 are enabled except the
-     * standard window commands.
+     * Current command set. All commands from {@code 0} through {@code 255} are
+     * enabled except the standard window commands, namely
+     * {@link Command#CM_ZOOM}, {@link Command#CM_CLOSE},
+     * {@link Command#CM_RESIZE}, {@link Command#CM_NEXT} and
+     * {@link Command#CM_PREV}.
+     * <p>
+     * See {@link Command} for the complete list of command identifiers.
+     * </p>
      */
     protected static Set<Integer> curCommandSet = new HashSet<>();
 
@@ -209,7 +222,20 @@ public class TView {
     protected static final boolean LOG_EVENTS =
             Boolean.parseBoolean(System.getProperty("jtvision.logEvents", "true"));
 
-    private TPoint shadowSize = new TPoint(2,1);
+    /**
+     * Offsets applied when drawing the view's shadow.
+     * <p>
+     * Represents the horizontal and vertical displacement of the shadow relative to the view.
+     * </p>
+     */
+    private TPoint shadowSize = new TPoint(2, 1);
+
+    /**
+     * Attribute used when rendering the shadow.
+     * <p>
+     * Encodes the color pair that the screen buffer uses for the shadow.
+     * </p>
+     */
     private byte shadowAttr = 0x08;
 
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
@@ -310,7 +336,7 @@ public class TView {
     /**
      * Standard method used in {@code handleEvent} to signal that the view has successfully handled the event.
      * <p>
-     * Sets {@code event.what} to {@code EV_NOTHING} and {@code event.msg.infoPtr} to {@code this},
+     * Sets {@code event.what} to {@code TEvent.EV_NOTHING} and {@code event.msg.infoPtr} to {@code this},
      * marking it as processed so it will not be handled again.
      * </p>
      *
@@ -333,7 +359,7 @@ public class TView {
      * @return {@code true} if the command is enabled, {@code false} otherwise
      */
     public static boolean commandEnabled(int command) {
-        return command < 255 && curCommandSet.contains(command);
+        return command <= 255 && curCommandSet.contains(command);
     }
 
     /**
@@ -551,7 +577,7 @@ public class TView {
      * @param y      the absolute Y coordinate of the row being tested.
      * @param xStart starting X coordinate of the segment (inclusive).
      * @param xEnd   ending X coordinate of the segment (exclusive).
-     * @return {@code true} if any pixel in the range is exposed; otherwise
+     * @return {@code true} if any character cell in the range is exposed; otherwise
      *         {@code false}.
      */
     private boolean isRowExposed(int y, int xStart, int xEnd) {
@@ -723,7 +749,7 @@ public class TView {
     /**
      * Returns the next available event in the given {@link TEvent} argument.
      * <p>
-     * If no event is available, this method should set the event to evNothing.
+     * If no event is available, this method should set the event to {@code TEvent.EV_NOTHING}.
      * By default, it calls the owner's {@code getEvent} method to retrieve the event.
      * </p>
      *
@@ -791,12 +817,12 @@ public class TView {
     /**
      * Central method through which all event handling in Turbo Vision is implemented.
      * <p>
-     * The {@code what} field of the {@link TEvent} parameter contains the event class (evXXXX),
+     * The {@code what} field of the {@link TEvent} parameter contains the event class ({@code TEvent.EV_XXXX}),
      * and the remaining event fields further describe the event. To indicate that it has handled
      * an event, {@code handleEvent} should call {@link #clearEvent(TEvent)}.
      * </p>
      * <p>
-     * This base implementation handles {@code evMouseDown} events by checking whether the
+     * This base implementation handles {@code TEvent.EV_MOUSE_DOWN} events by checking whether the
      * view is not selected and not disabled, and whether it is selectable. If so, it attempts
      * to select itself by calling {@link #focus()}. No other events are handled here.
      * </p>
@@ -912,7 +938,7 @@ public class TView {
      * Converts the {@code source} point coordinates from global (screen) coordinates to
      * local (view) coordinates and stores the result in {@code dest}.
      * <p>
-     * Useful for converting an {@code evMouse} event's {@code where} field from
+     * Useful for converting a {@code TEvent.EV_MOUSE} event's {@code where} field from
      * global coordinates to local coordinates. For example:
      * {@code makeLocal(event.where, mouseLoc)}.
      * This method walks up the ownership chain, subtracting each view's origin offset from
@@ -975,7 +1001,7 @@ public class TView {
      * Returns the next mouse event in the {@code event} argument.
      * <p>
      * This method repeatedly calls {@code getEvent} until an event occurs whose type matches the
-     * specified {@code mask} or is a mouse button release ({@code EV_MOUSE_UP}). It then stores the
+     * specified {@code mask} or is a mouse button release ({@code TEvent.EV_MOUSE_UP}). It then stores the
      * event in the {@code event} parameter and returns {@code true} if it matched the mask, or
      * {@code false} if a mouse button release occurred.
      * </p>
@@ -1324,7 +1350,7 @@ public class TView {
      * Writes a rectangular block of character cells to this view.
      * <p>
      * The buffer is expected to contain {@code w*h} entries where each entry is a
-     * {@code short} value encoding the character in the low byte and the colour
+     * {@code short} value encoding the character in the low byte and the color
      * attribute in the high byte. The first {@code w} entries represent the
      * topmost row, the next {@code w} the following row and so on.
      * </p>
@@ -1348,7 +1374,7 @@ public class TView {
      * @param x     column within the view
      * @param y     row within the view
      * @param c     character to draw
-     * @param color attribute byte describing foreground/background colours
+     * @param color attribute byte describing foreground/background colors
      * @param count number of times to repeat
      */
     protected void writeChar(int x, int y, char c, int color, int count) {
@@ -1376,12 +1402,12 @@ public class TView {
     }
 
     /**
-     * Writes a string using the specified colour attribute.
+     * Writes a string using the specified color attribute.
      *
      * @param x     column within the view
      * @param y     row within the view
      * @param str   string to draw
-     * @param color attribute byte describing foreground/background colours
+     * @param color attribute byte describing foreground/background colors
      */
     protected void writeStr(int x, int y, String str, int color) {
         if (str == null || str.isEmpty()) return;
