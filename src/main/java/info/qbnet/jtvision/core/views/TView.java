@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Base class for all visible user interface elements in the Turbo Vision-style framework.
+ * Base class for all visible user interface elements in the framework.
  * <p>
  * {@code TView} provides the foundational geometry, ownership, and linking functionality
  * common to all UI elements. It defines basic fields like position, size, and ownership,
@@ -275,9 +275,9 @@ public class TView {
      * resizing. The resulting bounds are clamped by the view's minimum and maximum size limits.
      * </p>
      * <p>
-     * According to the Turbo Vision documentation: When a view's owner changes size, the owner calls
-     * {@code calcBounds} and {@code changeBounds} for all its subviews. {@code calcBounds} must calculate
-     * the new bounds using the flags specified in {@code growMode}.
+     * When a view's owner changes size, the owner calls {@code calcBounds} and {@code changeBounds}
+     * for all its subviews. {@code calcBounds} must calculate the new bounds using the flags specified
+     * in {@code growMode}.
      * </p>
      *
      * @param bounds output rectangle that will contain the calculated bounds
@@ -321,8 +321,7 @@ public class TView {
      * new rectangle provided in {@code bounds}. After updating, it triggers a redraw of the view.
      * </p>
      * <p>
-     * According to Turbo Vision documentation: {@code changeBounds} is called by various
-     * {@code TView} methods but should never be called directly.
+     * This is an internal helper invoked by other {@code TView} methods and should not be called directly.
      * </p>
      *
      * @param bounds the new rectangle bounds for the view
@@ -815,7 +814,7 @@ public class TView {
     }
 
     /**
-     * Central method through which all event handling in Turbo Vision is implemented.
+     * Central method through which all event handling is implemented.
      * <p>
      * The {@code what} field of the {@link TEvent} parameter contains the event class ({@code TEvent.EV_XXXX}),
      * and the remaining event fields further describe the event. To indicate that it has handled
@@ -874,8 +873,7 @@ public class TView {
      * {@code changeBounds}. If the view is visible, it also redraws the underlying area (including shadows if present).
      * </p>
      * <p>
-     * According to Turbo Vision documentation: {@code locate} must validate bounds with {@code sizeLimits},
-     * call {@code changeBounds} to update them, and then redraw the view.
+     * Validates bounds using {@code sizeLimits}, updates them via {@code changeBounds}, and redraws the view.
      * </p>
      *
      * @param bounds the target rectangle bounds for the view
@@ -1006,8 +1004,7 @@ public class TView {
      * {@code false} if a mouse button release occurred.
      * </p>
      * <p>
-     * According to Turbo Vision documentation: {@code mouseEvent} lets you track a mouse while its
-     * button is down, such as in block-marking operations for text editors.
+     * Tracks mouse movement while a button is pressed, useful for operations like block selection.
      * </p>
      *
      * @param event the event structure to be filled with the received event
@@ -1293,8 +1290,7 @@ public class TView {
      * within valid bounds. {@code locate} will not allow the view to be larger than these limits.
      * </p>
      * <p>
-     * According to Turbo Vision documentation: The default implementation of {@code sizeLimits}
-     * returns (0,0) in {@code min} and the owner's {@code size} in {@code max}.
+     * Defaults to minimum size (0,0) and maximum equal to the owner's size.
      * </p>
      *
      * @param min output parameter that receives the minimum allowed size
@@ -1572,8 +1568,7 @@ public class TView {
      * field from the event. Otherwise, it returns {@code null}.
      * </p>
      * <p>
-     * According to Turbo Vision documentation: {@code message} is a utility function that allows
-     * sending command or information events to views in a standardized way.
+     * Provides a standardized way to send command or information events to views.
      * </p>
      *
      * @param receiver the target view to receive the message
