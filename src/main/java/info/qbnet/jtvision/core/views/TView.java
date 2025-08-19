@@ -148,11 +148,11 @@ public class TView {
         public static final int OF_BUFFERED     = 1 << 6;
         /** Bit flag allowing the view to tile its owner. */
         public static final int OF_TILEABLE     = 1 << 7;
-        /** Bit flag centring the view horizontally. */
+        /** Bit flag centering the view horizontally. */
         public static final int OF_CENTER_X     = 1 << 8;
-        /** Bit flag centring the view vertically. */
+        /** Bit flag centering the view vertically. */
         public static final int OF_CENTER_Y     = 1 << 9;
-        /** Combined bit flag for centring in both axes (OF_CENTER_X | OF_CENTER_Y). */
+        /** Combined bit flag for centering in both axes (OF_CENTER_X | OF_CENTER_Y). */
         public static final int OF_CENTER       = OF_CENTER_X | OF_CENTER_Y;
         /** Bit flag enabling validation before changes. */
         public static final int OF_VALIDATE     = 1 << 10;
