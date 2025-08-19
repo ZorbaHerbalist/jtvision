@@ -13,162 +13,114 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Base class for all visible user interface elements in the framework.
- * <p>
- * {@code TView} provides the foundational geometry, ownership, and linking functionality
- * common to all UI elements. It defines basic fields like position, size, and ownership,
- * and serves as the root of the view hierarchy.
- * </p>
- * <p>
- * {@code TView} is rarely instantiated directly. Instead, it is designed to be extended by
- * more specialized view types such as windows, buttons, scrollbars, or text editors.
- * </p>
+ * Base class for visible UI elements providing geometry, ownership, and linkage.
+ * Usually subclassed for widgets such as windows or buttons.
  */
 public class TView {
 
-    /**
-     * Owning {@link TGroup}; {@code null} for top-level views. Used to resolve
-     * relative coordinates and clipping within the container.
-     */
+    /** Owning {@link TGroup}; {@code null} for top-level views. */
     protected TGroup owner = null;
 
-    /**
-     * Next sibling view in Z-order. Enables traversal of peers and wraps to the
-     * owner's first child when this is the last subview.
-     */
+    /** Next sibling in Z-order; wraps to owner's first child when last. */
     protected TView next = null;
 
-    /**
-     * The (X, Y) coordinates of the view’s top-left corner, relative to the owner’s origin.
-     */
+    /** Top-left corner relative to the owner's origin. */
     protected TPoint origin;
 
-    /**
-     * The dimensions of the view.
-     * <p>
-     * The {@code x} and {@code y} components represent the width and height of the view,
-     * i.e. the difference between the bottom-right and top-left coordinates.
-     * </p>
-     */
+    /** View dimensions; {@code x} is width and {@code y} is height. */
     protected TPoint size;
 
-    /**
-     * Defines how a view resizes when its owner changes size.
-     * Each constant represents a growth behavior for a specific edge or scaling mode.
-     */
+    /** Resize behavior flags for owner size changes. */
     public static class GrowMode {
-        /** If set, the left-hand side of the view will maintain a constant distance from its owner's
-         * right-hand side. */
-        public static final int GF_GROW_LO_X    = 1 << 0;
-        /** If set, the top of the view will maintain a constant distance from the bottom of its owner. */
-        public static final int GF_GROW_LO_Y    = 1 << 1;
-        /** If set, the right-hand side of the view will maintain a constant distance from its owner's right side. */
-        public static final int GF_GROW_HI_X    = 1 << 2;
-        /** If set, the bottom edge of the view maintains a constant distance from the owner's bottom edge. */
-        public static final int GF_GROW_HI_Y    = 1 << 3;
-        /** If set, all four edges maintain a constant distance from the owner's edges, causing the view to grow or shrink with the owner's size. */
-        public static final int GF_GROW_ALL     = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
-        /** If set, the view resizes in direct proportion to the owner's size, typically used for TWindow objects on the desktop. */
-        public static final int GF_GROW_REL     = 1 << 4;
+        /** Keep left edge at constant distance from owner's right. */
+        public static final int GF_GROW_LO_X = 1 << 0;
+        /** Keep top edge at constant distance from owner's bottom. */
+        public static final int GF_GROW_LO_Y = 1 << 1;
+        /** Keep right edge at constant distance from owner's right. */
+        public static final int GF_GROW_HI_X = 1 << 2;
+        /** Keep bottom edge at constant distance from owner's bottom. */
+        public static final int GF_GROW_HI_Y = 1 << 3;
+        /** Maintain all four edge distances. */
+        public static final int GF_GROW_ALL = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
+        /** Scale proportionally with owner, e.g. {@code TWindow}. */
+        public static final int GF_GROW_REL = 1 << 4;
     }
 
     /** Current grow mode flags controlling how this view resizes with its owner. */
     protected int growMode = 0;
 
-    /**
-     * Collection of predefined help contexts that map view states to
-     * context-sensitive help topics.
-     */
+    /** Predefined help context identifiers. */
     public static class HelpContext {
-        /** Default context indicating that no help topic is associated. */
-        public static final int HC_NO_CONTEXT   = 0;
+        /** No help topic. */
+        public static final int HC_NO_CONTEXT = 0;
 
-        /** Context used while a view is being dragged. */
-        public static final int HC_DRAGGING     = 1;
+        /** Help context during dragging. */
+        public static final int HC_DRAGGING = 1;
     }
 
     protected int helpCtx = HelpContext.HC_NO_CONTEXT;
 
-    /**
-     * Bit flags representing the runtime state of a view.
-     * <p>
-     * Each {@code SF_*} value defines a single state; multiple states can be
-     * combined using the bitwise OR operator.
-     * </p>
-     */
+    /** Runtime state flags; combine {@code SF_*} values with bitwise OR. */
     public static class State {
-        /** Bit flag indicating the view is visible. */
-        public static final int SF_VISIBLE      = 1 << 0;
-        /** Bit flag showing the cursor is visible. */
-        public static final int SF_CURSOR_VIS   = 1 << 1;
-        /** Bit flag showing the cursor is in insert mode. */
-        public static final int SF_CURSOR_INS   = 1 << 2;
-        /** Bit flag that enables the view's shadow. */
-        public static final int SF_SHADOW       = 1 << 3;
-        /** Bit flag marking the view as active. */
-        public static final int SF_ACTIVE       = 1 << 4;
-        /** Bit flag marking the view as selected. */
-        public static final int SF_SELECTED     = 1 << 5;
-        /** Bit flag marking the view as focused. */
-        public static final int SF_FOCUSED      = 1 << 6;
-        /** Bit flag indicating the view is being dragged. */
-        public static final int SF_DRAGGING     = 1 << 7;
-        /** Bit flag marking the view as disabled. */
-        public static final int SF_DISABLED     = 1 << 8;
-        /** Bit flag indicating the view is modal. */
-        public static final int SF_MODAL        = 1 << 9;
-        /** Bit flag marking the view as the default choice. */
-        public static final int SF_DEFAULT      = 1 << 10;
-        /** Bit flag indicating the view is currently exposed. */
-        public static final int SF_EXPOSED      = 1 << 11;
+        /** View is visible. */
+        public static final int SF_VISIBLE = 1 << 0;
+        /** Cursor is visible. */
+        public static final int SF_CURSOR_VIS = 1 << 1;
+        /** Cursor is in insert mode. */
+        public static final int SF_CURSOR_INS = 1 << 2;
+        /** View draws a shadow. */
+        public static final int SF_SHADOW = 1 << 3;
+        /** View is active. */
+        public static final int SF_ACTIVE = 1 << 4;
+        /** View is selected. */
+        public static final int SF_SELECTED = 1 << 5;
+        /** View has focus. */
+        public static final int SF_FOCUSED = 1 << 6;
+        /** View is being dragged. */
+        public static final int SF_DRAGGING = 1 << 7;
+        /** View is disabled. */
+        public static final int SF_DISABLED = 1 << 8;
+        /** View is modal. */
+        public static final int SF_MODAL = 1 << 9;
+        /** View is the default choice. */
+        public static final int SF_DEFAULT = 1 << 10;
+        /** View is currently exposed. */
+        public static final int SF_EXPOSED = 1 << 11;
     }
 
     protected int state = State.SF_VISIBLE;
 
-    /**
-     * Bit flags that configure optional behavior of a view.
-     * <p>
-     * {@code OF_*} values may be combined with bitwise OR to enable multiple
-     * options simultaneously.
-     * </p>
-     */
+    /** Optional behavior flags; combine {@code OF_*} values as needed. */
     public static class Options {
-        /** Bit flag allowing the view to be selected. */
-        public static final int OF_SELECTABLE   = 1 << 0;
-        /** Bit flag giving the view top selection priority. */
-        public static final int OF_TOP_SELECT   = 1 << 1;
-        /** Bit flag enabling activation on the first mouse click. */
-        public static final int OF_FIRST_CLICK  = 1 << 2;
-        /** Bit flag drawing a frame around the view. */
-        public static final int OF_FRAMED       = 1 << 3;
-        /** Bit flag requesting pre-processing of events. */
-        public static final int OF_PRE_PROCESS  = 1 << 4;
-        /** Bit flag requesting post-processing of events. */
+        /** Allow selection. */
+        public static final int OF_SELECTABLE = 1 << 0;
+        /** Top selection priority. */
+        public static final int OF_TOP_SELECT = 1 << 1;
+        /** Activate on first click. */
+        public static final int OF_FIRST_CLICK = 1 << 2;
+        /** Draw a frame. */
+        public static final int OF_FRAMED = 1 << 3;
+        /** Request pre-processing. */
+        public static final int OF_PRE_PROCESS = 1 << 4;
+        /** Request post-processing. */
         public static final int OF_POST_PROCESS = 1 << 5;
-        /** Bit flag for double-buffered drawing. */
-        public static final int OF_BUFFERED     = 1 << 6;
-        /** Bit flag allowing the view to tile its owner. */
-        public static final int OF_TILEABLE     = 1 << 7;
-        /** Bit flag centering the view horizontally. */
-        public static final int OF_CENTER_X     = 1 << 8;
-        /** Bit flag centering the view vertically. */
-        public static final int OF_CENTER_Y     = 1 << 9;
-        /** Combined bit flag for centering in both axes (OF_CENTER_X | OF_CENTER_Y). */
-        public static final int OF_CENTER       = OF_CENTER_X | OF_CENTER_Y;
-        /** Bit flag enabling validation before changes. */
-        public static final int OF_VALIDATE     = 1 << 10;
+        /** Use double-buffered drawing. */
+        public static final int OF_BUFFERED = 1 << 6;
+        /** Allow tiling of the owner. */
+        public static final int OF_TILEABLE = 1 << 7;
+        /** Center horizontally. */
+        public static final int OF_CENTER_X = 1 << 8;
+        /** Center vertically. */
+        public static final int OF_CENTER_Y = 1 << 9;
+        /** Center in both axes. */
+        public static final int OF_CENTER = OF_CENTER_X | OF_CENTER_Y;
+        /** Validate before changes. */
+        public static final int OF_VALIDATE = 1 << 10;
     }
 
     protected int options = 0;
 
-    /**
-     * Bit mask that determines which event classes will be recognized by the view.
-     * <p>
-     * The default {@code eventMask} enables mouse down, key down, and command events.
-     * Assigning {@code 0xFFFF} to {@code eventMask} causes the view to react to all event
-     * classes. Conversely, a value of zero prevents the view from reacting to any events.
-     * </p>
-     */
+    /** Event classes recognized. {@code 0xFFFF} handles all, {@code 0} handles none. */
     protected int eventMask;
 
     protected static final int ERROR_ATTR = 0xCF;
@@ -179,14 +131,8 @@ public class TView {
     protected static TView theTopView = null;
 
     /**
-     * Current command set. All commands from {@code 0} through {@code 255} are
-     * enabled except the standard window commands, namely
-     * {@link Command#CM_ZOOM}, {@link Command#CM_CLOSE},
-     * {@link Command#CM_RESIZE}, {@link Command#CM_NEXT} and
-     * {@link Command#CM_PREV}.
-     * <p>
-     * See {@link Command} for the complete list of command identifiers.
-     * </p>
+     * Active command set (0–255) excluding standard window commands such as
+     * {@link Command#CM_ZOOM} or {@link Command#CM_CLOSE}.
      */
     protected static Set<Integer> curCommandSet = new HashSet<>();
 
@@ -207,29 +153,16 @@ public class TView {
     protected static boolean commandSetChanged = false;
 
     /**
-     * Controls whether {@code handleEvent} calls emit trace logs.
-     * <p>
-     * This value can be overridden with the VM parameter
-     * {@code -Djtvision.logEvents=false} to disable event logging.
-     * </p>
+     * Enables trace logging in {@link #handleEvent}; override with
+     * {@code -Djtvision.logEvents=false}.
      */
     protected static final boolean LOG_EVENTS =
             Boolean.parseBoolean(System.getProperty("jtvision.logEvents", "true"));
 
-    /**
-     * Offsets applied when drawing the view's shadow.
-     * <p>
-     * Represents the horizontal and vertical displacement of the shadow relative to the view.
-     * </p>
-     */
+    /** Shadow offset from the view. */
     private TPoint shadowSize = new TPoint(2, 1);
 
-    /**
-     * Attribute used when rendering the shadow.
-     * <p>
-     * Encodes the color pair that the screen buffer uses for the shadow.
-     * </p>
-     */
+    /** Attribute for shadow rendering. */
     private byte shadowAttr = 0x08;
 
     private static final ConcurrentHashMap<Class<?>, AtomicInteger> CLASS_COUNTERS = new ConcurrentHashMap<>();
@@ -254,17 +187,8 @@ public class TView {
     }
 
     /**
-     * Computes a new coordinate or size value when the owner of this view is resized.
-     * <p>
-     * If relative growth ({@link GrowMode#GF_GROW_REL}) is disabled, the value is simply
-     * offset by {@code d}. Otherwise, the value is scaled proportionally to the change in
-     * the owner's size.
-     * </p>
-     *
-     * @param value the original coordinate or dimension to adjust
-     * @param s     the owner's current size along the relevant axis
-     * @param d     the change in the owner's size along the same axis
-     * @return the adjusted value after applying the growth rules
+     * Computes a new coordinate or size when the owner resizes.
+     * Uses {@link GrowMode#GF_GROW_REL} for proportional scaling.
      */
     private int growValue(int value, int s, int d) {
         if ((growMode & GrowMode.GF_GROW_REL) == 0)
@@ -274,21 +198,8 @@ public class TView {
     }
 
     /**
-     * Calculates the new bounds of the view when the owner's size changes.
-     * <p>
-     * This method is called when the owner resizes and must compute the updated bounds of the view
-     * given the change in the owner's size (specified by {@code delta}). The calculation is controlled
-     * by the {@code growMode} flags, which determine how each side of the view reacts to the owner's
-     * resizing. The resulting bounds are clamped by the view's minimum and maximum size limits.
-     * </p>
-     * <p>
-     * When a view's owner changes size, the owner calls {@code calcBounds} and {@code changeBounds}
-     * for all its subviews. {@code calcBounds} must calculate the new bounds using the flags specified
-     * in {@code growMode}.
-     * </p>
-     *
-     * @param bounds output rectangle that will contain the calculated bounds
-     * @param delta the change in owner's size
+     * Computes new bounds after the owner changes size by {@code delta},
+     * applying {@code growMode} and clamping via {@link #sizeLimits(TPoint, TPoint)}.
      */
     public void calcBounds(TRect bounds, TPoint delta) {
         getBounds(bounds);
@@ -322,16 +233,8 @@ public class TView {
     }
 
     /**
-     * Changes the bounds of the view and redraws it.
-     * <p>
-     * This method must update the view's {@code origin} and {@code size} fields to match the
-     * new rectangle provided in {@code bounds}. After updating, it triggers a redraw of the view.
-     * </p>
-     * <p>
-     * This is an internal helper invoked by other {@code TView} methods and should not be called directly.
-     * </p>
-     *
-     * @param bounds the new rectangle bounds for the view
+     * Updates {@link #origin} and {@link #size} then redraws the view.
+     * Internal helper; not for external use.
      */
     public void changeBounds(TRect bounds) {
         logger.trace("{} TView@changeBounds(bounds={})", logName, bounds.toString());
@@ -340,44 +243,20 @@ public class TView {
     }
 
     /**
-     * Standard method used in {@code handleEvent} to signal that the view has successfully handled the event.
-     * <p>
-     * Sets {@code event.what} to {@code TEvent.EV_NOTHING} and {@code event.msg.infoPtr} to {@code this},
-     * marking it as processed so it will not be handled again.
-     * </p>
-     *
-     * @param event the {@link TEvent} to clear after handling
+     * Marks {@code event} as handled by setting
+     * {@code what} to {@link TEvent#EV_NOTHING} and {@code infoPtr} to {@code this}.
      */
     public void clearEvent(TEvent event) {
         event.what = TEvent.EV_NOTHING;
         event.msg.infoPtr = this;
     }
 
-    /**
-     * Determines whether a specific command is currently enabled for this view.
-     * <p>
-     * Returns {@code true} if the {@code command} is currently enabled; otherwise returns {@code false}.
-     * When modal states change, commands can be enabled or disabled as needed. When returning
-     * to a previous modal state, the original command set will be restored.
-     * </p>
-     *
-     * @param command the command identifier to check
-     * @return {@code true} if the command is enabled, {@code false} otherwise
-     */
+    /** Checks if {@code command} is enabled in {@link #curCommandSet}. */
     public static boolean commandEnabled(int command) {
         return command <= 255 && curCommandSet.contains(command);
     }
 
-    /**
-     * Disables the specified set of commands for this view.
-     * <p>
-     * If any of the commands to be disabled are currently enabled, the {@code commandSetChanged}
-     * flag is set to indicate that the command set has been modified. The specified commands are
-     * then removed from the current command set.
-     * </p>
-     *
-     * @param commands the set of command identifiers to disable
-     */
+    /** Removes {@code commands} from {@link #curCommandSet} and flags changes. */
     public static void disableCommands(Set<Integer> commands) {
         if (!Collections.disjoint(curCommandSet, commands)) {
             commandSetChanged = true;
@@ -385,13 +264,7 @@ public class TView {
         curCommandSet.removeAll(commands);
     }
 
-    /**
-     * Finalizes the view's lifecycle by hiding it and requesting its owner to delete it.
-     * <p>
-     * {@code done} is called to remove the view from the screen and ensure it is properly
-     * deleted by its owner.
-     * </p>
-     */
+    /** Hides this view and asks the owner to delete it. */
     protected void done() {
         logger.trace("{} TView@done()", logName);
         hide();
@@ -401,17 +274,8 @@ public class TView {
     }
 
     /**
-     * Called whenever the view must draw (display) itself.
-     * <p>
-     * This method must be overridden by each descendant to perform custom rendering.
-     * It must draw the entire area of the view. Typically, this method is not called directly;
-     * instead, {@link #drawView()} is used to draw only views that are exposed — that is,
-     * partially or fully visible on the screen.
-     * </p>
-     * <p>
-     * If needed, {@code draw()} may call {@code getClipRect()} to obtain
-     * the region that needs redrawing, allowing for more efficient rendering of complex views.
-     * </p>
+     * Draws the entire view. Override in subclasses.
+     * Use {@link #drawView()} to redraw only when exposed.
      */
     public void draw() {
         logger.trace("{} TView@draw()", logName);
@@ -422,16 +286,9 @@ public class TView {
     }
 
     /**
-     * Redraws the region beneath this view when it becomes hidden.
-     * <p>
-     * Called from {@link #setState(int, boolean)} when the {@code SF_VISIBLE}
-     * flag is cleared (e.g., via {@link #hide()}). It delegates to
-     * {@link #drawUnderView(boolean, TView)} to refresh any exposed background
-     * or shadowed area.
-     * </p>
+     * Repaints background (and shadow) after this view is hidden.
      *
-     * @param lastView the last sibling view up to which the owner should
-     *                 repaint; may be {@code null} to repaint all.
+     * @param lastView last sibling to repaint up to, or {@code null} for all
      */
     private void drawHide(TView lastView) {
         logger.trace("{} TView@drawHide(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
@@ -441,15 +298,9 @@ public class TView {
     }
 
     /**
-     * Displays this view and optionally its shadow when it becomes visible.
-     * <p>
-     * Invoked by {@link #setState(int, boolean)} when the {@code SF_VISIBLE}
-     * flag is enabled. It first draws the view via {@link #drawView()} and then
-     * calls {@link #drawUnderView(boolean, TView)} to render any shadow.
-     * </p>
+     * Draws the view and optional shadow when it becomes visible.
      *
-     * @param lastView the last sibling view up to which the owner should
-     *                 repaint; may be {@code null} to repaint all.
+     * @param lastView last sibling to repaint up to, or {@code null} for all
      */
     private void drawShow(TView lastView) {
         logger.trace("{} TView@drawShow(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
@@ -461,17 +312,7 @@ public class TView {
     }
 
     /**
-     * Repaints sibling views underneath a specified rectangle.
-     * <p>
-     * Used by {@link #drawUnderView(boolean, TView)} when parts of this view
-     * are uncovered or when a shadow must be redrawn. It clips the owner's
-     * drawing region to {@code rect} before delegating to
-     * {@link TGroup#drawSubViews(TView, TView)}.
-     * </p>
-     *
-     * @param rect     rectangle describing the region to repaint.
-     * @param lastView last sibling view to stop repainting at; {@code null}
-     *                 repaints all.
+     * Repaints siblings beneath {@code rect} up to {@code lastView}.
      */
     private void drawUnderRect(TRect rect, TView lastView) {
         owner.clip.intersect(rect);
@@ -480,18 +321,8 @@ public class TView {
     }
 
     /**
-     * Calculates the area beneath this view (and optionally its shadow) and
-     * repaints the obscured siblings.
-     * <p>
-     * Serves as a helper for {@link #drawHide(TView)} and
-     * {@link #drawShow(TView)}, bridging those private methods with the public
-     * drawing routine {@link #drawView()}.
-     * </p>
-     *
-     * @param doShadow {@code true} to include the shadow region when
-     *                 repainting.
-     * @param lastView the last sibling view up to which repainting should
-     *                 occur; {@code null} repaints all.
+     * Helper for {@link #drawHide(TView)} and {@link #drawShow(TView)} to repaint
+     * obscured siblings with optional shadow.
      */
     private void drawUnderView(boolean doShadow, TView lastView) {
         logger.trace("{} TView@drawUnderView(doShadow={}, lastView={})", logName, doShadow,
@@ -506,14 +337,7 @@ public class TView {
         drawUnderRect(r, lastView);
     }
 
-    /**
-     * Calls {@code draw()} if {@link #exposed()} returns {@code true}, indicating that the view is exposed.
-     * <p>
-     * This is the preferred method to invoke when a view needs to be redrawn after changes
-     * affecting its visual appearance. It ensures that drawing only occurs when the view is
-     * (partially) visible on screen.
-     * </p>
-     */
+    /** Calls {@link #draw()} when {@link #exposed()} is true. */
     public void drawView() {
         logger.trace("{} TView@drawView()", logName);
 
@@ -524,14 +348,7 @@ public class TView {
     }
 
     /**
-     * Enables the specified set of commands for this view.
-     * <p>
-     * If any of the commands to be enabled are not already present in the current command set,
-     * the {@code commandSetChanged} flag is set to indicate a modification. The specified commands
-     * are then added to the current command set.
-     * </p>
-     *
-     * @param commands the set of command identifiers to enable
+     * Adds {@code commands} to {@link #curCommandSet} and flags changes.
      */
     public static void enableCommands(Set<Integer> commands) {
         if (!curCommandSet.containsAll(commands)) {
@@ -540,16 +357,7 @@ public class TView {
         curCommandSet.addAll(commands);
     }
 
-    /**
-     * Terminates the current modal state and returns {@code command} as the result of the
-     * {@code execView} function call that created the modal state.
-     * <p>
-     * This implementation finds the topmost view and calls its {@code endModal} method
-     * with the given command. If no top view exists, no action is taken.
-     * </p>
-     *
-     * @param command the command value to return from the modal state
-     */
+    /** Terminates the current modal state with {@code command}. */
     public void endModal(int command) {
         TView p = topView();
         if (p != null) {
@@ -557,34 +365,13 @@ public class TView {
         }
     }
 
-    /**
-     * Called from {@code TGroup.execView} whenever a view becomes modal.
-     * <p>
-     * If a view supports modal execution, it should override this method to implement its own event loop.
-     * The result returned by {@code execute} becomes the value returned from {@code TGroup.execView}.
-     * </p>
-     * <p>
-     * The default implementation immediately returns {@link Command#CM_CANCEL}.
-     * </p>
-     *
-     * @return the command result of executing the view
-     */
+    /** Called when executed modally; default returns {@link Command#CM_CANCEL}. */
     public int execute() {
         return Command.CM_CANCEL;
     }
 
     /**
-     * Determines whether a horizontal segment of this view is visible.
-     * <p>
-     * Used internally by the public {@link #exposed()} method to check if a
-     * given row of the view is entirely covered by higher Z-order siblings.
-     * </p>
-     *
-     * @param y      the absolute Y coordinate of the row being tested.
-     * @param xStart starting X coordinate of the segment (inclusive).
-     * @param xEnd   ending X coordinate of the segment (exclusive).
-     * @return {@code true} if any character cell in the range is exposed; otherwise
-     *         {@code false}.
+     * Internal helper for {@link #exposed()} to test if a row segment is visible.
      */
     private boolean isRowExposed(int y, int xStart, int xEnd) {
         if (owner == null || owner.last == null) return true;
@@ -767,30 +554,13 @@ public class TView {
         }
     }
 
-    /**
-     * Sets the extent rectangle of the view into the provided {@code extent} parameter.
-     * <p>
-     * The {@code a} point is set to (0, 0), and the {@code b} point is set to the current size
-     * of the view. This represents the local coordinate space of the view itself.
-     * </p>
-     *
-     * @param extent The {@link TRect} instance to be populated with the extent.
-     */
+    /** Fills {@code extent} with the view's local bounds. */
     public void getExtent(TRect extent) {
         extent.a = new TPoint(0, 0);
         extent.b = new TPoint(size.x, size.y);
     }
 
-    /**
-     * Returns the help context identifier for this view.
-     * <p>
-     * By default, returns the value stored in the view's {@code helpCtx} field.
-     * If the view is currently being dragged (SF_DRAGGING flag set), returns
-     * {@link HelpContext#HC_DRAGGING} instead.
-     * </p>
-     *
-     * @return the current help context identifier
-     */
+    /** Returns {@link #helpCtx} or {@link HelpContext#HC_DRAGGING} when dragging. */
     public int getHelpCtx() {
         if ((state & State.SF_DRAGGING) != 0) {
             return HelpContext.HC_DRAGGING;
@@ -800,40 +570,17 @@ public class TView {
     }
 
     /**
-     * Returns the palette for this view.
-     * <p>
-     * {@code getPalette()} must return a reference to the view's palette, or {@code null}
-     * if the view has no palette.
-     * </p>
-     * <p>
-     * {@code getPalette()} is called by methods like {@code getColor()}, {@code writeChar()}, and
-     * {@code writeStr()} when converting palette indexes to actual character attributes.
-     * A return value of {@code null} indicates that no color translation
-     * should be performed by this view.
-     * </p>
-     * <p>
-     * This method is almost always overridden in descendant object types. The default
-     * implementation returns {@code null}.
-     * </p>
+     * @return this view's palette or {@code null} to disable color translation.
+     * Subclasses usually override.
      */
     public TPalette getPalette() {
         return null;
     }
 
     /**
-     * Central method through which all event handling is implemented.
-     * <p>
-     * The {@code what} field of the {@link TEvent} parameter contains the event class ({@code TEvent.EV_XXXX}),
-     * and the remaining event fields further describe the event. To indicate that it has handled
-     * an event, {@code handleEvent} should call {@link #clearEvent(TEvent)}.
-     * </p>
-     * <p>
-     * This base implementation handles {@code TEvent.EV_MOUSE_DOWN} events by checking whether the
-     * view is not selected and not disabled, and whether it is selectable. If so, it attempts
-     * to select itself by calling {@link #focus()}. No other events are handled here.
-     * </p>
-     *
-     * @param event the event to process
+     * Dispatches events. Default handles {@link TEvent#EV_MOUSE_DOWN} by
+     * selecting the view when appropriate. Use {@link #clearEvent(TEvent)} to
+     * mark events as handled.
      */
     public void handleEvent(TEvent event) {
         boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
@@ -916,27 +663,13 @@ public class TView {
         }
     }
 
-    /**
-     * Moves the view to the top of its owner's subview list.
-     * <p>
-     * Equivalent to calling {@code putInFrontOf(owner.first())}.
-     * </p>
-     */
+    /** Moves this view to the top of its owner's subview list. */
     public void makeFirst() {
         putInFrontOf(owner.first());
     }
 
     /**
-     * Converts the {@code source} point coordinates from local (view) coordinates to
-     * global (screen) coordinates and stores the result in {@code dest}.
-     * <p>
-     * This method walks up the ownership chain, adding each view's origin offset to
-     * the coordinates until the top-level owner is reached. {@code source} and
-     * {@code dest} may refer to the same object.
-     * </p>
-     *
-     * @param source the point in local coordinates
-     * @param dest the destination point to receive the global coordinates
+     * Converts {@code source} from local coordinates to global and stores in {@code dest}.
      */
     public void makeGlobal(TPoint source, TPoint dest) {
         TView current = this;
@@ -948,21 +681,8 @@ public class TView {
             current = current.owner;
         } while (current != null);
     }
-
     /**
-     * Converts the {@code source} point coordinates from global (screen) coordinates to
-     * local (view) coordinates and stores the result in {@code dest}.
-     * <p>
-     * Useful for converting a {@code TEvent.EV_MOUSE} event's {@code where} field from
-     * global coordinates to local coordinates. For example:
-     * {@code makeLocal(event.where, mouseLoc)}.
-     * This method walks up the ownership chain, subtracting each view's origin offset from
-     * the coordinates until the top-level owner is reached. {@code source} and
-     * {@code dest} may refer to the same object.
-     * </p>
-     *
-     * @param source the point in global coordinates
-     * @param dest the destination point to receive the local coordinates
+     * Converts {@code source} from global to local coordinates into {@code dest}.
      */
     public void makeLocal(TPoint source, TPoint dest) {
         TView current = this;
@@ -975,11 +695,7 @@ public class TView {
         } while (current != null);
     }
 
-    /**
-     * Convert a color value into an attribute using the palette chain.
-     * @param color color index (1..n)
-     * @return attribute value
-     */
+    /** Translates a palette index to an attribute using the palette chain. */
     private int mapColor(int color) {
         if (color == 0) return ERROR_ATTR;
 
@@ -997,14 +713,7 @@ public class TView {
         return color;
     }
 
-    /**
-     * Maps a color pair into an attribute pair.
-     *
-     * <p>Converts a packed foreground/background value into a curses attribute pair.</p>
-     *
-     * @param colorPair low byte foreground, high byte background
-     * @return mapped attribute pair
-     */
+    /** Converts a packed foreground/background pair into an attribute. */
     private short mapCPair(short colorPair) {
         int background = (colorPair >> 8) & 0xff;
         int foreground = colorPair & 0xff;
@@ -1015,22 +724,7 @@ public class TView {
         return (short) (background << 8 | foreground & 0xff);
     }
 
-    /**
-     * Returns the next mouse event in the {@code event} argument.
-     * <p>
-     * This method repeatedly calls {@code getEvent} until an event occurs whose type matches the
-     * specified {@code mask} or is a mouse button release ({@code TEvent.EV_MOUSE_UP}). It then stores the
-     * event in the {@code event} parameter and returns {@code true} if it matched the mask, or
-     * {@code false} if a mouse button release occurred.
-     * </p>
-     * <p>
-     * Tracks mouse movement while a button is pressed, useful for operations like block selection.
-     * </p>
-     *
-     * @param event the event structure to be filled with the received event
-     * @param mask the mask specifying which mouse events to wait for
-     * @return {@code true} if a matching event occurred, {@code false} if a mouse button release occurred
-     */
+    /** Returns the next mouse event matching {@code mask} or a button release. */
     public boolean mouseEvent(TEvent event, int mask) {
         do {
             getEvent(event);
@@ -1038,17 +732,7 @@ public class TView {
         return event.what != TEvent.EV_MOUSE_UP;
     }
 
-    /**
-     * Returns {@code true} if the specified mouse position (given in global/screen coordinates)
-     * lies within the calling view's boundaries.
-     * <p>
-     * The method converts the mouse position to the view's local coordinates using
-     * {@link #makeLocal(TPoint, TPoint)}, obtains the view's extent rectangle via
-     * {@link #getExtent(TRect)}, and checks whether the converted point is contained within it.
-     * </p>
-     * @param mouse the mouse position in global coordinates
-     * @return {@code true} if the mouse is inside the view, {@code false} otherwise
-     */
+    /** Checks whether global {@code mouse} coordinates fall inside this view. */
     public boolean mouseInView(TPoint mouse) {
         TRect extent = new TRect();
         TPoint local = new TPoint(mouse.x, mouse.y);
@@ -1057,14 +741,7 @@ public class TView {
         return extent.contains(local);
     }
 
-    /**
-     * Returns a reference to the next subview in the owner's subview list.
-     * <p>
-     * {@code null} is returned if the calling view is the last one in its owner's list.
-     * </p>
-     *
-     * @return The next subview, or {@code null} if this is the last in the list.
-     */
+    /** @return next subview or {@code null} if this is the last. */
     public TView nextView() {
         if (owner.last == this) {
             return null;
@@ -1073,16 +750,7 @@ public class TView {
         }
     }
 
-    /**
-     * Returns a reference to the previous subview in the owner's subview list.
-     * <p>
-     * If the calling view is the first one in its owner's list, {@code prev()} returns the last view
-     * in the list. Note that {@code prev()} treats the list as circular, whereas {@code prevView()}
-     * treats the list linearly.
-     * </p>
-     *
-     * @return The previous {@link TView}, or {@code null} if this is the only view in the list.
-     */
+    /** @return previous subview, treating the list as circular. */
     public TView prev() {
         TView previous = this;
         TView np = next;
@@ -1095,22 +763,7 @@ public class TView {
         return previous;
     }
 
-    /**
-     * Puts the given event into the event queue, making it the next event returned by {@code getEvent}.
-     * <p>
-     * Only one event can be pushed onto the event queue in this way. Often used by views to generate
-     * command events, for example:
-     * <pre>
-     * Event.what = TEvent.EV_COMMAND;
-     * Event.command = Command.CM_SAVE_ALL;
-     * Event.infoPtr = null;
-     * putEvent(Event);
-     * </pre>
-     * The default implementation forwards the event to the view's owner.
-     * </p>
-     *
-     * @param event the event to enqueue
-     */
+    /** Forwards {@code event} to the owner's event queue. */
     public void putEvent(TEvent event) {
         if (owner != null) {
             owner.putEvent(event);
