@@ -49,6 +49,18 @@ public class TView {
     /** Current grow mode flags controlling how this view resizes with its owner. */
     protected int growMode = 0;
 
+    public static class DragMode {
+        public static final int DM_DRAG_MOVE = 0x01;
+        public static final int DM_DRAG_GROW = 0x02;
+        public static final int DM_LIMIT_LO_X = 0x10;
+        public static final int DM_LIMIT_LO_Y = 0x20;
+        public static final int DM_LIMIT_HI_X = 0x40;
+        public static final int DM_LIMIT_HI_Y = 0x80;
+        public static final int DM_LIMIT_ALL = DM_LIMIT_LO_X | DM_LIMIT_LO_Y | DM_LIMIT_HI_X | DM_LIMIT_HI_Y;
+    }
+
+    public int dragMode = 0;
+
     /** Predefined help context identifiers. */
     public static class HelpContext {
         /** No help topic. */
