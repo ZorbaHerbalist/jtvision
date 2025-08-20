@@ -54,4 +54,21 @@ public interface Backend {
      */
     java.util.Optional<info.qbnet.jtvision.core.event.TEvent> pollEvent();
 
+    /**
+     * Returns the current state of keyboard modifier keys.
+     *
+     * <p>The bits of the returned byte correspond to the following modifiers:
+     * <ul>
+     *   <li>Bit {@code 0} – Right Shift</li>
+     *   <li>Bit {@code 1} – Left Shift</li>
+     *   <li>Bit {@code 2} – Control</li>
+     *   <li>Bit {@code 3} – Alt</li>
+     * </ul>
+     * Multiple bits may be set if several modifiers are pressed
+     * simultaneously.</p>
+     *
+     * @return bit mask describing the current modifier state
+     */
+     byte getShiftState();
+
 }

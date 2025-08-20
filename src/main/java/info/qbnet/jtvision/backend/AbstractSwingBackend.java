@@ -7,6 +7,7 @@ import info.qbnet.jtvision.util.DosPalette;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -34,6 +35,7 @@ public abstract class AbstractSwingBackend extends JPanel
     private volatile int mouseButtons = 0;
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
+    private volatile byte shiftState = 0;
 
     protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
@@ -47,7 +49,8 @@ public abstract class AbstractSwingBackend extends JPanel
         setFocusable(true);
         addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(java.awt.event.KeyEvent e) {
+            public void keyPressed(KeyEvent e) {
+                updateShiftState(e, true);
                 int code = mapKeyCode(e.getKeyCode());
                 boolean shift = e.isShiftDown();
                 boolean ctrl = e.isControlDown();
@@ -61,6 +64,11 @@ public abstract class AbstractSwingBackend extends JPanel
                 ev.key.charCode = ch;
                 ev.key.scanCode = (byte) scan;
                 events.add(ev);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                updateShiftState(e, false);
             }
         });
 
@@ -159,6 +167,45 @@ public abstract class AbstractSwingBackend extends JPanel
     @Override
     public JPanel getUIComponent() {
         return this;
+    }
+
+    private void updateShiftState(KeyEvent e, boolean pressed) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_SHIFT -> {
+                if (e.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) {
+                    if (pressed) {
+                        shiftState |= 0x01;
+                    } else {
+                        shiftState &= ~0x01;
+                    }
+                } else {
+                    if (pressed) {
+                        shiftState |= 0x02;
+                    } else {
+                        shiftState &= ~0x02;
+                    }
+                }
+            }
+            case KeyEvent.VK_CONTROL -> {
+                if (pressed) {
+                    shiftState |= 0x04;
+                } else {
+                    shiftState &= ~0x04;
+                }
+            }
+            case KeyEvent.VK_ALT -> {
+                if (pressed) {
+                    shiftState |= 0x08;
+                } else {
+                    shiftState &= ~0x08;
+                }
+            }
+        }
+    }
+
+    @Override
+    public byte getShiftState() {
+        return shiftState;
     }
 
     /**

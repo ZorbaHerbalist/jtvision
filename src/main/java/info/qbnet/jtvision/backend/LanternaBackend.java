@@ -23,6 +23,7 @@ public class LanternaBackend implements GuiComponent<Screen> {
     private final Integer cellWidth;
     private final Integer cellHeight;
     private Screen terminalScreen;
+    private volatile byte shiftState = 0;
 
     public LanternaBackend(info.qbnet.jtvision.util.Screen screen,
                            int cellWidth,
@@ -97,6 +98,7 @@ public class LanternaBackend implements GuiComponent<Screen> {
             if (ks == null) {
                 return Optional.empty();
             }
+            updateShiftState(ks);
             int code = ks.getKeyType().ordinal();
             char ch = ks.getCharacter() != null ? ks.getCharacter() : 0;
             int scan = code;
@@ -119,6 +121,25 @@ public class LanternaBackend implements GuiComponent<Screen> {
     @Override
     public TPoint getMouseLocation() {
         return new TPoint();
+    }
+
+    private void updateShiftState(KeyStroke ks) {
+        byte state = 0;
+        if (ks.isShiftDown()) {
+            state |= 0x03; // Lanterna doesn't distinguish left/right
+        }
+        if (ks.isCtrlDown()) {
+            state |= 0x04;
+        }
+        if (ks.isAltDown()) {
+            state |= 0x08;
+        }
+        shiftState = state;
+    }
+
+    @Override
+    public byte getShiftState() {
+        return shiftState;
     }
 
     /** Stops the Lanterna screen. */

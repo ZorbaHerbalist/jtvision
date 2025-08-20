@@ -40,6 +40,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private volatile int mouseButtons = 0;
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
+    private volatile byte shiftState = 0;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -77,13 +78,11 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
+                updateShiftState();
                 int code = mapKeyCode(keycode);
-                boolean shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ||
-                        Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
-                boolean ctrl = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) ||
-                        Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
-                boolean alt = Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) ||
-                        Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT);
+                boolean shift = (shiftState & 0x03) != 0;
+                boolean ctrl = (shiftState & 0x04) != 0;
+                boolean alt = (shiftState & 0x08) != 0;
                 int withMods = KeyCodeMapper.applyModifiers(code, shift, ctrl, alt);
                 char ch = KeyCodeMapper.toChar(code, shift);
                 int scan = code;
@@ -93,6 +92,12 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
                 ev.key.charCode = ch;
                 ev.key.scanCode = (byte) scan;
                 events.add(ev);
+                return true;
+            }
+
+            @Override
+            public boolean keyUp(int keycode) {
+                updateShiftState();
                 return true;
             }
 
@@ -269,6 +274,21 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     @Override
     public TPoint getMouseLocation() {
         return new TPoint(mouseX, mouseY);
+    }
+
+    private void updateShiftState() {
+        byte state = 0;
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) state |= 0x01;
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) state |= 0x02;
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) state |= 0x04;
+        if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) state |= 0x08;
+        shiftState = state;
+    }
+
+    @Override
+    public byte getShiftState() {
+        updateShiftState();
+        return shiftState;
     }
 
     private void updateMousePosition(int screenX, int screenY) {

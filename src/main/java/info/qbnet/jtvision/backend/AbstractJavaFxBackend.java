@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
 import java.util.Optional;
@@ -30,6 +31,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     private volatile int mouseButtons = 0;
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
+    private volatile byte shiftState = 0;
 
     protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
@@ -38,6 +40,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
         this.canvas = new Canvas(screen.getWidth() * cellWidth, screen.getHeight() * cellHeight);
         this.canvas.setFocusTraversable(true);
         this.canvas.setOnKeyPressed(e -> {
+            updateShiftState(e, true);
             int code = mapKeyCode(e.getCode().getCode());
             boolean shift = e.isShiftDown();
             boolean ctrl = e.isControlDown();
@@ -52,6 +55,7 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
             ev.key.scanCode = (byte) scan;
             events.add(ev);
         });
+        this.canvas.setOnKeyReleased(e -> updateShiftState(e, false));
 
         this.canvas.setOnMousePressed(e -> {
             updateMousePosition(e.getX(), e.getY());
@@ -141,6 +145,41 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     @Override
     public Canvas getUIComponent() {
         return canvas;
+    }
+
+    private void updateShiftState(KeyEvent e, boolean pressed) {
+        KeyCode code = e.getCode();
+        switch (code) {
+            case SHIFT -> {
+                if (pressed) {
+                    shiftState |= 0x03; // JavaFX doesn't distinguish left/right
+                } else {
+                    shiftState &= ~0x03;
+                }
+            }
+            case CONTROL -> {
+                if (pressed) {
+                    shiftState |= 0x04;
+                } else {
+                    shiftState &= ~0x04;
+                }
+            }
+            case ALT, ALT_GRAPH -> {
+                if (pressed) {
+                    shiftState |= 0x08;
+                } else {
+                    shiftState &= ~0x08;
+                }
+            }
+            default -> {
+                // ignore other keys
+            }
+        }
+    }
+
+    @Override
+    public byte getShiftState() {
+        return shiftState;
     }
 
     /**
