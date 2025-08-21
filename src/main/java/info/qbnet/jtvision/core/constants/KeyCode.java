@@ -85,6 +85,17 @@ public class KeyCode {
     public static final int KB_CTRL_F11     = 0x027A;
     public static final int KB_CTRL_F12     = 0x027B;
 
+    public static final int KB_CTRL_HOME        = 0x0224;
+    public static final int KB_CTRL_END         = 0x0223;
+    public static final int KB_CTRL_UP          = 0x0226;
+    public static final int KB_CTRL_DOWN        = 0x0228;
+    public static final int KB_CTRL_LEFT        = 0x0225;
+    public static final int KB_CTRL_RIGHT       = 0x0227;
+    public static final int KB_CTRL_PAGE_UP     = 0x0221;
+    public static final int KB_CTRL_PAGE_DOWN   = 0x0222;
+    public static final int KB_CTRL_GRAY_MINUS  = 0x026D;
+    public static final int KB_CTRL_GRAY_PLUS   = 0x026B;
+
     public static final int KB_ALT_F1       = 0x0470;
     public static final int KB_ALT_F2       = 0x0471;
     public static final int KB_ALT_F3       = 0x0472;
