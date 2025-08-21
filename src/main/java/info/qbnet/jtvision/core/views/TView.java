@@ -320,7 +320,21 @@ public class TView {
     public void dragView(TEvent event, int mode, TRect limits, TPoint minSize, TPoint maxSize) {
         setState(State.SF_DRAGGING, true);
         if (event.what == TEvent.EV_MOUSE_DOWN) {
-            // TODO
+            if ((mode & DragMode.DM_DRAG_MOVE) != 0) {
+                TPoint p = new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
+                do {
+                    event.mouse.where.x += p.x;
+                    event.mouse.where.y += p.y;
+                    moveGrow(event.mouse.where, size, mode, limits, minSize, maxSize);
+                } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+            } else {
+                TPoint p = new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y);
+                do {
+                    event.mouse.where.x += p.x;
+                    event.mouse.where.y += p.y;
+                    moveGrow(origin, event.mouse.where, mode, limits, minSize, maxSize);
+                } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+            }
         } else {
             TRect saveBounds = new TRect();
             getBounds(saveBounds);
