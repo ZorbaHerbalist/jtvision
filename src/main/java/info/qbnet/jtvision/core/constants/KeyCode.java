@@ -72,6 +72,17 @@ public class KeyCode {
     public static final int KB_SHIFT_F11    = 0x017A;
     public static final int KB_SHIFT_F12    = 0x017B;
 
+    public static final int KB_SHIFT_HOME         = 0x0124;
+    public static final int KB_SHIFT_END          = 0x0123;
+    public static final int KB_SHIFT_UP           = 0x0126;
+    public static final int KB_SHIFT_DOWN         = 0x0128;
+    public static final int KB_SHIFT_LEFT         = 0x0125;
+    public static final int KB_SHIFT_RIGHT        = 0x0127;
+    public static final int KB_SHIFT_PAGE_UP      = 0x0121;
+    public static final int KB_SHIFT_PAGE_DOWN    = 0x0122;
+    public static final int KB_SHIFT_GRAY_MINUS   = 0x016D;
+    public static final int KB_SHIFT_GRAY_PLUS    = 0x016B;
+
     public static final int KB_CTRL_F1      = 0x0270;
     public static final int KB_CTRL_F2      = 0x0271;
     public static final int KB_CTRL_F3      = 0x0272;
@@ -121,6 +132,17 @@ public class KeyCode {
     public static final int KB_ALT_9        = 0x0439;
     public static final int KB_ALT_MINUS    = 0x042D;
     public static final int KB_ALT_EQUAL    = 0x043D;
+
+    public static final int KB_SHIFT_CTRL_HOME        = 0x0324;
+    public static final int KB_SHIFT_CTRL_END         = 0x0323;
+    public static final int KB_SHIFT_CTRL_UP          = 0x0326;
+    public static final int KB_SHIFT_CTRL_DOWN        = 0x0328;
+    public static final int KB_SHIFT_CTRL_LEFT        = 0x0325;
+    public static final int KB_SHIFT_CTRL_RIGHT       = 0x0327;
+    public static final int KB_SHIFT_CTRL_PAGE_UP     = 0x0321;
+    public static final int KB_SHIFT_CTRL_PAGE_DOWN   = 0x0322;
+    public static final int KB_SHIFT_CTRL_GRAY_MINUS  = 0x036D;
+    public static final int KB_SHIFT_CTRL_GRAY_PLUS   = 0x036B;
 
 
     public static int ctrlToArrow(int keyCode) {

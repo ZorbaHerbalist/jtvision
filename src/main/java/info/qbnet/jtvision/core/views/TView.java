@@ -1,6 +1,8 @@
 package info.qbnet.jtvision.core.views;
 
+import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
@@ -283,6 +285,74 @@ public class TView {
         if (owner != null) {
             owner.delete(this);
         }
+    }
+
+    private void change(TPoint p, TPoint s, int mode, int dx, int dy) {
+        if ((mode & DragMode.DM_DRAG_MOVE) != 0 && (TProgram.getShiftState() & 0x03) == 0) {
+            p.x += dx;
+            p.y += dy;
+        } else if ((mode & DragMode.DM_DRAG_GROW) != 0 && (TProgram.getShiftState() & 0x03) != 0) {
+            s.x += dx;
+            s.y += dy;
+        }
+    }
+
+    private void update(TPoint p, int mode, int x, int y) {
+        if ((mode & DragMode.DM_DRAG_MOVE) != 0) {
+            p.x = x;
+            p.y = y;
+        }
+    }
+
+    private void moveGrow(TPoint p, TPoint s, int mode, TRect limits, TPoint minSize, TPoint maxSize) {
+        s.x = Math.min(Math.max(s.x, minSize.x), maxSize.x);
+        s.y = Math.min(Math.max(s.y, minSize.y), maxSize.y);
+        p.x = Math.min(Math.max(p.x, limits.a.x - s.x + 1), limits.b.x - 1);
+        p.y = Math.min(Math.max(p.y, limits.a.y - s.y + 1), limits.b.y - 1);
+        if ((mode & DragMode.DM_LIMIT_LO_X) != 0) p.x = Math.max(p.x, limits.a.x);
+        if ((mode & DragMode.DM_LIMIT_LO_Y) != 0) p.y = Math.max(p.y, limits.a.y);
+        if ((mode & DragMode.DM_LIMIT_HI_X) != 0) p.x = Math.min(p.x, limits.b.x - s.x);
+        if ((mode & DragMode.DM_LIMIT_HI_Y) != 0) p.y = Math.min(p.y, limits.b.y - s.y);
+        TRect r = new TRect(p.x, p.y, p.x + s.x, p.y + s.y);
+        locate(r);
+    }
+
+    public void dragView(TEvent event, int mode, TRect limits, TPoint minSize, TPoint maxSize) {
+        setState(State.SF_DRAGGING, true);
+        if (event.what == TEvent.EV_MOUSE_DOWN) {
+            // TODO
+        } else {
+            TRect saveBounds = new TRect();
+            getBounds(saveBounds);
+            do {
+                TPoint p = new TPoint(origin.x, origin.y);
+                TPoint s = new TPoint(size.x, size.y);
+                keyEvent(event);
+                switch (event.key.keyCode) {
+                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, mode, -1, 0);
+                    case KeyCode.KB_LEFT -> change(p, s, mode, -1, 0);
+                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, mode, 1, 0);
+                    case KeyCode.KB_RIGHT -> change(p, s, mode, 1, 0);
+                    case KeyCode.KB_SHIFT_UP -> change(p, s, mode, 0, -1);
+                    case KeyCode.KB_UP -> change(p, s, mode, 0, -1);
+                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, mode, 0, 1);
+                    case KeyCode.KB_DOWN -> change(p, s, mode, 0, 1);
+                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, mode, -8, 0);
+                    case KeyCode.KB_CTRL_LEFT -> change(p, s, mode, -8, 0);
+                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, mode, 8, 0);
+                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, mode, 8, 0);
+                    case KeyCode.KB_HOME -> update(p, mode, limits.a.x, p.y);
+                    case KeyCode.KB_END -> update(p, mode, limits.b.x - s.x, p.y);
+                    case KeyCode.KB_PAGE_UP -> update(p, mode, p.x, limits.a.y);
+                    case KeyCode.KB_PAGE_DOWN -> update(p, mode, p.x, limits.b.y - s.y);
+                }
+                moveGrow(p, s, mode, limits, minSize, maxSize);
+            } while (event.key.keyCode != KeyCode.KB_ENTER && event.key.keyCode != KeyCode.KB_ESC);
+            if (event.key.keyCode == KeyCode.KB_ESC) {
+                locate(saveBounds);
+            }
+        }
+        setState(State.SF_DRAGGING, false);
     }
 
     /**
@@ -623,6 +693,13 @@ public class TView {
         if ((state & State.SF_VISIBLE) != 0) {
             setState(State.SF_VISIBLE, false);
         }
+    }
+
+    /** Returns the next keydown event. */
+    public void keyEvent(TEvent event) {
+        do {
+            getEvent(event);
+        } while (event.what != TEvent.EV_KEYDOWN);
     }
 
     /**

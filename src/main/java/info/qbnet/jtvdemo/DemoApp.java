@@ -151,8 +151,9 @@ public class DemoApp extends TApplication {
                         new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
                         new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
                         new TStatusItem("~Alt-F3~ Close", KeyCode.KB_ALT_F3, Command.CM_CLOSE,
-                        new TStatusItem("~F5~ Zoom", KeyCode.KB_F5, Command.CM_ZOOM,
-                        null)))))),
+                        new TStatusItem(null, KeyCode.KB_F5, Command.CM_ZOOM,
+                        new TStatusItem("~Size~/Move", KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
+                        null))))))),
                 null));
     }
 

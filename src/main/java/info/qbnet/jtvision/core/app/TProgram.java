@@ -197,6 +197,10 @@ public class TProgram extends TGroup {
         return C_APP_COLOR;
     }
 
+    public static byte getShiftState() {
+        return (application != null) ? application.backend.getShiftState() : 0;
+    }
+
     @Override
     public void handleEvent(TEvent event) {
         boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;

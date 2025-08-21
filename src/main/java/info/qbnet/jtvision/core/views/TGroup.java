@@ -578,7 +578,7 @@ public class TGroup extends TView {
         super.setState(state, enable);
         switch (state) {
             case State.SF_ACTIVE:
-            case State.SF_DISABLED:
+            case State.SF_DRAGGING:
                 lock();
                 forEach(p -> p.setState(state, enable));
                 unlock();

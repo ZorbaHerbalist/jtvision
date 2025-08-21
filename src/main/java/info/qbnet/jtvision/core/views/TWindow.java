@@ -89,6 +89,15 @@ public class TWindow extends TGroup {
         if (event.what == TEvent.EV_COMMAND) {
             switch (event.msg.command) {
                 case Command.CM_RESIZE:
+                    if ((flags & (WindowFlag.WF_MOVE + WindowFlag.WF_GROW)) != 0) {
+                        TRect limits = new TRect();
+                        TPoint min = new TPoint();
+                        TPoint max = new TPoint();
+                        owner.getExtent(limits);
+                        sizeLimits(min, max);
+                        dragView(event, dragMode | (flags & (WindowFlag.WF_MOVE + WindowFlag.WF_GROW)), limits, min, max);
+                        clearEvent(event);
+                    }
                     break;
                 case Command.CM_CLOSE:
                     if (((flags & WindowFlag.WF_CLOSE) != 0) && (event.msg.infoPtr == null || event.msg.infoPtr == this)) {
