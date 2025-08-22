@@ -262,6 +262,20 @@ public class TGroup extends TView {
         return result;
     }
 
+    private TView findNext(boolean forwards) {
+        if (current != null) {
+            TView p = current;
+            do {
+                p = forwards ? p.next : p.prev();
+            } while (!(((p.state & (State.SF_VISIBLE | State.SF_DISABLED)) == State.SF_VISIBLE) &&
+                    (p.options & Options.OF_SELECTABLE) != 0) && p != current);
+            if (p != current) {
+                return p;
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns a reference to the first subview (the one closest to the top in Z-order),
      * or null if the group has no subviews.
@@ -297,6 +311,14 @@ public class TGroup extends TView {
         } while (current != last.getNext());
 
         return null;
+    }
+
+    public boolean focusNext(boolean forwards) {
+        TView p = findNext(forwards);
+        if (p != null) {
+            return p.focus();
+        }
+        return true;
     }
 
     public void forEach(Consumer<TView> action) {

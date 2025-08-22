@@ -1046,13 +1046,12 @@ public class TView {
             case State.SF_SHADOW:
                 drawUnderView(true, null);
                 break;
-//
-//            case State.SF_FOCUSED:
+            case State.SF_FOCUSED:
+                // TODO
 //                resetCursor();
-//                int command = enable ? cmReceivedFocus : cmReleasedFocus;
-//                message(owner, Event.BROADCAST, command, this);
-//                break;
-
+                int command = enable ? Command.CM_RECEIVED_FOCUS : Command.CM_RELEASED_FOCUS;
+                message(owner, TEvent.EV_BROADCAST, command, this);
+                break;
             default:
                 break;
         }

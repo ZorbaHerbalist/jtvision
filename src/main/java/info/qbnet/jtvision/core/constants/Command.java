@@ -28,6 +28,7 @@ public class Command {
     public static final int CM_CHANGE_DIR           = 35;
     public static final int CM_CLOSE_ALL            = 37;
 
+    public static final int CM_RECEIVED_FOCUS       = 50;
     public static final int CM_RELEASED_FOCUS       = 51;
     public static final int CM_COMMAND_SET_CHANGED  = 52;
 
