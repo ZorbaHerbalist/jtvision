@@ -39,7 +39,8 @@ public class TEvent {
         what = EV_NOTHING;
         mouse.buttons = 0;
         mouse.isDouble = false;
-        mouse.where = new TPoint();
+        mouse.where.x = 0;
+        mouse.where.y = 0;
         key.keyCode = 0;
         key.charCode = 0;
         key.scanCode = 0;
