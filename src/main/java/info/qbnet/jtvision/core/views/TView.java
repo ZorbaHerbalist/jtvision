@@ -786,6 +786,16 @@ public class TView {
         }
     }
 
+    public void growTo(int x, int y) {
+        TRect r = new TRect(origin.x, origin.y, origin.x + x, origin.y + y);
+        locate(r);
+    }
+
+    public void moveTo(int x, int y) {
+        TRect r = new TRect(x, y, x + size.x, y + size.y);
+        locate(r);
+    }
+
     /** Moves this view to the top of its owner's subview list. */
     public void makeFirst() {
         putInFrontOf(owner.first());
