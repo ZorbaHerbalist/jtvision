@@ -461,6 +461,22 @@ public class TView {
         }
     }
 
+    /**
+     * Checks whether an event is available without removing it from the queue.
+     *
+     * @return {@code true} if an event is available; {@code false} otherwise
+     */
+    public boolean eventAvail() {
+        TEvent e = new TEvent();
+        getEvent(e);
+        if (e.what != TEvent.EV_NOTHING) {
+            putEvent(e);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /** Called when executed modally; default returns {@link Command#CM_CANCEL}. */
     public int execute() {
         return Command.CM_CANCEL;
@@ -703,6 +719,11 @@ public class TView {
         return (state & mask) == mask;
     }
 
+    public void growTo(int x, int y) {
+        TRect r = new TRect(origin.x, origin.y, origin.x + x, origin.y + y);
+        locate(r);
+    }
+
     /**
      * Dispatches events. Default handles {@link TEvent#EV_MOUSE_DOWN} by
      * selecting the view when appropriate. Use {@link #clearEvent(TEvent)} to
@@ -796,16 +817,6 @@ public class TView {
         }
     }
 
-    public void growTo(int x, int y) {
-        TRect r = new TRect(origin.x, origin.y, origin.x + x, origin.y + y);
-        locate(r);
-    }
-
-    public void moveTo(int x, int y) {
-        TRect r = new TRect(x, y, x + size.x, y + size.y);
-        locate(r);
-    }
-
     /** Moves this view to the top of its owner's subview list. */
     public void makeFirst() {
         putInFrontOf(owner.first());
@@ -882,6 +893,11 @@ public class TView {
         makeLocal(mouse, local);
         getExtent(extent);
         return extent.contains(local);
+    }
+
+    public void moveTo(int x, int y) {
+        TRect r = new TRect(x, y, x + size.x, y + size.y);
+        locate(r);
     }
 
     /** @return next subview or {@code null} if this is the last. */
