@@ -492,54 +492,35 @@ public class TView {
             return false;
         }
 
-        for (TView v = start; v != null && v != target; v = v.nextView()) {
-            if ((v.state & State.SF_VISIBLE) == 0) {
-                continue;
-            }
+        TView v = start;
+        while (v != null && v != target) {
+            if ((v.state & State.SF_VISIBLE) != 0) {
+                int vy1 = v.origin.y;
+                int vy2 = vy1 + v.size.y;
+                if (y >= vy1 && y < vy2) {
+                    int vx1 = v.origin.x;
+                    int vx2 = vx1 + v.size.x;
 
-            int vy1 = v.origin.y;
-            int vy2 = vy1 + v.size.y;
-            if (y < vy1 || y >= vy2) {
-                continue;
-            }
-
-            int vx1 = v.origin.x;
-            int vx2 = vx1 + v.size.x;
-
-            // Entirely covered by the sibling.
-            if (vx1 <= xStart && vx2 >= xEnd) {
-                return false;
-            }
-
-            // Sibling covers the left portion.
-            if (vx1 <= xStart && vx2 > xStart) {
-                xStart = vx2;
-                if (xStart >= xEnd) {
-                    return false;
-                }
-                continue;
-            }
-
-            // Sibling covers the right portion.
-            if (vx1 < xEnd && vx2 >= xEnd) {
-                xEnd = vx1;
-                if (xStart >= xEnd) {
-                    return false;
-                }
-                continue;
-            }
-
-            // Sibling lies inside our span: check left segment first,
-            // then continue with the right part.
-            if (vx1 > xStart && vx2 < xEnd) {
-                if (isRowExposed(target, parent, y, xStart, vx1, v.nextView())) {
-                    return true;
-                }
-                xStart = vx2;
-                if (xStart >= xEnd) {
-                    return false;
+                    if (xStart >= vx1) {
+                        if (xStart < vx2) {
+                            xStart = vx2;
+                            if (xStart >= xEnd) return false;
+                        }
+                    } else if (xEnd > vx1) {
+                        if (xEnd <= vx2) {
+                            xEnd = vx1;
+                            if (xStart >= xEnd) return false;
+                        } else {
+                            if (isRowExposed(target, parent, y, xStart, vx1, v.nextView())) {
+                                return true;
+                            }
+                            xStart = vx2;
+                            if (xStart >= xEnd) return false;
+                        }
+                    }
                 }
             }
+            v = v.nextView();
         }
 
         // No more siblings: ascend to the parent group.
