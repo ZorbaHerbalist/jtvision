@@ -467,43 +467,91 @@ public class TView {
     }
 
     /**
-     * Internal helper for {@link #exposed()} to test if a row segment is visible.
+     * Internal helper for {@link #exposed()} that determines whether a row
+     * segment of {@code target} remains visible after accounting for clipping
+     * and for all siblings in front of it.
+     *
+     * <p>This method mirrors the logic of the original Turbo Vision
+     * implementation which recursively analyses the row against every
+     * predecessor in Z‑order and then ascends through the owner chain.</p>
      */
-    private boolean isRowExposed(int y, int xStart, int xEnd) {
-        if (owner == null || owner.last == null) return true;
+    private boolean isRowExposed(TView target, TGroup parent, int y,
+                                 int xStart, int xEnd, TView start) {
+        if (parent == null) {
+            return false;
+        }
 
-        TView target = this;
-        TView current = owner.last.getNext();
-        do {
-            if (current == target) break;
+        // Apply the parent's clipping rectangle.
+        TRect clip = parent.clip;
+        if (y < clip.a.y || y >= clip.b.y) {
+            return false;
+        }
+        if (xStart < clip.a.x) xStart = clip.a.x;
+        if (xEnd > clip.b.x) xEnd = clip.b.x;
+        if (xStart >= xEnd) {
+            return false;
+        }
 
-            if ((current.getState() & State.SF_VISIBLE) != 0) {
-                int cy = current.origin.y;
-                int ch = current.size.y;
-                if (y >= cy && y < cy + ch) {
-                    int cx1 = current.origin.x;
-                    int cx2 = cx1 + current.size.x;
+        for (TView v = start; v != null && v != target; v = v.nextView()) {
+            if ((v.state & State.SF_VISIBLE) == 0) {
+                continue;
+            }
 
-                    // Case: current covers left part of our row
-                    if (cx1 <= xStart && cx2 > xStart) {
-                        xStart = cx2;
-                        if (xStart >= xEnd) return false;
-                    }
-                    // Case: current cuts into right part
-                    else if (cx1 < xEnd && cx2 >= xEnd) {
-                        xEnd = cx1;
-                        if (xStart >= xEnd) return false;
-                    }
-                    // Case: current entirely covers [xStart, xEnd)
-                    else if (cx1 <= xStart && cx2 >= xEnd) {
-                        return false;
-                    }
+            int vy1 = v.origin.y;
+            int vy2 = vy1 + v.size.y;
+            if (y < vy1 || y >= vy2) {
+                continue;
+            }
+
+            int vx1 = v.origin.x;
+            int vx2 = vx1 + v.size.x;
+
+            // Entirely covered by the sibling.
+            if (vx1 <= xStart && vx2 >= xEnd) {
+                return false;
+            }
+
+            // Sibling covers the left portion.
+            if (vx1 <= xStart && vx2 > xStart) {
+                xStart = vx2;
+                if (xStart >= xEnd) {
+                    return false;
+                }
+                continue;
+            }
+
+            // Sibling covers the right portion.
+            if (vx1 < xEnd && vx2 >= xEnd) {
+                xEnd = vx1;
+                if (xStart >= xEnd) {
+                    return false;
+                }
+                continue;
+            }
+
+            // Sibling lies inside our span: check left segment first,
+            // then continue with the right part.
+            if (vx1 > xStart && vx2 < xEnd) {
+                if (isRowExposed(target, parent, y, xStart, vx1, v.nextView())) {
+                    return true;
+                }
+                xStart = vx2;
+                if (xStart >= xEnd) {
+                    return false;
                 }
             }
-            current = current.getNext();
-        } while (current != owner.last.getNext());
+        }
 
-        return xStart < xEnd;
+        // No more siblings: ascend to the parent group.
+        if (parent.getOwner() == null) {
+            return true;
+        }
+
+        int newY = y + parent.origin.y;
+        int newStart = xStart + parent.origin.x;
+        int newEnd = xEnd + parent.origin.x;
+        return isRowExposed(parent, parent.getOwner(), newY, newStart,
+                newEnd, parent.getOwner().first());
     }
 
     /**
@@ -516,25 +564,16 @@ public class TView {
      * @return {@code true} if the view is at least partially visible on screen; otherwise {@code false}.
      */
     public boolean exposed() {
-        if ((state & State.SF_VISIBLE) == 0) return false;
-        if ((size.x <= 0) || (size.y <= 0)) return false;
+        if ((state & State.SF_EXPOSED) == 0) return false;
+        if (size.x <= 0 || size.y <= 0) return false;
+        if (owner == null) return false;
 
         for (int y = 0; y < size.y; y++) {
             int rowY = origin.y + y;
-            int xStart = origin.x;
-            int xEnd = origin.x + size.x;
-
-            // Clip to owner's clip rect
-            if (owner == null) return false;
-            TRect clip = owner.clip;
-            if (rowY < clip.a.y || rowY >= clip.b.y) continue;
-
-            int visibleXStart = Math.max(clip.a.x, xStart);
-            int visibleXEnd = Math.min(clip.b.x, xEnd);
-
-            if (visibleXStart >= visibleXEnd) continue;
-
-            if (isRowExposed(rowY, visibleXStart, visibleXEnd)) return true;
+            if (isRowExposed(this, owner, rowY, origin.x, origin.x + size.x,
+                    owner.first())) {
+                return true;
+            }
         }
 
         return false;
