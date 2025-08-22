@@ -56,7 +56,8 @@ public class TEvent {
         this.what = other.what;
         this.mouse.buttons = other.mouse.buttons;
         this.mouse.isDouble = other.mouse.isDouble;
-        this.mouse.where = other.mouse.where;
+        this.mouse.where.x = other.mouse.where.x;
+        this.mouse.where.y = other.mouse.where.y;
         this.key.keyCode = other.key.keyCode;
         this.key.charCode = other.key.charCode;
         this.key.scanCode = other.key.scanCode;
