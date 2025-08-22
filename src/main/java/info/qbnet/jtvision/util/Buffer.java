@@ -120,5 +120,10 @@ public class Buffer implements IBuffer {
     public void setDirtyListener(Runnable listener) {
         this.dirtyListener = listener;
     }
+
+    @Override
+    public void dispose() {
+        dirtyListener = null;
+    }
 }
 

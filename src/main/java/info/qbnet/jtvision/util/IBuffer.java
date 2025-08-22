@@ -89,4 +89,12 @@ public interface IBuffer {
      * @param listener callback executed on buffer changes; may be {@code null}
      */
     void setDirtyListener(Runnable listener);
+
+    /**
+     * Releases any resources associated with this buffer. Implementations may
+     * override to provide cleanup logic; the default implementation does
+     * nothing.
+     */
+    default void dispose() {
+    }
 }

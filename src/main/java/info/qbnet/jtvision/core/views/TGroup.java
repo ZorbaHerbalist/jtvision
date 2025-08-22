@@ -338,15 +338,22 @@ public class TGroup extends TView {
 
     private void freeBuffer() {
         if ((options & Options.OF_BUFFERED) != 0 && buffer != null) {
+            buffer.dispose();
             buffer = null;
         }
     }
 
     private void getBuffer() {
-        if (buffer == null && ((state & State.SF_EXPOSED) != 0)
-                && ((getOptions() & Options.OF_BUFFERED) != 0)) {
-            buffer = new Buffer(size.x, size.y);
+        if (buffer != null) {
+            return;
         }
+        if ((state & State.SF_EXPOSED) == 0) {
+            return;
+        }
+        if ((getOptions() & Options.OF_BUFFERED) == 0) {
+            return;
+        }
+        buffer = new Buffer(size.x, size.y);
     }
 
     @Override
