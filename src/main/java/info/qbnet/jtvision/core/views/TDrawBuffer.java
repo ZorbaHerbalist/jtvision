@@ -38,7 +38,9 @@ public class TDrawBuffer {
                 buffer[pos + i] = (short) ((attr << 8) | (src[i] & 0xFF));
             }
         } else {
-            System.arraycopy(src, 0, buffer, pos, len);
+            for (int i = 0; i < len; i++) {
+                buffer[pos + i] = (short) ((buffer[pos + i] & 0xFF00) | (src[i] & 0x00FF));
+            }
         }
     }
 
