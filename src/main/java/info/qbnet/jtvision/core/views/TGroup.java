@@ -645,9 +645,10 @@ public class TGroup extends TView {
             if (current != null && (current.options & Options.OF_VALIDATE) != 0) {
                 return current.valid(command);
             }
+        } else {
+            return firstThat(v -> !v.valid(command)) == null;
         }
-
-        return firstThat(v -> !v.valid(command)) == null;
+        return true;
     }
 
 }
