@@ -377,7 +377,7 @@ public class TView {
         logger.trace("{} TView@draw()", logName);
 
         TDrawBuffer buf = new TDrawBuffer();
-        buf.moveChar(0,'w', getColor((short) 1), size.x);
+        buf.moveChar(0,' ', getColor((short) 1), size.x);
         writeLine(0,0, size.x, size.y, buf.buffer);
     }
 
