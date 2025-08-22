@@ -61,7 +61,7 @@ public class TView {
         public static final int DM_LIMIT_ALL = DM_LIMIT_LO_X | DM_LIMIT_LO_Y | DM_LIMIT_HI_X | DM_LIMIT_HI_Y;
     }
 
-    public int dragMode = 0;
+    public int dragMode = DragMode.DM_LIMIT_LO_Y;
 
     /** Predefined help context identifiers. */
     public static class HelpContext {
