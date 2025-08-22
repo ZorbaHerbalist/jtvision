@@ -267,7 +267,7 @@ public class TView {
 
     /** Checks if {@code command} is enabled in {@link #curCommandSet}. */
     public static boolean commandEnabled(int command) {
-        return command <= 255 && curCommandSet.contains(command);
+        return command > 255 || curCommandSet.contains(command);
     }
 
     /** Removes {@code commands} from {@link #curCommandSet} and flags changes. */
