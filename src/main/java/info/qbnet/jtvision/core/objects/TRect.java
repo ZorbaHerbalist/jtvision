@@ -92,6 +92,7 @@ public class TRect {
         a.y -= dy;
         b.x += dx;
         b.y += dy;
+        checkEmpty();
     }
 
     /**
