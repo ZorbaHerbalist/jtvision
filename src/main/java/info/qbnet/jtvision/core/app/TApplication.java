@@ -32,14 +32,4 @@ public class TApplication extends TProgram {
         }
     }
 
-    public static TStatusItem stdStatusKeys(TStatusItem next) {
-        return new TStatusItem(null, KeyCode.KB_ALT_X, Command.CM_QUIT,
-               new TStatusItem(null, KeyCode.KB_F10, Command.CM_MENU,
-               new TStatusItem(null, KeyCode.KB_ALT_F3, Command.CM_CLOSE,
-               new TStatusItem(null, KeyCode.KB_F5, Command.CM_ZOOM,
-               new TStatusItem(null, KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
-               new TStatusItem(null, KeyCode.KB_F6, Command.CM_NEXT,
-               new TStatusItem(null, KeyCode.KB_SHIFT_F6, Command.CM_PREV,
-               null)))))));
-    }
 }

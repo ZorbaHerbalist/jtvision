@@ -247,13 +247,13 @@ public class TProgram extends TGroup {
     }
 
     public static TStatusItem stdStatusKeys(TStatusItem next) {
-        return new TStatusItem("", KeyCode.KB_ALT_X, Command.CM_QUIT,
-               new TStatusItem("", KeyCode.KB_F10, Command.CM_MENU,
-               new TStatusItem("", KeyCode.KB_ALT_F3, Command.CM_QUIT,
-               new TStatusItem("", KeyCode.KB_F5, Command.CM_ZOOM,
-               new TStatusItem("", KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
-               new TStatusItem("", KeyCode.KB_F6, Command.CM_NEXT,
-               new TStatusItem("", KeyCode.KB_SHIFT_F6, Command.CM_PREV,
+        return new TStatusItem(null, KeyCode.KB_ALT_X, Command.CM_QUIT,
+               new TStatusItem(null, KeyCode.KB_F10, Command.CM_MENU,
+               new TStatusItem(null, KeyCode.KB_ALT_F3, Command.CM_CLOSE,
+               new TStatusItem(null, KeyCode.KB_F5, Command.CM_ZOOM,
+               new TStatusItem(null, KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
+               new TStatusItem(null, KeyCode.KB_F6, Command.CM_NEXT,
+               new TStatusItem(null, KeyCode.KB_SHIFT_F6, Command.CM_PREV,
                null)))))));
     }
 

@@ -3,6 +3,7 @@ package info.qbnet.jtvdemo;
 import info.qbnet.jtvision.Console;
 import info.qbnet.jtvision.core.app.TApplication;
 import info.qbnet.jtvision.backend.factory.BackendType;
+import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
@@ -147,7 +148,7 @@ public class DemoApp extends TApplication {
         statusLine = new TStatusLine(r,
                 new TStatusDef(0, 0xFFFF,
                         new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
-                        TApplication.stdStatusKeys(null)),
+                        TProgram.stdStatusKeys(null)),
                 null));
     }
 
