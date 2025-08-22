@@ -267,8 +267,8 @@ public class TGroup extends TView {
             TView p = current;
             do {
                 p = forwards ? p.next : p.prev();
-            } while (!(((p.state & (State.SF_VISIBLE | State.SF_DISABLED)) == State.SF_VISIBLE) &&
-                    (p.options & Options.OF_SELECTABLE) != 0) && p != current);
+            } while (((p.state & (State.SF_VISIBLE | State.SF_DISABLED)) != State.SF_VISIBLE
+                    || (p.options & Options.OF_SELECTABLE) == 0) && p != current);
             if (p != current) {
                 return p;
             }
