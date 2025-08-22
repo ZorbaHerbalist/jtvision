@@ -247,4 +247,14 @@ class TViewTest {
         // Clean up lock to avoid side-effects
         mid.unlock();
     }
+
+    @Test
+    void forEachHandlesElementDeletingItself() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        group.insert(view);
+
+        assertDoesNotThrow(() -> group.forEach(v -> group.delete(v)));
+        assertNull(group.first());
+    }
 }

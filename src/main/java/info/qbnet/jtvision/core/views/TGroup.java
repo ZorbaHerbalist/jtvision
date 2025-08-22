@@ -325,9 +325,14 @@ public class TGroup extends TView {
         if (last == null) return;
 
         TView current = last.getNext();
+        TView n;
         do {
+            n = current.getNext();
             action.accept(current);
-            current = current.getNext();
+            if (current == null || last == null) {
+                return;
+            }
+            current = n;
         } while (current != last.getNext());
     }
 
