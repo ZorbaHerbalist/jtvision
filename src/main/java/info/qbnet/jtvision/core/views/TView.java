@@ -102,7 +102,7 @@ public class TView {
         public static final int SF_EXPOSED = 1 << 11;
     }
 
-    protected int state = State.SF_VISIBLE;
+    public int state = State.SF_VISIBLE;
 
     /** Optional behavior flags; combine {@code OF_*} values as needed. */
     public static class Options {
@@ -694,6 +694,16 @@ public class TView {
     }
 
     /**
+     * Checks whether all flags in the given mask are set in this view's state.
+     *
+     * @param mask the bitmask of state flags to test
+     * @return {@code true} if all specified flags are set; {@code false} otherwise
+     */
+    public boolean getState(int mask) {
+        return (state & mask) == mask;
+    }
+
+    /**
      * Dispatches events. Default handles {@link TEvent#EV_MOUSE_DOWN} by
      * selecting the view when appropriate. Use {@link #clearEvent(TEvent)} to
      * mark events as handled.
@@ -1055,7 +1065,7 @@ public class TView {
 
         switch (state) {
             case State.SF_VISIBLE:
-                if ((owner.getState() & State.SF_EXPOSED) != 0) {
+                if ((owner.state & State.SF_EXPOSED) != 0) {
                     setState(State.SF_EXPOSED, enable);
                 }
                 if (enable) {
@@ -1438,15 +1448,6 @@ public class TView {
      */
     public TView getNext() {
         return next;
-    }
-
-    /**
-     * Retrieves the current state flags for this view.
-     *
-     * @return the view's current state flags
-     */
-    public int getState() {
-        return state;
     }
 
     /**

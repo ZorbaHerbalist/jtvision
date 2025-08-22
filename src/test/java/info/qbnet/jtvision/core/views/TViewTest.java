@@ -99,7 +99,7 @@ class TViewTest {
     void hideClearsVisibleState() {
         TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         v.hide();
-        assertEquals(0, v.getState() & SF_VISIBLE);
+        assertEquals(0, v.state & SF_VISIBLE);
     }
 
     @Test
@@ -120,13 +120,13 @@ class TViewTest {
         optionsField.setInt(v, OF_SELECTABLE);
 
         v.setState(SF_VISIBLE, false);
-        assertEquals(0, v.getState() & SF_VISIBLE);
+        assertEquals(0, v.state & SF_VISIBLE);
         assertTrue(g.resetCurrentCalled);
 
         g.resetCurrentCalled = false;
 
         v.setState(SF_VISIBLE, true);
-        assertEquals(SF_VISIBLE, v.getState() & SF_VISIBLE);
+        assertEquals(SF_VISIBLE, v.state & SF_VISIBLE);
         assertTrue(g.resetCurrentCalled);
     }
 

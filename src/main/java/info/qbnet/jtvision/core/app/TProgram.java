@@ -184,7 +184,7 @@ public class TProgram extends TGroup {
         if (statusLine != null) {
             boolean keyDown = (event.what & TEvent.EV_KEYDOWN) != 0;
             boolean mouseDown = (event.what & TEvent.EV_MOUSE_DOWN) != 0
-                    && firstThat(p -> ((p.getState() & State.SF_VISIBLE) != 0)
+                    && firstThat(p -> ((p.state & State.SF_VISIBLE) != 0)
                     && p.mouseInView(event.mouse.where)) == statusLine;
             if (keyDown || mouseDown) {
                 statusLine.handleEvent(event);

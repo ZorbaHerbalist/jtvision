@@ -291,7 +291,7 @@ public class TGroup extends TView {
      * Returns the first view that matches the given state and options flags.
      */
     private TView firstMatch(int state, int options) {
-        return firstThat(v -> (v.getState() & state) == state && (v.getOptions() & options) == options);
+        return firstThat(v -> (v.state & state) == state && (v.getOptions() & options) == options);
     }
 
     /**
@@ -338,7 +338,7 @@ public class TGroup extends TView {
     }
 
     private void getBuffer() {
-        if (buffer == null && ((getState() & State.SF_EXPOSED) != 0)
+        if (buffer == null && ((state & State.SF_EXPOSED) != 0)
                 && ((getOptions() & Options.OF_BUFFERED) != 0)) {
             buffer = new Buffer(size.x, size.y);
         }
@@ -449,7 +449,7 @@ public class TGroup extends TView {
             if ((p.getOptions() & Options.OF_CENTER_Y) != 0) {
                 p.origin.y = (size.y - p.size.y) / 2;
             }
-            int saveState = p.getState();
+            int saveState = p.state;
             p.hide();
             insertView(p, target);
             if ((saveState & State.SF_VISIBLE) != 0) {
@@ -569,7 +569,7 @@ public class TGroup extends TView {
     private void focusView(TView v, boolean enable) {
         logger.trace("{} TGroup@focusView({}, {})", getLogName(), v != null ? v.getLogName() : "null", enable);
 
-        if ((this.getState() & State.SF_FOCUSED) != 0 && v != null) {
+        if ((this.state & State.SF_FOCUSED) != 0 && v != null) {
             v.setState(State.SF_FOCUSED, enable);
         }
     }
