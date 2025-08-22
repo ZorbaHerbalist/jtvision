@@ -146,14 +146,8 @@ public class DemoApp extends TApplication {
         r.a.y = r.b.y - 1;
         statusLine = new TStatusLine(r,
                 new TStatusDef(0, 0xFFFF,
-                        new TStatusItem("~F1~ Hide", KeyCode.KB_F1, CM_HIDE_WINDOW,
-                        new TStatusItem(null, KeyCode.KB_F10, Command.CM_MENU,
-                        new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
                         new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
-                        new TStatusItem("~Alt-F3~ Close", KeyCode.KB_ALT_F3, Command.CM_CLOSE,
-                        new TStatusItem(null, KeyCode.KB_F5, Command.CM_ZOOM,
-                        new TStatusItem("~Size~/Move", KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
-                        null))))))),
+                        TApplication.stdStatusKeys(null)),
                 null));
     }
 
