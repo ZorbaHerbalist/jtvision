@@ -178,6 +178,18 @@ class TViewTest {
     }
 
     @Test
+    void mouseInViewChecksGlobalCoordinates() {
+        TView view = new TView(new TRect(new TPoint(0,0), new TPoint(4,4)));
+        view.moveTo(10, 20);
+
+        TPoint inside = new TPoint(12, 22);
+        assertTrue(view.mouseInView(inside));
+
+        TPoint outside = new TPoint(14, 22);
+        assertFalse(view.mouseInView(outside));
+    }
+
+    @Test
     void writeViewTargetsNearestBufferedAncestor() {
         TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
         root.setState(SF_EXPOSED, true);
