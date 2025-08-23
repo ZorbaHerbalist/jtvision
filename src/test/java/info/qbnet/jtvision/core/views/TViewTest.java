@@ -2,6 +2,8 @@ package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.constants.KeyCode;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -84,6 +86,21 @@ class TViewTest {
         @Override
         public void draw() {
             drawCount++;
+        }
+    }
+
+    static class EventQueueView extends TestableTView {
+        java.util.ArrayDeque<TEvent> events = new java.util.ArrayDeque<>();
+
+        EventQueueView(TRect bounds) { super(bounds); }
+
+        @Override
+        public void getEvent(TEvent event) {
+            if (!events.isEmpty()) {
+                event.copyFrom(events.removeFirst());
+            } else {
+                event.what = TEvent.EV_NOTHING;
+            }
         }
     }
 
@@ -332,6 +349,28 @@ class TViewTest {
         assertEquals(Math.min(original.b.y - original.a.y + delta.y, max.y), newHeight);
         assertTrue(newWidth <= max.x);
         assertTrue(newHeight <= max.y);
+    }
+
+    @Test
+    void dragViewMovesOriginRightWithKeyboard() {
+        TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        parent.insert(view);
+
+        TEvent right = new TEvent();
+        right.what = TEvent.EV_KEYDOWN;
+        right.key.keyCode = KeyCode.KB_RIGHT;
+        TEvent enter = new TEvent();
+        enter.what = TEvent.EV_KEYDOWN;
+        enter.key.keyCode = KeyCode.KB_ENTER;
+        view.events.add(right);
+        view.events.add(enter);
+
+        TRect limits = new TRect(new TPoint(0,0), new TPoint(10,10));
+        view.dragView(new TEvent(), TView.DragMode.DM_DRAG_MOVE, limits, new TPoint(1,1), new TPoint(1,1));
+
+        assertEquals(1, view.getOriginField().x);
+        assertEquals(0, view.getOriginField().y);
     }
 
     @Test
