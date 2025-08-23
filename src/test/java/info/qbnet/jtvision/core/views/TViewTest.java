@@ -4,9 +4,11 @@ import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.constants.Command;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static info.qbnet.jtvision.core.views.TView.Options.*;
@@ -385,5 +387,26 @@ class TViewTest {
         view.setState(SF_EXPOSED, true);
         view.drawView();
         assertEquals(1, view.drawCount);
+    }
+
+    @Test
+    void disableCommandsDisablesAndEnableRestores() {
+        Set<Integer> original = TView.getCommands();
+        boolean changed = TView.commandSetChanged;
+        try {
+            Set<Integer> cmds = Set.of(Command.CM_HELP);
+            TView.commandSetChanged = false;
+            TView.disableCommands(cmds);
+            assertFalse(TView.commandEnabled(Command.CM_HELP));
+            assertTrue(TView.commandSetChanged);
+
+            TView.commandSetChanged = false;
+            TView.enableCommands(cmds);
+            assertTrue(TView.commandEnabled(Command.CM_HELP));
+            assertTrue(TView.commandSetChanged);
+        } finally {
+            TView.setCommands(original);
+            TView.commandSetChanged = changed;
+        }
     }
 }
