@@ -157,6 +157,27 @@ class TViewTest {
     }
 
     @Test
+    void makeGlobalAndLocalRoundTripThroughOwnershipChain() {
+        TGroup root = new TGroup(new TRect(new TPoint(10,20), new TPoint(30,40)));
+        TGroup mid = new TGroup(new TRect(new TPoint(3,4), new TPoint(13,14)));
+        root.insert(mid);
+        TView leaf = new TView(new TRect(new TPoint(2,1), new TPoint(7,6)));
+        mid.insert(leaf);
+
+        TPoint local = new TPoint(1,2);
+        TPoint global = new TPoint();
+        leaf.makeGlobal(local, global);
+
+        assertEquals(16, global.x);
+        assertEquals(27, global.y);
+
+        TPoint roundTrip = new TPoint();
+        leaf.makeLocal(global, roundTrip);
+        assertEquals(local.x, roundTrip.x);
+        assertEquals(local.y, roundTrip.y);
+    }
+
+    @Test
     void writeViewTargetsNearestBufferedAncestor() {
         TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
         root.setState(SF_EXPOSED, true);
