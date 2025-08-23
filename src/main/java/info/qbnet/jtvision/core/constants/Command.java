@@ -34,6 +34,8 @@ public class Command {
     public static final int CM_RELEASED_FOCUS       = 51;
     public static final int CM_COMMAND_SET_CHANGED  = 52;
 
+    public static final int CM_SELECT_WINDOW_NUM    = 55;
+
 //    private static final Map<Integer, Command> registry = new HashMap<>();
 //
 //    public static final Command CM_OK = new Command(10, "CM_OK");

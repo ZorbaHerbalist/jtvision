@@ -207,7 +207,15 @@ public class TProgram extends TGroup {
         if (logEvent) {
             logger.trace("{} TProgram@handleEvent(event={})", getLogName(), event);
         }
-        // TODO event.what = evKeyDown
+        if (event.what == TEvent.EV_KEYDOWN) {
+            char c = KeyCode.getAltChar(event.key.keyCode);
+            if (c >= '1' && c <= '9') {
+                System.out.println("ALT: " + c);
+                if (message(desktop, TEvent.EV_BROADCAST, Command.CM_SELECT_WINDOW_NUM, (byte) c - 0x30) != null) {
+                    clearEvent(event);
+                }
+            }
+        }
         super.handleEvent(event);
         if (event.what == TEvent.EV_COMMAND) {
             if (event.msg.command == Command.CM_QUIT) {

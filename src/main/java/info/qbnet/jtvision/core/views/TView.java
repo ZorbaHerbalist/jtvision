@@ -1433,6 +1433,20 @@ public class TView {
         return null;
     }
 
+    public static Object message(TView receiver, int what, int command, int infoInt) {
+        if (receiver != null) {
+            TEvent event = new TEvent();
+            event.what = what;
+            event.msg.command = command;
+            event.msg.infoInt = infoInt;
+            receiver.handleEvent(event);
+            if (event.what == TEvent.EV_NOTHING) {
+                return event.msg.infoPtr;
+            }
+        }
+        return null;
+    }
+
     // Getters and setters
 
     /**

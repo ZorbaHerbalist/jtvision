@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
@@ -85,7 +86,6 @@ public class TWindow extends TGroup {
     @Override
     public void handleEvent(TEvent event) {
         super.handleEvent(event);
-        // TODO
         if (event.what == TEvent.EV_COMMAND) {
             switch (event.msg.command) {
                 case Command.CM_RESIZE:
@@ -119,6 +119,18 @@ public class TWindow extends TGroup {
                     }
                     break;
             }
+        } else if (event.what == TEvent.EV_KEYDOWN) {
+            switch (event.key.keyCode) {
+                case KeyCode.KB_TAB:
+                    focusNext(false);
+                    clearEvent(event);
+                case KeyCode.KB_SHIFT_TAB:
+                    focusNext(true);
+                    clearEvent(event);
+            }
+        } else if (event.what == TEvent.EV_BROADCAST && event.msg.command == Command.CM_SELECT_WINDOW_NUM && event.msg.infoInt == number && (options & Options.OF_SELECTABLE) != 0) {
+            select();
+            clearEvent(event);
         }
     }
 
