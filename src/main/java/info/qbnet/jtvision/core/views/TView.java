@@ -420,7 +420,7 @@ public class TView {
      * Helper for {@link #drawHide(TView)} and {@link #drawShow(TView)} to repaint
      * obscured siblings with optional shadow.
      */
-    private void drawUnderView(boolean doShadow, TView lastView) {
+    protected void drawUnderView(boolean doShadow, TView lastView) {
         logger.trace("{} TView@drawUnderView(doShadow={}, lastView={})", logName, doShadow,
                 lastView != null ? lastView.getLogName() : "null");
 
