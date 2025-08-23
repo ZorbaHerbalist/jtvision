@@ -106,6 +106,32 @@ class TViewTest {
         }
     }
 
+    static class ShadowCountingView extends TestableTView {
+        int drawUnderViewCalls = 0;
+
+        ShadowCountingView(TRect bounds) { super(bounds); }
+
+        @Override
+        protected void drawUnderView(boolean doShadow, TView lastView) {
+            drawUnderViewCalls++;
+        }
+    }
+
+    static class FocusCountingGroup extends TestGroup {
+        int receivedFocus = 0;
+
+        FocusCountingGroup(TRect bounds) { super(bounds); }
+
+        @Override
+        public void handleEvent(TEvent event) {
+            if (event.what == TEvent.EV_BROADCAST && event.msg.command == Command.CM_RECEIVED_FOCUS) {
+                receivedFocus++;
+                event.what = TEvent.EV_NOTHING;
+            }
+            super.handleEvent(event);
+        }
+    }
+
     @Test
     void constructorInitializesGeometry() {
         TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
@@ -387,6 +413,22 @@ class TViewTest {
         view.setState(SF_EXPOSED, true);
         view.drawView();
         assertEquals(1, view.drawCount);
+    }
+
+    @Test
+    void shadowFlagInvokesDrawUnderViewAndFocusedBroadcasts() {
+        FocusCountingGroup owner = new FocusCountingGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        ShadowCountingView view = new ShadowCountingView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        view.setOwner(owner);
+
+        view.setState(SF_VISIBLE, true);
+        assertEquals(0, view.drawUnderViewCalls);
+
+        view.setState(SF_SHADOW, true);
+        assertEquals(1, view.drawUnderViewCalls);
+
+        view.setState(SF_FOCUSED, true);
+        assertEquals(1, owner.receivedFocus);
     }
 
     @Test
