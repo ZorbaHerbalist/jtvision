@@ -15,6 +15,7 @@ public class TBackground extends TView {
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);
+        this.growMode |= (GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y);
         this.pattern = pattern;
 
         logger.debug("{} TBackground@TBackground(bounds={}, pattern={})", getLogName(), bounds, (int) pattern);
