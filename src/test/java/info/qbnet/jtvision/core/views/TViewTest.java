@@ -416,6 +416,26 @@ class TViewTest {
     }
 
     @Test
+    void calcBoundsScalesProportionallyWithGrowRel() {
+        TestGroup group = new TestGroup(new TRect(new TPoint(0,0), new TPoint(100,100)));
+        TestableTView view = new TestableTView(new TRect(new TPoint(10,10), new TPoint(30,30)));
+        group.insert(view);
+        view.growMode = TView.GrowMode.GF_GROW_ALL | TView.GrowMode.GF_GROW_REL;
+
+        TPoint delta = new TPoint(10,20);
+        group.size.x += delta.x;
+        group.size.y += delta.y;
+
+        TRect bounds = new TRect();
+        view.calcBounds(bounds, delta);
+
+        assertEquals(11, bounds.a.x);
+        assertEquals(12, bounds.a.y);
+        assertEquals(33, bounds.b.x);
+        assertEquals(36, bounds.b.y);
+    }
+
+    @Test
     void eventAvailDetectsAndConsumesEvent() {
         EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         TEvent ev = new TEvent();
