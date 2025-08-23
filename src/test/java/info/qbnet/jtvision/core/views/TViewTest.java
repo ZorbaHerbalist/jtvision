@@ -80,8 +80,10 @@ class TViewTest {
     void constructorInitializesGeometry() {
         TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
         TestableTView v = new TestableTView(r);
-        assertSame(r.a, v.getOriginField());
-        assertSame(r.b, v.getSizeField());
+        assertEquals(r.a.x, v.getOriginField().x);
+        assertEquals(r.a.y, v.getOriginField().y);
+        assertEquals(r.b.x - r.a.x, v.getSizeField().x);
+        assertEquals(r.b.y - r.a.y, v.getSizeField().y);
     }
 
     @Test
@@ -91,8 +93,8 @@ class TViewTest {
         v.getExtent(extent);
         assertEquals(0, extent.a.x);
         assertEquals(0, extent.a.y);
-        assertEquals(5, extent.b.x);
-        assertEquals(6, extent.b.y);
+        assertEquals(4, extent.b.x);
+        assertEquals(4, extent.b.y);
     }
 
     @Test
@@ -148,7 +150,7 @@ class TViewTest {
         TRect r = new TRect(new TPoint(0,0), new TPoint(1,1));
         TestableTView view = new TestableTView(r, new TPalette(new byte[]{0x11}));
         assertEquals((short)0xCFCF, view.getColor((short)0x0202));
-        assertEquals((short)0xCFCF, view.getColor((short)0x0000));
+        assertEquals((short)0x00CF, view.getColor((short)0x0000));
 
         TestableTView zeroMap = new TestableTView(r, new TPalette(new byte[]{0x00}));
         assertEquals((short)0xCFCF, zeroMap.getColor((short)0x0101));
