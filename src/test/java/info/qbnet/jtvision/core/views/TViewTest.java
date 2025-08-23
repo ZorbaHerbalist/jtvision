@@ -259,4 +259,34 @@ class TViewTest {
         assertDoesNotThrow(() -> group.forEach(v -> group.delete(v)));
         assertNull(group.first());
     }
+
+    @Test
+    void calcBoundsRespectsGrowModeAndSizeLimits() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(5,6)));
+        group.insert(view);
+        view.growMode = TView.GrowMode.GF_GROW_HI_X | TView.GrowMode.GF_GROW_HI_Y;
+
+        TRect original = new TRect();
+        view.getBounds(original);
+
+        TPoint delta = new TPoint(2,3);
+        group.size.x += delta.x;
+        group.size.y += delta.y;
+
+        TRect bounds = new TRect();
+        view.calcBounds(bounds, delta);
+
+        TPoint min = new TPoint();
+        TPoint max = new TPoint();
+        view.sizeLimits(min, max);
+
+        int newWidth = bounds.b.x - bounds.a.x;
+        int newHeight = bounds.b.y - bounds.a.y;
+
+        assertEquals(Math.min(original.b.x - original.a.x + delta.x, max.x), newWidth);
+        assertEquals(Math.min(original.b.y - original.a.y + delta.y, max.y), newHeight);
+        assertTrue(newWidth <= max.x);
+        assertTrue(newHeight <= max.y);
+    }
 }
