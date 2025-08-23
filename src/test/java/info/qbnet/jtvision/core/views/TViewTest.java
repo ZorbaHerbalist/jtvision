@@ -76,6 +76,17 @@ class TViewTest {
         }
     }
 
+    static class CountingDrawView extends TView {
+        int drawCount = 0;
+
+        CountingDrawView(TRect bounds) { super(bounds); }
+
+        @Override
+        public void draw() {
+            drawCount++;
+        }
+    }
+
     @Test
     void constructorInitializesGeometry() {
         TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
@@ -321,5 +332,19 @@ class TViewTest {
         assertEquals(Math.min(original.b.y - original.a.y + delta.y, max.y), newHeight);
         assertTrue(newWidth <= max.x);
         assertTrue(newHeight <= max.y);
+    }
+
+    @Test
+    void drawViewHonorsExposedState() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        CountingDrawView view = new CountingDrawView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        group.insert(view);
+
+        view.drawView();
+        assertEquals(0, view.drawCount);
+
+        view.setState(SF_EXPOSED, true);
+        view.drawView();
+        assertEquals(1, view.drawCount);
     }
 }
