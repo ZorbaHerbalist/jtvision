@@ -132,7 +132,7 @@ public class TView {
         public static final int OF_VALIDATE = 1 << 10;
     }
 
-    protected int options = 0;
+    public int options = 0;
 
     /** Event classes recognized. {@code 0xFFFF} handles all, {@code 0} handles none. */
     protected int eventMask;

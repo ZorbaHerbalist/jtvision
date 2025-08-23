@@ -148,7 +148,9 @@ public class DemoApp extends TApplication {
         statusLine = new TStatusLine(r,
                 new TStatusDef(0, 0xFFFF,
                         new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
-                        TProgram.stdStatusKeys(null)),
+                        new TStatusItem("Cascade", KeyCode.KB_NO_KEY, Command.CM_CASCADE,
+                        new TStatusItem("Tile", KeyCode.KB_NO_KEY, Command.CM_TILE,
+                        TProgram.stdStatusKeys(null)))),
                 null));
     }
 

@@ -10,6 +10,7 @@ public class DemoWindow extends TWindow {
 
     public DemoWindow(TRect bounds, String title, int count) {
         super(bounds, title, count);
+        options |= Options.OF_TILEABLE;
     }
 
     @Override
