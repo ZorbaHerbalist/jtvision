@@ -17,6 +17,7 @@ public class TDesktop extends TGroup {
 
     public TDesktop(TRect bounds) {
         super(bounds);
+        this.growMode |= (GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y);
 
         logger.debug("{} TDesktop@TDesktop(bounds={})", getLogName(), bounds);
 
