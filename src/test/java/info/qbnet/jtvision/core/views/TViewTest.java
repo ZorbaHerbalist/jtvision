@@ -104,6 +104,11 @@ class TViewTest {
                 event.what = TEvent.EV_NOTHING;
             }
         }
+
+        @Override
+        public void putEvent(TEvent event) {
+            events.addFirst(event);
+        }
     }
 
     static class ShadowCountingView extends TestableTView {
@@ -126,6 +131,26 @@ class TViewTest {
         public void handleEvent(TEvent event) {
             if (event.what == TEvent.EV_BROADCAST && event.msg.command == Command.CM_RECEIVED_FOCUS) {
                 receivedFocus++;
+                event.what = TEvent.EV_NOTHING;
+            }
+            super.handleEvent(event);
+        }
+    }
+
+    static class MessageModifyingView extends TView {
+        MessageModifyingView() {
+            super(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        }
+
+        @Override
+        public void draw() {
+            // no-op
+        }
+
+        @Override
+        public void handleEvent(TEvent event) {
+            if (event.what == TEvent.EV_COMMAND && event.msg.command == Command.CM_OK) {
+                event.msg.infoPtr = "modified";
                 event.what = TEvent.EV_NOTHING;
             }
             super.handleEvent(event);
@@ -380,6 +405,23 @@ class TViewTest {
     }
 
     @Test
+    void eventAvailDetectsAndConsumesEvent() {
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TEvent ev = new TEvent();
+        ev.what = TEvent.EV_KEYDOWN;
+        view.events.add(ev);
+
+        assertTrue(view.eventAvail());
+
+        TEvent fetched = new TEvent();
+        view.getEvent(fetched);
+        assertEquals(TEvent.EV_KEYDOWN, fetched.what);
+        view.clearEvent(fetched);
+
+        assertFalse(view.eventAvail());
+    }
+
+    @Test
     void dragViewMovesOriginRightWithKeyboard() {
         TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
         EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
@@ -450,5 +492,12 @@ class TViewTest {
             TView.setCommands(original);
             TView.commandSetChanged = changed;
         }
+    }
+
+    @Test
+    void messageReturnsModifiedObject() {
+        MessageModifyingView receiver = new MessageModifyingView();
+        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, "data");
+        assertEquals("modified", result);
     }
 }
