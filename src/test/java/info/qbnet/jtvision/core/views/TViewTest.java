@@ -157,6 +157,17 @@ class TViewTest {
         }
     }
 
+    static class NonHandlingView extends TView {
+        NonHandlingView() {
+            super(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        }
+
+        @Override
+        public void draw() {
+            // no-op
+        }
+    }
+
     @Test
     void constructorInitializesGeometry() {
         TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
@@ -499,5 +510,19 @@ class TViewTest {
         MessageModifyingView receiver = new MessageModifyingView();
         Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, "data");
         assertEquals("modified", result);
+    }
+
+    @Test
+    void messageReturnsModifiedObjectFromInt() {
+        MessageModifyingView receiver = new MessageModifyingView();
+        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, 42);
+        assertEquals("modified", result);
+    }
+
+    @Test
+    void messageReturnsNullWhenNotHandled() {
+        NonHandlingView receiver = new NonHandlingView();
+        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, "data");
+        assertNull(result);
     }
 }
