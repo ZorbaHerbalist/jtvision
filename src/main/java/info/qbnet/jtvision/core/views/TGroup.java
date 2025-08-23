@@ -174,20 +174,36 @@ public class TGroup extends TView {
 
         if (buffer == null) {
             getBuffer();
-            if (buffer != null) {
-                lockFlag++;
-                redraw();
-                lockFlag--;
-            }
         }
 
         if (buffer != null) {
+            lockFlag++;
+            redraw();
+            lockFlag--;
             writeBuf(0, 0, size.x, size.y, buffer.getData());
         } else {
             getClipRect(clip);
             redraw();
             getExtent(clip);
         }
+
+        // CHECK: always redraw buffer (CM_PREV problem), original implementation
+//        if (buffer == null) {
+//            getBuffer();
+//            if (buffer != null) {
+//                lockFlag++;
+//                redraw();
+//                lockFlag--;
+//            }
+//        }
+//
+//        if (buffer != null) {
+//            writeBuf(0, 0, size.x, size.y, buffer.getData());
+//        } else {
+//            getClipRect(clip);
+//            redraw();
+//            getExtent(clip);
+//        }
     }
 
     /**
