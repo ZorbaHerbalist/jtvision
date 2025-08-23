@@ -8,8 +8,7 @@ import info.qbnet.jtvision.core.objects.TRect;
 /**
  * {@code TApplication} is a simple wrapper around {@link TProgram}.
  * <p>
- * In comparison to {@link TProgram}, it only differs in its constructor
- * (and destructor in the original Turbo Vision implementation). Normally,
+ * In comparison to {@link TProgram}, it only differs in its constructor. Normally,
  * you will derive your application classes from {@code TApplication}.
  * However, if you need a different sequence of subsystem initialization
  * and shutdown, you can derive your application directly from {@link TProgram}
