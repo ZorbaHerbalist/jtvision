@@ -3,7 +3,7 @@ package info.qbnet.jtvision.util;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class DosPaletteTest {
+class DosWindowPaletteTest {
     @Test
     void decodesForegroundAndBackground() {
         int attr = 0x1E; // fg=14 (YELLOW), bg=1 (BLUE)

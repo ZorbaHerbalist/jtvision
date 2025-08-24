@@ -25,17 +25,17 @@ public class TWindow extends TGroup {
     private String title;
     protected int number;
 
-    public enum Palette {
-        WF_BLUE_WINDOW,
-        WF_CYAN_WINDOW,
-        WF_GRAY_WINDOW;
+    public enum WindowPalette {
+        WP_BLUE_WINDOW,
+        WP_CYAN_WINDOW,
+        WP_GRAY_WINDOW;
     }
 
     public static final TPalette C_BLUE_WINDOW = new TPalette(TPalette.parseHexString("\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f"));
     public static final TPalette C_CYAN_WINDOW = new TPalette(TPalette.parseHexString("\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17"));
     public static final TPalette C_GRAY_WINDOW = new TPalette(TPalette.parseHexString("\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f"));
 
-    private Palette palette = Palette.WF_BLUE_WINDOW;
+    private WindowPalette palette = WindowPalette.WP_BLUE_WINDOW;
 
     public static final int WN_NO_NUMBER = 0;
 
@@ -66,11 +66,11 @@ public class TWindow extends TGroup {
     @Override
     public TPalette getPalette() {
         switch (palette) {
-            case WF_BLUE_WINDOW:
+            case WP_BLUE_WINDOW:
                 return C_BLUE_WINDOW;
-            case WF_CYAN_WINDOW:
+            case WP_CYAN_WINDOW:
                 return C_CYAN_WINDOW;
-            case WF_GRAY_WINDOW:
+            case WP_GRAY_WINDOW:
             default:
                 return C_GRAY_WINDOW;
         }

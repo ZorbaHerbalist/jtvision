@@ -15,8 +15,12 @@ public class Command {
     public static final int CM_NEXT                 = 7;
     public static final int CM_PREV                 = 8;
     public static final int CM_HELP                 = 9;
+
     public static final int CM_OK                   = 10;
     public static final int CM_CANCEL               = 11;
+    public static final int CM_YES                  = 12;
+    public static final int CM_NO                   = 13;
+    public static final int CM_DEFAULT              = 14;
 
     public static final int CM_UNDO                 = 23;
     public static final int CM_TILE                 = 25;

@@ -6,6 +6,7 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.dialogs.TDialog;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
@@ -22,6 +23,7 @@ public class DemoApp extends TApplication {
     public int winCount = 0;
 
     public static final int CM_HIDE_WINDOW = 101;
+    public static final int CM_GREETINGS = 102;
 
     public DemoApp() {
         super(determineBackendType());
@@ -105,12 +107,22 @@ public class DemoApp extends TApplication {
         console.putString(x, y + height - 1, (char)200 + horizontal + (char)188, fg, bg);
     }
 
+    public void greetingBox() {
+        TRect r = new TRect(25, 5, 55, 16);
+        TDialog d = new TDialog(r, "Hello, World!");
+
+        desktop.execView(d);
+    }
+
     @Override
     public void initMenuBar() {
         TRect r = new TRect();
         getExtent(r);
         r.b.y = r.a.y + 1;
         menuBar = new TMenuBar(r, TMenuBar.newMenu(
+                TMenuBar.newSubmenu("~" + (char) 0xF0 + "~", HelpContext.HC_NO_CONTEXT, TMenuBar.newMenu(
+                        TMenuBar.newItem("~G~reetings", "", KeyCode.KB_NO_KEY, CM_GREETINGS, HelpContext.HC_NO_CONTEXT,
+                        null)),
                 TMenuBar.newSubmenu("~F~ile", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ew", "", KeyCode.KB_NO_KEY, Command.CM_NEW, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~O~pen...", "F3", KeyCode.KB_F3, Command.CM_OPEN, HelpContext.HC_NO_CONTEXT,
@@ -121,7 +133,7 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
                         null))),
-                null))
+                null)))
         ));
     }
 
@@ -132,6 +144,9 @@ public class DemoApp extends TApplication {
             switch (event.msg.command) {
                 case Command.CM_NEW:
                     newWindow();
+                    break;
+                case CM_GREETINGS:
+                    greetingBox();
                     break;
                 default:
                     return;
