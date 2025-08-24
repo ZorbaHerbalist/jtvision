@@ -340,8 +340,8 @@ class TViewTest {
         group.insert(view);
         view.growMode = TView.GrowMode.GF_GROW_HI_X | TView.GrowMode.GF_GROW_HI_Y;
 
-        TRect original = new TRect();
-        view.getBounds(original);
+        int originalWidth  = view.getSizeField().x;
+        int originalHeight = view.getSizeField().y;
 
         TPoint delta = new TPoint(2,3);
         group.size.x += delta.x;
@@ -357,8 +357,8 @@ class TViewTest {
         int newWidth = bounds.b.x - bounds.a.x;
         int newHeight = bounds.b.y - bounds.a.y;
 
-        assertEquals(Math.min(original.b.x - original.a.x + delta.x, max.x), newWidth);
-        assertEquals(Math.min(original.b.y - original.a.y + delta.y, max.y), newHeight);
+        assertEquals(Math.min(originalWidth  + delta.x, max.x), newWidth);
+        assertEquals(Math.min(originalHeight + delta.y, max.y), newHeight);
         assertTrue(newWidth <= max.x);
         assertTrue(newHeight <= max.y);
     }
