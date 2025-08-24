@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -97,14 +96,12 @@ class TViewTest {
     }
 
     @Test
-    void setStateVisibleInvokesOwnerResetCurrent() throws Exception {
+    void setStateVisibleInvokesOwnerResetCurrent() {
         TestGroup g = new TestGroup(new TRect(0, 0, 10, 10));
         TestableTView v = new TestableTView(new TRect(0, 0, 1, 1));
         v.setOwner(g);
 
-        Field optionsField = TView.class.getDeclaredField("options");
-        optionsField.setAccessible(true);
-        optionsField.setInt(v, OF_SELECTABLE);
+        TViewTestAccess.setOptions(v, OF_SELECTABLE);
 
         v.setState(SF_VISIBLE, false);
         assertEquals(0, v.state & SF_VISIBLE);
@@ -349,7 +346,7 @@ class TViewTest {
         group.insert(top);
         group.insert(other);
 
-        top.options = OF_SELECTABLE | OF_TOP_SELECT;
+        TViewTestAccess.setOptions(top, OF_SELECTABLE | OF_TOP_SELECT);
         top.select();
 
         assertSame(top, group.first());
@@ -660,7 +657,7 @@ class TViewTest {
     void focusReturnsFalseAndDoesNotSelectWhenOwnerRefuses() {
         RefusingGroup owner = new RefusingGroup(new TRect(0, 0, 1, 1));
         TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
-        view.options = OF_SELECTABLE;
+        TViewTestAccess.setOptions(view, OF_SELECTABLE);
         owner.insert(view);
         view.setState(SF_SELECTED, false);
         owner.clearSelection();
