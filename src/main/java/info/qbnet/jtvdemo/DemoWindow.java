@@ -9,8 +9,12 @@ import info.qbnet.jtvision.core.views.TWindow;
 public class DemoWindow extends TWindow {
 
     public DemoWindow(TRect bounds, String title, int count) {
-        super(bounds, title, count);
+        super(bounds, title + ' ' + count, WN_NO_NUMBER);
         options |= Options.OF_TILEABLE;
+
+        getClipRect(bounds);
+        bounds.grow(-1, -1);
+        insert(new DemoInterior(bounds));
     }
 
     @Override
