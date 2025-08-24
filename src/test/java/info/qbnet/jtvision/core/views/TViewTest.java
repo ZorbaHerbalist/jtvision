@@ -5,6 +5,16 @@ import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.constants.Command;
+import info.qbnet.jtvision.core.views.support.CountingDrawView;
+import info.qbnet.jtvision.core.views.support.DrawCharView;
+import info.qbnet.jtvision.core.views.support.EventQueueView;
+import info.qbnet.jtvision.core.views.support.FocusCountingGroup;
+import info.qbnet.jtvision.core.views.support.MessageModifyingView;
+import info.qbnet.jtvision.core.views.support.NonHandlingView;
+import info.qbnet.jtvision.core.views.support.RefusingGroup;
+import info.qbnet.jtvision.core.views.support.ShadowCountingView;
+import info.qbnet.jtvision.core.views.support.TestGroup;
+import info.qbnet.jtvision.core.views.support.TestableTView;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -15,171 +25,6 @@ import static info.qbnet.jtvision.core.views.TView.Options.*;
 import static info.qbnet.jtvision.core.views.TView.State.*;
 
 class TViewTest {
-
-    static class TestableTView extends TView {
-        private final TPalette palette;
-
-        TestableTView(TRect bounds) {
-            this(bounds, null);
-        }
-
-        TestableTView(TRect bounds, TPalette palette) {
-            super(bounds);
-            this.palette = palette;
-        }
-
-        @Override
-        public void draw() {
-            // no-op
-        }
-
-        @Override
-        public TPalette getPalette() {
-            return palette;
-        }
-
-        TPoint getOriginField() {
-            return origin;
-        }
-
-        TPoint getSizeField() {
-            return size;
-        }
-    }
-
-    static class TestGroup extends TGroup {
-        boolean resetCurrentCalled = false;
-        private final TPalette palette;
-
-        TestGroup(TRect bounds) {
-            this(bounds, null);
-        }
-
-        TestGroup(TRect bounds, TPalette palette) {
-            super(bounds);
-            this.palette = palette;
-        }
-
-        @Override
-        protected void resetCurrent() {
-            resetCurrentCalled = true;
-        }
-
-        @Override
-        public TPalette getPalette() {
-            return palette;
-        }
-    }
-
-    static class DrawCharView extends TView {
-        DrawCharView(TRect bounds) { super(bounds); }
-
-        @Override
-        public void draw() {
-            writeChar(0, 0, 'X', 0x07, 1);
-        }
-    }
-
-    static class CountingDrawView extends TView {
-        int drawCount = 0;
-
-        CountingDrawView(TRect bounds) { super(bounds); }
-
-        @Override
-        public void draw() {
-            drawCount++;
-        }
-    }
-
-    static class EventQueueView extends TestableTView {
-        java.util.ArrayDeque<TEvent> events = new java.util.ArrayDeque<>();
-
-        EventQueueView(TRect bounds) { super(bounds); }
-
-        @Override
-        public void getEvent(TEvent event) {
-            if (!events.isEmpty()) {
-                event.copyFrom(events.removeFirst());
-            } else {
-                event.what = TEvent.EV_NOTHING;
-            }
-        }
-
-        @Override
-        public void putEvent(TEvent event) {
-            events.addFirst(event);
-        }
-    }
-
-    static class ShadowCountingView extends TestableTView {
-        int drawUnderViewCalls = 0;
-
-        ShadowCountingView(TRect bounds) { super(bounds); }
-
-        @Override
-        protected void drawUnderView(boolean doShadow, TView lastView) {
-            drawUnderViewCalls++;
-        }
-    }
-
-    static class FocusCountingGroup extends TestGroup {
-        int receivedFocus = 0;
-
-        FocusCountingGroup(TRect bounds) { super(bounds); }
-
-        @Override
-        public void handleEvent(TEvent event) {
-            if (event.what == TEvent.EV_BROADCAST && event.msg.command == Command.CM_RECEIVED_FOCUS) {
-                receivedFocus++;
-                event.what = TEvent.EV_NOTHING;
-            }
-            super.handleEvent(event);
-        }
-    }
-
-    static class RefusingGroup extends TGroup {
-        RefusingGroup(TRect bounds) { super(bounds); }
-
-        @Override
-        public boolean focus() {
-            return false;
-        }
-
-        void clearSelection() {
-            current = null;
-        }
-    }
-
-    static class MessageModifyingView extends TView {
-        MessageModifyingView() {
-            super(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        }
-
-        @Override
-        public void draw() {
-            // no-op
-        }
-
-        @Override
-        public void handleEvent(TEvent event) {
-            if (event.what == TEvent.EV_COMMAND && event.msg.command == Command.CM_OK) {
-                event.msg.infoPtr = "modified";
-                event.what = TEvent.EV_NOTHING;
-            }
-            super.handleEvent(event);
-        }
-    }
-
-    static class NonHandlingView extends TView {
-        NonHandlingView() {
-            super(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        }
-
-        @Override
-        public void draw() {
-            // no-op
-        }
-    }
 
     @Test
     void constructorInitializesGeometry() {
