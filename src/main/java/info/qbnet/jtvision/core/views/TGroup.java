@@ -581,6 +581,21 @@ public class TGroup extends TView {
     }
 
     /**
+     * Resets the cursor for the current view.
+     * <p>
+     * This method calls resetCursor() on the current view if it exists.
+     * This corresponds to the Pascal TGroup.ResetCursor implementation.
+     * </p>
+     */
+    protected void resetCursor() {
+        logger.trace("{} TGroup@resetCursor()", getLogName());
+        
+        if (current != null) {
+            current.resetCursor();
+        }
+    }
+
+    /**
      * Sets or clears the SF_SELECTED state for the specified view.
      */
     private void selectView(TView v, boolean enable) {

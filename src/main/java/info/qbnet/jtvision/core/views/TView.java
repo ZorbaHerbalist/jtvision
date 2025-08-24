@@ -32,6 +32,9 @@ public class TView {
     /** View dimensions; {@code x} is width and {@code y} is height. */
     protected TPoint size;
 
+    /** Cursor position relative to view's origin. */
+    protected TPoint cursor;
+
     /** Resize behavior flags for owner size changes. */
     public static class GrowMode {
         /** Keep left edge at constant distance from owner's right. */
@@ -197,6 +200,7 @@ public class TView {
         logger.debug("{} TView@TView(bounds={})", logName, bounds.toString());
 
         setBounds(bounds);
+        cursor = new TPoint(0, 0);
         eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
     }
 
@@ -984,8 +988,7 @@ public class TView {
                 }
                 if ((options & Options.OF_SELECTABLE) != 0) {
                     owner.resetCurrent();
-                    // TODO
-                    // owner.resetCursor()
+                    owner.resetCursor();
                 }
             }
         }
@@ -1103,8 +1106,7 @@ public class TView {
                 drawUnderView(true, null);
                 break;
             case State.SF_FOCUSED:
-                // TODO
-//                resetCursor();
+                resetCursor();
                 int command = enable ? Command.CM_RECEIVED_FOCUS : Command.CM_RELEASED_FOCUS;
                 message(owner, TEvent.EV_BROADCAST, command, this);
                 break;
@@ -1121,6 +1123,34 @@ public class TView {
 
         if ((state & State.SF_VISIBLE) == 0) {
             setState(State.SF_VISIBLE, true);
+        }
+    }
+
+    /**
+     * Resets the cursor position and state for the view.
+     * <p>
+     * This method is called when focus changes to ensure proper cursor state management.
+     * In the original Pascal implementation, this would set hardware cursor position,
+     * but the current implementation provides minimal state management until full
+     * cursor support is implemented.
+     * </p>
+     */
+    protected void resetCursor() {
+        logger.trace("{} TView@resetCursor()", logName);
+        
+        // Check if cursor should be visible based on view state
+        if ((state & (State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED)) == 
+            (State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED)) {
+            
+            // Validate cursor position is within view bounds
+            if (cursor.x >= 0 && cursor.x < size.x && 
+                cursor.y >= 0 && cursor.y < size.y) {
+                
+                // In a full implementation, this would set hardware cursor position
+                // For now, we just ensure state consistency
+                logger.trace("{} TView@resetCursor() - cursor valid at ({}, {})", 
+                           logName, cursor.x, cursor.y);
+            }
         }
     }
 
