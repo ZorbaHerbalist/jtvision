@@ -399,6 +399,22 @@ class TViewTest {
     }
 
     @Test
+    void makeFirstMovesLastViewToFront() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v1 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v2 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v3 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        group.insert(v1);
+        group.insert(v2);
+        group.insert(v3);
+
+        TView last = group.first().prev();
+        last.makeFirst();
+
+        assertSame(last, group.first());
+    }
+
+    @Test
     void calcBoundsRespectsGrowModeAndSizeLimits() {
         TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
         TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(5,6)));
@@ -629,5 +645,23 @@ class TViewTest {
         NonHandlingView receiver = new NonHandlingView();
         Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, "data");
         assertNull(result);
+    }
+
+    @Test
+    void topViewReturnsModalAncestor() {
+        TView originalTop = TView.theTopView;
+        try {
+            TGroup root = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
+            TGroup modal = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
+            TView leaf = new TView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+            root.insert(modal);
+            modal.insert(leaf);
+            modal.setState(SF_MODAL, true);
+
+            TView.theTopView = null;
+            assertSame(modal, leaf.topView());
+        } finally {
+            TView.theTopView = originalTop;
+        }
     }
 }
