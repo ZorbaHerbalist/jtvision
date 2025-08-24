@@ -27,18 +27,25 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static info.qbnet.jtvision.core.views.TView.Options.*;
 import static info.qbnet.jtvision.core.views.TView.State.*;
+import static info.qbnet.jtvision.core.event.TestFixtures.*;
 
 class TViewTest {
 
     private Set<Integer> originalCommands;
     private boolean originalCommandSetChanged;
     private TView originalTopView;
+    private EventQueueView queueView;
 
     @BeforeEach
     void saveTViewState() {
         originalCommands = new java.util.HashSet<>(TView.getCommands());
         originalCommandSetChanged = TView.commandSetChanged;
         originalTopView = TView.theTopView;
+    }
+
+    @BeforeEach
+    void initEventQueueView() {
+        queueView = new EventQueueView(new TRect(0, 0, 1, 1));
     }
 
     @AfterEach
@@ -405,40 +412,33 @@ class TViewTest {
 
     @Test
     void eventAvailDetectsAndConsumesEvent() {
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-        TEvent ev = new TEvent();
-        ev.what = TEvent.EV_KEYDOWN;
-        view.events.add(ev);
+        queueView.events.add(keyPress(0));
 
-        assertTrue(view.eventAvail());
+        assertTrue(queueView.eventAvail());
 
         TEvent fetched = new TEvent();
-        view.getEvent(fetched);
+        queueView.getEvent(fetched);
         assertEquals(TEvent.EV_KEYDOWN, fetched.what);
-        view.clearEvent(fetched);
+        queueView.clearEvent(fetched);
 
-        assertFalse(view.eventAvail());
+        assertFalse(queueView.eventAvail());
     }
 
     @Test
     void eventAvailReturnsTrueAndGetEventReturnsSameEvent() {
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-        TEvent ev = new TEvent();
-        ev.what = TEvent.EV_COMMAND;
-        view.putEvent(ev);
+        queueView.putEvent(command(Command.CM_OK));
 
-        assertTrue(view.eventAvail());
+        assertTrue(queueView.eventAvail());
 
         TEvent fetched = new TEvent();
-        view.getEvent(fetched);
-        assertEquals(ev.what, fetched.what);
+        queueView.getEvent(fetched);
+        assertEquals(TEvent.EV_COMMAND, fetched.what);
     }
 
     @Test
     void clearEventResetsEvent() {
         TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
-        TEvent event = new TEvent();
-        event.what = TEvent.EV_KEYDOWN;
+        TEvent event = keyPress(0);
         event.msg.infoPtr = new Object();
 
         view.clearEvent(event);
@@ -449,85 +449,50 @@ class TViewTest {
 
     @Test
     void mouseEventStopsAtUpAndMatchesDown() {
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-
-        TEvent down = new TEvent();
-        down.what = TEvent.EV_MOUSE_DOWN;
-        TEvent move = new TEvent();
-        move.what = TEvent.EV_MOUSE_MOVE;
-        TEvent up = new TEvent();
-        up.what = TEvent.EV_MOUSE_UP;
-
-        view.putEvent(down);
-        view.putEvent(move);
-        view.putEvent(up);
+        queueView.putEvent(mouseDown(0, 0));
+        queueView.putEvent(mouseMove(0, 0));
+        queueView.putEvent(mouseUp(0, 0));
 
         TEvent event = new TEvent();
-        assertFalse(view.mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+        assertFalse(queueView.mouseEvent(event, TEvent.EV_MOUSE_MOVE));
         assertEquals(TEvent.EV_MOUSE_UP, event.what);
 
-        assertTrue(view.mouseEvent(event, TEvent.EV_MOUSE_DOWN));
+        assertTrue(queueView.mouseEvent(event, TEvent.EV_MOUSE_DOWN));
         assertEquals(TEvent.EV_MOUSE_DOWN, event.what);
     }
 
     @Test
     void dragViewMovesWithMouse() {
         TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-        parent.insert(view);
+        parent.insert(queueView);
 
-        TEvent move1 = new TEvent();
-        move1.what = TEvent.EV_MOUSE_MOVE;
-        move1.mouse.where.x = 3;
-        move1.mouse.where.y = 3;
+        queueView.events.add(mouseMove(3, 3));
+        queueView.events.add(mouseMove(7, 7));
+        queueView.events.add(mouseUp(7, 7));
 
-        TEvent move2 = new TEvent();
-        move2.what = TEvent.EV_MOUSE_MOVE;
-        move2.mouse.where.x = 7;
-        move2.mouse.where.y = 7;
-
-        TEvent up = new TEvent();
-        up.what = TEvent.EV_MOUSE_UP;
-        up.mouse.where.x = 7;
-        up.mouse.where.y = 7;
-
-        view.events.add(move1);
-        view.events.add(move2);
-        view.events.add(up);
-
-        TEvent down = new TEvent();
-        down.what = TEvent.EV_MOUSE_DOWN;
-        down.mouse.where.x = 0;
-        down.mouse.where.y = 0;
+        TEvent down = mouseDown(0, 0);
 
         TRect limits = new TRect(0, 0, 5, 5);
-        view.dragView(down, TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
+        queueView.dragView(down, TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
                 limits, new TPoint(1,1), new TPoint(1,1));
 
-        assertEquals(4, view.getOriginField().x);
-        assertEquals(4, view.getOriginField().y);
+        assertEquals(4, queueView.getOriginField().x);
+        assertEquals(4, queueView.getOriginField().y);
     }
 
     @Test
     void dragViewMovesOriginRightWithKeyboard() {
         TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-        parent.insert(view);
+        parent.insert(queueView);
 
-        TEvent right = new TEvent();
-        right.what = TEvent.EV_KEYDOWN;
-        right.key.keyCode = KeyCode.KB_RIGHT;
-        TEvent enter = new TEvent();
-        enter.what = TEvent.EV_KEYDOWN;
-        enter.key.keyCode = KeyCode.KB_ENTER;
-        view.events.add(right);
-        view.events.add(enter);
+        queueView.events.add(keyPress(KeyCode.KB_RIGHT));
+        queueView.events.add(keyPress(KeyCode.KB_ENTER));
 
         TRect limits = new TRect(0, 0, 10, 10);
-        view.dragView(new TEvent(), TView.DragMode.DM_DRAG_MOVE, limits, new TPoint(1,1), new TPoint(1,1));
+        queueView.dragView(keyPress(0), TView.DragMode.DM_DRAG_MOVE, limits, new TPoint(1,1), new TPoint(1,1));
 
-        assertEquals(1, view.getOriginField().x);
-        assertEquals(0, view.getOriginField().y);
+        assertEquals(1, queueView.getOriginField().x);
+        assertEquals(0, queueView.getOriginField().y);
     }
 
     @Test
@@ -537,21 +502,9 @@ class TViewTest {
         TPoint minSize = new TPoint(2,2);
         TPoint maxSize = new TPoint(6,6);
 
-        TEvent down = new TEvent();
-        down.what = TEvent.EV_MOUSE_DOWN;
-        down.mouse.where.x = view.getSizeField().x;
-        down.mouse.where.y = view.getSizeField().y;
-
-        TEvent move = new TEvent();
-        move.what = TEvent.EV_MOUSE_MOVE;
-        move.mouse.where.x = 100;
-        move.mouse.where.y = 100;
-
-        TEvent up = new TEvent();
-        up.what = TEvent.EV_MOUSE_UP;
-
-        view.events.add(move);
-        view.events.add(up);
+        TEvent down = mouseDown(view.getSizeField().x, view.getSizeField().y);
+        view.events.add(mouseMove(100, 100));
+        view.events.add(mouseUp(0, 0));
 
         view.dragView(down, TView.DragMode.DM_DRAG_GROW, limits, minSize, maxSize);
 
@@ -562,36 +515,29 @@ class TViewTest {
     @Test
     void dragViewKeepsOriginWithinLimitsWhenMovingRightRepeatedly() {
         TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
-        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
-        parent.insert(view);
+        parent.insert(queueView);
 
         TRect limits = new TRect(0, 0, 3, 3);
-        int maxX = limits.b.x - view.getSizeField().x;
-        int maxY = limits.b.y - view.getSizeField().y;
+        int maxX = limits.b.x - queueView.getSizeField().x;
+        int maxY = limits.b.y - queueView.getSizeField().y;
 
         for (int i = 0; i < 5; i++) {
-            TEvent right = new TEvent();
-            right.what = TEvent.EV_KEYDOWN;
-            right.key.keyCode = KeyCode.KB_RIGHT;
-            TEvent enter = new TEvent();
-            enter.what = TEvent.EV_KEYDOWN;
-            enter.key.keyCode = KeyCode.KB_ENTER;
-            view.events.add(right);
-            view.events.add(enter);
+            queueView.events.add(keyPress(KeyCode.KB_RIGHT));
+            queueView.events.add(keyPress(KeyCode.KB_ENTER));
 
-            view.dragView(new TEvent(),
+            queueView.dragView(keyPress(0),
                     TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
                     limits,
                     new TPoint(1, 1),
                     new TPoint(1, 1));
 
-            assertTrue(view.getOriginField().x >= limits.a.x);
-            assertTrue(view.getOriginField().x <= maxX);
-            assertTrue(view.getOriginField().y >= limits.a.y);
-            assertTrue(view.getOriginField().y <= maxY);
+            assertTrue(queueView.getOriginField().x >= limits.a.x);
+            assertTrue(queueView.getOriginField().x <= maxX);
+            assertTrue(queueView.getOriginField().y >= limits.a.y);
+            assertTrue(queueView.getOriginField().y <= maxY);
         }
 
-        assertEquals(maxX, view.getOriginField().x);
+        assertEquals(maxX, queueView.getOriginField().x);
     }
 
 
