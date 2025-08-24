@@ -137,6 +137,19 @@ class TViewTest {
         }
     }
 
+    static class RefusingGroup extends TGroup {
+        RefusingGroup(TRect bounds) { super(bounds); }
+
+        @Override
+        public boolean focus() {
+            return false;
+        }
+
+        void clearSelection() {
+            current = null;
+        }
+    }
+
     static class MessageModifyingView extends TView {
         MessageModifyingView() {
             super(new TRect(new TPoint(0,0), new TPoint(1,1)));
@@ -532,6 +545,18 @@ class TViewTest {
 
         front.moveTo(1, 1);
         assertTrue(back.exposed());
+    }
+
+    @Test
+    void focusReturnsFalseAndDoesNotSelectWhenOwnerRefuses() {
+        RefusingGroup owner = new RefusingGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        view.options = OF_SELECTABLE;
+        owner.insert(view);
+        view.setState(SF_SELECTED, false);
+        owner.clearSelection();
+        assertFalse(view.focus());
+        assertEquals(0, view.state & SF_SELECTED);
     }
 
     @Test
