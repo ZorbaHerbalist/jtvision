@@ -415,6 +415,24 @@ class TViewTest {
     }
 
     @Test
+    void selectWithTopSelectMovesAndFocuses() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        group.setState(SF_ACTIVE, true);
+        group.setState(SF_FOCUSED, true);
+
+        TView top = new TView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TView other = new TView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        group.insert(top);
+        group.insert(other);
+
+        top.options = OF_SELECTABLE | OF_TOP_SELECT;
+        top.select();
+
+        assertSame(top, group.first());
+        assertEquals(SF_SELECTED | SF_FOCUSED, top.state & (SF_SELECTED | SF_FOCUSED));
+    }
+
+    @Test
     void calcBoundsRespectsGrowModeAndSizeLimits() {
         TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
         TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(5,6)));
