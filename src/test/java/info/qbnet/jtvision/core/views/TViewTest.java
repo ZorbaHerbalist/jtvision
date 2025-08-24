@@ -466,6 +466,20 @@ class TViewTest {
     }
 
     @Test
+    void eventAvailReturnsTrueAndGetEventReturnsSameEvent() {
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TEvent ev = new TEvent();
+        ev.what = TEvent.EV_COMMAND;
+        view.putEvent(ev);
+
+        assertTrue(view.eventAvail());
+
+        TEvent fetched = new TEvent();
+        view.getEvent(fetched);
+        assertEquals(ev.what, fetched.what);
+    }
+
+    @Test
     void mouseEventStopsAtUpAndMatchesDown() {
         EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
 
