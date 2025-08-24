@@ -7,6 +7,7 @@ import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.dialogs.TDialog;
+import info.qbnet.jtvision.core.dialogs.TStaticText;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
@@ -110,6 +111,9 @@ public class DemoApp extends TApplication {
     public void greetingBox() {
         TRect r = new TRect(25, 5, 55, 16);
         TDialog d = new TDialog(r, "Hello, World!");
+
+        r.assign(3, 5, 15, 6);
+        d.insert(new TStaticText(r, "How are you?"));
 
         desktop.execView(d);
     }
