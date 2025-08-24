@@ -453,6 +453,29 @@ class TViewTest {
     }
 
     @Test
+    void mouseEventStopsAtUpAndMatchesDown() {
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+
+        TEvent down = new TEvent();
+        down.what = TEvent.EV_MOUSE_DOWN;
+        TEvent move = new TEvent();
+        move.what = TEvent.EV_MOUSE_MOVE;
+        TEvent up = new TEvent();
+        up.what = TEvent.EV_MOUSE_UP;
+
+        view.putEvent(down);
+        view.putEvent(move);
+        view.putEvent(up);
+
+        TEvent event = new TEvent();
+        assertFalse(view.mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+        assertEquals(TEvent.EV_MOUSE_UP, event.what);
+
+        assertTrue(view.mouseEvent(event, TEvent.EV_MOUSE_DOWN));
+        assertEquals(TEvent.EV_MOUSE_DOWN, event.what);
+    }
+
+    @Test
     void dragViewMovesOriginRightWithKeyboard() {
         TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
         EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
