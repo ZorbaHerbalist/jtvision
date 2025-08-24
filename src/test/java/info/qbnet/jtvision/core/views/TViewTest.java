@@ -31,7 +31,7 @@ class TViewTest {
 
     @Test
     void constructorInitializesGeometry() {
-        TRect r = new TRect(new TPoint(1, 2), new TPoint(5, 6));
+        TRect r = new TRect(1, 2, 5, 6);
         TestableTView v = new TestableTView(r);
         assertEquals(r.a.x, v.getOriginField().x);
         assertEquals(r.a.y, v.getOriginField().y);
@@ -41,7 +41,7 @@ class TViewTest {
 
     @Test
     void getExtentPopulatesProvidedRect() {
-        TestableTView v = new TestableTView(new TRect(new TPoint(1, 2), new TPoint(5, 6)));
+        TestableTView v = new TestableTView(new TRect(1, 2, 5, 6));
         TRect extent = new TRect();
         v.getExtent(extent);
         assertEquals(0, extent.a.x);
@@ -52,14 +52,14 @@ class TViewTest {
 
     @Test
     void hideClearsVisibleState() {
-        TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v = new TestableTView(new TRect(0, 0, 1, 1));
         v.hide();
         assertEquals(0, v.state & SF_VISIBLE);
     }
 
     @Test
     void getHelpCtxReturnsDraggingContext() {
-        TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v = new TestableTView(new TRect(0, 0, 1, 1));
         v.setState(SF_DRAGGING, true);
         try {
             assertEquals(TView.HelpContext.HC_DRAGGING, v.getHelpCtx());
@@ -71,15 +71,15 @@ class TViewTest {
 
     @Test
     void setStateWithMultipleBitsThrows() {
-        TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView v = new TestableTView(new TRect(0, 0, 1, 1));
         assertThrows(IllegalArgumentException.class, () ->
                 v.setState(SF_VISIBLE | SF_ACTIVE, true));
     }
 
     @Test
     void setStateVisibleInvokesOwnerResetCurrent() throws Exception {
-        TestGroup g = new TestGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-        TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestGroup g = new TestGroup(new TRect(0, 0, 10, 10));
+        TestableTView v = new TestableTView(new TRect(0, 0, 1, 1));
         v.setOwner(g);
 
         Field optionsField = TView.class.getDeclaredField("options");
@@ -99,7 +99,7 @@ class TViewTest {
 
     @Test
     void mapColorMapsThroughOwnershipChain() {
-        TRect r = new TRect(new TPoint(0,0), new TPoint(1,1));
+        TRect r = new TRect(0, 0, 1, 1);
         TestGroup root = new TestGroup(r, new TPalette(new byte[]{0x11, 0x22, 0x33}));
         TestGroup child = new TestGroup(r, new TPalette(new byte[]{2, 3, 1}));
         TestableTView leaf = new TestableTView(r, new TPalette(new byte[]{3, 1, 2}));
@@ -112,7 +112,7 @@ class TViewTest {
 
     @Test
     void mapColorReturnsErrorForInvalidOrZero() {
-        TRect r = new TRect(new TPoint(0,0), new TPoint(1,1));
+        TRect r = new TRect(0, 0, 1, 1);
         TestableTView view = new TestableTView(r, new TPalette(new byte[]{0x11}));
         assertEquals((short)0xCFCF, view.getColor((short)0x0202));
         assertEquals((short)0x00CF, view.getColor((short)0x0000));
@@ -123,10 +123,10 @@ class TViewTest {
 
     @Test
     void makeGlobalAndLocalRoundTripThroughOwnershipChain() {
-        TGroup root = new TGroup(new TRect(new TPoint(10,20), new TPoint(30,40)));
-        TGroup mid = new TGroup(new TRect(new TPoint(3,4), new TPoint(13,14)));
+        TGroup root = new TGroup(new TRect(10, 20, 30, 40));
+        TGroup mid = new TGroup(new TRect(3, 4, 13, 14));
         root.insert(mid);
-        TView leaf = new TView(new TRect(new TPoint(2,1), new TPoint(7,6)));
+        TView leaf = new TView(new TRect(2, 1, 7, 6));
         mid.insert(leaf);
 
         TPoint local = new TPoint(1,2);
@@ -144,7 +144,7 @@ class TViewTest {
 
     @Test
     void mouseInViewChecksGlobalCoordinates() {
-        TView view = new TView(new TRect(new TPoint(0,0), new TPoint(4,4)));
+        TView view = new TView(new TRect(0, 0, 4, 4));
         view.moveTo(10, 20);
 
         TPoint inside = new TPoint(12, 22);
@@ -156,8 +156,8 @@ class TViewTest {
 
     @Test
     void getClipRectUsesOwnerClipAndReturnsLocalCoordinates() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-        TView child = new TView(new TRect(new TPoint(1,2), new TPoint(10,12)));
+        TGroup group = new TGroup(new TRect(0, 0, 10, 10));
+        TView child = new TView(new TRect(1, 2, 10, 12));
         group.insert(child);
         group.clip.assign(2,3,7,8);
 
@@ -172,11 +172,11 @@ class TViewTest {
 
     @Test
     void writeViewTargetsNearestBufferedAncestor() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup root = new TGroup(new TRect(0, 0, 3, 3));
         root.setState(SF_EXPOSED, true);
-        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup mid = new TGroup(new TRect(0, 0, 3, 3));
         root.insert(mid);
-        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        DrawCharView leaf = new DrawCharView(new TRect(0, 0, 1, 1));
         mid.insert(leaf);
 
         root.draw();
@@ -187,13 +187,13 @@ class TViewTest {
 
     @Test
     void writeViewSkipsDrawingWhenAncestorHidden() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup root = new TGroup(new TRect(0, 0, 3, 3));
         root.setState(SF_EXPOSED, true);
 
-        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup mid = new TGroup(new TRect(0, 0, 3, 3));
         root.insert(mid);
 
-        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        DrawCharView leaf = new DrawCharView(new TRect(0, 0, 1, 1));
         mid.insert(leaf);
 
         // Initial draw to allocate buffers and ensure mid has its own buffer.
@@ -216,13 +216,13 @@ class TViewTest {
 
     @Test
     void writeViewPropagatesThroughUnlockedAncestors() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup root = new TGroup(new TRect(0, 0, 3, 3));
         root.setState(SF_EXPOSED, true);
 
-        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup mid = new TGroup(new TRect(0, 0, 3, 3));
         root.insert(mid);
 
-        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        DrawCharView leaf = new DrawCharView(new TRect(0, 0, 1, 1));
         mid.insert(leaf);
 
         // Allocate buffers
@@ -240,13 +240,13 @@ class TViewTest {
 
     @Test
     void writeViewStopsAtLockedAncestor() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup root = new TGroup(new TRect(0, 0, 3, 3));
         root.setState(SF_EXPOSED, true);
 
-        TGroup mid = new TGroup(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TGroup mid = new TGroup(new TRect(0, 0, 3, 3));
         root.insert(mid);
 
-        DrawCharView leaf = new DrawCharView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        DrawCharView leaf = new DrawCharView(new TRect(0, 0, 1, 1));
         mid.insert(leaf);
 
         root.draw();
@@ -266,10 +266,10 @@ class TViewTest {
 
     @Test
     void writeStrAndLinePropagate() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(5,5)));
+        TGroup root = new TGroup(new TRect(0, 0, 5, 5));
         root.setState(SF_EXPOSED, true);
 
-        TView child = new TView(new TRect(new TPoint(0,0), new TPoint(5,5))) {
+        TView child = new TView(new TRect(0, 0, 5, 5)) {
             @Override
             public void draw() {
                 int color = 0x07;
@@ -294,8 +294,8 @@ class TViewTest {
 
     @Test
     void forEachHandlesElementDeletingItself() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup group = new TGroup(new TRect(0, 0, 1, 1));
+        TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
         group.insert(view);
 
         assertDoesNotThrow(() -> group.forEach(v -> group.delete(v)));
@@ -304,10 +304,10 @@ class TViewTest {
 
     @Test
     void makeFirstMovesLastViewToFront() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView v1 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView v2 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView v3 = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup group = new TGroup(new TRect(0, 0, 1, 1));
+        TestableTView v1 = new TestableTView(new TRect(0, 0, 1, 1));
+        TestableTView v2 = new TestableTView(new TRect(0, 0, 1, 1));
+        TestableTView v3 = new TestableTView(new TRect(0, 0, 1, 1));
         group.insert(v1);
         group.insert(v2);
         group.insert(v3);
@@ -320,12 +320,12 @@ class TViewTest {
 
     @Test
     void selectWithTopSelectMovesAndFocuses() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup group = new TGroup(new TRect(0, 0, 1, 1));
         group.setState(SF_ACTIVE, true);
         group.setState(SF_FOCUSED, true);
 
-        TView top = new TView(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TView other = new TView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TView top = new TView(new TRect(0, 0, 1, 1));
+        TView other = new TView(new TRect(0, 0, 1, 1));
         group.insert(top);
         group.insert(other);
 
@@ -338,8 +338,8 @@ class TViewTest {
 
     @Test
     void calcBoundsRespectsGrowModeAndSizeLimits() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(5,6)));
+        TGroup group = new TGroup(new TRect(0, 0, 10, 10));
+        TestableTView view = new TestableTView(new TRect(0, 0, 5, 6));
         group.insert(view);
         view.growMode = TView.GrowMode.GF_GROW_HI_X | TView.GrowMode.GF_GROW_HI_Y;
 
@@ -368,8 +368,8 @@ class TViewTest {
 
     @Test
     void calcBoundsScalesProportionallyWithGrowRel() {
-        TestGroup group = new TestGroup(new TRect(new TPoint(0,0), new TPoint(100,100)));
-        TestableTView view = new TestableTView(new TRect(new TPoint(10,10), new TPoint(30,30)));
+        TestGroup group = new TestGroup(new TRect(0, 0, 100, 100));
+        TestableTView view = new TestableTView(new TRect(10, 10, 30, 30));
         group.insert(view);
         view.growMode = TView.GrowMode.GF_GROW_ALL | TView.GrowMode.GF_GROW_REL;
 
@@ -388,7 +388,7 @@ class TViewTest {
 
     @Test
     void eventAvailDetectsAndConsumesEvent() {
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
         TEvent ev = new TEvent();
         ev.what = TEvent.EV_KEYDOWN;
         view.events.add(ev);
@@ -405,7 +405,7 @@ class TViewTest {
 
     @Test
     void eventAvailReturnsTrueAndGetEventReturnsSameEvent() {
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
         TEvent ev = new TEvent();
         ev.what = TEvent.EV_COMMAND;
         view.putEvent(ev);
@@ -419,7 +419,7 @@ class TViewTest {
 
     @Test
     void clearEventResetsEvent() {
-        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
         TEvent event = new TEvent();
         event.what = TEvent.EV_KEYDOWN;
         event.msg.infoPtr = new Object();
@@ -432,7 +432,7 @@ class TViewTest {
 
     @Test
     void mouseEventStopsAtUpAndMatchesDown() {
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
 
         TEvent down = new TEvent();
         down.what = TEvent.EV_MOUSE_DOWN;
@@ -455,8 +455,8 @@ class TViewTest {
 
     @Test
     void dragViewMovesWithMouse() {
-        TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
         parent.insert(view);
 
         TEvent move1 = new TEvent();
@@ -483,7 +483,7 @@ class TViewTest {
         down.mouse.where.x = 0;
         down.mouse.where.y = 0;
 
-        TRect limits = new TRect(new TPoint(0,0), new TPoint(5,5));
+        TRect limits = new TRect(0, 0, 5, 5);
         view.dragView(down, TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
                 limits, new TPoint(1,1), new TPoint(1,1));
 
@@ -493,8 +493,8 @@ class TViewTest {
 
     @Test
     void dragViewMovesOriginRightWithKeyboard() {
-        TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
         parent.insert(view);
 
         TEvent right = new TEvent();
@@ -506,7 +506,7 @@ class TViewTest {
         view.events.add(right);
         view.events.add(enter);
 
-        TRect limits = new TRect(new TPoint(0,0), new TPoint(10,10));
+        TRect limits = new TRect(0, 0, 10, 10);
         view.dragView(new TEvent(), TView.DragMode.DM_DRAG_MOVE, limits, new TPoint(1,1), new TPoint(1,1));
 
         assertEquals(1, view.getOriginField().x);
@@ -515,8 +515,8 @@ class TViewTest {
 
     @Test
     void dragViewGrowClipsSizeWithinBounds() {
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(4,4)));
-        TRect limits = new TRect(new TPoint(0,0), new TPoint(100,100));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 4, 4));
+        TRect limits = new TRect(0, 0, 100, 100);
         TPoint minSize = new TPoint(2,2);
         TPoint maxSize = new TPoint(6,6);
 
@@ -544,11 +544,11 @@ class TViewTest {
 
     @Test
     void dragViewKeepsOriginWithinLimitsWhenMovingRightRepeatedly() {
-        TGroup parent = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
-        EventQueueView view = new EventQueueView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+        TGroup parent = new TGroup(new TRect(0, 0, 10, 10));
+        EventQueueView view = new EventQueueView(new TRect(0, 0, 1, 1));
         parent.insert(view);
 
-        TRect limits = new TRect(new TPoint(0, 0), new TPoint(3, 3));
+        TRect limits = new TRect(0, 0, 3, 3);
         int maxX = limits.b.x - view.getSizeField().x;
         int maxY = limits.b.y - view.getSizeField().y;
 
@@ -581,8 +581,8 @@ class TViewTest {
 
     @Test
     void drawViewHonorsExposedState() {
-        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        CountingDrawView view = new CountingDrawView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup group = new TGroup(new TRect(0, 0, 1, 1));
+        CountingDrawView view = new CountingDrawView(new TRect(0, 0, 1, 1));
         group.insert(view);
 
         view.setState(SF_VISIBLE, true);
@@ -597,9 +597,9 @@ class TViewTest {
 
     @Test
     void showSetsVisibleAndDraws() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TGroup root = new TGroup(new TRect(0, 0, 1, 1));
         root.setState(SF_EXPOSED, true);
-        CountingDrawView view = new CountingDrawView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        CountingDrawView view = new CountingDrawView(new TRect(0, 0, 1, 1));
         view.setState(SF_VISIBLE, false);
         root.insert(view);
 
@@ -615,16 +615,16 @@ class TViewTest {
 
     @Test
     void exposedReturnsFalseWhenFullyCoveredAndTrueWhenPartiallyVisible() {
-        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        TGroup root = new TGroup(new TRect(0, 0, 10, 10));
         root.setState(SF_VISIBLE, true);
         root.setState(SF_EXPOSED, true);
 
-        TestableTView back = new TestableTView(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        TestableTView back = new TestableTView(new TRect(0, 0, 3, 3));
         root.insert(back);
         back.setState(SF_VISIBLE, true);
         back.setState(SF_EXPOSED, true);
 
-        TestableTView front = new TestableTView(new TRect(new TPoint(1,1), new TPoint(4,4)));
+        TestableTView front = new TestableTView(new TRect(1, 1, 4, 4));
         root.insert(front);
         front.setState(SF_VISIBLE, true);
         front.setState(SF_EXPOSED, true);
@@ -638,8 +638,8 @@ class TViewTest {
 
     @Test
     void focusReturnsFalseAndDoesNotSelectWhenOwnerRefuses() {
-        RefusingGroup owner = new RefusingGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        RefusingGroup owner = new RefusingGroup(new TRect(0, 0, 1, 1));
+        TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
         view.options = OF_SELECTABLE;
         owner.insert(view);
         view.setState(SF_SELECTED, false);
@@ -650,8 +650,8 @@ class TViewTest {
 
     @Test
     void shadowFlagInvokesDrawUnderViewAndFocusedBroadcasts() {
-        FocusCountingGroup owner = new FocusCountingGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
-        ShadowCountingView view = new ShadowCountingView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        FocusCountingGroup owner = new FocusCountingGroup(new TRect(0, 0, 1, 1));
+        ShadowCountingView view = new ShadowCountingView(new TRect(0, 0, 1, 1));
         view.setOwner(owner);
 
         view.setState(SF_VISIBLE, true);
@@ -742,9 +742,9 @@ class TViewTest {
     void topViewReturnsModalAncestor() {
         TView originalTop = TView.theTopView;
         try {
-            TGroup root = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
-            TGroup modal = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
-            TView leaf = new TView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+            TGroup root = new TGroup(new TRect(0, 0, 10, 10));
+            TGroup modal = new TGroup(new TRect(0, 0, 10, 10));
+            TView leaf = new TView(new TRect(0, 0, 1, 1));
             root.insert(modal);
             modal.insert(leaf);
             modal.setState(SF_MODAL, true);
@@ -758,9 +758,9 @@ class TViewTest {
 
     @Test
     void endModalPropagatesToTop() {
-        TGroup root = new TGroup(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
-        TGroup modal = new TGroup(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
-        TView child = new TView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+        TGroup root = new TGroup(new TRect(0, 0, 1, 1));
+        TGroup modal = new TGroup(new TRect(0, 0, 1, 1));
+        TView child = new TView(new TRect(0, 0, 1, 1));
 
         root.insert(modal);
         modal.insert(child);
