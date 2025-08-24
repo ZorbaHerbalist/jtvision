@@ -210,6 +210,18 @@ class TViewTest {
     }
 
     @Test
+    void getHelpCtxReturnsDraggingContext() {
+        TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        v.setState(SF_DRAGGING, true);
+        try {
+            assertEquals(TView.HelpContext.HC_DRAGGING, v.getHelpCtx());
+        } finally {
+            // Reset state to avoid side effects
+            v.setState(SF_DRAGGING, false);
+        }
+    }
+
+    @Test
     void setStateWithMultipleBitsThrows() {
         TestableTView v = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         assertThrows(IllegalArgumentException.class, () ->
@@ -292,6 +304,22 @@ class TViewTest {
 
         TPoint outside = new TPoint(14, 22);
         assertFalse(view.mouseInView(outside));
+    }
+
+    @Test
+    void getClipRectUsesOwnerClipAndReturnsLocalCoordinates() {
+        TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        TView child = new TView(new TRect(new TPoint(1,2), new TPoint(10,12)));
+        group.insert(child);
+        group.clip.assign(2,3,7,8);
+
+        TRect clip = new TRect();
+        child.getClipRect(clip);
+
+        assertEquals(1, clip.a.x);
+        assertEquals(1, clip.a.y);
+        assertEquals(6, clip.b.x);
+        assertEquals(6, clip.b.y);
     }
 
     @Test
@@ -386,6 +414,34 @@ class TViewTest {
 
         // Clean up lock to avoid side-effects
         mid.unlock();
+    }
+
+    @Test
+    void writeStrAndLinePropagate() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(5,5)));
+        root.setState(SF_EXPOSED, true);
+
+        TView child = new TView(new TRect(new TPoint(0,0), new TPoint(5,5))) {
+            @Override
+            public void draw() {
+                int color = 0x07;
+                writeStr(0, 0, "ABC", color);
+                TDrawBuffer buf = new TDrawBuffer();
+                buf.moveStr(0, "DEF", color);
+                writeLine(0, 1, 3, 1, buf.buffer);
+            }
+        };
+
+        root.insert(child);
+        root.draw();
+
+        assertNotNull(root.buffer);
+        assertEquals('A', (char) (root.buffer.getCell(0,0) & 0xFF));
+        assertEquals('B', (char) (root.buffer.getCell(1,0) & 0xFF));
+        assertEquals('C', (char) (root.buffer.getCell(2,0) & 0xFF));
+        assertEquals('D', (char) (root.buffer.getCell(0,1) & 0xFF));
+        assertEquals('E', (char) (root.buffer.getCell(1,1) & 0xFF));
+        assertEquals('F', (char) (root.buffer.getCell(2,1) & 0xFF));
     }
 
     @Test
@@ -514,6 +570,19 @@ class TViewTest {
     }
 
     @Test
+    void clearEventResetsEvent() {
+        TestableTView view = new TestableTView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        TEvent event = new TEvent();
+        event.what = TEvent.EV_KEYDOWN;
+        event.msg.infoPtr = new Object();
+
+        view.clearEvent(event);
+
+        assertEquals(TEvent.EV_NOTHING, event.what);
+        assertSame(view, event.msg.infoPtr);
+    }
+
+    @Test
     void mouseEventStopsAtUpAndMatchesDown() {
         EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
 
@@ -534,6 +603,44 @@ class TViewTest {
 
         assertTrue(view.mouseEvent(event, TEvent.EV_MOUSE_DOWN));
         assertEquals(TEvent.EV_MOUSE_DOWN, event.what);
+    }
+
+    @Test
+    void dragViewMovesWithMouse() {
+        TGroup parent = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        parent.insert(view);
+
+        TEvent move1 = new TEvent();
+        move1.what = TEvent.EV_MOUSE_MOVE;
+        move1.mouse.where.x = 3;
+        move1.mouse.where.y = 3;
+
+        TEvent move2 = new TEvent();
+        move2.what = TEvent.EV_MOUSE_MOVE;
+        move2.mouse.where.x = 7;
+        move2.mouse.where.y = 7;
+
+        TEvent up = new TEvent();
+        up.what = TEvent.EV_MOUSE_UP;
+        up.mouse.where.x = 7;
+        up.mouse.where.y = 7;
+
+        view.events.add(move1);
+        view.events.add(move2);
+        view.events.add(up);
+
+        TEvent down = new TEvent();
+        down.what = TEvent.EV_MOUSE_DOWN;
+        down.mouse.where.x = 0;
+        down.mouse.where.y = 0;
+
+        TRect limits = new TRect(new TPoint(0,0), new TPoint(5,5));
+        view.dragView(down, TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
+                limits, new TPoint(1,1), new TPoint(1,1));
+
+        assertEquals(4, view.getOriginField().x);
+        assertEquals(4, view.getOriginField().y);
     }
 
     @Test
@@ -559,18 +666,104 @@ class TViewTest {
     }
 
     @Test
+    void dragViewGrowClipsSizeWithinBounds() {
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0,0), new TPoint(4,4)));
+        TRect limits = new TRect(new TPoint(0,0), new TPoint(100,100));
+        TPoint minSize = new TPoint(2,2);
+        TPoint maxSize = new TPoint(6,6);
+
+        TEvent down = new TEvent();
+        down.what = TEvent.EV_MOUSE_DOWN;
+        down.mouse.where.x = view.getSizeField().x;
+        down.mouse.where.y = view.getSizeField().y;
+
+        TEvent move = new TEvent();
+        move.what = TEvent.EV_MOUSE_MOVE;
+        move.mouse.where.x = 100;
+        move.mouse.where.y = 100;
+
+        TEvent up = new TEvent();
+        up.what = TEvent.EV_MOUSE_UP;
+
+        view.events.add(move);
+        view.events.add(up);
+
+        view.dragView(down, TView.DragMode.DM_DRAG_GROW, limits, minSize, maxSize);
+
+        assertEquals(maxSize.x, view.getSizeField().x);
+        assertEquals(maxSize.y, view.getSizeField().y);
+    }
+
+    @Test
+    void dragViewKeepsOriginWithinLimitsWhenMovingRightRepeatedly() {
+        TGroup parent = new TGroup(new TRect(new TPoint(0, 0), new TPoint(10, 10)));
+        EventQueueView view = new EventQueueView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+        parent.insert(view);
+
+        TRect limits = new TRect(new TPoint(0, 0), new TPoint(3, 3));
+        int maxX = limits.b.x - view.getSizeField().x;
+        int maxY = limits.b.y - view.getSizeField().y;
+
+        for (int i = 0; i < 5; i++) {
+            TEvent right = new TEvent();
+            right.what = TEvent.EV_KEYDOWN;
+            right.key.keyCode = KeyCode.KB_RIGHT;
+            TEvent enter = new TEvent();
+            enter.what = TEvent.EV_KEYDOWN;
+            enter.key.keyCode = KeyCode.KB_ENTER;
+            view.events.add(right);
+            view.events.add(enter);
+
+            view.dragView(new TEvent(),
+                    TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
+                    limits,
+                    new TPoint(1, 1),
+                    new TPoint(1, 1));
+
+            assertTrue(view.getOriginField().x >= limits.a.x);
+            assertTrue(view.getOriginField().x <= maxX);
+            assertTrue(view.getOriginField().y >= limits.a.y);
+            assertTrue(view.getOriginField().y <= maxY);
+        }
+
+        assertEquals(maxX, view.getOriginField().x);
+    }
+
+
+
+    @Test
     void drawViewHonorsExposedState() {
         TGroup group = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
         CountingDrawView view = new CountingDrawView(new TRect(new TPoint(0,0), new TPoint(1,1)));
         group.insert(view);
 
-        view.drawView();
-        assertEquals(0, view.drawCount);
-
+        view.setState(SF_VISIBLE, true);
         view.setState(SF_EXPOSED, true);
         view.drawView();
         assertEquals(1, view.drawCount);
+
+        view.setState(SF_EXPOSED, false);
+        view.drawView();
+        assertEquals(1, view.drawCount);
     }
+
+    @Test
+    void showSetsVisibleAndDraws() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        root.setState(SF_EXPOSED, true);
+        CountingDrawView view = new CountingDrawView(new TRect(new TPoint(0,0), new TPoint(1,1)));
+        view.setState(SF_VISIBLE, false);
+        root.insert(view);
+
+        assertEquals(0, view.drawCount);
+        assertEquals(0, view.state & SF_VISIBLE);
+
+        view.show();
+
+        assertEquals(1, view.drawCount);
+        assertEquals(SF_VISIBLE, view.state & SF_VISIBLE);
+    }
+
 
     @Test
     void exposedReturnsFalseWhenFullyCoveredAndTrueWhenPartiallyVisible() {
@@ -638,6 +831,40 @@ class TViewTest {
             TView.enableCommands(cmds);
             assertTrue(TView.commandEnabled(Command.CM_HELP));
             assertTrue(TView.commandSetChanged);
+        } finally {
+            TView.setCommands(original);
+            TView.commandSetChanged = changed;
+        }
+    }
+
+    @Test
+    void commandEnabledIgnoresHighCodes() {
+        int highCommand = 0x1000;
+        Set<Integer> original = TView.getCommands();
+        boolean changed = TView.commandSetChanged;
+        try {
+            assertFalse(original.contains(highCommand));
+            assertTrue(TView.commandEnabled(highCommand));
+            assertEquals(original, TView.getCommands());
+            assertEquals(changed, TView.commandSetChanged);
+        } finally {
+            TView.setCommands(original);
+            TView.commandSetChanged = changed;
+        }
+    }
+
+    @Test
+    void commandEnabledReturnsTrueForUserCommand() {
+        Set<Integer> original = TView.getCommands();
+        boolean changed = TView.commandSetChanged;
+        try {
+            Set<Integer> cmds = new java.util.HashSet<>(original);
+            cmds.remove(Command.CM_HELP); // remove an entry from curCommandSet
+            TView.setCommands(cmds);
+            assertFalse(TView.commandEnabled(Command.CM_HELP));
+
+            int userCommand = 300; // Command.CM_USER + 1
+            assertTrue(TView.commandEnabled(userCommand));
         } finally {
             TView.setCommands(original);
             TView.commandSetChanged = changed;
