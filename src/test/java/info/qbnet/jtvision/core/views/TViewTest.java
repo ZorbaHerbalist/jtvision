@@ -15,6 +15,8 @@ import info.qbnet.jtvision.core.views.support.RefusingGroup;
 import info.qbnet.jtvision.core.views.support.ShadowCountingView;
 import info.qbnet.jtvision.core.views.support.TestGroup;
 import info.qbnet.jtvision.core.views.support.TestableTView;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,6 +30,24 @@ import static info.qbnet.jtvision.core.views.TView.Options.*;
 import static info.qbnet.jtvision.core.views.TView.State.*;
 
 class TViewTest {
+
+    private Set<Integer> originalCommands;
+    private boolean originalCommandSetChanged;
+    private TView originalTopView;
+
+    @BeforeEach
+    void saveTViewState() {
+        originalCommands = new java.util.HashSet<>(TView.getCommands());
+        originalCommandSetChanged = TView.commandSetChanged;
+        originalTopView = TView.theTopView;
+    }
+
+    @AfterEach
+    void restoreTViewState() {
+        TView.setCommands(originalCommands);
+        TView.commandSetChanged = originalCommandSetChanged;
+        TView.theTopView = originalTopView;
+    }
 
     @Test
     void constructorInitializesGeometry() {
@@ -666,23 +686,16 @@ class TViewTest {
 
     @Test
     void disableCommandsDisablesAndEnableRestores() {
-        Set<Integer> original = TView.getCommands();
-        boolean changed = TView.commandSetChanged;
-        try {
-            Set<Integer> cmds = Set.of(Command.CM_HELP);
-            TView.commandSetChanged = false;
-            TView.disableCommands(cmds);
-            assertFalse(TView.commandEnabled(Command.CM_HELP));
-            assertTrue(TView.commandSetChanged);
+        Set<Integer> cmds = Set.of(Command.CM_HELP);
+        TView.commandSetChanged = false;
+        TView.disableCommands(cmds);
+        assertFalse(TView.commandEnabled(Command.CM_HELP));
+        assertTrue(TView.commandSetChanged);
 
-            TView.commandSetChanged = false;
-            TView.enableCommands(cmds);
-            assertTrue(TView.commandEnabled(Command.CM_HELP));
-            assertTrue(TView.commandSetChanged);
-        } finally {
-            TView.setCommands(original);
-            TView.commandSetChanged = changed;
-        }
+        TView.commandSetChanged = false;
+        TView.enableCommands(cmds);
+        assertTrue(TView.commandEnabled(Command.CM_HELP));
+        assertTrue(TView.commandSetChanged);
     }
 
     @Test
@@ -690,33 +703,23 @@ class TViewTest {
         int highCommand = 0x1000;
         Set<Integer> original = TView.getCommands();
         boolean changed = TView.commandSetChanged;
-        try {
-            assertFalse(original.contains(highCommand));
-            assertTrue(TView.commandEnabled(highCommand));
-            assertEquals(original, TView.getCommands());
-            assertEquals(changed, TView.commandSetChanged);
-        } finally {
-            TView.setCommands(original);
-            TView.commandSetChanged = changed;
-        }
+
+        assertFalse(original.contains(highCommand));
+        assertTrue(TView.commandEnabled(highCommand));
+        assertEquals(original, TView.getCommands());
+        assertEquals(changed, TView.commandSetChanged);
     }
 
     @Test
     void commandEnabledReturnsTrueForUserCommand() {
         Set<Integer> original = TView.getCommands();
-        boolean changed = TView.commandSetChanged;
-        try {
-            Set<Integer> cmds = new java.util.HashSet<>(original);
-            cmds.remove(Command.CM_HELP); // remove an entry from curCommandSet
-            TView.setCommands(cmds);
-            assertFalse(TView.commandEnabled(Command.CM_HELP));
+        Set<Integer> cmds = new java.util.HashSet<>(original);
+        cmds.remove(Command.CM_HELP); // remove an entry from curCommandSet
+        TView.setCommands(cmds);
+        assertFalse(TView.commandEnabled(Command.CM_HELP));
 
-            int userCommand = 300; // Command.CM_USER + 1
-            assertTrue(TView.commandEnabled(userCommand));
-        } finally {
-            TView.setCommands(original);
-            TView.commandSetChanged = changed;
-        }
+        int userCommand = 300; // Command.CM_USER + 1
+        assertTrue(TView.commandEnabled(userCommand));
     }
 
     @ParameterizedTest
@@ -740,20 +743,15 @@ class TViewTest {
 
     @Test
     void topViewReturnsModalAncestor() {
-        TView originalTop = TView.theTopView;
-        try {
-            TGroup root = new TGroup(new TRect(0, 0, 10, 10));
-            TGroup modal = new TGroup(new TRect(0, 0, 10, 10));
-            TView leaf = new TView(new TRect(0, 0, 1, 1));
-            root.insert(modal);
-            modal.insert(leaf);
-            modal.setState(SF_MODAL, true);
+        TGroup root = new TGroup(new TRect(0, 0, 10, 10));
+        TGroup modal = new TGroup(new TRect(0, 0, 10, 10));
+        TView leaf = new TView(new TRect(0, 0, 1, 1));
+        root.insert(modal);
+        modal.insert(leaf);
+        modal.setState(SF_MODAL, true);
 
-            TView.theTopView = null;
-            assertSame(modal, leaf.topView());
-        } finally {
-            TView.theTopView = originalTop;
-        }
+        TView.theTopView = null;
+        assertSame(modal, leaf.topView());
     }
 
     @Test
