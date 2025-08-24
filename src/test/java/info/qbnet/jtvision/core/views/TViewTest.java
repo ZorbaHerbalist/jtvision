@@ -682,4 +682,19 @@ class TViewTest {
             TView.theTopView = originalTop;
         }
     }
+
+    @Test
+    void endModalPropagatesToTop() {
+        TGroup root = new TGroup(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+        TGroup modal = new TGroup(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+        TView child = new TView(new TRect(new TPoint(0, 0), new TPoint(1, 1)));
+
+        root.insert(modal);
+        modal.insert(child);
+        modal.setState(SF_MODAL, true);
+
+        child.endModal(Command.CM_OK);
+
+        assertEquals(Command.CM_OK, modal.endState);
+    }
 }
