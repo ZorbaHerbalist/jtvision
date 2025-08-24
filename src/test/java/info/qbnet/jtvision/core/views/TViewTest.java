@@ -512,6 +512,29 @@ class TViewTest {
     }
 
     @Test
+    void exposedReturnsFalseWhenFullyCoveredAndTrueWhenPartiallyVisible() {
+        TGroup root = new TGroup(new TRect(new TPoint(0,0), new TPoint(10,10)));
+        root.setState(SF_VISIBLE, true);
+        root.setState(SF_EXPOSED, true);
+
+        TestableTView back = new TestableTView(new TRect(new TPoint(0,0), new TPoint(3,3)));
+        root.insert(back);
+        back.setState(SF_VISIBLE, true);
+        back.setState(SF_EXPOSED, true);
+
+        TestableTView front = new TestableTView(new TRect(new TPoint(1,1), new TPoint(4,4)));
+        root.insert(front);
+        front.setState(SF_VISIBLE, true);
+        front.setState(SF_EXPOSED, true);
+
+        front.moveTo(0, 0);
+        assertFalse(back.exposed());
+
+        front.moveTo(1, 1);
+        assertTrue(back.exposed());
+    }
+
+    @Test
     void shadowFlagInvokesDrawUnderViewAndFocusedBroadcasts() {
         FocusCountingGroup owner = new FocusCountingGroup(new TRect(new TPoint(0,0), new TPoint(1,1)));
         ShadowCountingView view = new ShadowCountingView(new TRect(new TPoint(0,0), new TPoint(1,1)));
