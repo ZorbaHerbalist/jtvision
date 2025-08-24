@@ -16,9 +16,12 @@ import info.qbnet.jtvision.core.views.support.ShadowCountingView;
 import info.qbnet.jtvision.core.views.support.TestGroup;
 import info.qbnet.jtvision.core.views.support.TestableTView;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.Field;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static info.qbnet.jtvision.core.views.TView.Options.*;
@@ -716,18 +719,16 @@ class TViewTest {
         }
     }
 
-    @Test
-    void messageReturnsModifiedObject() {
+    @ParameterizedTest
+    @MethodSource("messageParams")
+    void messageReturnsModifiedObject(Object param) {
         MessageModifyingView receiver = new MessageModifyingView();
-        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, "data");
+        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, param);
         assertEquals("modified", result);
     }
 
-    @Test
-    void messageReturnsModifiedObjectFromInt() {
-        MessageModifyingView receiver = new MessageModifyingView();
-        Object result = TView.message(receiver, TEvent.EV_COMMAND, Command.CM_OK, 42);
-        assertEquals("modified", result);
+    private static Stream<Object> messageParams() {
+        return Stream.of("data", 42);
     }
 
     @Test
