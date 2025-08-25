@@ -6,6 +6,7 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.dialogs.TButton;
 import info.qbnet.jtvision.core.dialogs.TDialog;
 import info.qbnet.jtvision.core.dialogs.TStaticText;
 import info.qbnet.jtvision.core.event.TEvent;
@@ -114,6 +115,18 @@ public class DemoApp extends TApplication {
 
         r.assign(3, 5, 15, 6);
         d.insert(new TStaticText(r, "How are you?"));
+
+        r.assign(16, 2, 28, 4);
+        d.insert(new TButton(r, "Terrific", Command.CM_CANCEL, TButton.BF_NORMAL));
+
+        r.assign(16, 4, 28, 6);
+        d.insert(new TButton(r, "OK", Command.CM_CANCEL, TButton.BF_NORMAL));
+
+        r.assign(16, 6, 28, 8);
+        d.insert(new TButton(r, "Lousy", Command.CM_CANCEL, TButton.BF_NORMAL));
+
+        r.assign(16, 8, 28, 10);
+        d.insert(new TButton(r, "Cancel", Command.CM_CANCEL, TButton.BF_NORMAL));
 
         desktop.execView(d);
     }

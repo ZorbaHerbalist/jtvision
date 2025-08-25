@@ -146,7 +146,13 @@ public class TView {
     /** Event classes recognized. {@code 0xFFFF} handles all, {@code 0} handles none. */
     protected int eventMask;
 
+    /* Markers control */
+    public static boolean showMarkers = false;
+
     protected static final int ERROR_ATTR = 0xCF;
+
+    public static final char[] SPECIAL_CHARS =
+            {(char)0xAF, (char)0xAE, (char)0x1A, (char)0x1B, ' ', ' '};
 
     /**
      * Explicit top view pointer; when non-null it overrides the automatic search.
