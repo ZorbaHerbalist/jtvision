@@ -124,9 +124,11 @@ public class TWindow extends TGroup {
                 case KeyCode.KB_TAB:
                     focusNext(false);
                     clearEvent(event);
+                    break;
                 case KeyCode.KB_SHIFT_TAB:
                     focusNext(true);
                     clearEvent(event);
+                    break;
             }
         } else if (event.what == TEvent.EV_BROADCAST && event.msg.command == Command.CM_SELECT_WINDOW_NUM && event.msg.infoInt == number && (options & Options.OF_SELECTABLE) != 0) {
             select();
