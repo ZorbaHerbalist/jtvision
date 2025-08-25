@@ -63,9 +63,9 @@ public class TGroup extends TView {
      */
     protected TView current = null;
 
-    protected enum Phase { FOCUSED, PRE_PROCESS, POST_PROCESS }
+    public enum Phase { FOCUSED, PRE_PROCESS, POST_PROCESS }
 
-    protected Phase phase = Phase.FOCUSED;
+    public Phase phase = Phase.FOCUSED;
 
     /**
      * Points to a buffer used to cache redraw operations, or is null if the group

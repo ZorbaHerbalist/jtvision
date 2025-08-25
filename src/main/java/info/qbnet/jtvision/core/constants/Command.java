@@ -40,6 +40,11 @@ public class Command {
 
     public static final int CM_SELECT_WINDOW_NUM    = 55;
 
+    public static final int CM_RECORD_HISTORY       = 60;
+
+    public static final int CM_GRAB_DEFAULT         = 61;
+    public static final int CM_RELEASE_DEFAULT      = 62;
+
 //    private static final Map<Integer, Command> registry = new HashMap<>();
 //
 //    public static final Command CM_OK = new Command(10, "CM_OK");

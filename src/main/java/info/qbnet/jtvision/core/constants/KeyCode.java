@@ -175,4 +175,11 @@ public class KeyCode {
 
         return result;
     }
+
+    public static int getAltCode(char c) {
+        if (c == 0) {
+            return 0;
+        }
+        return 0x0400 | Character.toUpperCase(c);
+    }
 }

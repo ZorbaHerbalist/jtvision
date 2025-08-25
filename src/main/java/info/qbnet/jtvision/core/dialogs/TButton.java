@@ -1,10 +1,15 @@
 package info.qbnet.jtvision.core.dialogs;
 
+import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
+import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
+
+import static info.qbnet.jtvision.core.constants.KeyCode.getAltCode;
 
 public class TButton extends TView {
 
@@ -129,6 +134,11 @@ public class TButton extends TView {
         writeLine(0, size.y - 1, size.x, 1, buf.buffer);
     }
 
+    @Override
+    public TPalette getPalette() {
+        return C_BUTTON;
+    }
+
     private int titleLength() {
         if (title == null) {
             return 0;
@@ -146,8 +156,148 @@ public class TButton extends TView {
         return count;
     }
 
-    @Override
-    public TPalette getPalette() {
-        return C_BUTTON;
+    private static char hotKey(String s) {
+        if (s == null) {
+            return 0;
+        }
+        boolean tilde = false;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == '~') {
+                tilde = !tilde;
+            } else if (tilde) {
+                return Character.toUpperCase(ch);
+            }
+        }
+        return 0;
     }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        TRect clickRect = new TRect();
+        getExtent(clickRect);
+        clickRect.a.x++;
+        clickRect.b.x--;
+        clickRect.b.y--;
+
+        if (event.what == TEvent.EV_MOUSE_DOWN) {
+            TPoint mouse = new TPoint();
+            makeLocal(event.mouse.where, mouse);
+            if (!clickRect.contains(mouse)) {
+                clearEvent(event);
+            }
+        }
+
+        if ((flags & BF_GRAB_FOCUS) != 0) {
+            super.handleEvent(event);
+        }
+
+        switch (event.what) {
+            case TEvent.EV_MOUSE_DOWN:
+                if ((state & State.SF_DISABLED) == 0) {
+                    clickRect.b.x++;
+                    boolean down = false;
+                    TPoint mouse = new TPoint();
+                    do {
+                        makeLocal(event.mouse.where, mouse);
+                        boolean inside = clickRect.contains(mouse);
+                        if (down != inside) {
+                            down = !down;
+                            drawState(down);
+                        }
+                    } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+                    if (down) {
+                        press();
+                        drawState(false);
+                    }
+                }
+                clearEvent(event);
+                break;
+            case TEvent.EV_KEYDOWN:
+                char c = hotKey(title);
+                boolean doPress = false;
+                if (c != 0) {
+
+                    if (event.key.keyCode == getAltCode(c)) {
+                        doPress = true;
+                    } else if (owner != null && owner.phase == TGroup.Phase.POST_PROCESS &&
+                            Character.toUpperCase(event.key.charCode) == c) {
+                        doPress = true;
+                    }
+                }
+                if (!doPress && (state & State.SF_FOCUSED) != 0 && event.key.charCode == ' ') {
+                    doPress = true;
+                }
+                if (doPress) {
+                    press();
+                    clearEvent(event);
+                }
+                break;
+            case TEvent.EV_BROADCAST:
+                switch (event.msg.command) {
+                    case Command.CM_DEFAULT:
+                        if (amDefault) {
+                            press();
+                            clearEvent(event);
+                        }
+                        break;
+                    case Command.CM_GRAB_DEFAULT:
+                    case Command.CM_RELEASE_DEFAULT:
+                        if ((flags & BF_DEFAULT) != 0) {
+                            amDefault = event.msg.command == Command.CM_RELEASE_DEFAULT;
+                            drawView();
+                        }
+                        break;
+                    case Command.CM_COMMAND_SET_CHANGED:
+                        setState(State.SF_DISABLED, !commandEnabled(command));
+                        drawView();
+                        break;
+                }
+                break;
+        }
+    }
+
+    /**
+     * Toggles the button's default state.
+     * <p>
+     * Translated from Turbo Pascal's {@code TButton.MakeDefault} in
+     * {@code DIALOGS.PAS}.
+     * </p>
+     *
+     * @param enable {@code true} to make this button the default,
+     *               {@code false} to release default status
+     */
+    public void makeDefault(boolean enable) {
+        if ((flags & BF_DEFAULT) == 0) {
+            int c = enable ? Command.CM_GRAB_DEFAULT : Command.CM_RELEASE_DEFAULT;
+            message(owner, TEvent.EV_BROADCAST, c, this);
+            amDefault = enable;
+            drawView();
+        }
+    }
+
+    public void press() {
+        message(owner, TEvent.EV_BROADCAST, Command.CM_RECORD_HISTORY, null);
+        if ((flags & BF_BROADCAST) != 0) {
+            message(owner, TEvent.EV_BROADCAST, command, this);
+        } else {
+            TEvent e = new TEvent();
+            e.what = TEvent.EV_COMMAND;
+            e.msg.command = command;
+            e.msg.infoPtr = this;
+            putEvent(e);
+        }
+    }
+
+    @Override
+    public void setState(int state, boolean enable) {
+        super.setState(state, enable);
+        if ((state & (State.SF_SELECTED | State.SF_ACTIVE)) != 0) {
+            drawView();
+        }
+        if ((state & State.SF_FOCUSED) != 0) {
+            makeDefault(enable);
+        }
+    }
+
 }
