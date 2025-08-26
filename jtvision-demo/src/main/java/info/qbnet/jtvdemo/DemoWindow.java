@@ -6,15 +6,17 @@ import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TWindow;
 
+import java.util.List;
+
 public class DemoWindow extends TWindow {
 
-    public DemoWindow(TRect bounds, String title, int count) {
+    public DemoWindow(TRect bounds, String title, int count, List<String> lines) {
         super(bounds, title + ' ' + count, WN_NO_NUMBER);
         options |= Options.OF_TILEABLE;
 
         getClipRect(bounds);
         bounds.grow(-1, -1);
-        insert(new DemoInterior(bounds));
+        insert(new DemoInterior(bounds, lines));
     }
 
     @Override

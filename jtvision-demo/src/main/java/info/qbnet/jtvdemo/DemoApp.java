@@ -18,6 +18,13 @@ import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TWindow;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class DemoApp extends TApplication {
@@ -27,8 +34,14 @@ public class DemoApp extends TApplication {
     public static final int CM_HIDE_WINDOW = 101;
     public static final int CM_GREETINGS = 102;
 
+    private static final String FILE_TO_READ = "/demo.txt";
+    private static final int MAX_LINES = 100;
+
+    private final List<String> lines;
+
     public DemoApp() {
         super(determineBackendType());
+        this.lines = readFile();
 
 //        Console console = getConsole();
         //console.putString(1, 1, "X", Color.WHITE, Color.BLACK);
@@ -79,6 +92,21 @@ public class DemoApp extends TApplication {
             return BackendType.SWING_BITMAP;
         }
     }
+
+    private List<String> readFile() {
+        List<String> list = new ArrayList<>();
+        try (InputStream is = DemoApp.class.getResourceAsStream(FILE_TO_READ);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null && list.size() < MAX_LINES) {
+                list.add(line);
+            }
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 
     private void measureBackendSpeed(Console console) {
         final int iterations = 1000;
@@ -191,7 +219,7 @@ public class DemoApp extends TApplication {
         TRect r = new TRect(0, 0, 26, 7);
         Random rand = new Random();
         r.move(rand.nextInt(58), rand.nextInt(16));
-        TWindow window = new DemoWindow(r, "Demo Window", winCount);
+        TWindow window = new DemoWindow(r, "Demo Window", winCount, lines);
         desktop.insert(window);
     }
 
