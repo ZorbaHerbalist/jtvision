@@ -61,6 +61,9 @@ public final class KeyCodeMapper {
         if (keyCode >= java.awt.event.KeyEvent.VK_0 && keyCode <= java.awt.event.KeyEvent.VK_9) {
             return (char) keyCode;
         }
+        if (keyCode == java.awt.event.KeyEvent.VK_SPACE) {
+            return ' ';
+        }
         return 0;
     }
 }

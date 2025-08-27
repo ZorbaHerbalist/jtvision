@@ -37,4 +37,9 @@ public class KeyCodeMapperTest {
         assertTrue((coded & KeyCodeMapper.CTRL) != 0);
         assertEquals(0, coded & KeyCodeMapper.ALT);
     }
+
+    @Test
+    void toCharMapsSpace() {
+        assertEquals(' ', KeyCodeMapper.toChar(java.awt.event.KeyEvent.VK_SPACE, false));
+    }
 }
