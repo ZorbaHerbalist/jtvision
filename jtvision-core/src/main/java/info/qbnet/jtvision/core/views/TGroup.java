@@ -602,6 +602,13 @@ public class TGroup extends TView {
         }
     }
 
+    public void selectNext(boolean forwards) {
+        TView v = findNext(forwards);
+        if (v != null) {
+            v.select();
+        }
+    }
+
     /**
      * Changes the current view and updates selection and focus states.
      */
