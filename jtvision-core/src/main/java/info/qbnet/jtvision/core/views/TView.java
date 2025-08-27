@@ -10,6 +10,7 @@ import info.qbnet.jtvision.util.IBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -283,6 +284,21 @@ public class TView {
     /** Checks if {@code command} is enabled in {@link #curCommandSet}. */
     public static boolean commandEnabled(int command) {
         return command > 255 || curCommandSet.contains(command);
+    }
+
+    /**
+     * Returns the number of bytes required to transfer this view's state.
+     * <p>
+     * Subclasses overriding this method should return the amount of data that
+     * {@link #getData(ByteBuffer)} will write and {@link #setData(ByteBuffer)}
+     * will read.
+     * </p>
+     * The default implementation returns {@code 0}.
+     *
+     * @return number of bytes representing this view's data
+     */
+    public int dataSize() {
+        return 0;
     }
 
     /** Removes {@code commands} from {@link #curCommandSet} and flags changes. */
@@ -687,6 +703,17 @@ public class TView {
     }
 
     /**
+     * Copies this view's state into the provided destination buffer.
+     * <p>
+     * The buffer must have at least {@link #dataSize()} bytes remaining. The
+     * default implementation does nothing.
+     * </p>
+     *
+     * @param dst destination buffer
+     */
+    public void getData(ByteBuffer dst) {}
+
+    /**
      * Returns the next available event in the given {@link TEvent} argument.
      * <p>
      * If no event is available, this method should set the event to {@code TEvent.EV_NOTHING}.
@@ -1061,6 +1088,17 @@ public class TView {
         }
         curCommandSet = new HashSet<>(commands);
     }
+
+    /**
+     * Restores this view's state from the provided source buffer.
+     * <p>
+     * The buffer must contain at least {@link #dataSize()} bytes. The default
+     * implementation does nothing.
+     * </p>
+     *
+     * @param src source buffer
+     */
+    public void setData(ByteBuffer src) {}
 
     /**
      * Sets or clears a state flag in the {@code TView.state} field.
