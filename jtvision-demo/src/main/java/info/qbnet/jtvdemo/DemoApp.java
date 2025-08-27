@@ -6,6 +6,7 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.dialogs.MsgBox;
 import info.qbnet.jtvision.core.dialogs.TButton;
 import info.qbnet.jtvision.core.dialogs.TDialog;
 import info.qbnet.jtvision.core.dialogs.TStaticText;
@@ -33,6 +34,7 @@ public class DemoApp extends TApplication {
 
     public static final int CM_HIDE_WINDOW = 101;
     public static final int CM_GREETINGS = 102;
+    public static final int CM_ABOUT = 103;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final int MAX_LINES = 100;
@@ -81,6 +83,11 @@ public class DemoApp extends TApplication {
 //        }
 //
 //        console.shutdown();
+    }
+
+    private void doAboutBox() {
+        //MsgBox.messageBox((char) 0x3 + "Tutorial Application\n" + (char) 0x3 + "Copyright (c) 2025\n"  + (char) 0x3 + "ZorbaHerbalist",  MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        MsgBox.messageBox((char) 0x3 + "Tutorial Application\n" + (char) 0x3 + "Copyright (c) 2025\n"  + (char) 0x3 + "ZorbaHerbalist",  MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
     }
 
     private static BackendType determineBackendType() {
@@ -178,7 +185,10 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
                         null))),
-                null)))
+                TMenuBar.newSubmenu("~H~elp", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~A~bout", "", KeyCode.KB_NO_KEY, CM_ABOUT, HelpContext.HC_NO_CONTEXT,
+                        null)),
+                null))))
         ));
     }
 
@@ -192,6 +202,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_GREETINGS:
                     greetingBox();
+                    break;
+                case CM_ABOUT:
+                    doAboutBox();
                     break;
                 default:
                     return;

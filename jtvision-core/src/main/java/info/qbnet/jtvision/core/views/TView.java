@@ -27,10 +27,10 @@ public class TView {
     protected TView next = null;
 
     /** Top-left corner relative to the owner's origin. */
-    protected TPoint origin;
+    public TPoint origin;
 
     /** View dimensions; {@code x} is width and {@code y} is height. */
-    protected TPoint size;
+    public TPoint size;
 
     /** Resize behavior flags for owner size changes. */
     public static class GrowMode {
