@@ -6,10 +6,7 @@ import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
-import info.qbnet.jtvision.core.dialogs.MsgBox;
-import info.qbnet.jtvision.core.dialogs.TButton;
-import info.qbnet.jtvision.core.dialogs.TDialog;
-import info.qbnet.jtvision.core.dialogs.TStaticText;
+import info.qbnet.jtvision.core.dialogs.*;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.menus.TMenuBar;
 import info.qbnet.jtvision.core.menus.TStatusDef;
@@ -35,6 +32,7 @@ public class DemoApp extends TApplication {
     public static final int CM_HIDE_WINDOW = 101;
     public static final int CM_GREETINGS = 102;
     public static final int CM_ABOUT = 103;
+    public static final int CM_DLG_INPUT_LINE = 104;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final int MAX_LINES = 100;
@@ -88,6 +86,22 @@ public class DemoApp extends TApplication {
     private void doAboutBox() {
         //MsgBox.messageBox((char) 0x3 + "Tutorial Application\n" + (char) 0x3 + "Copyright (c) 2025\n"  + (char) 0x3 + "ZorbaHerbalist",  MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         MsgBox.messageBox((char) 0x3 + "Tutorial Application\n" + (char) 0x3 + "Copyright (c) 2025\n"  + (char) 0x3 + "ZorbaHerbalist",  MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+    }
+
+    private void doDlgInputLine() {
+        TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
+
+        TInputLine input = new TInputLine(new TRect(2, 2, 36, 3), 40);
+        //input.setData("Not empty");
+        d.insert(input);
+
+        d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
+        d.selectNext(false);
+
+        if (desktop.execView(d) == Command.CM_OK) {
+            MsgBox.messageBox("Entered string: ", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        }
     }
 
     private static BackendType determineBackendType() {
@@ -181,6 +195,9 @@ public class DemoApp extends TApplication {
                         TMenuBar.newLine(
                         TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT,
                         null))))),
+                TMenuBar.newSubmenu("~D~ialog", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
+                        null)),
                 TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
@@ -188,8 +205,7 @@ public class DemoApp extends TApplication {
                 TMenuBar.newSubmenu("~H~elp", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~A~bout", "", KeyCode.KB_NO_KEY, CM_ABOUT, HelpContext.HC_NO_CONTEXT,
                         null)),
-                null))))
-        ));
+                null)))))));
     }
 
     @Override
@@ -205,6 +221,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_ABOUT:
                     doAboutBox();
+                    break;
+                case CM_DLG_INPUT_LINE:
+                    doDlgInputLine();
                     break;
                 default:
                     return;
