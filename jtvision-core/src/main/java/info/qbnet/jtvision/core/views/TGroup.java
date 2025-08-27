@@ -7,6 +7,7 @@ import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -129,6 +130,20 @@ public class TGroup extends TView {
             });
             unlock();
         }
+    }
+
+    @Override
+    public int dataSize() {
+        int size = super.dataSize();
+        if (last != null) {
+            TView first = last.getNext();
+            TView p = first;
+            do {
+                size += p.dataSize();
+                p = p.getNext();
+            } while (p != first);
+        }
+        return size;
     }
 
     public void delete(TView p) {
@@ -370,6 +385,21 @@ public class TGroup extends TView {
             return;
         }
         buffer = new Buffer(size.x, size.y);
+    }
+
+    @Override
+    public void getData(ByteBuffer dst) {
+        if (last == null) return;
+
+        TView p = last.getNext();
+        do {
+            int sz = p.dataSize();
+            ByteBuffer slice = dst.slice();
+            slice.limit(sz);
+            p.getData(slice);
+            dst.position(dst.position() + sz);
+            p = p.getNext();
+        } while (p != last.getNext());
     }
 
     @Override
@@ -629,6 +659,22 @@ public class TGroup extends TView {
             unlock();
         }
     }
+
+    @Override
+    public void setData(ByteBuffer src) {
+        if (last == null) return;
+
+        TView p = last.getNext();
+        do {
+            int sz = p.dataSize();
+            ByteBuffer slice = src.slice();
+            slice.limit(sz);
+            p.setData(slice);
+            src.position(src.position() + sz);
+            p = p.getNext();
+        } while (p != last.getNext());
+    }
+
 
     @Override
     public void setState(int state, boolean enable) {
