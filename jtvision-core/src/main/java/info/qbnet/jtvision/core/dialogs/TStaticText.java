@@ -49,8 +49,8 @@ public class TStaticText extends TView {
                 do {
                     J = P;
                     while (P < L && s.charAt(P) == ' ') P++;
-                    while (P < L && s.charAt(P) != ' ' && s.charAt(P) != 13) P++;
-                } while (!(P >= L || P >= I + size.x || s.charAt(P) == 13));
+                    while (P < L && s.charAt(P) != ' ' && s.charAt(P) != '\r' && s.charAt(P) != '\n') P++;
+                } while (!(P >= L || P >= I + size.x || s.charAt(P) == '\r' || s.charAt(P) == '\n'));
 
                 // adjust if word would overflow line
                 if (P > I + size.x) {
@@ -77,11 +77,12 @@ public class TStaticText extends TView {
                 // skip trailing spaces
                 while (P < L && s.charAt(P) == ' ') P++;
 
-                // handle CR/LF line breaks
-                if (P < L && s.charAt(P) == 13) {
+                // handle line breaks (CR, LF or CRLF)
+                if (P < L && (s.charAt(P) == '\r' || s.charAt(P) == '\n')) {
                     center = false;
-                    P++;
-                    if (P < L && s.charAt(P) == 10) {
+                    if (s.charAt(P) == '\r' && P + 1 < L && s.charAt(P + 1) == '\n') {
+                        P += 2;
+                    } else {
                         P++;
                     }
                 }
