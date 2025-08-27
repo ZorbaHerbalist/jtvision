@@ -2,6 +2,7 @@ package info.qbnet.jtvision.core.views;
 
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.support.DataView;
+import info.qbnet.jtvision.core.views.support.DataGroup;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -59,6 +60,60 @@ class TGroupDataTest {
 
         assertArrayEquals(new byte[]{5, 6}, top.getBytes());
         assertArrayEquals(new byte[]{7, 8, 9}, nested.getBytes());
+        assertEquals(root.dataSize(), src.position());
+    }
+
+    @Test
+    void dataSizeAccountsForGroupOwnData() {
+        DataGroup root = new DataGroup(new TRect(0, 0, 10, 10), new byte[]{10, 11});
+        DataView v1 = new DataView(new TRect(0, 0, 1, 1), new byte[]{1});
+        DataGroup child = new DataGroup(new TRect(0, 0, 1, 1), new byte[]{20, 21, 22});
+        DataView v2 = new DataView(new TRect(0, 0, 1, 1), new byte[]{2, 3});
+
+        child.insert(v2);
+        root.insert(v1);
+        root.insert(child);
+
+        assertEquals(5, child.dataSize());
+        assertEquals(8, root.dataSize());
+    }
+
+    @Test
+    void getDataIncludesGroupBytesAndMaintainsOrder() {
+        DataGroup root = new DataGroup(new TRect(0, 0, 10, 10), new byte[]{10, 11});
+        DataView v1 = new DataView(new TRect(0, 0, 1, 1), new byte[]{1});
+        DataGroup child = new DataGroup(new TRect(0, 0, 1, 1), new byte[]{20, 21, 22});
+        DataView v2 = new DataView(new TRect(0, 0, 1, 1), new byte[]{2, 3});
+
+        child.insert(v2);
+        root.insert(v1);
+        root.insert(child);
+
+        ByteBuffer dst = ByteBuffer.allocate(root.dataSize());
+        root.getData(dst);
+
+        assertArrayEquals(new byte[]{10, 11, 20, 21, 22, 2, 3, 1}, dst.array());
+        assertEquals(root.dataSize(), dst.position());
+    }
+
+    @Test
+    void setDataWritesToGroupAndSubviewsInOrder() {
+        DataGroup root = new DataGroup(new TRect(0, 0, 10, 10), new byte[2]);
+        DataView v1 = new DataView(new TRect(0, 0, 1, 1), new byte[1]);
+        DataGroup child = new DataGroup(new TRect(0, 0, 1, 1), new byte[3]);
+        DataView v2 = new DataView(new TRect(0, 0, 1, 1), new byte[2]);
+
+        child.insert(v2);
+        root.insert(v1);
+        root.insert(child);
+
+        ByteBuffer src = ByteBuffer.wrap(new byte[]{50, 51, 60, 61, 62, 70, 71, 80});
+        root.setData(src);
+
+        assertArrayEquals(new byte[]{50, 51}, root.getBytes());
+        assertArrayEquals(new byte[]{60, 61, 62}, child.getBytes());
+        assertArrayEquals(new byte[]{70, 71}, v2.getBytes());
+        assertArrayEquals(new byte[]{80}, v1.getBytes());
         assertEquals(root.dataSize(), src.position());
     }
 }
