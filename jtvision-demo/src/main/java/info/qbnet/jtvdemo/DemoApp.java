@@ -14,12 +14,14 @@ import info.qbnet.jtvision.core.menus.TStatusItem;
 import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TWindow;
+import info.qbnet.jtvision.util.DataPacket;
 
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +94,15 @@ public class DemoApp extends TApplication {
         TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
 
         TInputLine input = new TInputLine(new TRect(2, 2, 36, 3), 40);
-        //input.setData("Not empty");
+
+        DataPacket defaults = new DataPacket(64)
+                .putString("Not empty")
+                .rewind();
+        ByteBuffer initBuf = defaults.getByteBuffer();
+        int initLen = Short.toUnsignedInt(initBuf.getShort());
+        ByteBuffer initSlice = initBuf.slice();
+        initSlice.limit(initLen);
+        input.setData(initSlice);
         d.insert(input);
 
         d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
@@ -100,7 +110,10 @@ public class DemoApp extends TApplication {
         d.selectNext(false);
 
         if (desktop.execView(d) == Command.CM_OK) {
-            MsgBox.messageBox("Entered string: ", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+            DataPacket result = new DataPacket(input.dataSize());
+            input.getData(result.getByteBuffer());
+            String entered = new String(result.toByteArray(), StandardCharsets.UTF_8);
+            MsgBox.messageBox("Entered string: " + entered, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         }
     }
 
