@@ -93,10 +93,10 @@ public class DemoApp extends TApplication {
     private void doDlgInputLine() {
         TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
 
-        TInputLine input = new TInputLine(new TRect(2, 2, 36, 3), 40);
+        TInputLine input = new TInputLine(new TRect(2, 2, 36, 3), 100);
 
-        DataPacket defaults = new DataPacket(64)
-                .putString("Not empty")
+        DataPacket defaults = new DataPacket(100)
+                .putString("Not empty input line. Long texts are scrollable.")
                 .rewind();
         ByteBuffer initBuf = defaults.getByteBuffer();
         int initLen = Short.toUnsignedInt(initBuf.getShort());
