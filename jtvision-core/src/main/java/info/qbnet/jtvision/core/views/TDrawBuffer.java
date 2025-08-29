@@ -6,13 +6,33 @@ public class TDrawBuffer {
     public final short[] buffer = new short[MAX_VIEW_LENGTH];
 
     /**
-     * Fills the buffer with a repeated character and attribute.
+     * Fills the buffer with a repeated character and/or attribute.
+     * <p>
+     * Turbo Vision's {@code MoveChar} treats a zero character or attribute as a
+     * signal to preserve the existing value. This behaviour is required when
+     * highlighting text – for example {@code TInputLine} selects characters by
+     * supplying a null character and a non-zero attribute. The previous
+     * implementation always overwrote both fields which caused the highlighted
+     * characters to disappear.
+     * </p>
+     *
+     * @param pos  starting position in the buffer
+     * @param ch   character to write; {@code 0} preserves the existing one
+     * @param attr attribute to write; {@code 0} preserves the existing one
+     * @param count number of cells to update
      */
     public void moveChar(int pos, char ch, int attr, int count) {
         int len = Math.min(count, MAX_VIEW_LENGTH - pos);
-        short value = (short) ((attr << 8) | (ch & 0xFF));
         for (int i = 0; i < len; i++) {
-            buffer[pos + i] = value;
+            int index = pos + i;
+            short current = buffer[index];
+            int curCh = current & 0xFF;
+            int curAttr = (current >>> 8) & 0xFF;
+
+            int newCh = (ch != 0) ? ch & 0xFF : curCh;
+            int newAttr = (attr != 0) ? attr & 0xFF : curAttr;
+
+            buffer[index] = (short) ((newAttr << 8) | newCh);
         }
     }
 
