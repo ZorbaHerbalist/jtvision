@@ -610,6 +610,13 @@ public class TGroup extends TView {
         setCurrent(firstMatch(State.SF_VISIBLE, Options.OF_SELECTABLE), SelectMode.NORMAL_SELECT);
     }
 
+    @Override
+    public void resetCursor() {
+        if (current != null) {
+            current.resetCursor();
+        }
+    }
+
     /**
      * Sets or clears the SF_SELECTED state for the specified view.
      */

@@ -33,6 +33,9 @@ public class TView {
     /** View dimensions; {@code x} is width and {@code y} is height. */
     public TPoint size;
 
+    /** Cursor position relative to the view's origin. */
+    private TPoint cursor = new TPoint(0, 0);
+
     /** Resize behavior flags for owner size changes. */
     public static class GrowMode {
         /** Keep left edge at constant distance from owner's right. */
@@ -214,6 +217,13 @@ public class TView {
 
         setBounds(bounds);
         eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
+    }
+
+    /** Sets insert-mode cursor (block-style). */
+    public void blockCursor() {
+        logger.trace("{} TView@blockCursor()", logName);
+
+        setState(State.SF_CURSOR_INS, true);
     }
 
     /**
@@ -413,6 +423,20 @@ public class TView {
     }
 
     /**
+     * Ensures that the text cursor reflects the current focus state.
+     * <p>
+     * Whenever the view is focused it delegates to {@link #resetCursor()} which
+     * in turn performs the actual cursor update.  When the view does not have
+     * the focus, the cursor remains untouched.
+     * </p>
+     */
+    public void drawCursor() {
+        if ((state & State.SF_FOCUSED) != 0) {
+            resetCursor();
+        }
+    }
+
+    /**
      * Repaints background (and shadow) after this view is hidden.
      *
      * @param lastView last sibling to repaint up to, or {@code null} for all
@@ -420,7 +444,7 @@ public class TView {
     private void drawHide(TView lastView) {
         logger.trace("{} TView@drawHide(lastView={})", logName, lastView != null ? lastView.getLogName() : "null" );
 
-//        drawCursor(); TODO
+        drawCursor();
         drawUnderView((state & State.SF_SHADOW) != 0, lastView);
     }
 
@@ -470,7 +494,7 @@ public class TView {
 
         if (exposed()) {
             draw();
-//            drawCursor(); TODO
+            drawCursor();
         }
     }
 
@@ -802,6 +826,13 @@ public class TView {
         }
     }
 
+    /** Hides the text cursor. */
+    public void hideCursor() {
+        logger.trace("{} TView@hideCursor()", logName);
+
+        setState(State.SF_CURSOR_VIS, false);
+    }
+
     /** Returns the next keydown event. */
     public void keyEvent(TEvent event) {
         do {
@@ -951,6 +982,13 @@ public class TView {
         }
     }
 
+    /** Clears insert mode (show underline cursor). */
+    public void normalCursor() {
+        logger.trace("{} TView@normalCursor()", logName);
+
+        setState(State.SF_CURSOR_INS, false);
+    }
+
     /** @return previous subview, treating the list as circular. */
     public TView prev() {
         TView previous = this;
@@ -1026,11 +1064,39 @@ public class TView {
                 }
                 if ((options & Options.OF_SELECTABLE) != 0) {
                     owner.resetCurrent();
-                    // TODO
-                    // owner.resetCursor()
+                    owner.resetCursor();
                 }
             }
         }
+    }
+
+    /**
+     * Resets the hardware cursor to match this view's cursor position.
+     *
+     * <p>This Java translation currently performs only state checks and
+     * computes the global cursor location. Integration with a real backend
+     * should position the terminal cursor accordingly.</p>
+     */
+    public void resetCursor() {
+        // Hide when not visible, not wanting a cursor or lacking focus.
+        int required = State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED;
+        if ((state & required) != required) {
+            return; // cursor not shown when view is not visible/focused
+        }
+
+        // Abort if cursor is outside the view's bounds
+        if (cursor.x < 0 || cursor.x >= size.x || cursor.y < 0 || cursor.y >= size.y) {
+            return; // cursor outside view bounds
+        }
+
+        // Convert to global coordinates for potential backend usage
+        TPoint global = new TPoint(cursor.x, cursor.y);
+        makeGlobal(global, global);
+
+        // Backend integration to position the cursor would occur here.
+        logger.trace("{} TView@resetCursor() global=({}, {})", logName, global.x, global.y);
+
+        // TODO
     }
 
     /**
@@ -1087,6 +1153,13 @@ public class TView {
             commandSetChanged = true;
         }
         curCommandSet = new HashSet<>(commands);
+    }
+
+    /** Sets the cursor position. */
+    public void setCursor(int x, int y) {
+        cursor.x = x;
+        cursor.y = y;
+        drawCursor();
     }
 
     /**
@@ -1146,18 +1219,15 @@ public class TView {
                     owner.resetCurrent();
                 }
                 break;
-
-//            case State.SF_CURSOR_VIS:
-//            case State.SF_CURSOR_INS:
-//                drawCursor(null);
-//                break;
-//
+            case State.SF_CURSOR_VIS:
+            case State.SF_CURSOR_INS:
+                drawCursor();
+                break;
             case State.SF_SHADOW:
                 drawUnderView(true, null);
                 break;
             case State.SF_FOCUSED:
-                // TODO
-//                resetCursor();
+                resetCursor();
                 int command = enable ? Command.CM_RECEIVED_FOCUS : Command.CM_RELEASED_FOCUS;
                 message(owner, TEvent.EV_BROADCAST, command, this);
                 break;
@@ -1175,6 +1245,13 @@ public class TView {
         if ((state & State.SF_VISIBLE) == 0) {
             setState(State.SF_VISIBLE, true);
         }
+    }
+
+    /** Makes the text cursor visible. */
+    public void showCursor() {
+        logger.trace("{} TView@showCursor()", logName);
+
+        setState(State.SF_CURSOR_VIS, true);
     }
 
     /**
