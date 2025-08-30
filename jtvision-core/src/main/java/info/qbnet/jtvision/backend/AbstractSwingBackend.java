@@ -18,6 +18,9 @@ import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for Swing based backends implementing the common buffering
@@ -36,6 +39,13 @@ public abstract class AbstractSwingBackend extends JPanel
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
     private volatile byte shiftState = 0;
+    private volatile int cursorX = 0;
+    private volatile int cursorY = 0;
+    private volatile boolean cursorVisible = false;
+    private volatile boolean cursorInsert = false;
+    private volatile boolean cursorOn = true;
+    private final ScheduledExecutorService cursorBlink = Executors.newSingleThreadScheduledExecutor();
+    private static final long BLINK_MS = 530;
 
     protected AbstractSwingBackend(Screen screen, Integer cellWidth, Integer cellHeight) {
         this.screen = screen;
@@ -105,6 +115,12 @@ public abstract class AbstractSwingBackend extends JPanel
                 updateMousePosition(e);
             }
         });
+
+        cursorBlink.scheduleAtFixedRate(() ->
+                SwingUtilities.invokeLater(() -> {
+                    cursorOn = !cursorOn;
+                    renderScreen();
+                }), BLINK_MS, BLINK_MS, TimeUnit.MILLISECONDS);
     }
 
     private void updateMousePosition(MouseEvent e) {
@@ -138,6 +154,20 @@ public abstract class AbstractSwingBackend extends JPanel
                 java.awt.Color fg = DosPalette.getForeground(attr);
                 java.awt.Color bg = DosPalette.getBackground(attr);
                 drawGlyph(g2d, x, y, ch, fg, bg);
+            }
+        }
+        if (cursorVisible && cursorOn) {
+            short cell = screen.getCell(cursorX, cursorY);
+            int attr = (cell >>> 8) & 0xFF;
+            java.awt.Color fg = DosPalette.getForeground(attr);
+            g2d.setColor(fg);
+            int px = cursorX * cellWidth;
+            int py = cursorY * cellHeight;
+            if (cursorInsert) {
+                g2d.fillRect(px, py, cellWidth, cellHeight);
+            } else {
+                int h = Math.max(1, cellHeight / 8);
+                g2d.fillRect(px, py + cellHeight - h, cellWidth, h);
             }
         }
         g2d.dispose();
@@ -229,5 +259,15 @@ public abstract class AbstractSwingBackend extends JPanel
     @Override
     public TPoint getMouseLocation() {
         return new TPoint(mouseX, mouseY);
+    }
+
+    @Override
+    public void updateCursor(int x, int y, boolean insertMode, boolean visible) {
+        cursorX = x;
+        cursorY = y;
+        cursorInsert = insertMode;
+        cursorVisible = visible;
+        cursorOn = true;
+        SwingUtilities.invokeLater(this::renderScreen);
     }
 }

@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.backend;
 
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
@@ -140,6 +141,17 @@ public class LanternaBackend implements GuiComponent<Screen> {
     @Override
     public byte getShiftState() {
         return shiftState;
+    }
+
+    @Override
+    public void updateCursor(int x, int y, boolean insertMode, boolean visible) {
+        if (terminalScreen != null) {
+            if (visible) {
+                terminalScreen.setCursorPosition(new TerminalPosition(x, y));
+            } else {
+                terminalScreen.setCursorPosition(null);
+            }
+        }
     }
 
     /** Stops the Lanterna screen. */

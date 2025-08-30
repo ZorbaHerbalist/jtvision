@@ -201,6 +201,15 @@ public class TProgram extends TGroup {
         return (application != null) ? application.backend.getShiftState() : 0;
     }
 
+    /**
+     * Provides access to the currently active backend.
+     *
+     * @return backend instance or {@code null} if program not initialized
+     */
+    public static Backend getBackend() {
+        return (application != null) ? application.backend : null;
+    }
+
     @Override
     public void handleEvent(TEvent event) {
         boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;

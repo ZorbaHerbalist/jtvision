@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.core.views;
 
+import info.qbnet.jtvision.backend.Backend;
 import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.constants.KeyCode;
@@ -1078,25 +1079,26 @@ public class TView {
      * should position the terminal cursor accordingly.</p>
      */
     public void resetCursor() {
-        // Hide when not visible, not wanting a cursor or lacking focus.
+        // Determine if cursor should be shown
         int required = State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED;
-        if ((state & required) != required) {
-            return; // cursor not shown when view is not visible/focused
-        }
+        boolean show = (state & required) == required;
 
-        // Abort if cursor is outside the view's bounds
-        if (cursor.x < 0 || cursor.x >= size.x || cursor.y < 0 || cursor.y >= size.y) {
-            return; // cursor outside view bounds
-        }
-
-        // Convert to global coordinates for potential backend usage
         TPoint global = new TPoint(cursor.x, cursor.y);
-        makeGlobal(global, global);
+        if (show) {
+            if (cursor.x < 0 || cursor.x >= size.x || cursor.y < 0 || cursor.y >= size.y) {
+                show = false; // outside bounds
+            } else {
+                makeGlobal(global, global);
+            }
+        }
 
-        // Backend integration to position the cursor would occur here.
-        logger.trace("{} TView@resetCursor() global=({}, {})", logName, global.x, global.y);
-
-        // TODO
+        Backend backend = TProgram.getBackend();
+        if (backend != null) {
+            backend.updateCursor(global.x, global.y,
+                    (state & State.SF_CURSOR_INS) != 0, show);
+        }
+        logger.trace("{} TView@resetCursor() global=({}, {}) show={}",
+                logName, global.x, global.y, show);
     }
 
     /**

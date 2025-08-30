@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.backend.util.ColorUtil;
@@ -41,6 +42,13 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private volatile int mouseX = 0;
     private volatile int mouseY = 0;
     private volatile byte shiftState = 0;
+    private int cursorX = 0;
+    private int cursorY = 0;
+    private boolean cursorVisible = false;
+    private boolean cursorInsert = false;
+    private boolean cursorOn = true;
+    private long lastBlink = 0;
+    private static final long BLINK_MS = 530;
 
     protected SpriteBatch batch;
     protected Texture pixel;
@@ -148,6 +156,11 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
 
     @Override
     public void render() {
+        long now = TimeUtils.millis();
+        if (now - lastBlink >= BLINK_MS) {
+            cursorOn = !cursorOn;
+            lastBlink = now;
+        }
         ScreenUtils.clear(0, 0, 0, 1);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -166,6 +179,20 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
                 batch.draw(pixel, x * cellWidth, pixelY, cellWidth, cellHeight);
 
                 drawGlyph(batch, ch, fg, x, pixelY);
+            }
+        }
+
+        if (cursorVisible && cursorOn) {
+            short cell = screen.getCell(cursorX, cursorY);
+            int attr = (cell >>> 8) & 0xFF;
+            java.awt.Color fg = DosPalette.getForeground(attr);
+            batch.setColor(ColorUtil.toGdx(fg));
+            int pixelY = (screen.getHeight() - cursorY - 1) * cellHeight;
+            if (cursorInsert) {
+                batch.draw(pixel, cursorX * cellWidth, pixelY, cellWidth, cellHeight);
+            } else {
+                int h = Math.max(1, cellHeight / 8);
+                batch.draw(pixel, cursorX * cellWidth, pixelY, cellWidth, h);
             }
         }
 
@@ -298,6 +325,15 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         y = Math.max(0, Math.min(screen.getHeight() - 1, y));
         mouseX = x;
         mouseY = y;
+    }
+
+    @Override
+    public void updateCursor(int x, int y, boolean insertMode, boolean visible) {
+        cursorX = x;
+        cursorY = y;
+        cursorInsert = insertMode;
+        cursorVisible = visible;
+        cursorOn = true;
     }
 }
 

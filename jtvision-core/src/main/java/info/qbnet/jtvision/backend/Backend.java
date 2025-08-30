@@ -17,6 +17,16 @@ public interface Backend {
     void renderScreen();
 
     /**
+     * Updates the text cursor position and appearance.
+     *
+     * @param x          horizontal cursor location in character cells
+     * @param y          vertical cursor location in character cells
+     * @param insertMode {@code true} to show a block cursor, {@code false} for an underline
+     * @param visible    whether the cursor should be visible
+     */
+    void updateCursor(int x, int y, boolean insertMode, boolean visible);
+
+    /**
      * @return width of a single character cell in pixels
      */
     Integer getCellWidth();
