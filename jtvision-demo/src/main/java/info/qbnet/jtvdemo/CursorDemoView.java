@@ -7,12 +7,15 @@ import info.qbnet.jtvision.core.views.TView;
 
 /**
  * Simple view demonstrating cursor handling.
- * The cursor can be moved within the view using arrow keys.
+ * The cursor can be moved within the view using arrow keys and
+ * the cursor shape can be switched between underline and block styles.
  */
 public class CursorDemoView extends TView {
 
     private int curX = 0;
     private int curY = 0;
+    /** Indicates whether the cursor is in block mode. */
+    private boolean blockMode = false;
 
     public CursorDemoView(TRect bounds) {
         super(bounds);
@@ -25,22 +28,55 @@ public class CursorDemoView extends TView {
     public void draw() {
         super.draw();
         writeStr(1, 0, "Use arrow keys to move cursor", getColor((short)0x03));
+        writeStr(1, 1, "B - block cursor, U - underline", getColor((short)0x03));
+        String mode = blockMode ? "BLOCK" : "UNDERLINE";
+        writeStr(1, 2, "Current: " + mode, getColor((short)0x03));
     }
 
     @Override
     public void handleEvent(TEvent event) {
         super.handleEvent(event);
         if (event.what == TEvent.EV_KEYDOWN) {
+            boolean handled = true;
             switch (event.key.keyCode) {
                 case KeyCode.KB_LEFT -> moveCursor(-1, 0);
                 case KeyCode.KB_RIGHT -> moveCursor(1, 0);
                 case KeyCode.KB_UP -> moveCursor(0, -1);
                 case KeyCode.KB_DOWN -> moveCursor(0, 1);
                 default -> {
-                    return;
+                    handled = handleCharKey(event.key.charCode);
                 }
             }
-            clearEvent(event);
+            if (handled) {
+                clearEvent(event);
+            }
+        }
+    }
+
+    /**
+     * Handles character keys for toggling the cursor type.
+     *
+     * @param ch the character that was pressed
+     * @return {@code true} if the key was processed
+     */
+    private boolean handleCharKey(char ch) {
+        ch = Character.toUpperCase(ch);
+        switch (ch) {
+            case 'B' -> {
+                blockCursor();
+                blockMode = true;
+                drawView();
+                return true;
+            }
+            case 'U' -> {
+                normalCursor();
+                blockMode = false;
+                drawView();
+                return true;
+            }
+            default -> {
+                return false;
+            }
         }
     }
 
