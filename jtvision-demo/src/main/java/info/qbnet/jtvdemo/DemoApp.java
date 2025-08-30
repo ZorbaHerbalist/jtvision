@@ -35,6 +35,7 @@ public class DemoApp extends TApplication {
     public static final int CM_GREETINGS = 102;
     public static final int CM_ABOUT = 103;
     public static final int CM_DLG_INPUT_LINE = 104;
+    public static final int CM_DLG_CURSOR = 105;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final int MAX_LINES = 100;
@@ -115,6 +116,19 @@ public class DemoApp extends TApplication {
             String entered = new String(result.toByteArray(), StandardCharsets.UTF_8);
             MsgBox.messageBox("Entered string: " + entered, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         }
+    }
+
+    private void doDlgCursor() {
+        TDialog d = new TDialog(new TRect(10, 5, 60, 20), "Cursor Demo");
+
+        CursorDemoView view = new CursorDemoView(new TRect(2, 2, 38, 9));
+        d.insert(view);
+
+        d.insert(new TButton(new TRect(20, 10, 30, 12), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+
+        d.selectNext(false);
+
+        desktop.execView(d);
     }
 
     private static BackendType determineBackendType() {
@@ -209,8 +223,9 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT,
                         null))))),
                 TMenuBar.newSubmenu("~D~ialog", 0, TMenuBar.newMenu(
+                        TMenuBar.newItem("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
-                        null)),
+                        null))),
                 TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
@@ -237,6 +252,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_INPUT_LINE:
                     doDlgInputLine();
+                    break;
+                case CM_DLG_CURSOR:
+                    doDlgCursor();
                     break;
                 default:
                     return;
