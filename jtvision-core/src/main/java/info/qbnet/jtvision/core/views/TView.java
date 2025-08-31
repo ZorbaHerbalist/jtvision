@@ -7,6 +7,7 @@ import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.util.IBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -842,6 +843,14 @@ public class TView {
     }
 
     /**
+     * Reads this view's persistent state from the supplied stream. The default
+     * implementation does nothing.
+     *
+     * @param stream source stream
+     */
+    public void load(TStream stream) {}
+
+    /**
      * Ensures that {@code value} falls within the inclusive range defined by
      * {@code min} and {@code max}.
      *
@@ -1281,6 +1290,14 @@ public class TView {
             max.y = Short.MAX_VALUE;
         }
     }
+
+    /**
+     * Writes this view's persistent state to the supplied stream. The default
+     * implementation does nothing.
+     *
+     * @param stream destination stream
+     */
+    public void store(TStream stream) {}
 
     /**
      * Returns the current modal view, or null if none exists.
