@@ -57,6 +57,7 @@ public abstract class AbstractSwingBackend extends JPanel
         setPreferredSize(new Dimension(width, height));
 
         setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
