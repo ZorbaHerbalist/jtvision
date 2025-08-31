@@ -41,7 +41,12 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     private volatile boolean cursorVisible = false;
     private volatile boolean cursorInsert = false;
     private volatile boolean cursorOn = true;
-    private final ScheduledExecutorService cursorBlink = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService cursorBlink =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "cursor-blink");
+                t.setDaemon(true);
+                return t;
+            });
     private static final long BLINK_MS = 530;
 
     protected AbstractJavaFxBackend(Screen screen, int cellWidth, int cellHeight) {

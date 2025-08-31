@@ -3,6 +3,7 @@ package info.qbnet.jtvision.backend.factory;
 import info.qbnet.jtvision.util.Screen;
 
 import javax.swing.*;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public class SwingFactory extends Factory<GuiComponent<JPanel>> {
 
             setupThreadCleanup(mainThread, () -> {
                 log.debug("Forcefully terminating Swing frame...");
-                SwingUtilities.invokeLater(frame::dispose);
+                SwingUtilities.invokeLater(() ->
+                        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
             });
 
             // store backend reference for the caller and signal completion
