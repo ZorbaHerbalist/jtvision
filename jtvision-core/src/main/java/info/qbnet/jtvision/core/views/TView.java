@@ -1041,6 +1041,11 @@ public class TView {
         return previous;
     }
 
+    /** @return previous subview or {@code null} if this is the first. */
+    public TView prevView() {
+        return owner != null && owner.first() != this ? prev() : null;
+    }
+
     /** Forwards {@code event} to the owner's event queue. */
     public void putEvent(TEvent event) {
         if (owner != null) {
