@@ -15,7 +15,8 @@ public final class SerializationRegistry {
             "info.qbnet.jtvision.core.dialogs.TDialog",
             "info.qbnet.jtvision.core.dialogs.TStaticText",
             "info.qbnet.jtvision.core.dialogs.TInputLine",
-            "info.qbnet.jtvision.core.dialogs.TButton"
+            "info.qbnet.jtvision.core.dialogs.TButton",
+            "info.qbnet.jtvision.core.views.TFrame"
     };
 
     /**
