@@ -4,6 +4,7 @@ import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.io.IOException;
 
 /**
  * TGroup objects and their derivatives (which we call groups for short)
@@ -50,6 +52,17 @@ import java.util.function.Predicate;
  * TDeskTop, and TWindow.
  */
 public class TGroup extends TView {
+
+    public static final int CLASS_ID = 2;
+
+    static {
+        TStream.registerType(CLASS_ID, TGroup::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     /**
      * Points to the last subview in the group (the one furthest from the top in
@@ -111,6 +124,19 @@ public class TGroup extends TView {
         logger.debug("{} TGroup@TGroup(bounds={})", getLogName(), bounds);
     }
 
+    public TGroup(TStream stream) {
+        super(stream);
+        try {
+            int count = stream.readInt();
+            for (int i = 0; i < count; i++) {
+                TView child = stream.loadView();
+                insert(child);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void changeBounds(TRect bounds) {
         TPoint d = new TPoint(bounds.b.x - bounds.a.x - size.x, bounds.b.y - bounds.a.y - size.y);
@@ -156,6 +182,33 @@ public class TGroup extends TView {
         p.next = null;
         if ((saveState & State.SF_VISIBLE) != 0) {
             p.show();
+        }
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            int count = 0;
+            if (last != null) {
+                TView first = last.getNext();
+                TView p = first;
+                do {
+                    count++;
+                    p = p.getNext();
+                } while (p != first);
+            }
+            stream.writeInt(count);
+            if (last != null) {
+                TView first = last.getNext();
+                TView p = first;
+                do {
+                    stream.storeView(p);
+                    p = p.getNext();
+                } while (p != first);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

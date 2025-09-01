@@ -13,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class TStreamTest {
 
     static class SampleView extends TView {
+        static final int CLASS_ID = 100;
+        static { TStream.registerType(CLASS_ID, SampleView::new); }
         int value;
         SampleView() { super(new TRect(0, 0, 1, 1)); }
-        @Override
-        public void load(TStream stream) {
+        public SampleView(TStream stream) {
+            super(stream);
             try {
                 value = stream.readInt();
             } catch (IOException e) {
@@ -24,7 +26,12 @@ class TStreamTest {
             }
         }
         @Override
+        public int getClassId() {
+            return CLASS_ID;
+        }
+        @Override
         public void store(TStream stream) {
+            super.store(stream);
             try {
                 stream.writeInt(value);
             } catch (IOException e) {
@@ -50,8 +57,6 @@ class TStreamTest {
 
     @Test
     void storeAndLoadView() throws Exception {
-        TStream.registerType(1, SampleView::new);
-
         SampleView view = new SampleView();
         view.value = 0xCAFEBABE;
         ByteArrayOutputStream out = new ByteArrayOutputStream();

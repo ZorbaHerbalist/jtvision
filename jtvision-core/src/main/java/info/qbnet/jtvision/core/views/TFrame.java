@@ -4,8 +4,20 @@ import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 
 public class TFrame extends TView {
+
+    public static final int CLASS_ID = 6;
+
+    static {
+        TStream.registerType(CLASS_ID, TFrame::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     public static final TPalette C_FRAME = new TPalette(TPalette.parseHexString("\\x01\\x01\\x02\\x02\\x03"));
 
@@ -27,6 +39,15 @@ public class TFrame extends TView {
         super(bounds);
         this.growMode |= GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y;
         this.eventMask |= TEvent.EV_BROADCAST;
+    }
+
+    public TFrame(TStream stream) {
+        super(stream);
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
     }
 
     private void frameLine(TDrawBuffer buf, int y, int n, byte color) {

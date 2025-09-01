@@ -6,9 +6,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * Simple little-endian stream wrapper used for persisting {@link TView} instances.
@@ -21,7 +22,7 @@ public class TStream {
     /**
      * Map of registered view factories indexed by type identifier.
      */
-    private static final Map<Integer, Supplier<TView>> TYPES = new HashMap<>();
+    private static final Map<Integer, Function<TStream, TView>> TYPES = new HashMap<>();
 
     /**
      * Creates a stream for reading.
@@ -144,7 +145,7 @@ public class TStream {
      * @param id      type identifier
      * @param factory constructor for the view
      */
-    public static void registerType(int id, Supplier<TView> factory) {
+    public static void registerType(int id, Function<TStream, TView> factory) {
         TYPES.put(id, factory);
     }
 
@@ -156,13 +157,11 @@ public class TStream {
      */
     public TView loadView() throws IOException {
         int id = readInt();
-        Supplier<TView> factory = TYPES.get(id);
+        Function<TStream, TView> factory = TYPES.get(id);
         if (factory == null) {
             throw new IllegalStateException("Unknown view type: " + id);
         }
-        TView view = factory.get();
-        view.load(this);
-        return view;
+        return factory.apply(this);
     }
 
     /**
@@ -172,17 +171,32 @@ public class TStream {
      * @throws IOException if an I/O error occurs
      */
     public void storeView(TView view) throws IOException {
-        Integer id = null;
-        for (Map.Entry<Integer, Supplier<TView>> e : TYPES.entrySet()) {
-            if (e.getValue().get().getClass().equals(view.getClass())) {
-                id = e.getKey();
-                break;
-            }
-        }
-        if (id == null) {
-            throw new IllegalStateException("Unregistered view type: " + view.getClass());
-        }
-        writeInt(id);
+        writeInt(view.getClassId());
         view.store(this);
+    }
+
+    /**
+     * Writes a UTF-8 encoded string prefixed with its length or -1 for {@code null}.
+     */
+    public void writeString(String value) throws IOException {
+        if (value == null) {
+            writeInt(-1);
+        } else {
+            byte[] data = value.getBytes(StandardCharsets.UTF_8);
+            writeInt(data.length);
+            writeBytes(data);
+        }
+    }
+
+    /**
+     * Reads a UTF-8 encoded string previously written with {@link #writeString}.
+     */
+    public String readString() throws IOException {
+        int len = readInt();
+        if (len < 0) {
+            return null;
+        }
+        byte[] data = readBytes(len);
+        return new String(data, StandardCharsets.UTF_8);
     }
 }

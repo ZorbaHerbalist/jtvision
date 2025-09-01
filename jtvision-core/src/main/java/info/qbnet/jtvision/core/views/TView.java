@@ -8,6 +8,7 @@ import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.objects.TStream;
+import java.io.IOException;
 import info.qbnet.jtvision.util.IBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Usually subclassed for widgets such as windows or buttons.
  */
 public class TView {
+
+    public static final int CLASS_ID = 1;
+
+    static {
+        TStream.registerType(CLASS_ID, TView::new);
+    }
+
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     /** Owning {@link TGroup}; {@code null} for top-level views. */
     protected TGroup owner = null;
@@ -219,6 +230,26 @@ public class TView {
 
         setBounds(bounds);
         eventMask = TEvent.EV_MOUSE_DOWN + TEvent.EV_KEYDOWN + TEvent.EV_COMMAND;
+    }
+
+    public TView(TStream stream) {
+        logger = LoggerFactory.getLogger(getClass());
+        AtomicInteger counter = CLASS_COUNTERS.computeIfAbsent(getClass(), k -> new AtomicInteger());
+        logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
+
+        try {
+            origin = new TPoint(stream.readInt(), stream.readInt());
+            size = new TPoint(stream.readInt(), stream.readInt());
+            cursor = new TPoint(stream.readInt(), stream.readInt());
+            growMode = stream.readInt();
+            dragMode = stream.readInt();
+            helpCtx = stream.readInt();
+            state = stream.readInt();
+            options = stream.readInt();
+            eventMask = stream.readInt();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /** Sets insert-mode cursor (block-style). */
@@ -848,8 +879,6 @@ public class TView {
      *
      * @param stream source stream
      */
-    public void load(TStream stream) {}
-
     /**
      * Ensures that {@code value} falls within the inclusive range defined by
      * {@code min} and {@code max}.
@@ -1297,7 +1326,29 @@ public class TView {
      *
      * @param stream destination stream
      */
-    public void store(TStream stream) {}
+    public void store(TStream stream) {
+        int saveState = state;
+        // Do not persist transient runtime bits, mirroring Turbo Vision's behavior.
+        state &= ~(State.SF_ACTIVE | State.SF_SELECTED | State.SF_FOCUSED | State.SF_EXPOSED);
+        try {
+            stream.writeInt(origin.x);
+            stream.writeInt(origin.y);
+            stream.writeInt(size.x);
+            stream.writeInt(size.y);
+            stream.writeInt(cursor.x);
+            stream.writeInt(cursor.y);
+            stream.writeInt(growMode);
+            stream.writeInt(dragMode);
+            stream.writeInt(helpCtx);
+            stream.writeInt(state);
+            stream.writeInt(options);
+            stream.writeInt(eventMask);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            state = saveState;
+        }
+    }
 
     /**
      * Returns the current modal view, or null if none exists.

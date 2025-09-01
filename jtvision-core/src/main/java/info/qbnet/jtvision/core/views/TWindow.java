@@ -5,11 +5,24 @@ import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.io.IOException;
 
 public class TWindow extends TGroup {
+
+    public static final int CLASS_ID = 3;
+
+    static {
+        TStream.registerType(CLASS_ID, TWindow::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     public static class WindowFlag {
         public static final int WF_MOVE     = 0x01;
@@ -56,10 +69,52 @@ public class TWindow extends TGroup {
         getBounds(zoomRect);
     }
 
+    public TWindow(TStream stream) {
+        super(stream);
+        try {
+            title = stream.readString();
+            number = stream.readInt();
+            flags = stream.readInt();
+            palette = WindowPalette.values()[stream.readInt()];
+            zoomRect = new TRect(stream.readInt(), stream.readInt(), stream.readInt(), stream.readInt());
+            frame = null;
+            if (last != null) {
+                TView first = last.getNext();
+                TView p = first;
+                do {
+                    if (p instanceof TFrame) {
+                        frame = (TFrame) p;
+                        break;
+                    }
+                    p = p.getNext();
+                } while (p != first);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void close() {
         logger.trace("{} TWindow@close()", getLogName());
         if (valid(Command.CM_CLOSE)) {
             done();
+        }
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeString(title);
+            stream.writeInt(number);
+            stream.writeInt(flags);
+            stream.writeInt(palette.ordinal());
+            stream.writeInt(zoomRect.a.x);
+            stream.writeInt(zoomRect.a.y);
+            stream.writeInt(zoomRect.b.x);
+            stream.writeInt(zoomRect.b.y);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

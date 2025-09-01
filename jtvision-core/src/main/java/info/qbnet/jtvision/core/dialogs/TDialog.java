@@ -6,8 +6,21 @@ import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TWindow;
+import info.qbnet.jtvision.core.objects.TStream;
+import java.io.IOException;
 
 public class TDialog extends TWindow {
+
+    public static final int CLASS_ID = 4;
+
+    static {
+        TStream.registerType(CLASS_ID, TDialog::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     public enum DialogPalette {
         DP_BLUE_DIALOG,
@@ -25,6 +38,15 @@ public class TDialog extends TWindow {
         super(bounds, title, WN_NO_NUMBER);
         this.growMode = 0;
         this.flags = WindowFlag.WF_MOVE + WindowFlag.WF_CLOSE;
+    }
+
+    public TDialog(TStream stream) {
+        super(stream);
+        try {
+            dialogPalette = DialogPalette.values()[stream.readInt()];
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -75,6 +97,16 @@ public class TDialog extends TWindow {
                         break;
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeInt(dialogPalette.ordinal());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

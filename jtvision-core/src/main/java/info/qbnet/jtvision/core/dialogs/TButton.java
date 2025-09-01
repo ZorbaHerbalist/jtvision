@@ -8,10 +8,23 @@ import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
+import info.qbnet.jtvision.core.objects.TStream;
+import java.io.IOException;
 
 import static info.qbnet.jtvision.core.constants.KeyCode.getAltCode;
 
 public class TButton extends TView {
+
+    public static final int CLASS_ID = 5;
+
+    static {
+        TStream.registerType(CLASS_ID, TButton::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     public static final int BF_NORMAL    = 0x00;
     public static final int BF_DEFAULT   = 0x01;
@@ -37,6 +50,18 @@ public class TButton extends TView {
         this.amDefault = (flags & BF_DEFAULT) != 0;
         if (!commandEnabled(command)) {
             state |= State.SF_DISABLED;
+        }
+    }
+
+    public TButton(TStream stream) {
+        super(stream);
+        try {
+            title = stream.readString();
+            command = stream.readInt();
+            flags = stream.readInt();
+            amDefault = stream.readInt() != 0;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -132,6 +157,19 @@ public class TButton extends TView {
         buf.moveChar(0, ' ', cShadow & 0xFF, 2);
         buf.moveChar(2, ch, cShadow & 0xFF, s - 1);
         writeLine(0, size.y - 1, size.x, 1, buf.buffer);
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeString(title);
+            stream.writeInt(command);
+            stream.writeInt(flags);
+            stream.writeInt(amDefault ? 1 : 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
