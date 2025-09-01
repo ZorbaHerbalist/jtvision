@@ -1180,6 +1180,20 @@ public class TView {
     }
 
     /**
+     * Adds or removes {@code commands} from {@link #curCommandSet} based on {@code enable}.
+     *
+     * @param commands set of command identifiers to update
+     * @param enable   {@code true} to enable commands, {@code false} to disable
+     */
+    public static void setCmdState(Set<Integer> commands, boolean enable) {
+        if (enable) {
+            enableCommands(commands);
+        } else {
+            disableCommands(commands);
+        }
+    }
+
+    /**
      * Replaces the current command set for this view with the specified set.
      * <p>
      * If the new set differs from the existing one, the {@code commandSetChanged} flag is set.
