@@ -15,6 +15,7 @@ import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TWindow;
 import info.qbnet.jtvision.core.objects.TStream;
+import info.qbnet.jtvision.core.serialization.SerializationRegistry;
 import info.qbnet.jtvision.util.DataPacket;
 
 import java.awt.*;
@@ -47,6 +48,7 @@ public class DemoApp extends TApplication {
 
     public DemoApp() {
         super(determineBackendType());
+        registerSerializableViews();
         this.lines = readFile();
 
 //        Console console = getConsole();
@@ -87,6 +89,13 @@ public class DemoApp extends TApplication {
 //        }
 //
 //        console.shutdown();
+    }
+
+    /**
+     * Ensures that core view classes are registered for deserialization.
+     */
+    static void registerSerializableViews() {
+        SerializationRegistry.initCoreTypes();
     }
 
     private void doAboutBox() {
