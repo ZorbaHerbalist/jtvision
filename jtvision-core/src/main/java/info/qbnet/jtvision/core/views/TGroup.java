@@ -130,7 +130,9 @@ public class TGroup extends TView {
             int count = stream.readInt();
             for (int i = 0; i < count; i++) {
                 TView child = stream.loadView();
-                insert(child);
+                // Insert subviews in the same order as they were stored to
+                // ensure indices used by getSubViewPtr remain valid.
+                insertBefore(child, null);
             }
             TView sel = stream.getSubViewPtr(this);
             setCurrent(sel, SelectMode.NORMAL_SELECT);
