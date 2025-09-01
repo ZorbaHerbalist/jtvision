@@ -4,11 +4,24 @@ import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
+import info.qbnet.jtvision.core.objects.TStream;
+import java.io.IOException;
 
 /**
  * A non-interactive text view used in dialogs for labels or explanatory text.
  */
 public class TStaticText extends TView {
+
+    public static final int CLASS_ID = 7;
+
+    static {
+        TStream.registerType(CLASS_ID, TStaticText::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     protected String text;
 
@@ -17,6 +30,15 @@ public class TStaticText extends TView {
     public TStaticText(TRect bounds, final String text) {
         super(bounds);
         this.text = text;
+    }
+
+    public TStaticText(TStream stream) {
+        super(stream);
+        try {
+            text = stream.readString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -100,6 +122,16 @@ public class TStaticText extends TView {
 
     public String getText() {
         return text != null ? text : "";
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeString(text);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
