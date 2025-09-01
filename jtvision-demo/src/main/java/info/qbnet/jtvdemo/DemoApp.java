@@ -14,6 +14,7 @@ import info.qbnet.jtvision.core.menus.TStatusItem;
 import info.qbnet.jtvision.core.menus.TStatusLine;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TWindow;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.util.DataPacket;
 
 import java.awt.*;
@@ -38,6 +39,7 @@ public class DemoApp extends TApplication {
     public static final int CM_DLG_CURSOR = 105;
 
     private static final String FILE_TO_READ = "/demo.txt";
+    private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
     private static final int MAX_LINES = 100;
 
     private final List<String> lines;
@@ -92,29 +94,50 @@ public class DemoApp extends TApplication {
     }
 
     private void doDlgInputLine() {
-        TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
+        TDialog d = loadSampleDialog();
+        TInputLine input = null;
 
-        TInputLine input = new TInputLine(new TRect(2, 2, 36, 3), 100);
+        if (d == null) {
+            d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
 
-        DataPacket defaults = new DataPacket(100)
-                .putString("Not empty input line. Long texts are scrollable.")
-                .rewind();
-        ByteBuffer initBuf = defaults.getByteBuffer();
-        int initLen = Short.toUnsignedInt(initBuf.getShort());
-        ByteBuffer initSlice = initBuf.slice();
-        initSlice.limit(initLen);
-        input.setData(initSlice);
-        d.insert(input);
+            input = new TInputLine(new TRect(2, 2, 36, 3), 100);
 
-        d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
-        d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
-        d.selectNext(false);
+            DataPacket defaults = new DataPacket(100)
+                    .putString("Not empty input line. Long texts are scrollable.")
+                    .rewind();
+            ByteBuffer initBuf = defaults.getByteBuffer();
+            int initLen = Short.toUnsignedInt(initBuf.getShort());
+            ByteBuffer initSlice = initBuf.slice();
+            initSlice.limit(initLen);
+            input.setData(initSlice);
+            d.insert(input);
 
-        if (desktop.execView(d) == Command.CM_OK) {
+            d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+            d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
+            d.selectNext(false);
+        } else {
+            System.err.println("Loaded");
+            input = (TInputLine) d.firstThat(v -> v instanceof TInputLine);
+        }
+
+        if (desktop.execView(d) == Command.CM_OK && input != null) {
             DataPacket result = new DataPacket(input.dataSize());
             input.getData(result.getByteBuffer());
             String entered = new String(result.toByteArray(), StandardCharsets.UTF_8);
             MsgBox.messageBox("Entered string: " + entered, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        }
+    }
+
+    private TDialog loadSampleDialog() {
+        try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
+            if (is == null) {
+                return null;
+            }
+            TStream ts = new TStream(is);
+            return (TDialog) ts.loadView();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
