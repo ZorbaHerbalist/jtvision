@@ -132,6 +132,8 @@ public class TGroup extends TView {
                 TView child = stream.loadView();
                 insert(child);
             }
+            TView sel = stream.getSubViewPtr(this);
+            setCurrent(sel, SelectMode.NORMAL_SELECT);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -189,24 +191,15 @@ public class TGroup extends TView {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            int count = 0;
-            if (last != null) {
-                TView first = last.getNext();
-                TView p = first;
-                do {
-                    count++;
-                    p = p.getNext();
-                } while (p != first);
-            }
-            stream.writeInt(count);
-            if (last != null) {
-                TView first = last.getNext();
-                TView p = first;
-                do {
-                    stream.storeView(p);
-                    p = p.getNext();
-                } while (p != first);
-            }
+            stream.writeInt(indexOf(last));
+            forEach(v -> {
+                try {
+                    stream.storeView(v);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            stream.putSubViewPtr(current);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -556,6 +549,28 @@ public class TGroup extends TView {
         } while (current != last);
 
         return 0;
+    }
+
+    /**
+     * Returns the subview at the given 1-based {@code index} or {@code null}
+     * if the index is out of range. Index {@code 1} corresponds to the first
+     * subview (the one closest to the top in Z-order).
+     */
+    public TView at(int index) {
+        if (last == null || index <= 0) {
+            return null;
+        }
+        TView first = last.getNext();
+        TView p = first;
+        int currentIndex = 1;
+        do {
+            if (currentIndex == index) {
+                return p;
+            }
+            p = p.getNext();
+            currentIndex++;
+        } while (p != first);
+        return null;
     }
 
     /**
