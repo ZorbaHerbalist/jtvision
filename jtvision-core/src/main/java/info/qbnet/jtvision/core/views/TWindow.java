@@ -72,23 +72,12 @@ public class TWindow extends TGroup {
     public TWindow(TStream stream) {
         super(stream);
         try {
-            title = stream.readString();
-            number = stream.readInt();
             flags = stream.readInt();
-            palette = WindowPalette.values()[stream.readInt()];
             zoomRect = new TRect(stream.readInt(), stream.readInt(), stream.readInt(), stream.readInt());
-            frame = null;
-            if (last != null) {
-                TView first = last.getNext();
-                TView p = first;
-                do {
-                    if (p instanceof TFrame) {
-                        frame = (TFrame) p;
-                        break;
-                    }
-                    p = p.getNext();
-                } while (p != first);
-            }
+            number = stream.readInt();
+            palette = WindowPalette.values()[stream.readInt()];
+            frame = (TFrame) stream.getSubViewPtr(this);
+            title = stream.readString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -105,14 +94,15 @@ public class TWindow extends TGroup {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            stream.writeString(title);
-            stream.writeInt(number);
             stream.writeInt(flags);
-            stream.writeInt(palette.ordinal());
             stream.writeInt(zoomRect.a.x);
             stream.writeInt(zoomRect.a.y);
             stream.writeInt(zoomRect.b.x);
             stream.writeInt(zoomRect.b.y);
+            stream.writeInt(number);
+            stream.writeInt(palette.ordinal());
+            stream.putSubViewPtr(frame);
+            stream.writeString(title);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
