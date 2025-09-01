@@ -63,6 +63,7 @@ public class TButton extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        setState(State.SF_DISABLED, !commandEnabled(command));
     }
 
     @Override
