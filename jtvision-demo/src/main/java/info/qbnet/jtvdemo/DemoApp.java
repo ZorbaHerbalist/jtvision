@@ -37,6 +37,7 @@ public class DemoApp extends TApplication {
     public static final int CM_ABOUT = 103;
     public static final int CM_DLG_INPUT_LINE = 104;
     public static final int CM_DLG_CURSOR = 105;
+    public static final int CM_DLG_FILE = 106;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
@@ -248,7 +249,8 @@ public class DemoApp extends TApplication {
                 TMenuBar.newSubmenu("~D~ialog", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
-                        null))),
+                        TMenuBar.newItem("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT,
+                        null)))),
                 TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
@@ -278,6 +280,19 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_CURSOR:
                     doDlgCursor();
+                    break;
+                case CM_DLG_FILE:
+                    try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
+                        if (is == null) {
+                            MsgBox.messageBox("sampleDialog.bin not found", MsgBox.MF_ERROR + MsgBox.MF_OK_BUTTON);
+                            break;
+                        }
+                        TStream ts = new TStream(is);
+                        TDialog dialog = (TDialog) ts.loadView();
+                        desktop.execView(dialog);
+                    } catch (IOException e) {
+                        MsgBox.messageBox("Error loading dialog", MsgBox.MF_ERROR + MsgBox.MF_OK_BUTTON);
+                    }
                     break;
                 default:
                     return;
