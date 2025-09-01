@@ -126,6 +126,7 @@ public class TGroup extends TView {
 
     public TGroup(TStream stream) {
         super(stream);
+        getExtent(clip);
         try {
             int count = stream.readInt();
             for (int i = 0; i < count; i++) {
