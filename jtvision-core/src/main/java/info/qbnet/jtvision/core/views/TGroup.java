@@ -59,6 +59,13 @@ public class TGroup extends TView {
         TStream.registerType(CLASS_ID, TGroup::new);
     }
 
+    /**
+     * Tracks the group currently being loaded from a {@link TStream} to ensure
+     * the {@link #awaken()} hook is invoked only once after the entire view
+     * hierarchy has been constructed.
+     */
+    private static TGroup loadingGroup = null;
+
     @Override
     public int getClassId() {
         return CLASS_ID;
@@ -127,6 +134,9 @@ public class TGroup extends TView {
     public TGroup(TStream stream) {
         super(stream);
         getExtent(clip);
+
+        TGroup previous = loadingGroup;
+        loadingGroup = this;
         try {
             int count = stream.readInt();
             for (int i = 0; i < count; i++) {
@@ -139,7 +149,19 @@ public class TGroup extends TView {
             setCurrent(sel, SelectMode.NORMAL_SELECT);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            loadingGroup = previous;
         }
+
+        if (previous == null) {
+            awaken();
+        }
+    }
+
+    @Override
+    public void awaken() {
+        logger.trace("{} TGroup@awaken()", getLogName());
+        forEach(TView::awaken);
     }
 
     @Override

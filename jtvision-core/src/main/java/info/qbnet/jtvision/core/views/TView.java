@@ -252,6 +252,16 @@ public class TView {
         }
     }
 
+    /**
+     * Hook that is invoked once the view has been fully constructed and inserted
+     * into the view hierarchy. Subclasses may override to perform additional
+     * initialization that depends on the surrounding views. The default
+     * implementation does nothing.
+     */
+    public void awaken() {
+        logger.trace("{} TView@awaken()", logName);
+    }
+
     /** Sets insert-mode cursor (block-style). */
     public void blockCursor() {
         logger.trace("{} TView@blockCursor()", logName);
