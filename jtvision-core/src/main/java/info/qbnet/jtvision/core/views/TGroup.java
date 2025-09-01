@@ -531,6 +531,34 @@ public class TGroup extends TView {
     }
 
     /**
+     * Returns the 1-based index of {@code view} in this group's circular
+     * subview list. The first subview (closest to the top in Z-order)
+     * has index {@code 1}. If the supplied view is not a member of this
+     * group or the group has no subviews, {@code 0} is returned.
+     *
+     * <p>This is a direct translation of the Turbo Vision {@code TGroup.IndexOf}
+     * routine, which traverses the ring of subviews starting from {@code last}.</p>
+     */
+    public int indexOf(TView view) {
+        if (last == null || view == null) {
+            return 0;
+        }
+
+        int index = 0;
+        TView current = last;
+
+        do {
+            index++;
+            current = current.getNext();
+            if (current == view) {
+                return index;
+            }
+        } while (current != last);
+
+        return 0;
+    }
+
+    /**
      * Inserts the view into the group's subview list. The new subview is placed
      * on top of all other subviews (before the first one in the list).
      *
