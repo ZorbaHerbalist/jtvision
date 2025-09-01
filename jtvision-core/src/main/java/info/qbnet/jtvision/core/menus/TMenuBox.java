@@ -2,10 +2,18 @@ package info.qbnet.jtvision.core.menus;
 
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.util.CString;
 
 public class TMenuBox extends TMenuView {
+
+    /** Serialization identifier for {@code TMenuBox} instances. */
+    public static final int CLASS_ID = 12;
+
+    static {
+        TStream.registerType(CLASS_ID, TMenuBox::new);
+    }
 
     public TMenuBox(TRect bounds, TMenu menu, TMenuView parentMenu) {
         super(bounds);
@@ -53,6 +61,20 @@ public class TMenuBox extends TMenuView {
         this.options |= Options.OF_PRE_PROCESS;
         this.menu = menu;
         this.parentMenu = parentMenu;
+    }
+
+    public TMenuBox(TStream stream) {
+        super(stream);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
     }
 
     private static final String FRAME_CHARS =

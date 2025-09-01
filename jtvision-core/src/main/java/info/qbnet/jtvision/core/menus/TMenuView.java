@@ -5,10 +5,22 @@ import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TMenuView extends TView {
+
+    /** Serialization identifier for {@code TMenuView} instances. */
+    public static final int CLASS_ID = 10;
+
+    static {
+        TStream.registerType(CLASS_ID, TMenuView::new);
+    }
 
     protected TMenuView parentMenu = null;
     protected TMenu menu = null;
@@ -21,6 +33,29 @@ public class TMenuView extends TView {
         eventMask |= TEvent.EV_BROADCAST;
 
         logger.debug("{} TMenuView@TMenuView(bounds={})", getLogName(), bounds);
+    }
+
+    public TMenuView(TStream stream) {
+        super(stream);
+        eventMask |= TEvent.EV_BROADCAST;
+        try {
+            parentMenu = (TMenuView) stream.getSubViewPtr(null);
+            menu = readMenu(stream);
+            int currentIndex = stream.readInt();
+            if (menu != null) {
+                current = menu.items();
+                for (int i = 1; i < currentIndex && current != null; i++) {
+                    current = current.next();
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
     }
 
     private enum MenuAction { DO_NOTHING, DO_SELECT, DO_RETURN }
@@ -432,6 +467,95 @@ public class TMenuView extends TView {
 
     public TMenuView newSubView(TRect bounds, TMenu menu, TMenuView parentMenu) {
         return new TMenuBox(bounds, menu, parentMenu);
+    }
+
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.putSubViewPtr(parentMenu);
+            writeMenu(stream, menu);
+            stream.writeInt(indexOf(menu != null ? menu.items() : null, current));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int indexOf(TMenuItem start, TMenuItem target) {
+        if (start == null || target == null) {
+            return 0;
+        }
+        int i = 1;
+        TMenuItem p = start;
+        while (p != null) {
+            if (p == target) {
+                return i;
+            }
+            i++;
+            p = p.next();
+        }
+        return 0;
+    }
+
+    private static void writeMenu(TStream stream, TMenu menu) throws IOException {
+        if (menu == null) {
+            stream.writeInt(-1);
+            return;
+        }
+        int count = 0;
+        int defIndex = 0;
+        int idx = 0;
+        for (TMenuItem p = menu.items; p != null; p = p.next) {
+            count++;
+            idx++;
+            if (p == menu.defaultItem) {
+                defIndex = idx;
+            }
+        }
+        stream.writeInt(count);
+        TMenuItem p = menu.items;
+        while (p != null) {
+            stream.writeString(p.name);
+            stream.writeInt(p.command);
+            stream.writeInt(p.disabled ? 1 : 0);
+            stream.writeInt(p.keyCode);
+            stream.writeInt(p.helpCtx);
+            stream.writeString(p.param);
+            writeMenu(stream, p.subMenu);
+            p = p.next;
+        }
+        stream.writeInt(defIndex);
+    }
+
+    private static TMenu readMenu(TStream stream) throws IOException {
+        int count = stream.readInt();
+        if (count < 0) {
+            return null;
+        }
+        TMenuItem first = null;
+        TMenuItem prev = null;
+        List<TMenuItem> items = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            String name = stream.readString();
+            int command = stream.readInt();
+            boolean disabled = stream.readInt() != 0;
+            int keyCode = stream.readInt();
+            int helpCtx = stream.readInt();
+            String param = stream.readString();
+            TMenu subMenu = readMenu(stream);
+            TMenuItem item = new TMenuItem(null, name, command, disabled, keyCode, helpCtx, param, subMenu);
+            if (first == null) {
+                first = item;
+            } else {
+                prev.next = item;
+            }
+            prev = item;
+            items.add(item);
+        }
+        int defIndex = stream.readInt();
+        TMenuItem def = (defIndex > 0 && defIndex <= items.size()) ? items.get(defIndex - 1) : null;
+        return new TMenu(first, def);
     }
 
 }

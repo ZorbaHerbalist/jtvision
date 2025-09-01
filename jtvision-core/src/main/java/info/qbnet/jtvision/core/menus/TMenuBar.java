@@ -1,11 +1,19 @@
 package info.qbnet.jtvision.core.menus;
 
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TView;
 import info.qbnet.jtvision.util.CString;
 
 public class TMenuBar extends TMenuView {
+
+    /** Serialization identifier for {@code TMenuBar} instances. */
+    public static final int CLASS_ID = 11;
+
+    static {
+        TStream.registerType(CLASS_ID, TMenuBar::new);
+    }
 
     public static TMenuItem newItem(String name, String param, int keyCode, int command, int helpCtx, TMenuItem next) {
         if (name != null && name.length() > 0 && command != 0) {
@@ -33,6 +41,20 @@ public class TMenuBar extends TMenuView {
         this.options |= Options.OF_PRE_PROCESS;
 
         logger.debug("{} TMenuBar@TMenuBar(bounds={}, menu={})", getLogName(), bounds, menu);
+    }
+
+    public TMenuBar(TStream stream) {
+        super(stream);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
     }
 
     @Override

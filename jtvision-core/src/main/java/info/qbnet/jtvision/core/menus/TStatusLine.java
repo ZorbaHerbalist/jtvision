@@ -5,12 +5,24 @@ import info.qbnet.jtvision.core.constants.Command;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
 import info.qbnet.jtvision.util.CString;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TStatusLine extends TView {
+
+    /** Serialization identifier for {@code TStatusLine} instances. */
+    public static final int CLASS_ID = 13;
+
+    static {
+        TStream.registerType(CLASS_ID, TStatusLine::new);
+    }
 
     private TStatusDef defs;
     private TStatusItem items;
@@ -26,6 +38,24 @@ public class TStatusLine extends TView {
         findItems();
 
         logger.debug("{} TStatusLine@TStatusLine(bounds={}, defs={})", getLogName(), bounds, defs);
+    }
+
+    public TStatusLine(TStream stream) {
+        super(stream);
+        this.options |= Options.OF_PRE_PROCESS;
+        this.eventMask |= TEvent.EV_BROADCAST;
+        this.growMode = GrowMode.GF_GROW_LO_Y | GrowMode.GF_GROW_HI_X | GrowMode.GF_GROW_HI_Y;
+        try {
+            this.defs = readDefs(stream);
+            findItems();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
     }
 
     @Override
@@ -198,6 +228,76 @@ public class TStatusLine extends TView {
             findItems();
             drawView();
         }
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            writeDefs(stream, defs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void writeDefs(TStream stream, TStatusDef def) throws IOException {
+        int count = 0;
+        for (TStatusDef d = def; d != null; d = d.next()) {
+            count++;
+        }
+        stream.writeInt(count);
+        for (TStatusDef d = def; d != null; d = d.next()) {
+            stream.writeInt(d.min());
+            stream.writeInt(d.max());
+            writeItems(stream, d.items());
+        }
+    }
+
+    private static TStatusDef readDefs(TStream stream) throws IOException {
+        int count = stream.readInt();
+        TStatusDef next = null;
+        List<TStatusDef> defs = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            int min = stream.readInt();
+            int max = stream.readInt();
+            TStatusItem items = readItems(stream);
+            defs.add(new TStatusDef(min, max, items, null));
+        }
+        for (int i = count - 1; i >= 0; i--) {
+            TStatusDef d = defs.get(i);
+            next = new TStatusDef(d.min(), d.max(), d.items(), next);
+        }
+        return next;
+    }
+
+    private static void writeItems(TStream stream, TStatusItem item) throws IOException {
+        int count = 0;
+        for (TStatusItem t = item; t != null; t = t.next()) {
+            count++;
+        }
+        stream.writeInt(count);
+        for (TStatusItem t = item; t != null; t = t.next()) {
+            stream.writeString(t.text());
+            stream.writeInt(t.keyCode());
+            stream.writeInt(t.command());
+        }
+    }
+
+    private static TStatusItem readItems(TStream stream) throws IOException {
+        int count = stream.readInt();
+        List<TStatusItem> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            String text = stream.readString();
+            int key = stream.readInt();
+            int cmd = stream.readInt();
+            list.add(new TStatusItem(text, key, cmd, null));
+        }
+        TStatusItem next = null;
+        for (int i = count - 1; i >= 0; i--) {
+            TStatusItem t = list.get(i);
+            next = new TStatusItem(t.text(), t.keyCode(), t.command(), next);
+        }
+        return next;
     }
 
 }
