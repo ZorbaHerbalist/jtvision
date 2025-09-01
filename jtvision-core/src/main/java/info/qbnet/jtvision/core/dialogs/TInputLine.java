@@ -1,13 +1,26 @@
 package info.qbnet.jtvision.core.dialogs;
 
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class TInputLine extends TView {
+
+    public static final int CLASS_ID = 8;
+
+    static {
+        TStream.registerType(CLASS_ID, TInputLine::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
 
     protected int maxLen;
     protected StringBuilder data;
@@ -26,6 +39,24 @@ public class TInputLine extends TView {
         this.options |= Options.OF_SELECTABLE + Options.OF_FIRST_CLICK;
         this.maxLen = maxLen;
         this.data = new StringBuilder(maxLen);
+    }
+
+    public TInputLine(TStream stream) {
+        super(stream);
+        try {
+            maxLen = stream.readInt();
+            String text = stream.readString();
+            data = new StringBuilder(maxLen);
+            if (text != null) {
+                data.append(text);
+            }
+            firstPos = stream.readInt();
+            curPos = stream.readInt();
+            selStart = stream.readInt();
+            selEnd = stream.readInt();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /** Returns whether the line can be scrolled further by {@code delta}. */
@@ -89,6 +120,21 @@ public class TInputLine extends TView {
         src.get(bytes);
         data.setLength(0);
         data.append(new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeInt(maxLen);
+            stream.writeString(data.toString());
+            stream.writeInt(firstPos);
+            stream.writeInt(curPos);
+            stream.writeInt(selStart);
+            stream.writeInt(selEnd);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
