@@ -13,6 +13,6 @@ public final class TViewTestAccess {
      * @param flags option flags
      */
     public static void setOptions(TView view, int flags) {
-        view.setOptions(flags);
+        view.options = flags;
     }
 }

@@ -151,15 +151,6 @@ public class TView {
 
     public int options = 0;
 
-    /**
-     * Sets the view's option flags.
-     *
-     * @param flags new option flags
-     */
-    void setOptions(int flags) {
-        this.options = flags;
-    }
-
     /** Event classes recognized. {@code 0xFFFF} handles all, {@code 0} handles none. */
     protected int eventMask;
 
