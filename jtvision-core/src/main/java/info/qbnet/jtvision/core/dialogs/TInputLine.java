@@ -106,6 +106,7 @@ public class TInputLine extends TView {
             }
         }
         writeLine(0, 0, size.x, size.y, buf.buffer);
+        setCursor(curPos - firstPos + 1, 0);
     }
 
     @Override
