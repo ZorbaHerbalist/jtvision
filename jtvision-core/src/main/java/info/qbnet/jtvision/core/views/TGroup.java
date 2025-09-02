@@ -732,7 +732,7 @@ public class TGroup extends TView {
     }
 
     @Override
-    public void resetCursor() {
+    protected void resetCursor() {
         if (current != null) {
             current.resetCursor();
         }

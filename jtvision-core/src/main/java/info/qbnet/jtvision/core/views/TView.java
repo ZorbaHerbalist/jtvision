@@ -464,7 +464,7 @@ public class TView {
      * the focus, the cursor remains untouched.
      * </p>
      */
-    public void drawCursor() {
+    private void drawCursor() {
         if ((state & State.SF_FOCUSED) != 0) {
             resetCursor();
         }
@@ -509,7 +509,7 @@ public class TView {
      * Helper for {@link #drawHide(TView)} and {@link #drawShow(TView)} to repaint
      * obscured siblings with optional shadow.
      */
-    protected void drawUnderView(boolean doShadow, TView lastView) {
+    private void drawUnderView(boolean doShadow, TView lastView) {
         logger.trace("{} TView@drawUnderView(doShadow={}, lastView={})", logName, doShadow,
                 lastView != null ? lastView.getLogName() : "null");
 
@@ -875,12 +875,6 @@ public class TView {
     }
 
     /**
-     * Reads this view's persistent state from the supplied stream. The default
-     * implementation does nothing.
-     *
-     * @param stream source stream
-     */
-    /**
      * Ensures that {@code value} falls within the inclusive range defined by
      * {@code min} and {@code max}.
      *
@@ -1122,7 +1116,7 @@ public class TView {
      * computes the global cursor location. Integration with a real backend
      * should position the terminal cursor accordingly.</p>
      */
-    public void resetCursor() {
+    protected void resetCursor() {
         // Determine if cursor should be shown
         int required = State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED;
         boolean show = (state & required) == required;
