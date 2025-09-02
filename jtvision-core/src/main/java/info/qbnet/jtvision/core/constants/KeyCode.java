@@ -8,6 +8,10 @@ public class KeyCode {
     public static final int KB_ENTER        = 0x000A;
     public static final int KB_ALT_SPACE    = 0x0420;
 
+    public static final int KB_BACK         = 0x0008;
+    public static final int KB_DEL          = 0x007F;
+    public static final int KB_INS          = 0x009B;
+
     public static final int KB_TAB          = 0x0009;
     public static final int KB_SHIFT_TAB    = 0x0109;
 

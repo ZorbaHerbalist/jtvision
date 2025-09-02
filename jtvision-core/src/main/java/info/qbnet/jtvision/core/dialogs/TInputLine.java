@@ -1,5 +1,9 @@
 package info.qbnet.jtvision.core.dialogs;
 
+import info.qbnet.jtvision.core.app.TProgram;
+import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
@@ -112,6 +116,175 @@ public class TInputLine extends TView {
     @Override
     public TPalette getPalette() {
         return C_INPUT_LINE;
+    }
+
+    private void deleteSelect() {
+        if (selStart != selEnd) {
+            data.delete(selStart, selEnd);
+            curPos = selStart;
+        }
+    }
+
+    private void adjustSelectBlock(int anchor) {
+        if (curPos < anchor) {
+            selStart = curPos;
+            selEnd = anchor;
+        } else {
+            selStart = anchor;
+            selEnd = curPos;
+        }
+    }
+
+    private int mouseDelta(TEvent event) {
+        TPoint mouse = new TPoint();
+        makeLocal(event.mouse.where, mouse);
+        if (mouse.x <= 0) return -1;
+        if (mouse.x >= size.x - 1) return 1;
+        return 0;
+    }
+
+    private int mousePos(TEvent event) {
+        TPoint mouse = new TPoint();
+        makeLocal(event.mouse.where, mouse);
+        int x = mouse.x;
+        if (x < 1) x = 1;
+        int pos = x + firstPos - 1;
+        if (pos < 0) pos = 0;
+        if (pos > data.length()) pos = data.length();
+        return pos;
+    }
+
+    private void selectAll(boolean enable) {
+        curPos = 0;
+        firstPos = 0;
+        selStart = 0;
+        selEnd = enable ? data.length() : 0;
+        drawView();
+    }
+
+    private boolean isPadKey(int keyCode) {
+        return keyCode == KeyCode.KB_LEFT || keyCode == KeyCode.KB_RIGHT
+                || keyCode == KeyCode.KB_HOME || keyCode == KeyCode.KB_END;
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        if ((state & State.SF_SELECTED) == 0) {
+            return;
+        }
+
+        switch (event.what) {
+            case TEvent.EV_MOUSE_DOWN -> {
+                int delta = mouseDelta(event);
+                if (canScroll(delta)) {
+                    do {
+                        if (canScroll(delta)) {
+                            firstPos += delta;
+                            drawView();
+                        }
+                    } while (mouseEvent(event, TEvent.EV_MOUSE_AUTO));
+                } else if (event.mouse.isDouble) {
+                    selectAll(true);
+                } else {
+                    int anchor = mousePos(event);
+                    do {
+                        if (event.what == TEvent.EV_MOUSE_AUTO) {
+                            delta = mouseDelta(event);
+                            if (canScroll(delta)) {
+                                firstPos += delta;
+                            }
+                        }
+                        curPos = mousePos(event);
+                        adjustSelectBlock(anchor);
+                        drawView();
+                    } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE | TEvent.EV_MOUSE_AUTO));
+                }
+                clearEvent(event);
+            }
+            case TEvent.EV_KEYDOWN -> {
+                event.key.keyCode = KeyCode.ctrlToArrow(event.key.keyCode);
+                int anchor = 0;
+                boolean extendBlock = false;
+                if (isPadKey(event.key.keyCode) && (TProgram.getShiftState() & 0x03) != 0) {
+                    event.key.charCode = 0;
+                    anchor = (curPos == selEnd) ? selStart : selEnd;
+                    extendBlock = true;
+                }
+                switch (event.key.keyCode) {
+                    case KeyCode.KB_LEFT -> {
+                        if (curPos > 0) {
+                            curPos--;
+                        }
+                    }
+                    case KeyCode.KB_RIGHT -> {
+                        if (curPos < data.length()) {
+                            curPos++;
+                        }
+                    }
+                    case KeyCode.KB_HOME -> curPos = 0;
+                    case KeyCode.KB_END -> curPos = data.length();
+                    case KeyCode.KB_BACK -> {
+                        if (curPos > 0) {
+                            data.deleteCharAt(curPos - 1);
+                            curPos--;
+                            if (firstPos > 0) {
+                                firstPos--;
+                            }
+                        }
+                    }
+                    case KeyCode.KB_DEL -> {
+                        if (selStart == selEnd) {
+                            if (curPos < data.length()) {
+                                selStart = curPos;
+                                selEnd = curPos + 1;
+                            }
+                        }
+                        deleteSelect();
+                    }
+                    case KeyCode.KB_INS -> setState(State.SF_CURSOR_INS,
+                            (state & State.SF_CURSOR_INS) == 0);
+                    default -> {
+                        char ch = event.key.charCode;
+                        if (ch >= ' ' && ch != 0) {
+                            if ((state & State.SF_CURSOR_INS) != 0 && curPos < data.length()) {
+                                data.deleteCharAt(curPos);
+                            } else {
+                                deleteSelect();
+                            }
+                            if (data.length() < maxLen) {
+                                if (firstPos > curPos) {
+                                    firstPos = curPos;
+                                }
+                                data.insert(curPos, ch);
+                                curPos++;
+                            }
+                        } else if (ch == 0x19) {
+                            data.setLength(0);
+                            curPos = 0;
+                            firstPos = 0;
+                        } else {
+                            return;
+                        }
+                    }
+                }
+                if (extendBlock) {
+                    adjustSelectBlock(anchor);
+                } else {
+                    selStart = curPos;
+                    selEnd = curPos;
+                }
+                if (firstPos > curPos) {
+                    firstPos = curPos;
+                }
+                int i = curPos - size.x + 2;
+                if (firstPos < i) {
+                    firstPos = i;
+                }
+                drawView();
+                clearEvent(event);
+            }
+        }
     }
 
     @Override
