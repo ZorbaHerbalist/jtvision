@@ -164,8 +164,8 @@ public class TInputLine extends TView {
     }
 
     private boolean isPadKey(int keyCode) {
-        return keyCode == KeyCode.KB_LEFT || keyCode == KeyCode.KB_RIGHT
-                || keyCode == KeyCode.KB_HOME || keyCode == KeyCode.KB_END;
+        return keyCode == KeyCode.KB_SHIFT_LEFT || keyCode == KeyCode.KB_SHIFT_RIGHT
+                || keyCode == KeyCode.KB_SHIFT_HOME || keyCode == KeyCode.KB_SHIFT_END;
     }
 
     @Override
@@ -204,11 +204,10 @@ public class TInputLine extends TView {
                 clearEvent(event);
             }
             case TEvent.EV_KEYDOWN -> {
-                event.key.keyCode = KeyCode.ctrlToArrow(event.key.keyCode);
                 int anchor = 0;
                 boolean extendBlock = false;
-                if (isPadKey(event.key.keyCode) && (TProgram.getShiftState() & 0x03) != 0) {
-                    event.key.charCode = 0;
+                if (isPadKey(event.key.keyCode)) {
+                    event.key.keyCode &= 0x00FF;
                     anchor = (curPos == selEnd) ? selStart : selEnd;
                     extendBlock = true;
                 }
@@ -294,6 +293,8 @@ public class TInputLine extends TView {
         src.get(bytes);
         data.setLength(0);
         data.append(new String(bytes, StandardCharsets.UTF_8));
+
+        selectAll(true);
     }
 
     @Override
