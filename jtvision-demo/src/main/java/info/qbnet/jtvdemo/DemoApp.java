@@ -104,31 +104,25 @@ public class DemoApp extends TApplication {
     }
 
     private void doDlgInputLine() {
-        TDialog d = loadSampleDialog();
         TInputLine input = null;
 
-        if (d == null) {
-            d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
 
-            input = new TInputLine(new TRect(2, 2, 36, 3), 100);
+        TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
 
-            DataPacket defaults = new DataPacket(100)
-                    .putString("Not empty input line. Long texts are scrollable.")
-                    .rewind();
-            ByteBuffer initBuf = defaults.getByteBuffer();
-            int initLen = Short.toUnsignedInt(initBuf.getShort());
-            ByteBuffer initSlice = initBuf.slice();
-            initSlice.limit(initLen);
-            input.setData(initSlice);
-            d.insert(input);
+        input = new TInputLine(new TRect(2, 2, 36, 3), 100);
 
-            d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
-            d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
-            d.selectNext(false);
-        } else {
-            System.err.println("Loaded");
-            input = (TInputLine) d.firstThat(v -> v instanceof TInputLine);
-        }
+        DataPacket defaults = new DataPacket(100)
+                .putString("Not empty input line. Long texts are scrollable.")
+                .rewind();
+        ByteBuffer initBuf = defaults.getByteBuffer();
+        int initLen = Short.toUnsignedInt(initBuf.getShort());
+        ByteBuffer initSlice = initBuf.slice();
+        initSlice.limit(initLen);
+        input.setData(initSlice);
+        d.insert(input);
+        d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
+        d.selectNext(false);
 
         if (desktop.execView(d) == Command.CM_OK && input != null) {
             DataPacket result = new DataPacket(input.dataSize());
