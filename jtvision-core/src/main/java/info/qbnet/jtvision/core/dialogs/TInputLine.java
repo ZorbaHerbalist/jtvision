@@ -1,6 +1,5 @@
 package info.qbnet.jtvision.core.dialogs;
 
-import info.qbnet.jtvision.core.app.TProgram;
 import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
@@ -114,6 +113,7 @@ public class TInputLine extends TView {
         byte[] bytes = data.toString().getBytes(StandardCharsets.UTF_8);
         dst.put(bytes);
     }
+
     @Override
     public TPalette getPalette() {
         return C_INPUT_LINE;
@@ -153,14 +153,6 @@ public class TInputLine extends TView {
         if (pos < 0) pos = 0;
         if (pos > data.length()) pos = data.length();
         return pos;
-    }
-
-    private void selectAll(boolean enable) {
-        curPos = 0;
-        firstPos = 0;
-        selStart = 0;
-        selEnd = enable ? data.length() : 0;
-        drawView();
     }
 
     private boolean isPadKey(int keyCode) {
@@ -287,6 +279,14 @@ public class TInputLine extends TView {
         }
     }
 
+    public void selectAll(boolean enable) {
+        curPos = 0;
+        firstPos = 0;
+        selStart = 0;
+        selEnd = enable ? data.length() : 0;
+        drawView();
+    }
+
     @Override
     public void setData(ByteBuffer src) {
         byte[] bytes = new byte[src.remaining()];
@@ -311,6 +311,5 @@ public class TInputLine extends TView {
             throw new RuntimeException(e);
         }
     }
-
 
 }
