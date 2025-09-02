@@ -298,6 +298,16 @@ public class TInputLine extends TView {
     }
 
     @Override
+    public void setState(int state, boolean enable) {
+        super.setState(state, enable);
+        if (state == State.SF_SELECTED || (state == State.SF_ACTIVE && (this.state & State.SF_SELECTED) != 0)) {
+            selectAll(enable);
+        } else if (state == State.SF_FOCUSED) {
+            drawView();
+        }
+    }
+
+    @Override
     public void store(TStream stream) {
         super.store(stream);
         try {
