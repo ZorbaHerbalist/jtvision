@@ -12,6 +12,7 @@
     <modules>
         <module>jtvision-core</module>
         <module>jtvision-demo</module>
+        <module>cube-cmd</module>
     </modules>
 
     <properties>
