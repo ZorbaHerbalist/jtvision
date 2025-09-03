@@ -9,7 +9,6 @@ import info.qbnet.jtvision.util.Buffer;
 import info.qbnet.jtvision.util.IBuffer;
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -145,7 +144,7 @@ public class TGroup extends TView {
                 // ensure indices used by getSubViewPtr remain valid.
                 insertBefore(child, null);
             }
-            TView sel = stream.getSubViewPtr(this);
+            TView sel = getSubViewPtr(stream);
             setCurrent(sel, SelectMode.NORMAL_SELECT);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -224,7 +223,7 @@ public class TGroup extends TView {
                     throw new RuntimeException(e);
                 }
             });
-            stream.putSubViewPtr(current);
+            putSubViewPtr(stream, current);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -485,6 +484,18 @@ public class TGroup extends TView {
         return h;
     }
 
+    /**
+     * Reads a pointer to a subview previously written with
+     * {@link #putSubViewPtr(TStream, TView)}. The returned view belongs to this
+     * group or {@code null} if the stored index was {@code 0} or out of range.
+     *
+     * <p>This corresponds to Turbo Vision's {@code TGroup.GetSubViewPtr}.</p>
+     */
+    public TView getSubViewPtr(TStream stream) throws IOException {
+        int index = stream.readInt();
+        return index > 0 ? at(index) : null;
+    }
+
     @Override
     public void handleEvent(TEvent event) {
         boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
@@ -686,6 +697,17 @@ public class TGroup extends TView {
         if (buffer != null || lockFlag != 0) {
             lockFlag++;
         }
+    }
+
+    /**
+     * Writes a pointer to {@code view} relative to this group. The pointer is
+     * encoded as the 1-based index of the view within the group's subview ring
+     * or {@code 0} if the view is {@code null} or not owned by this group.
+     *
+     * <p>This corresponds to Turbo Vision's {@code TGroup.PutSubViewPtr}.</p>
+     */
+    public void putSubViewPtr(TStream stream, TView view) throws IOException {
+        stream.writeInt(indexOf(view));
     }
 
     /**

@@ -6,6 +6,7 @@ import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.objects.TStream;
+import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
 
@@ -39,7 +40,7 @@ public class TMenuView extends TView {
         super(stream);
         eventMask |= TEvent.EV_BROADCAST;
         try {
-            parentMenu = (TMenuView) stream.getSubViewPtr(null);
+            stream.readInt(); // discard parent menu pointer (not restored)
             menu = readMenu(stream);
             int currentIndex = stream.readInt();
             if (menu != null) {
@@ -474,7 +475,12 @@ public class TMenuView extends TView {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            stream.putSubViewPtr(parentMenu);
+            TGroup owner = parentMenu != null ? parentMenu.getOwner() : null;
+            if (owner != null) {
+                owner.putSubViewPtr(stream, parentMenu);
+            } else {
+                stream.writeInt(0);
+            }
             writeMenu(stream, menu);
             stream.writeInt(indexOf(menu != null ? menu.items() : null, current));
         } catch (IOException e) {

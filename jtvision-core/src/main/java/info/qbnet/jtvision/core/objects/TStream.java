@@ -1,6 +1,5 @@
 package info.qbnet.jtvision.core.objects;
 
-import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TView;
 
 import java.io.EOFException;
@@ -177,27 +176,6 @@ public class TStream {
     }
 
     /**
-     * Writes a pointer to a subview relative to its owner group. The pointer
-     * is represented as a 1-based index of the view within the owner's subview
-     * ring, or {@code 0} if the view is {@code null} or has no owner.
-     *
-     * <p>This method corresponds to Turbo Vision's {@code PutSubViewPtr}.</p>
-     *
-     * @param view the view whose pointer should be written
-     * @throws IOException if an I/O error occurs
-     */
-    public void putSubViewPtr(TView view) throws IOException {
-        int index = 0;
-        if (view != null) {
-            TGroup owner = view.getOwner();
-            if (owner != null) {
-                index = owner.indexOf(view);
-            }
-        }
-        writeInt(index);
-    }
-
-    /**
      * Writes a UTF-8 encoded string prefixed with its length or -1 for {@code null}.
      */
     public void writeString(String value) throws IOException {
@@ -222,23 +200,4 @@ public class TStream {
         return new String(data, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Reads a pointer to a subview that was previously written with
-     * {@link #putSubViewPtr(TView)}. The pointer is resolved using the provided
-     * owner group.
-     *
-     * <p>This method corresponds to Turbo Vision's {@code GetSubViewPtr}.</p>
-     *
-     * @param owner the group owning the subviews
-     * @return the referenced subview, or {@code null} if the stored index was 0
-     *         or the index is out of range
-     * @throws IOException if an I/O error occurs
-     */
-    public TView getSubViewPtr(TGroup owner) throws IOException {
-        int index = readInt();
-        if (owner == null || index <= 0) {
-            return null;
-        }
-        return owner.at(index);
-    }
 }

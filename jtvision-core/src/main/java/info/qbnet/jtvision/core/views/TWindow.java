@@ -76,7 +76,7 @@ public class TWindow extends TGroup {
             zoomRect = new TRect(stream.readInt(), stream.readInt(), stream.readInt(), stream.readInt());
             number = stream.readInt();
             palette = WindowPalette.values()[stream.readInt()];
-            frame = (TFrame) stream.getSubViewPtr(this);
+            frame = (TFrame) getSubViewPtr(stream);
             title = stream.readString();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -101,7 +101,7 @@ public class TWindow extends TGroup {
             stream.writeInt(zoomRect.b.y);
             stream.writeInt(number);
             stream.writeInt(palette.ordinal());
-            stream.putSubViewPtr(frame);
+            putSubViewPtr(stream, frame);
             stream.writeString(title);
         } catch (IOException e) {
             throw new RuntimeException(e);
