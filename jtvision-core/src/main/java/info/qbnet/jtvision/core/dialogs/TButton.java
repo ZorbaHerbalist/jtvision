@@ -195,22 +195,6 @@ public class TButton extends TView {
         return count;
     }
 
-    private static char hotKey(String s) {
-        if (s == null) {
-            return 0;
-        }
-        boolean tilde = false;
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            if (ch == '~') {
-                tilde = !tilde;
-            } else if (tilde) {
-                return Character.toUpperCase(ch);
-            }
-        }
-        return 0;
-    }
-
     @Override
     public void handleEvent(TEvent event) {
         TRect clickRect = new TRect();
