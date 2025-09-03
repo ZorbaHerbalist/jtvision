@@ -107,9 +107,9 @@ public class DemoApp extends TApplication {
         TInputLine input = null;
 
 
-        TDialog d = new TDialog(new TRect(10, 5, 48, 12), "Input Line");
+        TDialog d = new TDialog(new TRect(10, 5, 48, 13), "Input Line");
 
-        input = new TInputLine(new TRect(2, 2, 36, 3), 100);
+        input = new TInputLine(new TRect(2, 3, 36, 4), 100);
 
         DataPacket defaults = new DataPacket(100)
                 .putString("Not empty input line. Long texts are scrollable.")
@@ -120,8 +120,9 @@ public class DemoApp extends TApplication {
         initSlice.limit(initLen);
         input.setData(initSlice);
         d.insert(input);
-        d.insert(new TButton(new TRect(8, 4, 18, 6), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
-        d.insert(new TButton(new TRect(20, 4, 30, 6), "~C~ancel", Command.CM_CANCEL, 0));
+        d.insert(new TLabel(new TRect(2, 2, 36, 3), "~T~ext:", input));
+        d.insert(new TButton(new TRect(8, 5, 18, 7), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(20, 5, 30, 7), "~C~ancel", Command.CM_CANCEL, 0));
         d.selectNext(false);
 
         if (desktop.execView(d) == Command.CM_OK && input != null) {
