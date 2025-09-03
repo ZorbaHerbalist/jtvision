@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JavaFX backend rendering bitmap glyphs with pre-colored white font atlas.
@@ -22,6 +24,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     private static final Logger log = LoggerFactory.getLogger(JavaFxBitmapBackend.class);
 
     private Image fontAtlas;
+    private final Map<Integer, WritableImage> glyphCache = new HashMap<>();
 
     public JavaFxBitmapBackend(Screen screen, int charWidth, int charHeight) {
         super(screen, charWidth, charHeight);
@@ -50,8 +53,6 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
     protected void drawGlyph(GraphicsContext gc, int x, int y, char ch,
                               java.awt.Color fgColor, java.awt.Color bgColor) {
         int charCode = ch & 0xFF;
-        int sourceX = (charCode % 16) * getCellWidth();
-        int sourceY = (charCode / 16) * getCellHeight();
         double destX = x * getCellWidth();
         double destY = y * getCellHeight();
 
@@ -59,16 +60,25 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
         gc.setFill(ColorUtil.toFx(bgColor));
         gc.fillRect(destX, destY, getCellWidth(), getCellHeight());
 
-        // Extract glyph from atlas
+        gc.drawImage(getGlyph(charCode, fgColor), destX, destY);
+    }
+
+    private WritableImage getGlyph(int charCode, java.awt.Color fgColor) {
+        int colorKey = (fgColor.getRGB() & 0xFFFFFF);
+        int key = (colorKey << 8) | charCode;
+        WritableImage glyph = glyphCache.get(key);
+        if (glyph != null) {
+            return glyph;
+        }
+        int sourceX = (charCode % 16) * getCellWidth();
+        int sourceY = (charCode / 16) * getCellHeight();
         PixelReader reader = fontAtlas.getPixelReader();
-        WritableImage glyph = new WritableImage(getCellWidth(), getCellHeight());
+        glyph = new WritableImage(getCellWidth(), getCellHeight());
         PixelWriter writer = glyph.getPixelWriter();
         Color fg = ColorUtil.toFx(fgColor);
-
         for (int j = 0; j < getCellHeight(); j++) {
             for (int i = 0; i < getCellWidth(); i++) {
                 Color color = reader.getColor(sourceX + i, sourceY + j);
-                // assume a white pixel means glyph, preserve alpha
                 if (color.getOpacity() > 0.1) {
                     writer.setColor(i, j, fg);
                 } else {
@@ -76,7 +86,7 @@ public class JavaFxBitmapBackend extends AbstractJavaFxBackend {
                 }
             }
         }
-
-        gc.drawImage(glyph, destX, destY);
+        glyphCache.put(key, glyph);
+        return glyph;
     }
 }
