@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +40,7 @@ public class DemoApp extends TApplication {
     public static final int CM_DLG_INPUT_LINE = 104;
     public static final int CM_DLG_CURSOR = 105;
     public static final int CM_DLG_FILE = 106;
+    public static final int CM_DLG_RADIO_BUTTONS = 107;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
@@ -131,6 +133,21 @@ public class DemoApp extends TApplication {
             String entered = new String(result.toByteArray(), StandardCharsets.UTF_8);
             MsgBox.messageBox("Entered string: " + entered, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         }
+    }
+
+    private void doDlgRadioButtons() {
+        TDialog d = new TDialog(new TRect(10, 6, 70, 18), "Radio buttons");
+
+        TRadioButtons radio = new TRadioButtons(new TRect(3, 3, 35, 9),
+                Arrays.asList("Option ~1~", "Option ~2~", "Option ~3~"));
+        d.insert(radio);
+
+        d.insert(new TLabel(new TRect(3, 2, 20, 3), "Choose an option:", radio));
+        d.insert(new TButton(new TRect(38, 3, 48, 5), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(38, 6, 48, 8), "~C~ancel", Command.CM_CANCEL, 0));
+        d.selectNext(false);
+
+        desktop.execView(d);
     }
 
     private TDialog loadSampleDialog() {
@@ -254,7 +271,8 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT,
-                        null)))),
+                        TMenuBar.newItem("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT,
+                        null))))),
                 TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
@@ -284,6 +302,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_CURSOR:
                     doDlgCursor();
+                    break;
+                case CM_DLG_RADIO_BUTTONS:
+                    doDlgRadioButtons();
                     break;
                 case CM_DLG_FILE:
                     try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
