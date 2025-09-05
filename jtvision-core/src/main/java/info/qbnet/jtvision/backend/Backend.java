@@ -1,5 +1,8 @@
 package info.qbnet.jtvision.backend;
 
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.TPoint;
+
 /**
  * Interface for rendering backends.
  */
@@ -53,7 +56,7 @@ public interface Backend {
      *
      * @return current cursor position
      */
-    info.qbnet.jtvision.core.objects.TPoint getMouseLocation();
+    TPoint getMouseLocation();
 
     /**
      * Retrieves the next pending event if one is available. Implementations
@@ -62,7 +65,7 @@ public interface Backend {
      *
      * @return optional event describing the input that occurred
      */
-    java.util.Optional<info.qbnet.jtvision.core.event.TEvent> pollEvent();
+    java.util.Optional<TEvent> pollEvent();
 
     /**
      * Returns the current state of keyboard modifier keys.

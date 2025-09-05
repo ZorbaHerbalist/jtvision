@@ -4,15 +4,14 @@ import info.qbnet.jtvision.backend.factory.GuiComponent;
 import info.qbnet.jtvision.util.Screen;
 import info.qbnet.jtvision.util.DosPalette;
 import info.qbnet.jtvision.backend.util.ColorUtil;
-import info.qbnet.jtvision.core.event.KeyCodeMapper;
-import info.qbnet.jtvision.core.event.TEvent;
-import info.qbnet.jtvision.core.objects.TPoint;
+import info.qbnet.jtvision.event.KeyCodeMapper;
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.TPoint;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 
 import java.util.Optional;
 import java.util.Queue;

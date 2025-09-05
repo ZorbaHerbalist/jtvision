@@ -1,10 +1,8 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.core.app.TProgram;
-import info.qbnet.jtvision.core.constants.Command;
-import info.qbnet.jtvision.core.event.TEvent;
-import info.qbnet.jtvision.core.objects.TRect;
-import info.qbnet.jtvision.core.views.TWindow;
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.views.TWindow;
 
 import java.util.List;
 

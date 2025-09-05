@@ -1,7 +1,7 @@
 package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.backend.factory.BackendType;
-import info.qbnet.jtvision.core.app.TApplication;
+import info.qbnet.jtvision.views.TApplication;
 
 public class CubeCmdApp extends TApplication {
 

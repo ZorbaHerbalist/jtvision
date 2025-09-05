@@ -12,8 +12,8 @@ import info.qbnet.jtvision.util.DosPalette;
 
 import java.io.IOException;
 import java.util.Optional;
-import info.qbnet.jtvision.core.event.TEvent;
-import info.qbnet.jtvision.core.objects.TPoint;
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.TPoint;
 
 /**
  * Backend implementation using the Lanterna library to render the console.

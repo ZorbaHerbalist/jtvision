@@ -1,21 +1,21 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.Console;
-import info.qbnet.jtvision.core.app.TApplication;
+import info.qbnet.jtvision.util.Console;
+import info.qbnet.jtvision.views.TApplication;
 import info.qbnet.jtvision.backend.factory.BackendType;
-import info.qbnet.jtvision.core.app.TProgram;
-import info.qbnet.jtvision.core.constants.Command;
-import info.qbnet.jtvision.core.constants.KeyCode;
-import info.qbnet.jtvision.core.dialogs.*;
-import info.qbnet.jtvision.core.event.TEvent;
-import info.qbnet.jtvision.core.menus.TMenuBar;
-import info.qbnet.jtvision.core.menus.TStatusDef;
-import info.qbnet.jtvision.core.menus.TStatusItem;
-import info.qbnet.jtvision.core.menus.TStatusLine;
-import info.qbnet.jtvision.core.objects.TRect;
-import info.qbnet.jtvision.core.views.TWindow;
-import info.qbnet.jtvision.core.objects.TStream;
-import info.qbnet.jtvision.core.serialization.SerializationRegistry;
+import info.qbnet.jtvision.views.TProgram;
+import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.views.TMenuBar;
+import info.qbnet.jtvision.util.TStatusDef;
+import info.qbnet.jtvision.util.TStatusItem;
+import info.qbnet.jtvision.views.TStatusLine;
+import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.util.MsgBox;
+import info.qbnet.jtvision.views.*;
+import info.qbnet.jtvision.util.TStream;
+import info.qbnet.jtvision.util.SerializationRegistry;
 import info.qbnet.jtvision.util.DataPacket;
 
 import java.awt.*;

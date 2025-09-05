@@ -1,12 +1,12 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.core.constants.Command;
-import info.qbnet.jtvision.core.dialogs.TButton;
-import info.qbnet.jtvision.core.dialogs.TDialog;
-import info.qbnet.jtvision.core.dialogs.TInputLine;
-import info.qbnet.jtvision.core.dialogs.TStaticText;
-import info.qbnet.jtvision.core.objects.TRect;
-import info.qbnet.jtvision.core.objects.TStream;
+import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.views.TButton;
+import info.qbnet.jtvision.views.TDialog;
+import info.qbnet.jtvision.views.TInputLine;
+import info.qbnet.jtvision.views.TStaticText;
+import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.util.TStream;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

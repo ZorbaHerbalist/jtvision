@@ -1,9 +1,9 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.core.constants.KeyCode;
-import info.qbnet.jtvision.core.event.TEvent;
-import info.qbnet.jtvision.core.objects.TRect;
-import info.qbnet.jtvision.core.views.TView;
+import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.views.TView;
 
 /**
  * Simple view demonstrating cursor handling.
