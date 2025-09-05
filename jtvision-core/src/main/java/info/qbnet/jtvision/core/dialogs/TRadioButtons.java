@@ -1,13 +1,29 @@
 package info.qbnet.jtvision.core.dialogs;
 
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 
 import java.util.List;
 
 public class TRadioButtons extends TCluster {
 
+    public static final int CLASS_ID = 14;
+
+    static {
+        TStream.registerType(CLASS_ID, TRadioButtons::new);
+    }
+
+    @Override
+    public int getClassId() {
+        return CLASS_ID;
+    }
+
     public TRadioButtons(TRect bounds, List<String> strings) {
         super(bounds, strings);
+    }
+
+    public TRadioButtons(TStream stream) {
+        super(stream);
     }
 
     @Override

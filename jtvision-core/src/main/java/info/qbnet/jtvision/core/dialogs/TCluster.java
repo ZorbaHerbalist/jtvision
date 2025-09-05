@@ -4,12 +4,15 @@ import info.qbnet.jtvision.core.constants.KeyCode;
 import info.qbnet.jtvision.core.event.TEvent;
 import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
+import info.qbnet.jtvision.core.objects.TStream;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
 import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
 import info.qbnet.jtvision.util.CString;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,26 @@ public abstract class TCluster extends TView {
 
         setCursor(2, 0);
         showCursor();
+    }
+
+    /**
+     * Loads a cluster from the provided {@link TStream}.
+     */
+    protected TCluster(TStream stream) {
+        super(stream);
+        try {
+            value = stream.readInt();
+            sel = stream.readInt();
+            enableMask = stream.readInt();
+            int count = stream.readInt();
+            for (int i = 0; i < count; i++) {
+                strings.add(stream.readString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // Re-evaluate selectable option based on enable mask.
+        setButtonState(0, true);
     }
 
     /** Determines whether the item is enabled using {@link #enableMask}. */
@@ -63,6 +86,11 @@ public abstract class TCluster extends TView {
             }
         }
         return col;
+    }
+
+    @Override
+    public int dataSize() {
+        return 2;
     }
 
     /**
@@ -149,6 +177,12 @@ public abstract class TCluster extends TView {
             return -1;
         }
         return s;
+    }
+
+    @Override
+    public void getData(ByteBuffer dst) {
+        dst.put((byte) (value & 0xFF));
+        dst.put((byte) ((value >>> 8) & 0xFF));
     }
 
     @Override
@@ -326,6 +360,55 @@ public abstract class TCluster extends TView {
     /** Returns the row (y offset) for the specified item. */
     protected int row(int item) {
         return item % size.y;
+    }
+
+    /** Enables or disables buttons specified by {@code mask}. */
+    public void setButtonState(int mask, boolean enable) {
+        if (enable) {
+            enableMask |= mask;
+        } else {
+            enableMask &= ~mask;
+        }
+        if (strings.size() <= 32) {
+            boolean selectable = false;
+            int bits = enableMask;
+            for (int i = 0; i < strings.size(); i++) {
+                if ((bits & 1) != 0) {
+                    selectable = true;
+                    break;
+                }
+                bits >>>= 1;
+            }
+            if (selectable) {
+                options |= Options.OF_SELECTABLE;
+            } else {
+                options &= ~Options.OF_SELECTABLE;
+            }
+        }
+    }
+
+    @Override
+    public void setData(ByteBuffer src) {
+        int lo = src.get() & 0xFF;
+        int hi = src.get() & 0xFF;
+        value = (hi << 8) | lo;
+        drawView();
+    }
+
+    @Override
+    public void store(TStream stream) {
+        super.store(stream);
+        try {
+            stream.writeInt(value);
+            stream.writeInt(sel);
+            stream.writeInt(enableMask);
+            stream.writeInt(strings.size());
+            for (String s : strings) {
+                stream.writeString(s);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
