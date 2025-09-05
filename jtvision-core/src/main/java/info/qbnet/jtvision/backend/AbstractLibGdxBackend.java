@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -54,6 +55,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     protected Texture pixel;
     protected OrthographicCamera camera;
     protected ScreenViewport viewport;
+    private final Vector3 tmpVec = new Vector3();
 
     protected AbstractLibGdxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
@@ -319,12 +321,14 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     }
 
     private void updateMousePosition(int screenX, int screenY) {
-        int x = screenX / cellWidth;
-        int y = screenY / cellHeight;
+        tmpVec.set(screenX, screenY, 0f);
+        viewport.unproject(tmpVec);
+        int x = (int) (tmpVec.x / cellWidth);
+        int y = (int) (tmpVec.y / cellHeight);
         x = Math.max(0, Math.min(screen.getWidth() - 1, x));
         y = Math.max(0, Math.min(screen.getHeight() - 1, y));
         mouseX = x;
-        mouseY = y;
+        mouseY = screen.getHeight() - 1 - y;
     }
 
     @Override
