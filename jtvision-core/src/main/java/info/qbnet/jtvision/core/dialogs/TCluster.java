@@ -18,10 +18,10 @@ import java.util.List;
 
 public abstract class TCluster extends TView {
 
-    protected int value = 0;
-    protected int sel = 0;
-    protected int enableMask = 0xFFFFFFFF;
-    private final List<String> strings = new ArrayList<>();
+    public int value = 0;
+    public int sel = 0;
+    public int enableMask = 0xFFFFFFFF;
+    public final List<String> strings = new ArrayList<>();
 
     public static final TPalette C_CLUSTER = new TPalette(TPalette.parseHexString("\\x10\\x11\\x12\\x12\\x1f"));
 
