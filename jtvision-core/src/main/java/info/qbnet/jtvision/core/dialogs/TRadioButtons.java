@@ -3,6 +3,7 @@ package info.qbnet.jtvision.core.dialogs;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.objects.TStream;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public class TRadioButtons extends TCluster {
@@ -46,4 +47,9 @@ public class TRadioButtons extends TCluster {
         value = item;
     }
 
+    @Override
+    public void setData(ByteBuffer src) {
+        super.setData(src);
+        sel = value;
+    }
 }
