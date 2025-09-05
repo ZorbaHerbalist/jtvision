@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
 
 public class TInputLine extends TView {
 
-    public static final int CLASS_ID = 8;
+    public static final int CLASS_ID = 11;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TInputLine::new);
     }
 

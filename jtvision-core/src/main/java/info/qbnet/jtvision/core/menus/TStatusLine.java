@@ -17,10 +17,9 @@ import java.util.List;
 
 public class TStatusLine extends TView {
 
-    /** Serialization identifier for {@code TStatusLine} instances. */
-    public static final int CLASS_ID = 13;
+    public static final int CLASS_ID = 42;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TStatusLine::new);
     }
 

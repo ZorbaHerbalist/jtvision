@@ -8,9 +8,9 @@ import info.qbnet.jtvision.core.objects.TStream;
 
 public class TFrame extends TView {
 
-    public static final int CLASS_ID = 6;
+    public static final int CLASS_ID = 2;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TFrame::new);
     }
 

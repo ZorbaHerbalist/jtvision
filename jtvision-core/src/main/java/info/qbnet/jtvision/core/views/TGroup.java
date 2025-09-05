@@ -52,9 +52,9 @@ import java.io.IOException;
  */
 public class TGroup extends TView {
 
-    public static final int CLASS_ID = 2;
+    public static final int CLASS_ID = 6;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TGroup::new);
     }
 

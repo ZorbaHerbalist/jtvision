@@ -15,9 +15,9 @@ import static info.qbnet.jtvision.core.constants.KeyCode.getAltCode;
 
 public class TButton extends TView {
 
-    public static final int CLASS_ID = 5;
+    public static final int CLASS_ID = 12;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TButton::new);
     }
 

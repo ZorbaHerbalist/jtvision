@@ -14,7 +14,10 @@ class TStreamTest {
 
     static class SampleView extends TView {
         static final int CLASS_ID = 100;
-        static { TStream.registerType(CLASS_ID, SampleView::new); }
+
+        public static void registerType() {
+            TStream.registerType(CLASS_ID, SampleView::new);
+        }
         int value;
         SampleView() { super(new TRect(0, 0, 1, 1)); }
         public SampleView(TStream stream) {
@@ -57,6 +60,7 @@ class TStreamTest {
 
     @Test
     void storeAndLoadView() throws Exception {
+        SampleView.registerType();
         SampleView view = new SampleView();
         view.value = 0xCAFEBABE;
         ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -13,9 +13,9 @@ import java.io.IOException;
 
 public class TWindow extends TGroup {
 
-    public static final int CLASS_ID = 3;
+    public static final int CLASS_ID = 7;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TWindow::new);
     }
 

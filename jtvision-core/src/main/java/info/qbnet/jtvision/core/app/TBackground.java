@@ -12,10 +12,9 @@ import static info.qbnet.jtvision.core.views.TPalette.parseHexString;
 
 public class TBackground extends TView {
 
-    /** Serialization identifier for {@code TBackground} views. */
-    public static final int CLASS_ID = 9;
+    public static final int CLASS_ID = 30;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TBackground::new);
     }
 

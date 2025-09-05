@@ -16,10 +16,9 @@ import java.util.List;
 
 public class TMenuView extends TView {
 
-    /** Serialization identifier for {@code TMenuView} instances. */
-    public static final int CLASS_ID = 10;
+    public static final int CLASS_ID = 39;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TMenuView::new);
     }
 

@@ -8,10 +8,9 @@ import info.qbnet.jtvision.util.CString;
 
 public class TMenuBox extends TMenuView {
 
-    /** Serialization identifier for {@code TMenuBox} instances. */
-    public static final int CLASS_ID = 12;
+    public static final int CLASS_ID = 41;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TMenuBox::new);
     }
 

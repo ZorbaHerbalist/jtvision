@@ -11,9 +11,9 @@ import java.io.IOException;
 
 public class TDialog extends TWindow {
 
-    public static final int CLASS_ID = 4;
+    public static final int CLASS_ID = 10;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TDialog::new);
     }
 

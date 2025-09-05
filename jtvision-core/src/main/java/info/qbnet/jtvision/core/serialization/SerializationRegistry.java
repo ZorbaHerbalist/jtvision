@@ -1,9 +1,23 @@
 package info.qbnet.jtvision.core.serialization;
 
+import info.qbnet.jtvision.core.app.TBackground;
+import info.qbnet.jtvision.core.dialogs.TButton;
+import info.qbnet.jtvision.core.dialogs.TDialog;
+import info.qbnet.jtvision.core.dialogs.TInputLine;
+import info.qbnet.jtvision.core.dialogs.TLabel;
+import info.qbnet.jtvision.core.dialogs.TRadioButtons;
+import info.qbnet.jtvision.core.dialogs.TStaticText;
+import info.qbnet.jtvision.core.menus.TMenuBar;
+import info.qbnet.jtvision.core.menus.TMenuBox;
+import info.qbnet.jtvision.core.menus.TMenuView;
+import info.qbnet.jtvision.core.menus.TStatusLine;
+import info.qbnet.jtvision.core.views.TFrame;
+import info.qbnet.jtvision.core.views.TGroup;
+import info.qbnet.jtvision.core.views.TView;
+import info.qbnet.jtvision.core.views.TWindow;
+
 /**
- * Utility class responsible for forcing the JVM to load core view classes so
- * their static initializers register serialization identifiers with
- * {@code TStream}.
+ * Utility class for registering built-in view classes with {@code TStream}.
  */
 public final class SerializationRegistry {
 
@@ -11,26 +25,24 @@ public final class SerializationRegistry {
         // Utility class
     }
 
-    private static final String[] CORE_CLASSES = {
-            "info.qbnet.jtvision.core.dialogs.TDialog",
-            "info.qbnet.jtvision.core.dialogs.TStaticText",
-            "info.qbnet.jtvision.core.dialogs.TInputLine",
-            "info.qbnet.jtvision.core.dialogs.TButton",
-            "info.qbnet.jtvision.core.dialogs.TLabel",
-            "info.qbnet.jtvision.core.views.TFrame"
-    };
-
     /**
-     * Loads core dialog and view classes to trigger their static registration
-     * blocks.
+     * Registers core dialog, menu, and view classes with {@code TStream}.
      */
     public static void initCoreTypes() {
-        for (String className : CORE_CLASSES) {
-            try {
-                Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        TView.registerType();
+        TGroup.registerType();
+        TWindow.registerType();
+        TFrame.registerType();
+        TDialog.registerType();
+        TStaticText.registerType();
+        TInputLine.registerType();
+        TButton.registerType();
+        TLabel.registerType();
+        TRadioButtons.registerType();
+        TBackground.registerType();
+        TMenuView.registerType();
+        TMenuBar.registerType();
+        TMenuBox.registerType();
+        TStatusLine.registerType();
     }
 }

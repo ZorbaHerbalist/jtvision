@@ -12,9 +12,9 @@ import java.io.IOException;
  */
 public class TStaticText extends TView {
 
-    public static final int CLASS_ID = 7;
+    public static final int CLASS_ID = 17;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TStaticText::new);
     }
 

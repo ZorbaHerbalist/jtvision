@@ -26,7 +26,7 @@ public class TView {
 
     public static final int CLASS_ID = 1;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TView::new);
     }
 

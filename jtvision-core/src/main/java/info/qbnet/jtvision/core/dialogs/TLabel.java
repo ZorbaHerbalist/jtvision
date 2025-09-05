@@ -21,7 +21,7 @@ public class TLabel extends TStaticText {
 
     public static final int CLASS_ID = 18;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TLabel::new);
     }
 

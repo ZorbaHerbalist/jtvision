@@ -10,7 +10,7 @@ public class TRadioButtons extends TCluster {
 
     public static final int CLASS_ID = 14;
 
-    static {
+    public static void registerType() {
         TStream.registerType(CLASS_ID, TRadioButtons::new);
     }
 
