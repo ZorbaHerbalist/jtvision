@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -21,6 +23,8 @@ import info.qbnet.jtvision.event.KeyCodeMapper;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.TPoint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -50,12 +54,18 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     private boolean cursorOn = true;
     private long lastBlink = 0;
     private static final long BLINK_MS = 530;
+    private int lastCursorX = -1;
+    private int lastCursorY = -1;
+    private boolean lastCursorVisible = false;
+    private boolean lastCursorInsert = false;
 
     protected SpriteBatch batch;
     protected Texture pixel;
     protected OrthographicCamera camera;
     protected ScreenViewport viewport;
     private final Vector3 tmpVec = new Vector3();
+    private FrameBuffer frameBuffer;
+    private TextureRegion frameRegion;
 
     protected AbstractLibGdxBackend(Screen screen, int cellWidth, int cellHeight) {
         this.screen = screen;
@@ -84,6 +94,15 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
         viewport.apply();
         camera.position.set(screen.getWidth() * cellWidth / 2f, screen.getHeight() * cellHeight / 2f, 0);
         camera.update();
+
+        frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
+                screen.getWidth() * cellWidth,
+                screen.getHeight() * cellHeight, false);
+        frameRegion = new TextureRegion(frameBuffer.getColorBufferTexture());
+        frameRegion.flip(false, true);
+        frameBuffer.begin();
+        ScreenUtils.clear(0, 0, 0, 1);
+        frameBuffer.end();
 
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
@@ -163,28 +182,52 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
             cursorOn = !cursorOn;
             lastBlink = now;
         }
-        ScreenUtils.clear(0, 0, 0, 1);
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
 
-        for (int y = 0; y < screen.getHeight(); y++) {
-            for (int x = 0; x < screen.getWidth(); x++) {
-                short cell = screen.getCell(x, y);
-                char ch = (char) (cell & 0xFF);
-                int attr = (cell >>> 8) & 0xFF;
-                java.awt.Color fg = DosPalette.getForeground(attr);
-                java.awt.Color bg = DosPalette.getBackground(attr);
-                int pixelY = (screen.getHeight() - y - 1) * cellHeight;
+        boolean cursorCurrentlyVisible = cursorVisible && cursorOn;
+        boolean cursorChanged = lastCursorX != cursorX || lastCursorY != cursorY
+                || lastCursorVisible != cursorCurrentlyVisible || lastCursorInsert != cursorInsert;
 
-                batch.setColor(ColorUtil.toGdx(bg));
-                batch.draw(pixel, x * cellWidth, pixelY, cellWidth, cellHeight);
-
-                drawGlyph(batch, ch, fg, x, pixelY);
-            }
+        List<TPoint> dirty = new ArrayList<>(screen.consumeDirtyCells());
+        if (cursorChanged) {
+            dirty.add(new TPoint(lastCursorX, lastCursorY));
+            dirty.add(new TPoint(cursorX, cursorY));
         }
 
-        if (cursorVisible && cursorOn) {
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+
+        if (dirty.isEmpty()) {
+            lastCursorX = cursorX;
+            lastCursorY = cursorY;
+            lastCursorVisible = cursorCurrentlyVisible;
+            lastCursorInsert = cursorInsert;
+
+            ScreenUtils.clear(0, 0, 0, 1);
+            batch.begin();
+            batch.setColor(Color.WHITE);
+            batch.draw(frameRegion, 0, 0);
+            batch.end();
+            return;
+        }
+
+        frameBuffer.begin();
+        batch.begin();
+        for (TPoint p : dirty) {
+            if (!screen.isInBounds(p.x, p.y)) continue;
+            short cell = screen.getCell(p.x, p.y);
+            char ch = (char) (cell & 0xFF);
+            int attr = (cell >>> 8) & 0xFF;
+            java.awt.Color fg = DosPalette.getForeground(attr);
+            java.awt.Color bg = DosPalette.getBackground(attr);
+            int pixelY = (screen.getHeight() - p.y - 1) * cellHeight;
+
+            batch.setColor(ColorUtil.toGdx(bg));
+            batch.draw(pixel, p.x * cellWidth, pixelY, cellWidth, cellHeight);
+
+            drawGlyph(batch, ch, fg, p.x, pixelY);
+        }
+
+        if (cursorCurrentlyVisible) {
             short cell = screen.getCell(cursorX, cursorY);
             int attr = (cell >>> 8) & 0xFF;
             java.awt.Color fg = DosPalette.getForeground(attr);
@@ -197,7 +240,18 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
                 batch.draw(pixel, cursorX * cellWidth, pixelY, cellWidth, h);
             }
         }
+        batch.end();
+        frameBuffer.end();
 
+        lastCursorX = cursorX;
+        lastCursorY = cursorY;
+        lastCursorVisible = cursorCurrentlyVisible;
+        lastCursorInsert = cursorInsert;
+
+        ScreenUtils.clear(0, 0, 0, 1);
+        batch.begin();
+        batch.setColor(Color.WHITE);
+        batch.draw(frameRegion, 0, 0);
         batch.end();
     }
 
@@ -210,6 +264,7 @@ public abstract class AbstractLibGdxBackend extends ApplicationAdapter
     public void dispose() {
         batch.dispose();
         pixel.dispose();
+        frameBuffer.dispose();
         disposeResources();
     }
 
