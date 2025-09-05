@@ -32,6 +32,24 @@ public class TProgram extends TGroup {
     private final Backend backend;
     private final Console console;
 
+    private static int getScreenSize(String key, int defaultValue) {
+        String value = System.getProperty(key);
+        if (value != null) {
+            try {
+                int parsed = Integer.parseInt(value);
+                if (parsed > 0) {
+                    return parsed;
+                }
+            } catch (NumberFormatException e) {
+                System.err.printf("Invalid value for %s: %s. Using default %d.%n", key, value, defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
+    private static final int SCREEN_WIDTH = getScreenSize("console.width", 80);
+    private static final int SCREEN_HEIGHT = getScreenSize("console.height", 25);
+
     public static final TPalette C_APP_COLOR = new TPalette(parseHexString(
             "\\x71\\x70\\x78\\x74\\x20\\x28\\x24\\x17\\x1F\\x1A" +
             "\\x31\\x31\\x1E\\x71\\x1F" +
@@ -63,14 +81,14 @@ public class TProgram extends TGroup {
      * @param type the backend type used to render the console
      */
     public TProgram(BackendType type) {
-        super(new TRect(0, 0, 80, 25));
+        super(new TRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
         logger.debug("{} TProgram@TProgram(type={})", getLogName(), type);
 
         Factory<? extends Backend> factory = BackendFactoryProvider.getFactory(type);
         factory.initialize();
 
-        this.screen = new Screen(80, 25, Color.LIGHT_GRAY, Color.BLACK);
+        this.screen = new Screen(SCREEN_WIDTH, SCREEN_HEIGHT, Color.LIGHT_GRAY, Color.BLACK);
         this.backend = factory.createBackend(screen);
         this.console = new Console(screen, backend);
 
