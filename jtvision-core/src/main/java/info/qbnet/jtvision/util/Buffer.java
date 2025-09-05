@@ -2,6 +2,8 @@ package info.qbnet.jtvision.util;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Array-based implementation of {@link IBuffer} using a flat array of packed
@@ -13,6 +15,7 @@ public class Buffer implements IBuffer {
     private final int width;
     private final int height;
     private final short[] buffer;
+    private final boolean[] dirty;
     private final Color defaultForeground;
     private final Color defaultBackground;
     private final short emptyCell;
@@ -42,6 +45,7 @@ public class Buffer implements IBuffer {
         int attr = DosPalette.toAttribute(defaultForeground, defaultBackground);
         this.emptyCell = (short) ((attr << 8) | ' ');
         this.buffer = new short[width * height];
+        this.dirty = new boolean[width * height];
         clear();
     }
 
@@ -61,7 +65,11 @@ public class Buffer implements IBuffer {
             System.err.printf("setChar(): coordinates out of bounds (%d,%d). Ignored.%n", x, y);
             return;
         }
-        buffer[y * width + x] = (short) ((attribute << 8) | (c & 0xFF));
+        int index = y * width + x;
+        short newVal = (short) ((attribute << 8) | (c & 0xFF));
+        if (buffer[index] == newVal) return;
+        buffer[index] = newVal;
+        dirty[index] = true;
         if (dirtyListener != null) dirtyListener.run();
     }
 
@@ -84,6 +92,7 @@ public class Buffer implements IBuffer {
     @Override
     public void clear() {
         Arrays.fill(buffer, emptyCell);
+        Arrays.fill(dirty, true);
         if (dirtyListener != null) dirtyListener.run();
     }
 
@@ -119,6 +128,20 @@ public class Buffer implements IBuffer {
     @Override
     public void setDirtyListener(Runnable listener) {
         this.dirtyListener = listener;
+    }
+
+    @Override
+    public List<TPoint> consumeDirtyCells() {
+        List<TPoint> dirtyCells = new ArrayList<>();
+        for (int i = 0; i < dirty.length; i++) {
+            if (dirty[i]) {
+                dirty[i] = false;
+                int x = i % width;
+                int y = i / width;
+                dirtyCells.add(new TPoint(x, y));
+            }
+        }
+        return dirtyCells;
     }
 
     @Override

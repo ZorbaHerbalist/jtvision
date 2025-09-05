@@ -12,6 +12,8 @@ import info.qbnet.jtvision.util.DosPalette;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.TPoint;
 
@@ -50,18 +52,27 @@ public class LanternaBackend implements GuiComponent<Screen> {
 
     @Override
     public void renderScreen() {
-        TextGraphics tg = terminalScreen.newTextGraphics();
-        for (int y = 0; y < screenBuffer.getHeight(); y++) {
-            for (int x = 0; x < screenBuffer.getWidth(); x++) {
-                short cell = screenBuffer.getCell(x, y);
-                char ch = (char) (cell & 0xFF);
-                int attr = (cell >>> 8) & 0xFF;
-                java.awt.Color fg = DosPalette.getForeground(attr);
-                java.awt.Color bg = DosPalette.getBackground(attr);
-                tg.setForegroundColor(toLanterna(fg));
-                tg.setBackgroundColor(toLanterna(bg));
-                tg.putString(x, y, String.valueOf(ch));
+        List<TPoint> dirty = new ArrayList<>(screenBuffer.consumeDirtyCells());
+        if (dirty.isEmpty()) {
+            try {
+                terminalScreen.refresh();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to refresh Lanterna screen", e);
             }
+            return;
+        }
+
+        TextGraphics tg = terminalScreen.newTextGraphics();
+        for (TPoint p : dirty) {
+            if (!screenBuffer.isInBounds(p.x, p.y)) continue;
+            short cell = screenBuffer.getCell(p.x, p.y);
+            char ch = (char) (cell & 0xFF);
+            int attr = (cell >>> 8) & 0xFF;
+            java.awt.Color fg = DosPalette.getForeground(attr);
+            java.awt.Color bg = DosPalette.getBackground(attr);
+            tg.setForegroundColor(toLanterna(fg));
+            tg.setBackgroundColor(toLanterna(bg));
+            tg.putString(p.x, p.y, String.valueOf(ch));
         }
         try {
             terminalScreen.refresh();

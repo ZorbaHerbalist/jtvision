@@ -15,6 +15,8 @@ import javafx.scene.input.KeyCode;
 
 import java.util.Optional;
 import java.util.Queue;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,6 +42,10 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     private volatile boolean cursorVisible = false;
     private volatile boolean cursorInsert = false;
     private volatile boolean cursorOn = true;
+    private int lastCursorX = -1;
+    private int lastCursorY = -1;
+    private boolean lastCursorVisible = false;
+    private boolean lastCursorInsert = false;
     private final ScheduledExecutorService cursorBlink =
             Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "cursor-blink");
@@ -113,19 +119,32 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
     }
 
     protected void renderToCanvas() {
+        List<TPoint> dirty = new ArrayList<>(screen.consumeDirtyCells());
+        boolean cursorCurrentlyVisible = cursorVisible && cursorOn;
+        if (lastCursorVisible || cursorCurrentlyVisible) {
+            dirty.add(new TPoint(lastCursorX, lastCursorY));
+            dirty.add(new TPoint(cursorX, cursorY));
+        }
+        if (dirty.isEmpty()) {
+            lastCursorX = cursorX;
+            lastCursorY = cursorY;
+            lastCursorVisible = cursorCurrentlyVisible;
+            lastCursorInsert = cursorInsert;
+            return;
+        }
+
         GraphicsContext gc = canvas.getGraphicsContext2D();
         configureGraphics(gc);
-        for (int y = 0; y < screen.getHeight(); y++) {
-            for (int x = 0; x < screen.getWidth(); x++) {
-                short cell = screen.getCell(x, y);
-                char ch = (char) (cell & 0xFF);
-                int attr = (cell >>> 8) & 0xFF;
-                java.awt.Color fg = DosPalette.getForeground(attr);
-                java.awt.Color bg = DosPalette.getBackground(attr);
-                drawGlyph(gc, x, y, ch, fg, bg);
-            }
+        for (TPoint p : dirty) {
+            if (!screen.isInBounds(p.x, p.y)) continue;
+            short cell = screen.getCell(p.x, p.y);
+            char ch = (char) (cell & 0xFF);
+            int attr = (cell >>> 8) & 0xFF;
+            java.awt.Color fg = DosPalette.getForeground(attr);
+            java.awt.Color bg = DosPalette.getBackground(attr);
+            drawGlyph(gc, p.x, p.y, ch, fg, bg);
         }
-        if (cursorVisible && cursorOn) {
+        if (cursorCurrentlyVisible) {
             short cell = screen.getCell(cursorX, cursorY);
             int attr = (cell >>> 8) & 0xFF;
             java.awt.Color fg = DosPalette.getForeground(attr);
@@ -139,6 +158,10 @@ public abstract class AbstractJavaFxBackend implements GuiComponent<Canvas> {
                 gc.fillRect(px, py + cellHeight - h, cellWidth, h);
             }
         }
+        lastCursorX = cursorX;
+        lastCursorY = cursorY;
+        lastCursorVisible = cursorCurrentlyVisible;
+        lastCursorInsert = cursorInsert;
     }
 
     /**

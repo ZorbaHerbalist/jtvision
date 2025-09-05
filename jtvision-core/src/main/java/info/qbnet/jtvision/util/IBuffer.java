@@ -91,6 +91,20 @@ public interface IBuffer {
     void setDirtyListener(Runnable listener);
 
     /**
+     * Retrieves all cells that have changed since the last call and resets
+     * their dirty state.
+     *
+     * <p>The returned list contains the coordinates of cells that were
+     * modified by calls to {@link #setChar} or {@link #clear()}. It may be
+     * empty if no changes occurred.</p>
+     *
+     * @return list of dirty cell coordinates
+     */
+    default java.util.List<TPoint> consumeDirtyCells() {
+        return java.util.List.of();
+    }
+
+    /**
      * Releases any resources associated with this buffer. Implementations may
      * override to provide cleanup logic; the default implementation does
      * nothing.
