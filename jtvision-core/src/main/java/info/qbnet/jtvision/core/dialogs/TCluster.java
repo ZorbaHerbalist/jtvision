@@ -1,7 +1,11 @@
 package info.qbnet.jtvision.core.dialogs;
 
+import info.qbnet.jtvision.core.constants.KeyCode;
+import info.qbnet.jtvision.core.event.TEvent;
+import info.qbnet.jtvision.core.objects.TPoint;
 import info.qbnet.jtvision.core.objects.TRect;
 import info.qbnet.jtvision.core.views.TDrawBuffer;
+import info.qbnet.jtvision.core.views.TGroup;
 import info.qbnet.jtvision.core.views.TPalette;
 import info.qbnet.jtvision.core.views.TView;
 import info.qbnet.jtvision.util.CString;
@@ -129,9 +133,175 @@ public abstract class TCluster extends TView {
         setCursor(column(sel) + 2, row(sel));
     }
 
+    /** Maps a local mouse position to the corresponding item index. */
+    private int findSel(TPoint p) {
+        TRect r = new TRect();
+        getExtent(r);
+        if (!r.contains(p)) {
+            return -1;
+        }
+        int i = 0;
+        while (p.x >= column(i + size.y)) {
+            i += size.y;
+        }
+        int s = i + p.y;
+        if (s >= strings.size()) {
+            return -1;
+        }
+        return s;
+    }
+
     @Override
     public TPalette getPalette() {
         return C_CLUSTER;
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        if ((options & Options.OF_SELECTABLE) == 0) {
+            return;
+        }
+
+        if (event.what == TEvent.EV_MOUSE_DOWN) {
+            TPoint mouse = new TPoint();
+            makeLocal(event.mouse.where, mouse);
+            int i = findSel(mouse);
+            if (i != -1 && buttonState(i)) {
+                sel = i;
+            }
+            drawView();
+
+            do {
+                makeLocal(event.mouse.where, mouse);
+                if (findSel(mouse) == sel) {
+                    showCursor();
+                } else {
+                    hideCursor();
+                }
+            } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+
+            showCursor();
+            makeLocal(event.mouse.where, mouse);
+            if (findSel(mouse) == sel && buttonState(sel)) {
+                press(sel);
+                drawView();
+            }
+            clearEvent(event);
+        } else if (event.what == TEvent.EV_KEYDOWN) {
+            int s = sel;
+            int i;
+            switch (KeyCode.ctrlToArrow(event.key.keyCode)) {
+                case KeyCode.KB_UP:
+                    if ((state & State.SF_FOCUSED) != 0) {
+                        i = 0;
+                        do {
+                            i++;
+                            s--;
+                            if (s < 0) {
+                                s = strings.size() - 1;
+                            }
+                        } while (!buttonState(s) && i <= strings.size());
+                        if (i <= strings.size()) {
+                            sel = s;
+                            movedTo(sel);
+                            drawView();
+                        }
+                        clearEvent(event);
+                    }
+                    break;
+                case KeyCode.KB_DOWN:
+                    if ((state & State.SF_FOCUSED) != 0) {
+                        i = 0;
+                        do {
+                            i++;
+                            s++;
+                            if (s >= strings.size()) {
+                                s = 0;
+                            }
+                        } while (!buttonState(s) && i <= strings.size());
+                        if (i <= strings.size()) {
+                            sel = s;
+                            movedTo(sel);
+                            drawView();
+                        }
+                        clearEvent(event);
+                    }
+                    break;
+                case KeyCode.KB_RIGHT:
+                    if ((state & State.SF_FOCUSED) != 0) {
+                        i = 0;
+                        do {
+                            i++;
+                            s += size.y;
+                            if (s >= strings.size()) {
+                                s = (s + 1) % size.y;
+                                if (s >= strings.size()) {
+                                    s = 0;
+                                }
+                            }
+                        } while (!buttonState(s) && i <= strings.size());
+                        if (i <= strings.size()) {
+                            sel = s;
+                            movedTo(sel);
+                            drawView();
+                        }
+                        clearEvent(event);
+                    }
+                    break;
+                case KeyCode.KB_LEFT:
+                    if ((state & State.SF_FOCUSED) != 0) {
+                        i = 0;
+                        do {
+                            i++;
+                            if (s > 0) {
+                                s -= size.y;
+                                if (s < 0) {
+                                    s = ((strings.size() + size.y - 1) / size.y) * size.y + s - 1;
+                                    if (s >= strings.size()) {
+                                        s = strings.size() - 1;
+                                    }
+                                }
+                            } else {
+                                s = strings.size() - 1;
+                            }
+                        } while (!buttonState(s) && i <= strings.size());
+                        if (i <= strings.size()) {
+                            sel = s;
+                            movedTo(sel);
+                            drawView();
+                        }
+                        clearEvent(event);
+                    }
+                    break;
+                default:
+                    for (i = 0; i < strings.size(); i++) {
+                        char c = hotKey(strings.get(i));
+                        boolean match = (KeyCode.getAltCode(c) == event.key.keyCode)
+                                || (((owner != null && owner.phase == TGroup.Phase.POST_PROCESS)
+                                || (state & State.SF_FOCUSED) != 0)
+                                && c != 0 && Character.toUpperCase(event.key.charCode) == c);
+                        if (match) {
+                            if (buttonState(i)) {
+                                if (focus()) {
+                                    sel = i;
+                                    movedTo(sel);
+                                    press(sel);
+                                    drawView();
+                                }
+                                clearEvent(event);
+                            }
+                            return;
+                        }
+                    }
+                    if (event.key.charCode == ' ' && (state & State.SF_FOCUSED) != 0 && buttonState(sel)) {
+                        press(sel);
+                        drawView();
+                        clearEvent(event);
+                    }
+                    break;
+            }
+        }
     }
 
     /** Indicates whether the given item is marked. Subclasses override. */
@@ -139,9 +309,18 @@ public abstract class TCluster extends TView {
         return false;
     }
 
+    /** Notifies subclasses when the selection cursor moves to a new item. */
+    protected void movedTo(int item) {
+        // default: do nothing
+    }
     /** Converts the mark state into an index for the marker string. */
     protected int multiMark(int item) {
         return mark(item) ? 1 : 0;
+    }
+
+    /** Invoked when an item is activated (e.g., pressed). */
+    protected void press(int item) {
+        // default: do nothing
     }
 
     /** Returns the row (y offset) for the specified item. */

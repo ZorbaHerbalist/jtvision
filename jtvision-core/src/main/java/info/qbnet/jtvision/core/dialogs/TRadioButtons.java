@@ -19,4 +19,15 @@ public class TRadioButtons extends TCluster {
     protected boolean mark(int item) {
         return item == value;
     }
+
+    @Override
+    protected void movedTo(int item) {
+        value = item;
+    }
+
+    @Override
+    protected void press(int item) {
+        value = item;
+    }
+
 }
