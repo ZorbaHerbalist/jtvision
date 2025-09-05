@@ -10,4 +10,13 @@ public class TRadioButtons extends TCluster {
         super(bounds, strings);
     }
 
+    @Override
+    public void draw() {
+        drawMultiBox(" ( ) ", " " + (char) 0x07);
+    }
+
+    @Override
+    protected boolean mark(int item) {
+        return item == value;
+    }
 }
