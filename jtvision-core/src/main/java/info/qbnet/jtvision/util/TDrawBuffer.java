@@ -2,7 +2,7 @@ package info.qbnet.jtvision.util;
 
 public class TDrawBuffer {
 
-    public static final int MAX_VIEW_LENGTH = 132;
+    public static final int MAX_VIEW_LENGTH = 256;
     public final short[] buffer = new short[MAX_VIEW_LENGTH];
 
     /**
