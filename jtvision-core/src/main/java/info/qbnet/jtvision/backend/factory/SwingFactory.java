@@ -11,6 +11,11 @@ import org.slf4j.LoggerFactory;
 
 public class SwingFactory extends Factory<GuiComponent<JPanel>> {
 
+    static {
+        // Ensure consistent UI scaling without requiring a JVM flag.
+        System.setProperty("sun.java2d.uiScale", "1");
+    }
+
     private static final Logger log = LoggerFactory.getLogger(SwingFactory.class);
 
     public SwingFactory(Function<Screen, ? extends GuiComponent<JPanel>> constructor) {

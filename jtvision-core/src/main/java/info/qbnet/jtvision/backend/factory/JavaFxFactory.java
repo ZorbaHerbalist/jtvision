@@ -26,6 +26,7 @@ public class JavaFxFactory extends Factory<GuiComponent<Canvas>> {
 
     @Override
     public void initialize() {
+        System.setProperty("prism.allowhidpi", "false");
         log.info("Starting JavaFX platform");
         Platform.startup(() -> {
             // no-op, just initialize JavaFX runtime
