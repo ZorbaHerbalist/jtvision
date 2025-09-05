@@ -147,7 +147,10 @@ public class DemoApp extends TApplication {
         d.insert(new TButton(new TRect(38, 6, 48, 8), "~C~ancel", Command.CM_CANCEL, 0));
         d.selectNext(false);
 
-        desktop.execView(d);
+        if (desktop.execView(d) == Command.CM_OK) {
+            int selected = radio.value;
+            MsgBox.messageBox("Selected value: " + selected, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        }
     }
 
     private TDialog loadSampleDialog() {
