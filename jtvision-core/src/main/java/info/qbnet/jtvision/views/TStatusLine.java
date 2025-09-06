@@ -14,6 +14,7 @@ import info.qbnet.jtvision.util.CString;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TStatusLine extends TView {
 
@@ -21,6 +22,66 @@ public class TStatusLine extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TStatusLine::new);
+    }
+
+    public static StatusDefBuilder statusLine() {
+        return new StatusDefBuilder();
+    }
+
+    public static ItemsBuilder items() {
+        return new ItemsBuilder();
+    }
+
+    public static final class StatusDefBuilder {
+        private final List<TStatusDef> defs = new ArrayList<>();
+
+        public StatusDefBuilder def(int min, int max, Consumer<ItemsBuilder> consumer) {
+            ItemsBuilder builder = new ItemsBuilder();
+            consumer.accept(builder);
+            defs.add(new TStatusDef(min, max, builder.build(), null));
+            return this;
+        }
+
+        public TStatusDef build() {
+            return build(null);
+        }
+
+        public TStatusDef build(TStatusDef tail) {
+            TStatusDef next = tail;
+            for (int i = defs.size() - 1; i >= 0; i--) {
+                TStatusDef d = defs.get(i);
+                next = new TStatusDef(d.min(), d.max(), d.items(), next);
+            }
+            return next;
+        }
+    }
+
+    public static final class ItemsBuilder {
+        private final List<TStatusItem> items = new ArrayList<>();
+        private TStatusItem tail;
+
+        public ItemsBuilder item(String text, int keyCode, int command) {
+            items.add(new TStatusItem(text, keyCode, command, null));
+            return this;
+        }
+
+        public ItemsBuilder chain(TStatusItem tail) {
+            this.tail = tail;
+            return this;
+        }
+
+        public TStatusItem build() {
+            return build(tail);
+        }
+
+        public TStatusItem build(TStatusItem tail) {
+            TStatusItem next = tail;
+            for (int i = items.size() - 1; i >= 0; i--) {
+                TStatusItem t = items.get(i);
+                next = new TStatusItem(t.text(), t.keyCode(), t.command(), next);
+            }
+            return next;
+        }
     }
 
     private TStatusDef defs;

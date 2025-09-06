@@ -279,25 +279,27 @@ public class TProgram extends TGroup {
     }
 
     public static TStatusItem stdStatusKeys(TStatusItem next) {
-        return new TStatusItem(null, KeyCode.KB_ALT_X, Command.CM_QUIT,
-               new TStatusItem(null, KeyCode.KB_F10, Command.CM_MENU,
-               new TStatusItem(null, KeyCode.KB_ALT_F3, Command.CM_CLOSE,
-               new TStatusItem(null, KeyCode.KB_F5, Command.CM_ZOOM,
-               new TStatusItem(null, KeyCode.KB_CTRL_F5, Command.CM_RESIZE,
-               new TStatusItem(null, KeyCode.KB_F6, Command.CM_NEXT,
-               new TStatusItem(null, KeyCode.KB_SHIFT_F6, Command.CM_PREV,
-               null)))))));
+        return TStatusLine.items()
+                .item(null, KeyCode.KB_ALT_X, Command.CM_QUIT)
+                .item(null, KeyCode.KB_F10, Command.CM_MENU)
+                .item(null, KeyCode.KB_ALT_F3, Command.CM_CLOSE)
+                .item(null, KeyCode.KB_F5, Command.CM_ZOOM)
+                .item(null, KeyCode.KB_CTRL_F5, Command.CM_RESIZE)
+                .item(null, KeyCode.KB_F6, Command.CM_NEXT)
+                .item(null, KeyCode.KB_SHIFT_F6, Command.CM_PREV)
+                .build(next);
     }
 
     public void initStatusLine() {
         TRect r = new TRect();
         getExtent(r);
         r.a.y = r.b.y - 1;
-        statusLine = new TStatusLine(r,
-                new TStatusDef(0, 0xFFFF,
-                        new TStatusItem("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT,
-                        stdStatusKeys(null)),
-                null));
+        TStatusDef defs = TStatusLine.statusLine()
+                .def(0, 0xFFFF, b -> b
+                        .item("~Alt-X~ Exit", KeyCode.KB_ALT_X, Command.CM_QUIT)
+                        .chain(stdStatusKeys(null)))
+                .build();
+        statusLine = new TStatusLine(r, defs);
     }
 
     @Override

@@ -9,7 +9,6 @@ import info.qbnet.jtvision.util.KeyCode;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.views.TMenuBar;
 import info.qbnet.jtvision.util.TStatusDef;
-import info.qbnet.jtvision.util.TStatusItem;
 import info.qbnet.jtvision.views.TStatusLine;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.util.MsgBox;
@@ -351,13 +350,14 @@ public class DemoApp extends TApplication {
         TRect r = new TRect();
         getExtent(r);
         r.a.y = r.b.y - 1;
-        statusLine = new TStatusLine(r,
-                new TStatusDef(0, 0xFFFF,
-                        new TStatusItem("~F4~ New", KeyCode.KB_F4, Command.CM_NEW,
-                        new TStatusItem("Cascade", KeyCode.KB_NO_KEY, Command.CM_CASCADE,
-                        new TStatusItem("Tile", KeyCode.KB_NO_KEY, Command.CM_TILE,
-                        TProgram.stdStatusKeys(null)))),
-                null));
+        TStatusDef defs = TStatusLine.statusLine()
+                .def(0, 0xFFFF, b -> b
+                        .item("~F4~ New", KeyCode.KB_F4, Command.CM_NEW)
+                        .item("Cascade", KeyCode.KB_NO_KEY, Command.CM_CASCADE)
+                        .item("Tile", KeyCode.KB_NO_KEY, Command.CM_TILE)
+                        .chain(TProgram.stdStatusKeys(null)))
+                .build();
+        statusLine = new TStatusLine(r, defs);
     }
 
     public void newWindow() {
