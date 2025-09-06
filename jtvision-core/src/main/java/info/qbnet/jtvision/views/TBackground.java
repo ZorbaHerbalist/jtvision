@@ -6,6 +6,7 @@ import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
+import java.util.EnumSet;
 
 import static info.qbnet.jtvision.util.TPalette.parseHexString;
 
@@ -23,7 +24,7 @@ public class TBackground extends TView {
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);
-        this.growMode |= (GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y);
+        this.growMode.addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
         this.pattern = pattern;
 
         logger.debug("{} TBackground@TBackground(bounds={}, pattern={})", getLogName(), bounds, (int) pattern);

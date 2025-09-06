@@ -13,6 +13,7 @@ import info.qbnet.jtvision.util.CString;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -93,7 +94,7 @@ public class TStatusLine extends TView {
         super(bounds);
         this.options |= Options.OF_PRE_PROCESS;
         this.eventMask |= TEvent.EV_BROADCAST;
-        this.growMode = GrowMode.GF_GROW_LO_Y | GrowMode.GF_GROW_HI_X | GrowMode.GF_GROW_HI_Y;
+        this.growMode = EnumSet.of(GrowMode.GF_GROW_LO_Y, GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y);
         this.defs = defs;
         findItems();
 
@@ -104,7 +105,7 @@ public class TStatusLine extends TView {
         super(stream);
         this.options |= Options.OF_PRE_PROCESS;
         this.eventMask |= TEvent.EV_BROADCAST;
-        this.growMode = GrowMode.GF_GROW_LO_Y | GrowMode.GF_GROW_HI_X | GrowMode.GF_GROW_HI_Y;
+        this.growMode = EnumSet.of(GrowMode.GF_GROW_LO_Y, GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y);
         try {
             this.defs = readDefs(stream);
             findItems();

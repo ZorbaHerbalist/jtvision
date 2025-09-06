@@ -8,6 +8,8 @@ import info.qbnet.jtvision.util.TStream;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 
+import java.util.EnumSet;
+
 public class TFrame extends TView {
 
     public static final int CLASS_ID = 2;
@@ -39,7 +41,7 @@ public class TFrame extends TView {
 
     public TFrame(TRect bounds) {
         super(bounds);
-        this.growMode |= GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y;
+        this.growMode.addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
         this.eventMask |= TEvent.EV_BROADCAST;
     }
 

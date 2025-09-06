@@ -51,23 +51,45 @@ public class TView {
     private TPoint cursor = new TPoint(0, 0);
 
     /** Resize behavior flags for owner size changes. */
-    public static class GrowMode {
+    public enum GrowMode {
         /** Keep left edge at constant distance from owner's right. */
-        public static final int GF_GROW_LO_X = 1 << 0;
+        GF_GROW_LO_X,
         /** Keep top edge at constant distance from owner's bottom. */
-        public static final int GF_GROW_LO_Y = 1 << 1;
+        GF_GROW_LO_Y,
         /** Keep right edge at constant distance from owner's right. */
-        public static final int GF_GROW_HI_X = 1 << 2;
+        GF_GROW_HI_X,
         /** Keep bottom edge at constant distance from owner's bottom. */
-        public static final int GF_GROW_HI_Y = 1 << 3;
-        /** Maintain all four edge distances. */
-        public static final int GF_GROW_ALL = GF_GROW_LO_X | GF_GROW_LO_Y | GF_GROW_HI_X | GF_GROW_HI_Y;
+        GF_GROW_HI_Y,
         /** Scale proportionally with owner, e.g. {@code TWindow}. */
-        public static final int GF_GROW_REL = 1 << 4;
+        GF_GROW_REL;
+
+        /** Maintain all four edge distances. */
+        public static final EnumSet<GrowMode> GF_GROW_ALL =
+                EnumSet.of(GF_GROW_LO_X, GF_GROW_LO_Y, GF_GROW_HI_X, GF_GROW_HI_Y);
     }
 
     /** Current grow mode flags controlling how this view resizes with its owner. */
-    protected int growMode = 0;
+    protected EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
+
+    private static EnumSet<GrowMode> growModeFromInt(int value) {
+        EnumSet<GrowMode> set = EnumSet.noneOf(GrowMode.class);
+        if ((value & 0x01) != 0) set.add(GrowMode.GF_GROW_LO_X);
+        if ((value & 0x02) != 0) set.add(GrowMode.GF_GROW_LO_Y);
+        if ((value & 0x04) != 0) set.add(GrowMode.GF_GROW_HI_X);
+        if ((value & 0x08) != 0) set.add(GrowMode.GF_GROW_HI_Y);
+        if ((value & 0x10) != 0) set.add(GrowMode.GF_GROW_REL);
+        return set;
+    }
+
+    private static int growModeToInt(EnumSet<GrowMode> set) {
+        int value = 0;
+        if (set.contains(GrowMode.GF_GROW_LO_X)) value |= 0x01;
+        if (set.contains(GrowMode.GF_GROW_LO_Y)) value |= 0x02;
+        if (set.contains(GrowMode.GF_GROW_HI_X)) value |= 0x04;
+        if (set.contains(GrowMode.GF_GROW_HI_Y)) value |= 0x08;
+        if (set.contains(GrowMode.GF_GROW_REL)) value |= 0x10;
+        return value;
+    }
 
     public static class DragMode {
         public static final int DM_DRAG_MOVE = 0x01;
@@ -233,7 +255,7 @@ public class TView {
             origin = new TPoint(stream.readInt(), stream.readInt());
             size = new TPoint(stream.readInt(), stream.readInt());
             cursor = new TPoint(stream.readInt(), stream.readInt());
-            growMode = stream.readInt();
+            growMode = growModeFromInt(stream.readInt());
             dragMode = stream.readInt();
             helpCtx = stream.readInt();
             state = stream.readInt();
@@ -266,7 +288,7 @@ public class TView {
      * Uses {@link GrowMode#GF_GROW_REL} for proportional scaling.
      */
     private int growValue(int value, int s, int d) {
-        if ((growMode & GrowMode.GF_GROW_REL) == 0)
+        if (!growMode.contains(GrowMode.GF_GROW_REL))
             return value + d;
         else
             return (value * s + ((s - d) >> 1)) / (s - d);
@@ -281,10 +303,10 @@ public class TView {
 
         int sx = owner.size.x;
         int dx = delta.x;
-        if ((growMode & GrowMode.GF_GROW_LO_X) != 0) {
+        if (growMode.contains(GrowMode.GF_GROW_LO_X)) {
             bounds.a.x = growValue(bounds.a.x, sx, dx);
         }
-        if ((growMode & GrowMode.GF_GROW_HI_X) != 0) {
+        if (growMode.contains(GrowMode.GF_GROW_HI_X)) {
             bounds.b.x = growValue(bounds.b.x, sx, dx);
         }
         if (bounds.b.x - bounds.a.x > TDrawBuffer.MAX_VIEW_LENGTH) {
@@ -293,10 +315,10 @@ public class TView {
 
         int sy = owner.size.y;
         int dy = delta.y;
-        if ((growMode & GrowMode.GF_GROW_LO_Y) != 0) {
+        if (growMode.contains(GrowMode.GF_GROW_LO_Y)) {
             bounds.a.y = growValue(bounds.a.y, sy, dy);
         }
-        if ((growMode & GrowMode.GF_GROW_HI_Y) != 0) {
+        if (growMode.contains(GrowMode.GF_GROW_HI_Y)) {
             bounds.b.y = growValue(bounds.b.y, sy, dy);
         }
 
@@ -1352,7 +1374,7 @@ public class TView {
             stream.writeInt(size.y);
             stream.writeInt(cursor.x);
             stream.writeInt(cursor.y);
-            stream.writeInt(growMode);
+            stream.writeInt(growModeToInt(growMode));
             stream.writeInt(dragMode);
             stream.writeInt(helpCtx);
             stream.writeInt(state);

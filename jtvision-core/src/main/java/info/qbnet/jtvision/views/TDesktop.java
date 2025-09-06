@@ -5,6 +5,7 @@ import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.TPoint;
 import info.qbnet.jtvision.util.TRect;
 
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,7 +16,7 @@ public class TDesktop extends TGroup {
 
     public TDesktop(TRect bounds) {
         super(bounds);
-        this.growMode |= (GrowMode.GF_GROW_HI_X + GrowMode.GF_GROW_HI_Y);
+        this.growMode.addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
 
         logger.debug("{} TDesktop@TDesktop(bounds={})", getLogName(), bounds);
 

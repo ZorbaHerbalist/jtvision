@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -367,7 +368,7 @@ class TViewTest {
         TGroup group = new TGroup(new TRect(0, 0, 10, 10));
         TestableTView view = new TestableTView(new TRect(0, 0, 5, 6));
         group.insert(view);
-        view.growMode = TView.GrowMode.GF_GROW_HI_X | TView.GrowMode.GF_GROW_HI_Y;
+        view.growMode.addAll(EnumSet.of(TView.GrowMode.GF_GROW_HI_X, TView.GrowMode.GF_GROW_HI_Y));
 
         int originalWidth  = view.getSizeField().x;
         int originalHeight = view.getSizeField().y;
@@ -397,7 +398,8 @@ class TViewTest {
         TestGroup group = new TestGroup(new TRect(0, 0, 100, 100));
         TestableTView view = new TestableTView(new TRect(10, 10, 30, 30));
         group.insert(view);
-        view.growMode = TView.GrowMode.GF_GROW_ALL | TView.GrowMode.GF_GROW_REL;
+        view.growMode = EnumSet.copyOf(TView.GrowMode.GF_GROW_ALL);
+        view.growMode.add(TView.GrowMode.GF_GROW_REL);
 
         TPoint delta = new TPoint(10,20);
         group.size.x += delta.x;
