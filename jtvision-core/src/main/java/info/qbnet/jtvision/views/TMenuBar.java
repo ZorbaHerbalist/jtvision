@@ -7,6 +7,8 @@ import info.qbnet.jtvision.util.TStream;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.CString;
 
+import java.util.function.Consumer;
+
 public class TMenuBar extends TMenuView {
 
     public static final int CLASS_ID = 40;
@@ -15,23 +17,45 @@ public class TMenuBar extends TMenuView {
         TStream.registerType(CLASS_ID, TMenuBar::new);
     }
 
-    public static TMenuItem newItem(String name, String param, int keyCode, int command, int helpCtx, TMenuItem next) {
-        if (name != null && name.length() > 0 && command != 0) {
-            return new TMenuItem(next, name, command, !TView.commandEnabled(command), keyCode, helpCtx, param, null);
+    public static MenuBuilder menu() {
+        return new MenuBuilder();
+    }
+
+    public static final class MenuBuilder {
+        private TMenuItem first;
+        private TMenuItem last;
+
+        private void append(TMenuItem item) {
+            if (first == null) {
+                first = item;
+            } else {
+                last.next = item;
+            }
+            last = item;
         }
-        return next;
-    }
 
-    public static TMenuItem newLine(TMenuItem next) {
-        return new TMenuItem(next, null, 0, false, 0, HelpContext.HC_NO_CONTEXT, null, null);
-    }
+        public MenuBuilder item(String name, String param, int keyCode, int command, int helpCtx) {
+            if (name != null && name.length() > 0 && command != 0) {
+                append(new TMenuItem(null, name, command, !TView.commandEnabled(command), keyCode, helpCtx, param, null));
+            }
+            return this;
+        }
 
-    public static TMenuItem newSubmenu(String name, int helpCtx, TMenu subMenu, TMenuItem next) {
-        return new TMenuItem(next, name, 0, false, 0, helpCtx, null, subMenu);
-    }
+        public MenuBuilder separator() {
+            append(new TMenuItem(null, null, 0, false, 0, HelpContext.HC_NO_CONTEXT, null, null));
+            return this;
+        }
 
-    public static TMenu newMenu(TMenuItem items) {
-        return new TMenu(items, items);
+        public MenuBuilder submenu(String name, int helpCtx, Consumer<MenuBuilder> consumer) {
+            MenuBuilder sub = new MenuBuilder();
+            consumer.accept(sub);
+            append(new TMenuItem(null, name, 0, false, 0, helpCtx, null, sub.build()));
+            return this;
+        }
+
+        public TMenu build() {
+            return new TMenu(first, first);
+        }
     }
 
     public TMenuBar(TRect bounds, TMenu menu) {

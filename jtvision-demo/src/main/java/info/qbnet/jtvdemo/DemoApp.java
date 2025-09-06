@@ -279,31 +279,25 @@ public class DemoApp extends TApplication {
         TRect r = new TRect();
         getExtent(r);
         r.b.y = r.a.y + 1;
-        menuBar = new TMenuBar(r, TMenuBar.newMenu(
-                TMenuBar.newSubmenu("~" + (char) 0xF0 + "~", HelpContext.HC_NO_CONTEXT, TMenuBar.newMenu(
-                        TMenuBar.newItem("~G~reetings", "", KeyCode.KB_NO_KEY, CM_GREETINGS, HelpContext.HC_NO_CONTEXT,
-                        null)),
-                TMenuBar.newSubmenu("~F~ile", 0, TMenuBar.newMenu(
-                        TMenuBar.newItem("~N~ew", "", KeyCode.KB_NO_KEY, Command.CM_NEW, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~O~pen...", "F3", KeyCode.KB_F3, Command.CM_OPEN, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newLine(
-                        TMenuBar.newItem("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT,
-                        null))))),
-                TMenuBar.newSubmenu("~D~ialog", 0, TMenuBar.newMenu(
-                        TMenuBar.newItem("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~C~heck boxes", null, KeyCode.KB_NO_KEY, CM_DLG_CHECK_BOXES, HelpContext.HC_NO_CONTEXT,
-                        null)))))),
-                TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
-                        TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
-                        TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
-                        null))),
-                TMenuBar.newSubmenu("~H~elp", 0, TMenuBar.newMenu(
-                        TMenuBar.newItem("~A~bout", "", KeyCode.KB_NO_KEY, CM_ABOUT, HelpContext.HC_NO_CONTEXT,
-                        null)),
-                null)))))));
+        menuBar = new TMenuBar(r, TMenuBar.menu()
+                .submenu("~" + (char) 0xF0 + "~", HelpContext.HC_NO_CONTEXT, m -> m
+                        .item("~G~reetings", "", KeyCode.KB_NO_KEY, CM_GREETINGS, HelpContext.HC_NO_CONTEXT))
+                .submenu("~F~ile", 0, m -> m
+                        .item("~N~ew", "", KeyCode.KB_NO_KEY, Command.CM_NEW, HelpContext.HC_NO_CONTEXT)
+                        .item("~O~pen...", "F3", KeyCode.KB_F3, Command.CM_OPEN, HelpContext.HC_NO_CONTEXT)
+                        .separator()
+                        .item("E~x~it", "Alt+X", KeyCode.KB_ALT_X, Command.CM_QUIT, HelpContext.HC_NO_CONTEXT))
+                .submenu("~D~ialog", 0, m -> m
+                        .item("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT)
+                        .item("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT)
+                        .item("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT)
+                        .item("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT))
+                .submenu("~W~indow", 0, m -> m
+                        .item("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT)
+                        .item("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT))
+                .submenu("~H~elp", 0, m -> m
+                        .item("~A~bout", "", KeyCode.KB_NO_KEY, CM_ABOUT, HelpContext.HC_NO_CONTEXT))
+                .build());
     }
 
     @Override
