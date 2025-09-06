@@ -41,6 +41,7 @@ public class DemoApp extends TApplication {
     public static final int CM_DLG_CURSOR = 105;
     public static final int CM_DLG_FILE = 106;
     public static final int CM_DLG_RADIO_BUTTONS = 107;
+    public static final int CM_DLG_CHECK_BOXES = 108;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
@@ -149,6 +150,24 @@ public class DemoApp extends TApplication {
 
         if (desktop.execView(d) == Command.CM_OK) {
             int selected = radio.value;
+            MsgBox.messageBox("Selected value: " + selected, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        }
+    }
+
+    private void doDlgCheckBoxes() {
+        TDialog d = new TDialog(new TRect(10, 6, 70, 18), "Check boxes");
+
+        TCheckBoxes checkBoxes = new TCheckBoxes(new TRect(3, 3, 35, 9),
+                Arrays.asList("Option ~1~", "Option ~2~", "Option ~3~"));
+        d.insert(checkBoxes);
+
+        d.insert(new TLabel(new TRect(3, 2, 20, 3), "Choose an option:", checkBoxes));
+        d.insert(new TButton(new TRect(38, 3, 48, 5), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(38, 6, 48, 8), "~C~ancel", Command.CM_CANCEL, 0));
+        d.selectNext(false);
+
+        if (desktop.execView(d) == Command.CM_OK) {
+            int selected = checkBoxes.value;
             MsgBox.messageBox("Selected value: " + selected, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         }
     }
@@ -275,7 +294,8 @@ public class DemoApp extends TApplication {
                         TMenuBar.newItem("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT,
-                        null))))),
+                        TMenuBar.newItem("~C~heck boxes", null, KeyCode.KB_NO_KEY, CM_DLG_CHECK_BOXES, HelpContext.HC_NO_CONTEXT,
+                        null)))))),
                 TMenuBar.newSubmenu("~W~indow", 0, TMenuBar.newMenu(
                         TMenuBar.newItem("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT,
                         TMenuBar.newItem("~Z~oom", "F5", KeyCode.KB_F5, Command.CM_ZOOM, HelpContext.HC_NO_CONTEXT,
@@ -308,6 +328,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_RADIO_BUTTONS:
                     doDlgRadioButtons();
+                    break;
+                case CM_DLG_CHECK_BOXES:
+                    doDlgCheckBoxes();
                     break;
                 case CM_DLG_FILE:
                     try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
