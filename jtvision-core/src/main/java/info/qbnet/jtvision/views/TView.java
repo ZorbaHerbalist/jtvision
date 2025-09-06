@@ -69,7 +69,7 @@ public class TView {
     }
 
     /** Current grow mode flags controlling how this view resizes with its owner. */
-    protected EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
+    private final EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
 
     private static EnumSet<GrowMode> growModeFromInt(int value) {
         EnumSet<GrowMode> set = EnumSet.noneOf(GrowMode.class);
@@ -255,7 +255,8 @@ public class TView {
             origin = new TPoint(stream.readInt(), stream.readInt());
             size = new TPoint(stream.readInt(), stream.readInt());
             cursor = new TPoint(stream.readInt(), stream.readInt());
-            growMode = growModeFromInt(stream.readInt());
+            growMode.clear();
+            growMode.addAll(growModeFromInt(stream.readInt()));
             dragMode = stream.readInt();
             helpCtx = stream.readInt();
             state = stream.readInt();
@@ -1720,10 +1721,6 @@ public class TView {
         this.owner = owner;
     }
 
-    public TPoint getSize() {
-        return size;
-    }
-
     /**
      * Returns the next view in the sibling chain.
      *
@@ -1731,6 +1728,14 @@ public class TView {
      */
     public TView getNext() {
         return next;
+    }
+
+    public TPoint getSize() {
+        return size;
+    }
+
+    protected EnumSet<GrowMode> getGrowMode() {
+        return growMode;
     }
 
     /**

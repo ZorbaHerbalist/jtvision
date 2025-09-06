@@ -13,7 +13,7 @@ public class DemoInterior extends TView {
     public DemoInterior(TRect bounds, List<String> lines) {
         super(bounds);
         this.lines = lines;
-        this.growMode.addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+        this.getGrowMode().addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
         this.options |= Options.OF_FRAMED;
     }
 

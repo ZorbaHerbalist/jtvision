@@ -60,7 +60,7 @@ public class TMenuBar extends TMenuView {
 
     public TMenuBar(TRect bounds, TMenu menu) {
         super(bounds);
-        this.growMode.add(GrowMode.GF_GROW_HI_X);
+        getGrowMode().add(GrowMode.GF_GROW_HI_X);
         this.menu = menu;
         this.options |= Options.OF_PRE_PROCESS;
 
