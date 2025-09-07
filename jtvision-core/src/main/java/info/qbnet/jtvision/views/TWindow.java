@@ -55,6 +55,12 @@ public class TWindow extends TGroup {
 
     private static final TPoint minWinSize = new TPoint(16, 6);
 
+    public static class ScrollBarOptions {
+        public static final int SB_HORIZONTAL = 0x0000;
+        public static final int SB_VERTICAL = 0x0001;
+        public static final int SB_HANDLE_KEYBOARD = 0x0002;
+    }
+
     public TWindow(TRect bounds, String title, int number) {
         super(bounds);
         this.state |= State.SF_SHADOW;
@@ -221,6 +227,22 @@ public class TWindow extends TGroup {
         super.sizeLimits(min, max);
         min.x = minWinSize.x;
         min.y = minWinSize.y;
+    }
+
+    public TScrollBar standardScrollBar(int options) {
+        TRect r = new TRect();
+        getExtent(r);
+        if ((options & ScrollBarOptions.SB_VERTICAL) == 0) {
+            r.assign(r.a.x + 2, r.b.y - 1, r.b.x - 2, r.b.y);
+        } else {
+            r.assign(r.b.x - 1, r.a.y + 1, r.b.x, r.b.y - 1);
+        }
+        TScrollBar s = new TScrollBar(r);
+        insert(s);
+        if ((options & ScrollBarOptions.SB_HANDLE_KEYBOARD) != 0) {
+            s.options |= Options.OF_POST_PROCESS;
+        }
+        return s;
     }
 
     public void zoom() {

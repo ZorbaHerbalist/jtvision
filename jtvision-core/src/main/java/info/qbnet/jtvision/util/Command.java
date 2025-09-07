@@ -35,6 +35,9 @@ public class Command {
     public static final int CM_RELEASED_FOCUS       = 51;
     public static final int CM_COMMAND_SET_CHANGED  = 52;
 
+    public static final int CM_SCROLLBAR_CHANGED    = 53;
+    public static final int CM_SCROLLBAR_CLICKED    = 54;
+
     public static final int CM_SELECT_WINDOW_NUM    = 55;
 
     public static final int CM_RECORD_HISTORY       = 60;
