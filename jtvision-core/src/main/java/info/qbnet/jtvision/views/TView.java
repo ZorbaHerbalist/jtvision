@@ -48,7 +48,7 @@ public class TView {
     public TPoint size;
 
     /** Cursor position relative to the view's origin. */
-    private TPoint cursor = new TPoint(0, 0);
+    public TPoint cursor = new TPoint(0, 0);
 
     /** Resize behavior flags for owner size changes. */
     public enum GrowMode {
