@@ -23,20 +23,19 @@ public class DemoInterior extends TScroller {
 
     @Override
     public void draw() {
-//        short color = getColor((short) 0x01);
-//        TDrawBuffer b = new TDrawBuffer();
-//        for (int y = 0; y < size.y) {
-//            b.moveChar(0, ' ', color, size.x);
-//            int i = delta.y + y;
-//            if (i < lines.size() && lines.get(i) != null) {
-//                b.moveStr(0, lines.get(i), delta.x + 1, size.x, color);
-//            }
-//        }
-
-        super.draw();
-        int limit = Math.min(lines.size(), size.y);
-        for (int y = 0; y < limit; y++) {
-            writeStr(0, y, lines.get(y), getColor((short) 0x01));
+        short color = getColor((short) 0x01);
+        TDrawBuffer b = new TDrawBuffer();
+        for (int y = 0; y < size.y; y++) {
+            b.moveChar(0, ' ', color, size.x);
+            int i = delta.y + y;
+            if (i < lines.size()) {
+                String line = lines.get(i);
+                if (line.length() > delta.x) {
+                    String part = line.substring(delta.x, Math.min(line.length(), delta.x + size.x));
+                    b.moveStr(0, part, color);
+                }
+            }
+            writeLine(0, y, size.x, 1, b.buffer);
         }
     }
 }

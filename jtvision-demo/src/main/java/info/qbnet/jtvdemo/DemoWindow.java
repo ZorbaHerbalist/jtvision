@@ -12,10 +12,6 @@ public class DemoWindow extends TWindow {
     public DemoWindow(TRect bounds, String title, int count, List<String> lines) {
         super(bounds, title + ' ' + count, WN_NO_NUMBER);
         options |= Options.OF_TILEABLE;
-
-//        getClipRect(bounds);
-//        bounds.grow(-1, -1);
-//        insert(new DemoInterior(bounds, lines));
         makeInterior(bounds, lines);
     }
 

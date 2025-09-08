@@ -46,12 +46,12 @@ public class DemoApp extends TApplication {
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
     private static final int MAX_LINES = 100;
 
-    private final List<String> lines;
+    private final List<String> lines = new ArrayList<>();
 
     public DemoApp() {
         super(determineBackendType());
         registerSerializableViews();
-        this.lines = readFile();
+        readFile();
 
 //        Console console = getConsole();
         //console.putString(1, 1, "X", Color.WHITE, Color.BLACK);
@@ -207,20 +207,21 @@ public class DemoApp extends TApplication {
         }
     }
 
-    private List<String> readFile() {
-        List<String> list = new ArrayList<>();
-        try (InputStream is = DemoApp.class.getResourceAsStream(FILE_TO_READ);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null && list.size() < MAX_LINES) {
-                list.add(line);
+    private void readFile() {
+        try (InputStream is = DemoApp.class.getResourceAsStream(FILE_TO_READ)) {
+            if (is == null) {
+                return;
             }
-        } catch (IOException | NullPointerException e) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while ((line = br.readLine()) != null && lines.size() < MAX_LINES) {
+                    lines.add(line);
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return list;
     }
-
 
     private void measureBackendSpeed(Console console) {
         final int iterations = 1000;
