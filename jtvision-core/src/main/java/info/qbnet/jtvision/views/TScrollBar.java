@@ -152,7 +152,7 @@ public class TScrollBar extends TView {
                 TPoint mouse = new TPoint();
                 makeLocal(event.mouse.where, mouse);
                 TRect extent = new TRect();
-                getBounds(extent);
+                getExtent(extent);
                 extent.grow(1, 1);
                 int p = getPos();
                 int s = getScrollSize() - 1;
