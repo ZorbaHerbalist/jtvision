@@ -34,7 +34,7 @@ public class DemoWindow extends TWindow {
         TScrollBar hScrollBar = standardScrollBar(ScrollBarOptions.SB_HORIZONTAL + ScrollBarOptions.SB_HANDLE_KEYBOARD);
         getExtent(bounds);
         bounds.grow(-1, -1);
-        DemoInterior interior = new DemoInterior(bounds, lines);
+        DemoInterior interior = new DemoInterior(bounds, hScrollBar, vScrollBar, lines);
         insert(interior);
     }
 

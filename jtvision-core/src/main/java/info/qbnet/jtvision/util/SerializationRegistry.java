@@ -15,6 +15,8 @@ import info.qbnet.jtvision.views.TFrame;
 import info.qbnet.jtvision.views.TGroup;
 import info.qbnet.jtvision.views.TView;
 import info.qbnet.jtvision.views.TWindow;
+import info.qbnet.jtvision.views.TScrollBar;
+import info.qbnet.jtvision.views.TScroller;
 
 /**
  * Utility class for registering built-in view classes with {@code TStream}.
@@ -33,6 +35,8 @@ public final class SerializationRegistry {
         TGroup.registerType();
         TWindow.registerType();
         TFrame.registerType();
+        TScrollBar.registerType();
+        TScroller.registerType();
         TDialog.registerType();
         TStaticText.registerType();
         TInputLine.registerType();
