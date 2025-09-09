@@ -39,6 +39,7 @@ public class Command {
     public static final int CM_SCROLLBAR_CLICKED    = 54;
 
     public static final int CM_SELECT_WINDOW_NUM    = 55;
+    public static final int CM_LIST_ITEM_SELECTED   = 56;
 
     public static final int CM_RECORD_HISTORY       = 60;
 
