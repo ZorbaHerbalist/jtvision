@@ -12,7 +12,20 @@ public class DemoWindow extends TWindow {
     public DemoWindow(TRect bounds, String title, int count, List<String> lines) {
         super(bounds, title + ' ' + count, WN_NO_NUMBER);
         options |= Options.OF_TILEABLE;
-        makeInterior(bounds, lines);
+
+        getExtent(bounds);
+        TRect r = new TRect(bounds.a.x, bounds.a.y, bounds.b.x / 2 + 1, bounds.b.y);
+        DemoInterior lInterior = makeInterior(r, true, lines);
+        lInterior.getGrowMode().clear();
+        lInterior.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+        insert(lInterior);
+
+        r = new TRect(bounds.b.x / 2, bounds.a.y, bounds.b.x, bounds.b.y);
+        DemoInterior rInterior = makeInterior(r, false, lines);
+        rInterior.getGrowMode().clear();
+        rInterior.getGrowMode().add(GrowMode.GF_GROW_HI_X);
+        rInterior.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+        insert(rInterior);
     }
 
     @Override
@@ -25,13 +38,28 @@ public class DemoWindow extends TWindow {
         }
     }
 
-    void makeInterior(TRect bounds, List<String> lines) {
-        TScrollBar vScrollBar = standardScrollBar(ScrollBarOptions.SB_VERTICAL + ScrollBarOptions.SB_HANDLE_KEYBOARD);
-        TScrollBar hScrollBar = standardScrollBar(ScrollBarOptions.SB_HORIZONTAL + ScrollBarOptions.SB_HANDLE_KEYBOARD);
-        getExtent(bounds);
+    DemoInterior makeInterior(TRect bounds, Boolean left, List<String> lines) {
+        TRect r = new TRect(bounds.b.x - 1, bounds.a.y + 1, bounds.b.x, bounds.b.y - 1);
+        TScrollBar vScrollBar = new TScrollBar(r);
+        vScrollBar.options |= Options.OF_POST_PROCESS;
+        if (left) {
+            vScrollBar.getGrowMode().clear();
+            vScrollBar.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+        }
+        insert(vScrollBar);
+
+        r.assign(bounds.a.x + 2, bounds.b.y - 1, bounds.b.x - 2, bounds.b.y);
+        TScrollBar hScrollBar = new TScrollBar(r);
+        hScrollBar.options |= Options.OF_POST_PROCESS;
+        if (left) {
+            hScrollBar.getGrowMode().clear();
+            hScrollBar.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+            hScrollBar.getGrowMode().add(GrowMode.GF_GROW_LO_Y);
+        }
+        insert(hScrollBar);
+
         bounds.grow(-1, -1);
-        DemoInterior interior = new DemoInterior(bounds, hScrollBar, vScrollBar, lines);
-        insert(interior);
+        return new DemoInterior(bounds, hScrollBar, vScrollBar, lines);
     }
 
     private void onHideWindow() {
