@@ -253,11 +253,11 @@ public class TScrollBar extends TView {
         message(owner, TEvent.EV_BROADCAST, Command.CM_SCROLLBAR_CLICKED, this);
     }
 
-    private void scrollDraw() {
+    public void scrollDraw() {
         message(owner, TEvent.EV_BROADCAST, Command.CM_SCROLLBAR_CHANGED, this);
     }
 
-    private int scrollStep(int part) {
+    public int scrollStep(int part) {
         int step = ((part & 2) == 0) ? arStep : pgStep;
         return ((part & 1) == 0) ? -step : step;
     }
