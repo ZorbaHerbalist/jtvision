@@ -432,99 +432,80 @@ public class TView {
     public void dragView(TEvent event, boolean draggingGrow) {
         setState(State.SF_DRAGGING, true);
         if (event.what == TEvent.EV_MOUSE_DOWN) {
-            if (!draggingGrow) {
-                TPoint p = new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
-                do {
-                    event.mouse.where.x += p.x;
-                    event.mouse.where.y += p.y;
-                    moveGrow(event.mouse.where, size);
-                } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
-            } else {
-                TPoint p = new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y);
-                do {
-                    event.mouse.where.x += p.x;
-                    event.mouse.where.y += p.y;
-                    moveGrow(origin, event.mouse.where);
-                } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
-            }
+            handleMouseDrag(event, draggingGrow);
         } else {
-            TRect saveBounds = new TRect();
-            getBounds(saveBounds);
-            TRect limits = new TRect();
-            owner.getExtent(limits);
-            do {
-                TPoint p = new TPoint(origin.x, origin.y);
-                TPoint s = new TPoint(size.x, size.y);
-                keyEvent(event);
-                switch (event.key.keyCode) {
-                    case KeyCode.KB_SHIFT_LEFT -> {
-                        if (draggingGrow) {
-                            s.x -= 1;
-                        }
-                    }
-                    case KeyCode.KB_LEFT -> {
-                            p.x -= 1;
-                    }
-                    case KeyCode.KB_SHIFT_RIGHT -> {
-                        if (draggingGrow) {
-                            s.x += 1;
-                        }
-                    }
-                    case KeyCode.KB_RIGHT -> {
-                            p.x += 1;
-                    }
-                    case KeyCode.KB_SHIFT_UP -> {
-                        if (draggingGrow) {
-                            s.y -= 1;
-                        }
-                    }
-                    case KeyCode.KB_UP -> {
-                            p.y -= 1;
-                    }
-                    case KeyCode.KB_SHIFT_DOWN -> {
-                        if (draggingGrow) {
-                            s.y += 1;
-                        }
-                    }
-                    case KeyCode.KB_DOWN -> {
-                            p.y += 1;
-                    }
-                    case KeyCode.KB_SHIFT_CTRL_LEFT -> {
-                        if (draggingGrow) {
-                            s.x -= 8;
-                        }
-                    }
-                    case KeyCode.KB_CTRL_LEFT -> {
-                            p.x -= 8;
-                    }
-                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> {
-                        if (draggingGrow) {
-                            s.x += 8;
-                        }
-                    }
-                    case KeyCode.KB_CTRL_RIGHT -> {
-                            p.x += 8;
-                    }
-                    case KeyCode.KB_HOME -> {
-                            p.x = limits.a.x;
-                    }
-                    case KeyCode.KB_END -> {
-                            p.x = limits.b.x - s.x;
-                    }
-                    case KeyCode.KB_PAGE_UP -> {
-                            p.y = limits.a.y;
-                    }
-                    case KeyCode.KB_PAGE_DOWN -> {
-                            p.y = limits.b.y - s.y;
-                    }
-                }
-                moveGrow(p, s);
-            } while (event.key.keyCode != KeyCode.KB_ENTER && event.key.keyCode != KeyCode.KB_ESC);
-            if (event.key.keyCode == KeyCode.KB_ESC) {
-                locate(saveBounds);
-            }
+            handleKeyboardDrag(event, draggingGrow);
         }
         setState(State.SF_DRAGGING, false);
+    }
+
+    private void handleMouseDrag(TEvent event, boolean draggingGrow) {
+        TPoint offset = draggingGrow
+                ? new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y)
+                : new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
+        do {
+            event.mouse.where.x += offset.x;
+            event.mouse.where.y += offset.y;
+            if (draggingGrow) {
+                moveGrow(origin, event.mouse.where);
+            } else {
+                moveGrow(event.mouse.where, size);
+            }
+        } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
+    }
+
+    private void handleKeyboardDrag(TEvent event, boolean draggingGrow) {
+        TRect saveBounds = new TRect();
+        getBounds(saveBounds);
+        TRect limits = new TRect();
+        owner.getExtent(limits);
+        TPoint p = new TPoint();
+        TPoint s = new TPoint();
+        do {
+            p.x = origin.x;
+            p.y = origin.y;
+            s.x = size.x;
+            s.y = size.y;
+            keyEvent(event);
+            applyKeyCode(event.key.keyCode, p, s, limits, draggingGrow);
+            moveGrow(p, s);
+        } while (event.key.keyCode != KeyCode.KB_ENTER && event.key.keyCode != KeyCode.KB_ESC);
+        if (event.key.keyCode == KeyCode.KB_ESC) {
+            locate(saveBounds);
+        }
+    }
+
+    private void applyKeyCode(int code, TPoint p, TPoint s, TRect limits, boolean draggingGrow) {
+        switch (code) {
+            case KeyCode.KB_SHIFT_LEFT -> grow(s, -1, 0, draggingGrow);
+            case KeyCode.KB_LEFT -> move(p, -1, 0);
+            case KeyCode.KB_SHIFT_RIGHT -> grow(s, 1, 0, draggingGrow);
+            case KeyCode.KB_RIGHT -> move(p, 1, 0);
+            case KeyCode.KB_SHIFT_UP -> grow(s, 0, -1, draggingGrow);
+            case KeyCode.KB_UP -> move(p, 0, -1);
+            case KeyCode.KB_SHIFT_DOWN -> grow(s, 0, 1, draggingGrow);
+            case KeyCode.KB_DOWN -> move(p, 0, 1);
+            case KeyCode.KB_SHIFT_CTRL_LEFT -> grow(s, -8, 0, draggingGrow);
+            case KeyCode.KB_CTRL_LEFT -> move(p, -8, 0);
+            case KeyCode.KB_SHIFT_CTRL_RIGHT -> grow(s, 8, 0, draggingGrow);
+            case KeyCode.KB_CTRL_RIGHT -> move(p, 8, 0);
+            case KeyCode.KB_HOME -> p.x = limits.a.x;
+            case KeyCode.KB_END -> p.x = limits.b.x - s.x;
+            case KeyCode.KB_PAGE_UP -> p.y = limits.a.y;
+            case KeyCode.KB_PAGE_DOWN -> p.y = limits.b.y - s.y;
+        }
+    }
+
+    private void move(TPoint point, int dx, int dy) {
+        point.x += dx;
+        point.y += dy;
+    }
+
+    private void grow(TPoint point, int dx, int dy, boolean draggingGrow) {
+        if (draggingGrow) {
+            point.x += dx;
+            point.y += dy;
+        }
     }
 
     /**
