@@ -399,7 +399,7 @@ class TViewTest {
         TestableTView view = new TestableTView(new TRect(10, 10, 30, 30));
         group.insert(view);
         view.clearGrowModes();
-        view.setGrowModes(TView.GrowMode.GF_GROW_ALL);
+        view.setGrowModes(TView.GrowMode.growAll());
         view.addGrowMode(TView.GrowMode.GF_GROW_REL);
 
         TPoint delta = new TPoint(10,20);
@@ -413,6 +413,17 @@ class TViewTest {
         assertEquals(12, bounds.a.y);
         assertEquals(33, bounds.b.x);
         assertEquals(36, bounds.b.y);
+    }
+
+    @Test
+    void growAllReturnsIndependentSets() {
+        EnumSet<TView.GrowMode> first = TView.GrowMode.growAll();
+        first.remove(TView.GrowMode.GF_GROW_LO_X);
+        EnumSet<TView.GrowMode> second = TView.GrowMode.growAll();
+        assertEquals(EnumSet.of(TView.GrowMode.GF_GROW_LO_X,
+                TView.GrowMode.GF_GROW_LO_Y,
+                TView.GrowMode.GF_GROW_HI_X,
+                TView.GrowMode.GF_GROW_HI_Y), second);
     }
 
     @Test

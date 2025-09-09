@@ -75,9 +75,14 @@ public class TView {
             return mask;
         }
 
-        /** Maintain all four edge distances. */
-        public static final EnumSet<GrowMode> GF_GROW_ALL =
-                EnumSet.of(GF_GROW_LO_X, GF_GROW_LO_Y, GF_GROW_HI_X, GF_GROW_HI_Y);
+        /**
+         * Returns a set containing all grow modes.
+         *
+         * @return new {@code EnumSet} with all grow modes
+         */
+        public static EnumSet<GrowMode> growAll() {
+            return EnumSet.of(GF_GROW_LO_X, GF_GROW_LO_Y, GF_GROW_HI_X, GF_GROW_HI_Y);
+        }
 
         /**
          * Converts a bitmask to a set of grow modes.
