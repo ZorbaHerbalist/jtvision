@@ -413,11 +413,11 @@ public class TView {
         }
     }
 
-    private void change(TPoint p, TPoint s, int dx, int dy) {
-        if (draggingMove && (TProgram.getShiftState() & 0x03) == 0) {
+    private void change(TPoint p, TPoint s, int dx, int dy, boolean shift) {
+        if (draggingMove && !shift) {
             p.x += dx;
             p.y += dy;
-        } else if (draggingGrow && (TProgram.getShiftState() & 0x03) != 0) {
+        } else if (draggingGrow && shift) {
             s.x += dx;
             s.y += dy;
         }
@@ -478,18 +478,18 @@ public class TView {
                 TPoint s = new TPoint(size.x, size.y);
                 keyEvent(event);
                 switch (event.key.keyCode) {
-                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, -1, 0);
-                    case KeyCode.KB_LEFT -> change(p, s, -1, 0);
-                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, 1, 0);
-                    case KeyCode.KB_RIGHT -> change(p, s, 1, 0);
-                    case KeyCode.KB_SHIFT_UP -> change(p, s, 0, -1);
-                    case KeyCode.KB_UP -> change(p, s, 0, -1);
-                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, 0, 1);
-                    case KeyCode.KB_DOWN -> change(p, s, 0, 1);
-                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, -8, 0);
-                    case KeyCode.KB_CTRL_LEFT -> change(p, s, -8, 0);
-                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, 8, 0);
-                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, 8, 0);
+                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, -1, 0, true);
+                    case KeyCode.KB_LEFT -> change(p, s, -1, 0, false);
+                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, 1, 0, true);
+                    case KeyCode.KB_RIGHT -> change(p, s, 1, 0, false);
+                    case KeyCode.KB_SHIFT_UP -> change(p, s, 0, -1, true);
+                    case KeyCode.KB_UP -> change(p, s, 0, -1, false);
+                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, 0, 1, true);
+                    case KeyCode.KB_DOWN -> change(p, s, 0, 1, false);
+                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, -8, 0, true);
+                    case KeyCode.KB_CTRL_LEFT -> change(p, s, -8, 0, false);
+                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, 8, 0, true);
+                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, 8, 0, false);
                     case KeyCode.KB_HOME -> update(p, limits.a.x, p.y);
                     case KeyCode.KB_END -> update(p, limits.b.x - s.x, p.y);
                     case KeyCode.KB_PAGE_UP -> update(p, p.x, limits.a.y);
