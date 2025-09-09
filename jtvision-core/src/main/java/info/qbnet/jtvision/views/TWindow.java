@@ -27,6 +27,7 @@ public class TWindow extends TGroup {
 
     public static class WindowFlag {
         public static final int WF_MOVE     = 0x01;
+        /** Enables resizing and implies {@link #WF_MOVE}. */
         public static final int WF_GROW     = 0x02;
         public static final int WF_CLOSE    = 0x04;
         public static final int WF_ZOOM     = 0x08;
@@ -81,6 +82,9 @@ public class TWindow extends TGroup {
         super(stream);
         try {
             flags = stream.readInt();
+            if ((flags & WindowFlag.WF_GROW) != 0) {
+                flags |= WindowFlag.WF_MOVE;
+            }
             zoomRect = new TRect(stream.readInt(), stream.readInt(), stream.readInt(), stream.readInt());
             number = stream.readInt();
             palette = WindowPalette.values()[stream.readInt()];
@@ -142,13 +146,14 @@ public class TWindow extends TGroup {
         if (event.what == TEvent.EV_COMMAND) {
             switch (event.msg.command) {
                 case Command.CM_RESIZE:
-                    if ((flags & (WindowFlag.WF_MOVE + WindowFlag.WF_GROW)) != 0) {
+                    if ((flags & WindowFlag.WF_MOVE) != 0) {
                         TRect limits = new TRect();
                         TPoint min = new TPoint();
                         TPoint max = new TPoint();
                         owner.getExtent(limits);
                         sizeLimits(min, max);
-                        dragView(event, dragMode | (flags & (WindowFlag.WF_MOVE + WindowFlag.WF_GROW)), limits, min, max);
+                        boolean canGrow = (flags & WindowFlag.WF_GROW) != 0;
+                        dragView(event, canGrow);
                         clearEvent(event);
                     }
                     break;
@@ -205,7 +210,7 @@ public class TWindow extends TGroup {
             Set<Integer> windowCommands = new HashSet<>();
             windowCommands.add(Command.CM_NEXT);
             windowCommands.add(Command.CM_PREV);
-            if ((flags & (WindowFlag.WF_GROW + WindowFlag.WF_MOVE)) != 0) {
+            if ((flags & WindowFlag.WF_MOVE) != 0) {
                 windowCommands.add(Command.CM_RESIZE);
             }
             if ((flags & WindowFlag.WF_CLOSE) != 0) {

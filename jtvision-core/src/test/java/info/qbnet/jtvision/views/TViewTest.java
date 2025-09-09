@@ -489,8 +489,7 @@ class TViewTest {
         TEvent down = mouseDown(0, 0);
 
         TRect limits = new TRect(0, 0, 5, 5);
-        queueView.dragView(down, TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
-                limits, new TPoint(1,1), new TPoint(1,1));
+        queueView.dragView(down, false);
 
         assertEquals(4, queueView.getOriginField().x);
         assertEquals(4, queueView.getOriginField().y);
@@ -505,7 +504,7 @@ class TViewTest {
         queueView.events.add(keyPress(KeyCode.KB_ENTER));
 
         TRect limits = new TRect(0, 0, 10, 10);
-        queueView.dragView(keyPress(0), TView.DragMode.DM_DRAG_MOVE, limits, new TPoint(1,1), new TPoint(1,1));
+        queueView.dragView(keyPress(0), false);
 
         assertEquals(1, queueView.getOriginField().x);
         assertEquals(0, queueView.getOriginField().y);
@@ -522,7 +521,7 @@ class TViewTest {
         view.events.add(mouseMove(100, 100));
         view.events.add(mouseUp(0, 0));
 
-        view.dragView(down, TView.DragMode.DM_DRAG_GROW, limits, minSize, maxSize);
+        view.dragView(down, true);
 
         assertEquals(maxSize.x, view.getSizeField().x);
         assertEquals(maxSize.y, view.getSizeField().y);
@@ -542,10 +541,7 @@ class TViewTest {
             queueView.events.add(keyPress(KeyCode.KB_ENTER));
 
             queueView.dragView(keyPress(0),
-                    TView.DragMode.DM_DRAG_MOVE | TView.DragMode.DM_LIMIT_ALL,
-                    limits,
-                    new TPoint(1, 1),
-                    new TPoint(1, 1));
+                    false);
 
             assertTrue(queueView.getOriginField().x >= limits.a.x);
             assertTrue(queueView.getOriginField().x <= maxX);

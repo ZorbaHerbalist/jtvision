@@ -229,13 +229,13 @@ public class TFrame extends TView {
         return C_FRAME;
     }
 
-    private void dragWindow(TEvent event, int mode) {
+    private void dragWindow(TEvent event, boolean move) {
         TRect limits = new TRect();
         TPoint min = new TPoint();
         TPoint max = new TPoint();
         owner.owner.getExtent(limits);
         owner.sizeLimits(min, max);
-        owner.dragView(event, owner.dragMode | mode, limits, min, max);
+        owner.dragView(event, !move);
         clearEvent(event);
     }
 
@@ -289,11 +289,11 @@ public class TFrame extends TView {
                     clearEvent(event);
                     drawView();
                 } else if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_MOVE) != 0) {
-                    dragWindow(event, DragMode.DM_DRAG_MOVE);
+                    dragWindow(event, true);
                 }
             } else if ((state & State.SF_ACTIVE) != 0 && mouse.x >= size.x - 2 && mouse.y >= size.y - 1) {
                 if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_GROW) != 0) {
-                    dragWindow(event, DragMode.DM_DRAG_GROW);
+                    dragWindow(event, false);
                 }
             }
         }

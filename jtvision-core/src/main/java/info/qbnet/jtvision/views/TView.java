@@ -119,8 +119,6 @@ public class TView {
     private final EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
 
     public static class DragMode {
-        public static final int DM_DRAG_MOVE = 0x01;
-        public static final int DM_DRAG_GROW = 0x02;
         public static final int DM_LIMIT_LO_X = 0x10;
         public static final int DM_LIMIT_LO_Y = 0x20;
         public static final int DM_LIMIT_HI_X = 0x40;
@@ -129,6 +127,8 @@ public class TView {
     }
 
     public int dragMode = DragMode.DM_LIMIT_LO_Y;
+    private boolean draggingMove = false;
+    private boolean draggingGrow = false;
 
     /** Predefined help context identifiers. */
     public static class HelpContext {
@@ -413,86 +413,97 @@ public class TView {
         }
     }
 
-    private void change(TPoint p, TPoint s, int mode, int dx, int dy) {
-        if ((mode & DragMode.DM_DRAG_MOVE) != 0 && (TProgram.getShiftState() & 0x03) == 0) {
+    private void change(TPoint p, TPoint s, int dx, int dy) {
+        if (draggingMove && (TProgram.getShiftState() & 0x03) == 0) {
             p.x += dx;
             p.y += dy;
-        } else if ((mode & DragMode.DM_DRAG_GROW) != 0 && (TProgram.getShiftState() & 0x03) != 0) {
+        } else if (draggingGrow && (TProgram.getShiftState() & 0x03) != 0) {
             s.x += dx;
             s.y += dy;
         }
     }
 
-    private void update(TPoint p, int mode, int x, int y) {
-        if ((mode & DragMode.DM_DRAG_MOVE) != 0) {
+    private void update(TPoint p, int x, int y) {
+        if (draggingMove) {
             p.x = x;
             p.y = y;
         }
     }
 
-    private void moveGrow(TPoint p, TPoint s, int mode, TRect limits, TPoint minSize, TPoint maxSize) {
+    private void moveGrow(TPoint p, TPoint s) {
+        TRect limits = new TRect();
+        TPoint minSize = new TPoint();
+        TPoint maxSize = new TPoint();
+        owner.getExtent(limits);
+        sizeLimits(minSize, maxSize);
         s.x = Math.min(Math.max(s.x, minSize.x), maxSize.x);
         s.y = Math.min(Math.max(s.y, minSize.y), maxSize.y);
         p.x = Math.min(Math.max(p.x, limits.a.x - s.x + 1), limits.b.x - 1);
         p.y = Math.min(Math.max(p.y, limits.a.y - s.y + 1), limits.b.y - 1);
-        if ((mode & DragMode.DM_LIMIT_LO_X) != 0) p.x = Math.max(p.x, limits.a.x);
-        if ((mode & DragMode.DM_LIMIT_LO_Y) != 0) p.y = Math.max(p.y, limits.a.y);
-        if ((mode & DragMode.DM_LIMIT_HI_X) != 0) p.x = Math.min(p.x, limits.b.x - s.x);
-        if ((mode & DragMode.DM_LIMIT_HI_Y) != 0) p.y = Math.min(p.y, limits.b.y - s.y);
+        if ((dragMode & DragMode.DM_LIMIT_LO_X) != 0) p.x = Math.max(p.x, limits.a.x);
+        if ((dragMode & DragMode.DM_LIMIT_LO_Y) != 0) p.y = Math.max(p.y, limits.a.y);
+        if ((dragMode & DragMode.DM_LIMIT_HI_X) != 0) p.x = Math.min(p.x, limits.b.x - s.x);
+        if ((dragMode & DragMode.DM_LIMIT_HI_Y) != 0) p.y = Math.min(p.y, limits.b.y - s.y);
         TRect r = new TRect(p.x, p.y, p.x + s.x, p.y + s.y);
         locate(r);
     }
 
-    public void dragView(TEvent event, int mode, TRect limits, TPoint minSize, TPoint maxSize) {
+    public void dragView(TEvent event, boolean draggingGrow) {
+        this.draggingGrow = draggingGrow;
+        this.draggingMove = !draggingGrow;
         setState(State.SF_DRAGGING, true);
         if (event.what == TEvent.EV_MOUSE_DOWN) {
-            if ((mode & DragMode.DM_DRAG_MOVE) != 0) {
+            if (this.draggingMove) {
                 TPoint p = new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
                 do {
                     event.mouse.where.x += p.x;
                     event.mouse.where.y += p.y;
-                    moveGrow(event.mouse.where, size, mode, limits, minSize, maxSize);
+                    moveGrow(event.mouse.where, size);
                 } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
-            } else {
+            } else if (this.draggingGrow) {
                 TPoint p = new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y);
                 do {
                     event.mouse.where.x += p.x;
                     event.mouse.where.y += p.y;
-                    moveGrow(origin, event.mouse.where, mode, limits, minSize, maxSize);
+                    moveGrow(origin, event.mouse.where);
                 } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
             }
         } else {
             TRect saveBounds = new TRect();
             getBounds(saveBounds);
+            TRect limits = new TRect();
+            owner.getExtent(limits);
             do {
                 TPoint p = new TPoint(origin.x, origin.y);
                 TPoint s = new TPoint(size.x, size.y);
                 keyEvent(event);
                 switch (event.key.keyCode) {
-                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, mode, -1, 0);
-                    case KeyCode.KB_LEFT -> change(p, s, mode, -1, 0);
-                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, mode, 1, 0);
-                    case KeyCode.KB_RIGHT -> change(p, s, mode, 1, 0);
-                    case KeyCode.KB_SHIFT_UP -> change(p, s, mode, 0, -1);
-                    case KeyCode.KB_UP -> change(p, s, mode, 0, -1);
-                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, mode, 0, 1);
-                    case KeyCode.KB_DOWN -> change(p, s, mode, 0, 1);
-                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, mode, -8, 0);
-                    case KeyCode.KB_CTRL_LEFT -> change(p, s, mode, -8, 0);
-                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, mode, 8, 0);
-                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, mode, 8, 0);
-                    case KeyCode.KB_HOME -> update(p, mode, limits.a.x, p.y);
-                    case KeyCode.KB_END -> update(p, mode, limits.b.x - s.x, p.y);
-                    case KeyCode.KB_PAGE_UP -> update(p, mode, p.x, limits.a.y);
-                    case KeyCode.KB_PAGE_DOWN -> update(p, mode, p.x, limits.b.y - s.y);
+                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, -1, 0);
+                    case KeyCode.KB_LEFT -> change(p, s, -1, 0);
+                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, 1, 0);
+                    case KeyCode.KB_RIGHT -> change(p, s, 1, 0);
+                    case KeyCode.KB_SHIFT_UP -> change(p, s, 0, -1);
+                    case KeyCode.KB_UP -> change(p, s, 0, -1);
+                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, 0, 1);
+                    case KeyCode.KB_DOWN -> change(p, s, 0, 1);
+                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, -8, 0);
+                    case KeyCode.KB_CTRL_LEFT -> change(p, s, -8, 0);
+                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, 8, 0);
+                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, 8, 0);
+                    case KeyCode.KB_HOME -> update(p, limits.a.x, p.y);
+                    case KeyCode.KB_END -> update(p, limits.b.x - s.x, p.y);
+                    case KeyCode.KB_PAGE_UP -> update(p, p.x, limits.a.y);
+                    case KeyCode.KB_PAGE_DOWN -> update(p, p.x, limits.b.y - s.y);
                 }
-                moveGrow(p, s, mode, limits, minSize, maxSize);
+                moveGrow(p, s);
             } while (event.key.keyCode != KeyCode.KB_ENTER && event.key.keyCode != KeyCode.KB_ESC);
             if (event.key.keyCode == KeyCode.KB_ESC) {
                 locate(saveBounds);
             }
         }
         setState(State.SF_DRAGGING, false);
+        this.draggingMove = false;
+        this.draggingGrow = false;
     }
 
     /**
