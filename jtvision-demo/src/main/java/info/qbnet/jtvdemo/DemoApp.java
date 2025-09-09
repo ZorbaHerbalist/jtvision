@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,7 @@ public class DemoApp extends TApplication {
     public static final int CM_DLG_FILE = 106;
     public static final int CM_DLG_RADIO_BUTTONS = 107;
     public static final int CM_DLG_CHECK_BOXES = 108;
+    public static final int CM_DLG_FILE_LIST = 109;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
@@ -171,6 +173,12 @@ public class DemoApp extends TApplication {
         }
     }
 
+    private void doDlgFileList() {
+        String initialPath = Paths.get(".").toAbsolutePath().normalize().toString();
+        FileListDialog d = new FileListDialog("File List (TListViewer)", initialPath);
+        desktop.execView(d);
+    }
+
     private TDialog loadSampleDialog() {
         try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
             if (is == null) {
@@ -291,6 +299,7 @@ public class DemoApp extends TApplication {
                         .item("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT)
                         .item("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT)
                         .item("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT)
+                        .item("File ~l~ist viewer", null, KeyCode.KB_NO_KEY, CM_DLG_FILE_LIST, HelpContext.HC_NO_CONTEXT)
                         .item("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT))
                 .submenu("~W~indow", 0, m -> m
                         .item("~N~ext", "F6", KeyCode.KB_F6, Command.CM_NEXT, HelpContext.HC_NO_CONTEXT)
@@ -325,6 +334,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_CHECK_BOXES:
                     doDlgCheckBoxes();
+                    break;
+                case CM_DLG_FILE_LIST:
+                    doDlgFileList();
                     break;
                 case CM_DLG_FILE:
                     try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {
