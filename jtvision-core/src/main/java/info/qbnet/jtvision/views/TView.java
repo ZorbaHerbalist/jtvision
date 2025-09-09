@@ -1734,7 +1734,7 @@ public class TView {
         return size;
     }
 
-    protected EnumSet<GrowMode> getGrowMode() {
+    public EnumSet<GrowMode> getGrowMode() {
         return growMode;
     }
 
