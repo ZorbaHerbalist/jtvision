@@ -450,7 +450,7 @@ public class TView {
 
     public void dragView(TEvent event, boolean draggingGrow) {
         this.draggingGrow = draggingGrow;
-        this.draggingMove = !draggingGrow;
+        this.draggingMove = !draggingGrow || event.what != TEvent.EV_MOUSE_DOWN;;
         setState(State.SF_DRAGGING, true);
         if (event.what == TEvent.EV_MOUSE_DOWN) {
             if (this.draggingMove) {
