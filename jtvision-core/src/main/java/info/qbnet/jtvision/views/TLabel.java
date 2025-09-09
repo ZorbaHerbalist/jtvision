@@ -8,6 +8,7 @@ import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static info.qbnet.jtvision.util.KeyCode.getAltCode;
 
@@ -47,7 +48,7 @@ public class TLabel extends TStaticText {
     public TLabel(TStream stream) {
         super(stream);
         try {
-            this.link = owner != null ? owner.getSubViewPtr(stream) : null;
+            this.link = (TView) getPeerViewPtr(stream, (Consumer<TView>) v -> this.link = v);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -123,11 +124,7 @@ public class TLabel extends TStaticText {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            if (owner != null) {
-                owner.putSubViewPtr(stream, link);
-            } else {
-                stream.writeInt(0);
-            }
+            putPeerViewPtr(stream, link);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

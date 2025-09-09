@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * Base class for visible UI elements providing geometry, ownership, and linkage.
@@ -1385,6 +1386,53 @@ public class TView {
             throw new RuntimeException(e);
         } finally {
             state = saveState;
+        }
+    }
+
+    /**
+     * Reads a reference to another view within the group currently being
+     * loaded. If the referenced view has not yet been created, a fixup is
+     * registered and {@code null} is returned.
+     *
+     * @param stream source stream
+     * @param fixup  optional {@link Consumer} that will receive the resolved view
+     * @return the referenced view if already available; otherwise {@code null}
+     */
+    public TView getPeerViewPtr(TStream stream, Object fixup) throws IOException {
+        int index = stream.readInt();
+        if (index <= 0) {
+            return null;
+        }
+
+        TGroup group = TGroup.getLoadingGroup();
+        if (group == null) {
+            return null;
+        }
+
+        TView view = group.at(index);
+        if (view != null) {
+            return view;
+        }
+
+        if (fixup instanceof Consumer<?>) {
+            @SuppressWarnings("unchecked")
+            Consumer<TView> consumer = (Consumer<TView>) fixup;
+            group.addPeerFixup(index, consumer);
+        }
+        return null;
+    }
+
+    /**
+     * Writes a reference to {@code view} relative to this view's owner.
+     *
+     * @param stream destination stream
+     * @param view   view to reference
+     */
+    public void putPeerViewPtr(TStream stream, TView view) throws IOException {
+        if (owner != null) {
+            owner.putSubViewPtr(stream, view);
+        } else {
+            stream.writeInt(0);
         }
     }
 

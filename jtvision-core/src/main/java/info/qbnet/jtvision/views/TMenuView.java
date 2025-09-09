@@ -13,6 +13,7 @@ import info.qbnet.jtvision.util.TPalette;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TMenuView extends TView {
 
@@ -39,7 +40,7 @@ public class TMenuView extends TView {
         super(stream);
         eventMask |= TEvent.EV_BROADCAST;
         try {
-            stream.readInt(); // discard parent menu pointer (not restored)
+            this.parentMenu = (TMenuView) getPeerViewPtr(stream, (Consumer<TView>) v -> this.parentMenu = (TMenuView) v);
             menu = readMenu(stream);
             int currentIndex = stream.readInt();
             if (menu != null) {
@@ -474,12 +475,7 @@ public class TMenuView extends TView {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            TGroup owner = parentMenu != null ? parentMenu.getOwner() : null;
-            if (owner != null) {
-                owner.putSubViewPtr(stream, parentMenu);
-            } else {
-                stream.writeInt(0);
-            }
+            putPeerViewPtr(stream, parentMenu);
             writeMenu(stream, menu);
             stream.writeInt(indexOf(menu != null ? menu.items() : null, current));
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.util.TStream;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Scrollable list view translated from Turbo Vision's {@code TListViewer}.
@@ -86,8 +87,8 @@ public class TListViewer extends TView {
     public TListViewer(TStream stream) {
         super(stream);
         try {
-            this.hScrollBar = owner != null ? (TScrollBar) owner.getSubViewPtr(stream) : null;
-            this.vScrollBar = owner != null ? (TScrollBar) owner.getSubViewPtr(stream) : null;
+            this.hScrollBar = (TScrollBar) getPeerViewPtr(stream, (Consumer<TView>) v -> this.hScrollBar = (TScrollBar) v);
+            this.vScrollBar = (TScrollBar) getPeerViewPtr(stream, (Consumer<TView>) v -> this.vScrollBar = (TScrollBar) v);
             this.numCols = stream.readInt();
             this.topItem = stream.readInt();
             this.focused = stream.readInt();
@@ -382,13 +383,8 @@ public class TListViewer extends TView {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            if (owner != null) {
-                owner.putSubViewPtr(stream, hScrollBar);
-                owner.putSubViewPtr(stream, vScrollBar);
-            } else {
-                stream.writeInt(0);
-                stream.writeInt(0);
-            }
+            putPeerViewPtr(stream, hScrollBar);
+            putPeerViewPtr(stream, vScrollBar);
             stream.writeInt(numCols);
             stream.writeInt(topItem);
             stream.writeInt(focused);

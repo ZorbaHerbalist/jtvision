@@ -8,6 +8,7 @@ import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.util.TStream;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Base class for scrollable views linking horizontal and vertical scroll bars.
@@ -62,8 +63,8 @@ public class TScroller extends TView {
     public TScroller(TStream stream) {
         super(stream);
         try {
-            this.hScrollBar = owner != null ? (TScrollBar) owner.getSubViewPtr(stream) : null;
-            this.vScrollBar = owner != null ? (TScrollBar) owner.getSubViewPtr(stream) : null;
+            this.hScrollBar = (TScrollBar) getPeerViewPtr(stream, (Consumer<TView>) v -> this.hScrollBar = (TScrollBar) v);
+            this.vScrollBar = (TScrollBar) getPeerViewPtr(stream, (Consumer<TView>) v -> this.vScrollBar = (TScrollBar) v);
             this.delta = new TPoint(stream.readInt(), stream.readInt());
             this.limit = new TPoint(stream.readInt(), stream.readInt());
         } catch (IOException e) {
@@ -175,13 +176,8 @@ public class TScroller extends TView {
     public void store(TStream stream) {
         super.store(stream);
         try {
-            if (owner != null) {
-                owner.putSubViewPtr(stream, hScrollBar);
-                owner.putSubViewPtr(stream, vScrollBar);
-            } else {
-                stream.writeInt(0);
-                stream.writeInt(0);
-            }
+            putPeerViewPtr(stream, hScrollBar);
+            putPeerViewPtr(stream, vScrollBar);
             stream.writeInt(delta.x);
             stream.writeInt(delta.y);
             stream.writeInt(limit.x);

@@ -10,6 +10,8 @@ import info.qbnet.jtvision.util.IBuffer;
 
 import java.nio.ByteBuffer;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.io.IOException;
@@ -64,6 +66,38 @@ public class TGroup extends TView {
      * hierarchy has been constructed.
      */
     private static TGroup loadingGroup = null;
+
+    static TGroup getLoadingGroup() {
+        return loadingGroup;
+    }
+
+    private static class PeerFixup {
+        final int index;
+        final Consumer<TView> setter;
+
+        PeerFixup(int index, Consumer<TView> setter) {
+            this.index = index;
+            this.setter = setter;
+        }
+    }
+
+    private final List<PeerFixup> peerFixups = new ArrayList<>();
+
+    void addPeerFixup(int index, Consumer<TView> setter) {
+        peerFixups.add(new PeerFixup(index, setter));
+    }
+
+    private void resolvePeerFixups() {
+        if (!peerFixups.isEmpty()) {
+            for (PeerFixup fx : peerFixups) {
+                TView v = at(fx.index);
+                if (v != null) {
+                    fx.setter.accept(v);
+                }
+            }
+            peerFixups.clear();
+        }
+    }
 
     @Override
     public int getClassId() {
@@ -146,6 +180,7 @@ public class TGroup extends TView {
             }
             TView sel = getSubViewPtr(stream);
             setCurrent(sel, SelectMode.NORMAL_SELECT);
+            resolvePeerFixups();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
