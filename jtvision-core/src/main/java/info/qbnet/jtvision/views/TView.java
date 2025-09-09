@@ -54,43 +54,64 @@ public class TView {
     /** Resize behavior flags for owner size changes. */
     public enum GrowMode {
         /** Keep left edge at constant distance from owner's right. */
-        GF_GROW_LO_X,
+        GF_GROW_LO_X(0x01),
         /** Keep top edge at constant distance from owner's bottom. */
-        GF_GROW_LO_Y,
+        GF_GROW_LO_Y(0x02),
         /** Keep right edge at constant distance from owner's right. */
-        GF_GROW_HI_X,
+        GF_GROW_HI_X(0x04),
         /** Keep bottom edge at constant distance from owner's bottom. */
-        GF_GROW_HI_Y,
+        GF_GROW_HI_Y(0x08),
         /** Scale proportionally with owner, e.g. {@code TWindow}. */
-        GF_GROW_REL;
+        GF_GROW_REL(0x10);
+
+        private final int mask;
+
+        GrowMode(int mask) {
+            this.mask = mask;
+        }
+
+        /** Returns the bitmask representing this grow mode. */
+        public int mask() {
+            return mask;
+        }
 
         /** Maintain all four edge distances. */
         public static final EnumSet<GrowMode> GF_GROW_ALL =
                 EnumSet.of(GF_GROW_LO_X, GF_GROW_LO_Y, GF_GROW_HI_X, GF_GROW_HI_Y);
+
+        /**
+         * Converts a bitmask to a set of grow modes.
+         *
+         * @param value bitmask representation
+         * @return corresponding set of grow modes
+         */
+        public static EnumSet<GrowMode> fromMask(int value) {
+            EnumSet<GrowMode> set = EnumSet.noneOf(GrowMode.class);
+            for (GrowMode mode : values()) {
+                if ((value & mode.mask) != 0) {
+                    set.add(mode);
+                }
+            }
+            return set;
+        }
+
+        /**
+         * Converts a set of grow modes to its bitmask representation.
+         *
+         * @param set set of grow modes
+         * @return bitmask representation
+         */
+        public static int toMask(EnumSet<GrowMode> set) {
+            int value = 0;
+            for (GrowMode mode : set) {
+                value |= mode.mask;
+            }
+            return value;
+        }
     }
 
     /** Current grow mode flags controlling how this view resizes with its owner. */
     private final EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
-
-    private static EnumSet<GrowMode> growModeFromInt(int value) {
-        EnumSet<GrowMode> set = EnumSet.noneOf(GrowMode.class);
-        if ((value & 0x01) != 0) set.add(GrowMode.GF_GROW_LO_X);
-        if ((value & 0x02) != 0) set.add(GrowMode.GF_GROW_LO_Y);
-        if ((value & 0x04) != 0) set.add(GrowMode.GF_GROW_HI_X);
-        if ((value & 0x08) != 0) set.add(GrowMode.GF_GROW_HI_Y);
-        if ((value & 0x10) != 0) set.add(GrowMode.GF_GROW_REL);
-        return set;
-    }
-
-    private static int growModeToInt(EnumSet<GrowMode> set) {
-        int value = 0;
-        if (set.contains(GrowMode.GF_GROW_LO_X)) value |= 0x01;
-        if (set.contains(GrowMode.GF_GROW_LO_Y)) value |= 0x02;
-        if (set.contains(GrowMode.GF_GROW_HI_X)) value |= 0x04;
-        if (set.contains(GrowMode.GF_GROW_HI_Y)) value |= 0x08;
-        if (set.contains(GrowMode.GF_GROW_REL)) value |= 0x10;
-        return value;
-    }
 
     public static class DragMode {
         public static final int DM_DRAG_MOVE = 0x01;
@@ -257,7 +278,7 @@ public class TView {
             size = new TPoint(stream.readInt(), stream.readInt());
             cursor = new TPoint(stream.readInt(), stream.readInt());
             growMode.clear();
-            growMode.addAll(growModeFromInt(stream.readInt()));
+            growMode.addAll(GrowMode.fromMask(stream.readInt()));
             dragMode = stream.readInt();
             helpCtx = stream.readInt();
             state = stream.readInt();
@@ -1376,7 +1397,7 @@ public class TView {
             stream.writeInt(size.y);
             stream.writeInt(cursor.x);
             stream.writeInt(cursor.y);
-            stream.writeInt(growModeToInt(growMode));
+            stream.writeInt(GrowMode.toMask(growMode));
             stream.writeInt(dragMode);
             stream.writeInt(helpCtx);
             stream.writeInt(state);
