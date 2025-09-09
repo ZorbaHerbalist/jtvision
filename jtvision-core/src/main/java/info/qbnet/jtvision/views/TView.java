@@ -127,8 +127,6 @@ public class TView {
     }
 
     public int dragMode = DragMode.DM_LIMIT_LO_Y;
-    private boolean draggingMove = false;
-    private boolean draggingGrow = false;
 
     /** Predefined help context identifiers. */
     public static class HelpContext {
@@ -413,23 +411,6 @@ public class TView {
         }
     }
 
-    private void change(TPoint p, TPoint s, int dx, int dy, boolean shift) {
-        if (draggingMove && !shift) {
-            p.x += dx;
-            p.y += dy;
-        } else if (draggingGrow && shift) {
-            s.x += dx;
-            s.y += dy;
-        }
-    }
-
-    private void update(TPoint p, int x, int y) {
-        if (draggingMove) {
-            p.x = x;
-            p.y = y;
-        }
-    }
-
     private void moveGrow(TPoint p, TPoint s) {
         TRect limits = new TRect();
         TPoint minSize = new TPoint();
@@ -449,18 +430,16 @@ public class TView {
     }
 
     public void dragView(TEvent event, boolean draggingGrow) {
-        this.draggingGrow = draggingGrow;
-        this.draggingMove = !draggingGrow || event.what != TEvent.EV_MOUSE_DOWN;;
         setState(State.SF_DRAGGING, true);
         if (event.what == TEvent.EV_MOUSE_DOWN) {
-            if (this.draggingMove) {
+            if (!draggingGrow) {
                 TPoint p = new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
                 do {
                     event.mouse.where.x += p.x;
                     event.mouse.where.y += p.y;
                     moveGrow(event.mouse.where, size);
                 } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
-            } else if (this.draggingGrow) {
+            } else {
                 TPoint p = new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y);
                 do {
                     event.mouse.where.x += p.x;
@@ -478,22 +457,66 @@ public class TView {
                 TPoint s = new TPoint(size.x, size.y);
                 keyEvent(event);
                 switch (event.key.keyCode) {
-                    case KeyCode.KB_SHIFT_LEFT -> change(p, s, -1, 0, true);
-                    case KeyCode.KB_LEFT -> change(p, s, -1, 0, false);
-                    case KeyCode.KB_SHIFT_RIGHT -> change(p, s, 1, 0, true);
-                    case KeyCode.KB_RIGHT -> change(p, s, 1, 0, false);
-                    case KeyCode.KB_SHIFT_UP -> change(p, s, 0, -1, true);
-                    case KeyCode.KB_UP -> change(p, s, 0, -1, false);
-                    case KeyCode.KB_SHIFT_DOWN -> change(p, s, 0, 1, true);
-                    case KeyCode.KB_DOWN -> change(p, s, 0, 1, false);
-                    case KeyCode.KB_SHIFT_CTRL_LEFT -> change(p, s, -8, 0, true);
-                    case KeyCode.KB_CTRL_LEFT -> change(p, s, -8, 0, false);
-                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> change(p, s, 8, 0, true);
-                    case KeyCode.KB_CTRL_RIGHT -> change(p, s, 8, 0, false);
-                    case KeyCode.KB_HOME -> update(p, limits.a.x, p.y);
-                    case KeyCode.KB_END -> update(p, limits.b.x - s.x, p.y);
-                    case KeyCode.KB_PAGE_UP -> update(p, p.x, limits.a.y);
-                    case KeyCode.KB_PAGE_DOWN -> update(p, p.x, limits.b.y - s.y);
+                    case KeyCode.KB_SHIFT_LEFT -> {
+                        if (draggingGrow) {
+                            s.x -= 1;
+                        }
+                    }
+                    case KeyCode.KB_LEFT -> {
+                            p.x -= 1;
+                    }
+                    case KeyCode.KB_SHIFT_RIGHT -> {
+                        if (draggingGrow) {
+                            s.x += 1;
+                        }
+                    }
+                    case KeyCode.KB_RIGHT -> {
+                            p.x += 1;
+                    }
+                    case KeyCode.KB_SHIFT_UP -> {
+                        if (draggingGrow) {
+                            s.y -= 1;
+                        }
+                    }
+                    case KeyCode.KB_UP -> {
+                            p.y -= 1;
+                    }
+                    case KeyCode.KB_SHIFT_DOWN -> {
+                        if (draggingGrow) {
+                            s.y += 1;
+                        }
+                    }
+                    case KeyCode.KB_DOWN -> {
+                            p.y += 1;
+                    }
+                    case KeyCode.KB_SHIFT_CTRL_LEFT -> {
+                        if (draggingGrow) {
+                            s.x -= 8;
+                        }
+                    }
+                    case KeyCode.KB_CTRL_LEFT -> {
+                            p.x -= 8;
+                    }
+                    case KeyCode.KB_SHIFT_CTRL_RIGHT -> {
+                        if (draggingGrow) {
+                            s.x += 8;
+                        }
+                    }
+                    case KeyCode.KB_CTRL_RIGHT -> {
+                            p.x += 8;
+                    }
+                    case KeyCode.KB_HOME -> {
+                            p.x = limits.a.x;
+                    }
+                    case KeyCode.KB_END -> {
+                            p.x = limits.b.x - s.x;
+                    }
+                    case KeyCode.KB_PAGE_UP -> {
+                            p.y = limits.a.y;
+                    }
+                    case KeyCode.KB_PAGE_DOWN -> {
+                            p.y = limits.b.y - s.y;
+                    }
                 }
                 moveGrow(p, s);
             } while (event.key.keyCode != KeyCode.KB_ENTER && event.key.keyCode != KeyCode.KB_ESC);
@@ -502,8 +525,6 @@ public class TView {
             }
         }
         setState(State.SF_DRAGGING, false);
-        this.draggingMove = false;
-        this.draggingGrow = false;
     }
 
     /**
