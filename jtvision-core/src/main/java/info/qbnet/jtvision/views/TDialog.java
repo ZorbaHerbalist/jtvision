@@ -36,7 +36,7 @@ public class TDialog extends TWindow {
 
     public TDialog(TRect bounds, String title) {
         super(bounds, title, WN_NO_NUMBER);
-        getGrowMode().clear();
+        clearGrowModes();
         this.flags = WindowFlag.WF_MOVE + WindowFlag.WF_CLOSE;
     }
 

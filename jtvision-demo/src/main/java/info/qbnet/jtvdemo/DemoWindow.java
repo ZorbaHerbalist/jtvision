@@ -16,15 +16,15 @@ public class DemoWindow extends TWindow {
         getExtent(bounds);
         TRect r = new TRect(bounds.a.x, bounds.a.y, bounds.b.x / 2 + 1, bounds.b.y);
         DemoInterior lInterior = makeInterior(r, true, lines);
-        lInterior.getGrowMode().clear();
-        lInterior.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+        lInterior.clearGrowModes();
+        lInterior.addGrowMode(GrowMode.GF_GROW_HI_Y);
         insert(lInterior);
 
         r = new TRect(bounds.b.x / 2, bounds.a.y, bounds.b.x, bounds.b.y);
         DemoInterior rInterior = makeInterior(r, false, lines);
-        rInterior.getGrowMode().clear();
-        rInterior.getGrowMode().add(GrowMode.GF_GROW_HI_X);
-        rInterior.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+        rInterior.clearGrowModes();
+        rInterior.addGrowMode(GrowMode.GF_GROW_HI_X);
+        rInterior.addGrowMode(GrowMode.GF_GROW_HI_Y);
         insert(rInterior);
     }
 
@@ -43,8 +43,8 @@ public class DemoWindow extends TWindow {
         TScrollBar vScrollBar = new TScrollBar(r);
         vScrollBar.options |= Options.OF_POST_PROCESS;
         if (left) {
-            vScrollBar.getGrowMode().clear();
-            vScrollBar.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
+            vScrollBar.clearGrowModes();
+            vScrollBar.addGrowMode(GrowMode.GF_GROW_HI_Y);
         }
         insert(vScrollBar);
 
@@ -52,9 +52,9 @@ public class DemoWindow extends TWindow {
         TScrollBar hScrollBar = new TScrollBar(r);
         hScrollBar.options |= Options.OF_POST_PROCESS;
         if (left) {
-            hScrollBar.getGrowMode().clear();
-            hScrollBar.getGrowMode().add(GrowMode.GF_GROW_HI_Y);
-            hScrollBar.getGrowMode().add(GrowMode.GF_GROW_LO_Y);
+            hScrollBar.clearGrowModes();
+            hScrollBar.addGrowMode(GrowMode.GF_GROW_HI_Y);
+            hScrollBar.addGrowMode(GrowMode.GF_GROW_LO_Y);
         }
         insert(hScrollBar);
 

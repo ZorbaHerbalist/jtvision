@@ -41,7 +41,7 @@ public class TFrame extends TView {
 
     public TFrame(TRect bounds) {
         super(bounds);
-        getGrowMode().addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+        setGrowModes(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
         this.eventMask |= TEvent.EV_BROADCAST;
     }
 

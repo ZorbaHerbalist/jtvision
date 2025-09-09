@@ -1782,8 +1782,27 @@ public class TView {
         return size;
     }
 
-    public EnumSet<GrowMode> getGrowMode() {
-        return growMode;
+    public void setGrowModes(EnumSet<GrowMode> modes) {
+        growMode.clear();
+        if (modes != null) {
+            growMode.addAll(modes);
+        }
+    }
+
+    public void addGrowMode(GrowMode mode) {
+        growMode.add(mode);
+    }
+
+    public void removeGrowMode(GrowMode mode) {
+        growMode.remove(mode);
+    }
+
+    public void clearGrowModes() {
+        growMode.clear();
+    }
+
+    public Set<GrowMode> getGrowModes() {
+        return Collections.unmodifiableSet(EnumSet.copyOf(growMode));
     }
 
     /**

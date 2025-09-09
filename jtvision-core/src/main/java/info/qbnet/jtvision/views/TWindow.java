@@ -65,8 +65,8 @@ public class TWindow extends TGroup {
         super(bounds);
         this.state |= State.SF_SHADOW;
         this.options |= Options.OF_SELECTABLE + Options.OF_TOP_SELECT;
-        this.getGrowMode().addAll(GrowMode.GF_GROW_ALL);
-        this.getGrowMode().add(GrowMode.GF_GROW_REL);
+        setGrowModes(GrowMode.GF_GROW_ALL);
+        addGrowMode(GrowMode.GF_GROW_REL);
         this.flags = WindowFlag.WF_MOVE | WindowFlag.WF_GROW | WindowFlag.WF_CLOSE | WindowFlag.WF_ZOOM;
         this.title = title;
         this.number = number;

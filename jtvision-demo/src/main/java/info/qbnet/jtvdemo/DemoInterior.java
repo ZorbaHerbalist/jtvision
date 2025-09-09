@@ -16,7 +16,7 @@ public class DemoInterior extends TScroller {
     public DemoInterior(TRect bounds, TScrollBar hScrollBar, TScrollBar vScrollBar, List<String> lines) {
         super(bounds, hScrollBar, vScrollBar);
         this.lines = lines;
-        this.getGrowMode().addAll(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+        setGrowModes(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
         this.options |= Options.OF_FRAMED;
         setLimit(128, lines.size());
     }
