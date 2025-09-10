@@ -427,6 +427,35 @@ class TViewTest {
     }
 
     @Test
+    void limitAllReturnsIndependentSets() {
+        EnumSet<TView.DragMode> first = TView.DragMode.limitAll();
+        first.remove(TView.DragMode.DM_LIMIT_LO_X);
+        EnumSet<TView.DragMode> second = TView.DragMode.limitAll();
+        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
+                TView.DragMode.DM_LIMIT_LO_Y,
+                TView.DragMode.DM_LIMIT_HI_X,
+                TView.DragMode.DM_LIMIT_HI_Y), second);
+    }
+
+    @Test
+    void dragModeMutatorsWork() {
+        TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
+        view.clearDragModes();
+        assertTrue(view.getDragModes().isEmpty());
+        view.addDragMode(TView.DragMode.DM_LIMIT_LO_X);
+        view.addDragMode(TView.DragMode.DM_LIMIT_HI_Y);
+        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
+                TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
+        view.removeDragMode(TView.DragMode.DM_LIMIT_LO_X);
+        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
+        view.setDragModes(TView.DragMode.limitAll());
+        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
+                TView.DragMode.DM_LIMIT_LO_Y,
+                TView.DragMode.DM_LIMIT_HI_X,
+                TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
+    }
+
+    @Test
     void eventAvailDetectsAndConsumesEvent() {
         queueView.events.add(keyPress(0));
 

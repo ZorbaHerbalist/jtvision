@@ -118,15 +118,70 @@ public class TView {
     /** Current grow mode flags controlling how this view resizes with its owner. */
     private final EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
 
-    public static class DragMode {
-        public static final int DM_LIMIT_LO_X = 0x10;
-        public static final int DM_LIMIT_LO_Y = 0x20;
-        public static final int DM_LIMIT_HI_X = 0x40;
-        public static final int DM_LIMIT_HI_Y = 0x80;
-        public static final int DM_LIMIT_ALL = DM_LIMIT_LO_X | DM_LIMIT_LO_Y | DM_LIMIT_HI_X | DM_LIMIT_HI_Y;
+    /** Drag behavior flags restricting movement within owner bounds. */
+    public enum DragMode {
+        /** Constrain movement to not cross the owner's left edge. */
+        DM_LIMIT_LO_X(0x10),
+        /** Constrain movement to not cross the owner's top edge. */
+        DM_LIMIT_LO_Y(0x20),
+        /** Constrain movement to not cross the owner's right edge. */
+        DM_LIMIT_HI_X(0x40),
+        /** Constrain movement to not cross the owner's bottom edge. */
+        DM_LIMIT_HI_Y(0x80);
+
+        private final int mask;
+
+        DragMode(int mask) {
+            this.mask = mask;
+        }
+
+        /** Returns the bitmask representing this drag mode. */
+        public int mask() {
+            return mask;
+        }
+
+        /**
+         * Returns a set containing all drag modes.
+         *
+         * @return new {@code EnumSet} with all drag modes
+         */
+        public static EnumSet<DragMode> limitAll() {
+            return EnumSet.of(DM_LIMIT_LO_X, DM_LIMIT_LO_Y, DM_LIMIT_HI_X, DM_LIMIT_HI_Y);
+        }
+
+        /**
+         * Converts a bitmask to a set of drag modes.
+         *
+         * @param value bitmask representation
+         * @return corresponding set of drag modes
+         */
+        public static EnumSet<DragMode> fromMask(int value) {
+            EnumSet<DragMode> set = EnumSet.noneOf(DragMode.class);
+            for (DragMode mode : values()) {
+                if ((value & mode.mask) != 0) {
+                    set.add(mode);
+                }
+            }
+            return set;
+        }
+
+        /**
+         * Converts a set of drag modes to its bitmask representation.
+         *
+         * @param set set of drag modes
+         * @return bitmask representation
+         */
+        public static int toMask(EnumSet<DragMode> set) {
+            int value = 0;
+            for (DragMode mode : set) {
+                value |= mode.mask;
+            }
+            return value;
+        }
     }
 
-    public int dragMode = DragMode.DM_LIMIT_LO_Y;
+    /** Current drag mode flags controlling allowed view movement. */
+    private final EnumSet<DragMode> dragMode = EnumSet.of(DragMode.DM_LIMIT_LO_Y);
 
     /** Predefined help context identifiers. */
     public static class HelpContext {
@@ -282,7 +337,8 @@ public class TView {
             cursor = new TPoint(stream.readInt(), stream.readInt());
             growMode.clear();
             growMode.addAll(GrowMode.fromMask(stream.readInt()));
-            dragMode = stream.readInt();
+            dragMode.clear();
+            dragMode.addAll(DragMode.fromMask(stream.readInt()));
             helpCtx = stream.readInt();
             state = stream.readInt();
             options = stream.readInt();
@@ -421,10 +477,10 @@ public class TView {
         s.y = Math.min(Math.max(s.y, minSize.y), maxSize.y);
         p.x = Math.min(Math.max(p.x, limits.a.x - s.x + 1), limits.b.x - 1);
         p.y = Math.min(Math.max(p.y, limits.a.y - s.y + 1), limits.b.y - 1);
-        if ((dragMode & DragMode.DM_LIMIT_LO_X) != 0) p.x = Math.max(p.x, limits.a.x);
-        if ((dragMode & DragMode.DM_LIMIT_LO_Y) != 0) p.y = Math.max(p.y, limits.a.y);
-        if ((dragMode & DragMode.DM_LIMIT_HI_X) != 0) p.x = Math.min(p.x, limits.b.x - s.x);
-        if ((dragMode & DragMode.DM_LIMIT_HI_Y) != 0) p.y = Math.min(p.y, limits.b.y - s.y);
+        if (dragMode.contains(DragMode.DM_LIMIT_LO_X)) p.x = Math.max(p.x, limits.a.x);
+        if (dragMode.contains(DragMode.DM_LIMIT_LO_Y)) p.y = Math.max(p.y, limits.a.y);
+        if (dragMode.contains(DragMode.DM_LIMIT_HI_X)) p.x = Math.min(p.x, limits.b.x - s.x);
+        if (dragMode.contains(DragMode.DM_LIMIT_HI_Y)) p.y = Math.min(p.y, limits.b.y - s.y);
         TRect r = new TRect(p.x, p.y, p.x + s.x, p.y + s.y);
         locate(r);
     }
@@ -1416,7 +1472,7 @@ public class TView {
             stream.writeInt(cursor.x);
             stream.writeInt(cursor.y);
             stream.writeInt(GrowMode.toMask(growMode));
-            stream.writeInt(dragMode);
+            stream.writeInt(DragMode.toMask(dragMode));
             stream.writeInt(helpCtx);
             stream.writeInt(state);
             stream.writeInt(options);
@@ -1842,6 +1898,29 @@ public class TView {
 
     public Set<GrowMode> getGrowModes() {
         return Collections.unmodifiableSet(EnumSet.copyOf(growMode));
+    }
+
+    public void setDragModes(EnumSet<DragMode> modes) {
+        dragMode.clear();
+        if (modes != null) {
+            dragMode.addAll(modes);
+        }
+    }
+
+    public void addDragMode(DragMode mode) {
+        dragMode.add(mode);
+    }
+
+    public void removeDragMode(DragMode mode) {
+        dragMode.remove(mode);
+    }
+
+    public void clearDragModes() {
+        dragMode.clear();
+    }
+
+    public Set<DragMode> getDragModes() {
+        return Collections.unmodifiableSet(EnumSet.copyOf(dragMode));
     }
 
     /**
