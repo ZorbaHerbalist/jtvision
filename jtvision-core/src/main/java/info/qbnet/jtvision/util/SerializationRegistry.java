@@ -4,6 +4,7 @@ import info.qbnet.jtvision.views.TBackground;
 import info.qbnet.jtvision.views.TButton;
 import info.qbnet.jtvision.views.TDialog;
 import info.qbnet.jtvision.views.TInputLine;
+import info.qbnet.jtvision.views.TListBox;
 import info.qbnet.jtvision.views.TLabel;
 import info.qbnet.jtvision.views.TRadioButtons;
 import info.qbnet.jtvision.views.TStaticText;
@@ -40,6 +41,7 @@ public final class SerializationRegistry {
         TDialog.registerType();
         TStaticText.registerType();
         TInputLine.registerType();
+        TListBox.registerType();
         TButton.registerType();
         TLabel.registerType();
         TRadioButtons.registerType();
