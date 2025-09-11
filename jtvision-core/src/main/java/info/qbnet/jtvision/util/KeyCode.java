@@ -180,6 +180,21 @@ public class KeyCode {
         return result;
     }
 
+    public static char getCtrlChar(int keyCode) {
+        char result = '\0';
+
+        int lo = keyCode & 0x00FF;
+        int hi = (keyCode & 0xFF00) >> 8;
+
+        if (hi == 0x02) {
+            if (lo >= 0x01 && lo <= 0x1A) {
+                result = (char) ('A' + lo - 1);
+            }
+        }
+
+        return result;
+    }
+
     public static int getAltCode(char c) {
         if (c == 0) {
             return 0;
