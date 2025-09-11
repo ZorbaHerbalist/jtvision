@@ -13,6 +13,7 @@ import info.qbnet.jtvision.views.TMenuBox;
 import info.qbnet.jtvision.views.TMenuView;
 import info.qbnet.jtvision.views.TStatusLine;
 import info.qbnet.jtvision.views.TFrame;
+import info.qbnet.jtvision.views.TMenuPopup;
 import info.qbnet.jtvision.views.TGroup;
 import info.qbnet.jtvision.views.TView;
 import info.qbnet.jtvision.views.TWindow;
@@ -49,6 +50,7 @@ public final class SerializationRegistry {
         TMenuView.registerType();
         TMenuBar.registerType();
         TMenuBox.registerType();
+        TMenuPopup.registerType();
         TStatusLine.registerType();
     }
 }
