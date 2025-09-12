@@ -113,6 +113,10 @@ public class TProgram extends TGroup {
         }
     }
 
+    public boolean canMoveFocus() {
+        return desktop.valid(Command.CM_RELEASED_FOCUS);
+    }
+
     public static void getKeyEvent(TEvent event) {
         if (application == null) {
             event.what = TEvent.EV_NOTHING;
@@ -302,6 +306,17 @@ public class TProgram extends TGroup {
         statusLine = new TStatusLine(r, defs);
     }
 
+    public TWindow insertWindow(TWindow window) {
+        if (validView(window) != null) {
+            if (canMoveFocus()) {
+                desktop.insert(window);
+                return window;
+            }
+        }
+        window.done();
+        return null;
+    }
+
     @Override
     public void putEvent(TEvent event) {
         pending.copyFrom(event);
@@ -313,6 +328,16 @@ public class TProgram extends TGroup {
         } finally {
             console.shutdown();
         }
+    }
+
+    TView validView(TView v) {
+        if (v != null && !v.valid(Command.CM_VALID)) {
+            if (!v.valid(Command.CM_VALID)) {
+                v.done();
+                return null;
+            }
+        }
+        return v;
     }
 
     // Getters and setters
