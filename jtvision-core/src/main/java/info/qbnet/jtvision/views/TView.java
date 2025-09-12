@@ -459,7 +459,7 @@ public class TView {
     }
 
     /** Hides this view and asks the owner to delete it. */
-    protected void done() {
+    public void done() {
         logger.trace("{} TView@done()", logName);
         hide();
         if (owner != null) {

@@ -265,7 +265,7 @@ public class TGroup extends TView {
     }
 
     @Override
-    protected void done() {
+    public void done() {
         hide();
         TView p = last;
         if (p != null) {
