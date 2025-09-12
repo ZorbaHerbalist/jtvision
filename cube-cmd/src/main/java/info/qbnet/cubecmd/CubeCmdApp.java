@@ -7,6 +7,9 @@ import info.qbnet.jtvision.util.MsgBox;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.views.TApplication;
 import info.qbnet.jtvision.views.TMenuBar;
+import info.qbnet.jtvision.views.TMenuPopup;
+import info.qbnet.jtvision.views.TView.HelpContext;
+import info.qbnet.jtvision.views.TWindow;
 
 public class CubeCmdApp extends TApplication {
 
@@ -43,7 +46,38 @@ public class CubeCmdApp extends TApplication {
     }
 
     private void onManagerNew() {
-        MsgBox.messageBox("New manager", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        TRect r = new TRect(0, 0, 20, 6);
+        desktop.getExtent(r);
+        r.a.x = (r.b.x - 20) / 2;
+        r.a.y = (r.b.y - 6) / 2;
+        r.b.x = r.a.x + 20;
+        r.b.y = r.a.y + 6;
+
+        TMenuPopup popup = new TMenuPopup(r, TMenuBar.menu()
+                .item("C:", null, KeyCode.KB_NO_KEY, 2001, HelpContext.HC_NO_CONTEXT)
+                .item("H:", null, KeyCode.KB_NO_KEY, 2002, HelpContext.HC_NO_CONTEXT)
+                .item("I:", null, KeyCode.KB_NO_KEY, 2003, HelpContext.HC_NO_CONTEXT)
+                .build());
+        int res = desktop.execView(popup);
+        popup.done();
+
+        switch (res) {
+            case 2001:
+                //MsgBox.messageBox("First option", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+                break;
+            case 2002:
+                MsgBox.messageBox("Unknown drive H:", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+                break;
+            case 2003:
+                MsgBox.messageBox("Unknown drive I:", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+                break;
+            default:
+                break;
+        }
+
+        desktop.getExtent(r);
+        TDoubleWindow window = new TDoubleWindow(r, TWindow.WN_NO_NUMBER);
+        insertWindow(window);
     }
 
     public static void main(String[] args) {
