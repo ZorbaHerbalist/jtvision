@@ -75,7 +75,8 @@ public class TInputLine extends TView {
 
     @Override
     public int dataSize() {
-        return data.toString().getBytes(StandardCharsets.UTF_8).length;
+//        return data.toString().getBytes(StandardCharsets.UTF_8).length;
+        return maxLen + 2;
     }
 
     @Override
