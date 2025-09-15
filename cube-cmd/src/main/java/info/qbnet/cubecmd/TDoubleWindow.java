@@ -2,18 +2,23 @@ package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.util.TRect;
 
+import java.io.File;
+
 public class TDoubleWindow extends TStdWindow {
 
+    private File leftDrive;
+    private File rightDrive;
     private THideView leftView = null;
     private THideView rightView = null;
     private TFilePanel leftPanel = null;
     private TFilePanel rightPanel = null;
     private TSeparator separator = null;
 
-    public TDoubleWindow(TRect bounds, int number) {
+    public TDoubleWindow(TRect bounds, int number, File drive) {
         super(bounds, null, number);
         this.options |= Options.OF_TILEABLE;
         this.eventMask = 0xFFFF;
+        this.leftDrive = this.rightDrive = drive;
 
         TRect r = new TRect();
         getExtent(r);
@@ -40,7 +45,8 @@ public class TDoubleWindow extends TStdWindow {
     }
 
     public void initLeftView(TRect r) {
-        TFilePanel filePanel = new TFilePanel(r, 0, null);
+
+        TFilePanel filePanel = new TFilePanel(r, leftDrive, null);
 
         filePanel.changeBounds(r);
 

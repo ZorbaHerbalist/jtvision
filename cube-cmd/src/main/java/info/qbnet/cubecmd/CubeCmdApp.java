@@ -2,18 +2,17 @@ package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.KeyCode;
-import info.qbnet.jtvision.util.MsgBox;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.views.TApplication;
-import info.qbnet.jtvision.views.TMenuBar;
-import info.qbnet.jtvision.views.TMenuPopup;
+import info.qbnet.jtvision.util.*;
+import info.qbnet.jtvision.views.*;
 import info.qbnet.jtvision.views.TView.HelpContext;
-import info.qbnet.jtvision.views.TWindow;
+
+import java.io.File;
+import java.util.Arrays;
 
 public class CubeCmdApp extends TApplication {
 
-    public static final int CM_MANAGER_NEW = 101;
+    public static final int CM_PANEL_SETUP = 101;
+    public static final int CM_MANAGER_NEW = 111;
 
     public CubeCmdApp() {
         super(BackendType.JAVAFX_BITMAP);
@@ -24,6 +23,9 @@ public class CubeCmdApp extends TApplication {
         super.handleEvent(event);
         if (event.what == TEvent.EV_COMMAND) {
             switch (event.msg.command) {
+                case CM_PANEL_SETUP:
+                    onPanelSetup();
+                    break;
                 case CM_MANAGER_NEW:
                     onManagerNew();
                     break;
@@ -40,44 +42,103 @@ public class CubeCmdApp extends TApplication {
         getExtent(r);
         r.b.y = r.a.y + 1;
         menuBar = new TMenuBar(r, TMenuBar.menu()
+                .submenu("~P~anel", HelpContext.HC_NO_CONTEXT, m -> m
+                        .item("~S~etup panel", "Alt-S", KeyCode.KB_ALT_S, CM_PANEL_SETUP, HelpContext.HC_NO_CONTEXT))
                 .submenu("~M~anager", HelpContext.HC_NO_CONTEXT, m -> m
                         .item("~N~ew", "Ctrl-F3", KeyCode.KB_CTRL_F3, CM_MANAGER_NEW, HelpContext.HC_NO_CONTEXT))
                 .build());
     }
 
-    private void onManagerNew() {
-        TRect r = new TRect(0, 0, 20, 6);
-        desktop.getExtent(r);
-        r.a.x = (r.b.x - 20) / 2;
-        r.a.y = (r.b.y - 6) / 2;
-        r.b.x = r.a.x + 20;
-        r.b.y = r.a.y + 6;
+    private void onPanelSetup() {
+        TDialog d = new TDialog(new TRect(0, 0, 49, 18), "Panel options");
+        d.options |= Options.OF_CENTER;
 
-        TMenuPopup popup = new TMenuPopup(r, TMenuBar.menu()
-                .item("C:", null, KeyCode.KB_NO_KEY, 2001, HelpContext.HC_NO_CONTEXT)
-                .item("H:", null, KeyCode.KB_NO_KEY, 2002, HelpContext.HC_NO_CONTEXT)
-                .item("I:", null, KeyCode.KB_NO_KEY, 2003, HelpContext.HC_NO_CONTEXT)
-                .build());
-        int res = desktop.execView(popup);
-        popup.done();
+        TRadioButtons radio = new TRadioButtons(new TRect(2, 3, 47, 5),
+                Arrays.asList("~N~ame" ,"~E~xtension", "~S~ize", "~T~ime", "~G~roup", "~U~nsorted"));
+        d.insert(radio);
+        d.insert(new TLabel(new TRect(2, 2, 47, 3), "Sort by:", radio));
 
-        switch (res) {
-            case 2001:
-                //MsgBox.messageBox("First option", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
-                break;
-            case 2002:
-                MsgBox.messageBox("Unknown drive H:", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
-                break;
-            case 2003:
-                MsgBox.messageBox("Unknown drive I:", MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
-                break;
-            default:
-                break;
+        TCheckBoxes check = new TCheckBoxes(new TRect(2, 7, 47, 11),
+                Arrays.asList("Directories first", "Executable first", "Archives first"));
+        d.insert(check);
+        d.insert(new TLabel(new TRect(2, 6, 47, 7), "Display:", check));
+
+        TInputLine input = new TInputLine(new TRect(2, 13, 44, 14), 250);
+        d.insert(input);
+        d.insert(new TLabel(new TRect(2, 12, 44, 13), "File ~m~ask:", input));
+
+        d.insert(new TButton(new TRect(9, 15, 19, 17), "OK", Command.CM_OK, TButton.BF_DEFAULT));
+        d.insert(new TButton(new TRect(19, 15, 29, 17), "Cancel", Command.CM_CANCEL, 0));
+
+        d.selectNext(false);
+
+        DataPacket data = new DataPacket(d.dataSize()).putString("*.*").putShort((short) 0x02).putShort((short) 0x02).rewind();
+        d.setData(data.getByteBuffer());
+
+        desktop.execView(d);
+    }
+
+    private File selectDrive(int x, int y, File defaultDrive, boolean includeTemp) {
+
+        File[] roots = File.listRoots();
+        TMenuBar.MenuBuilder builder = TMenuBar.menu();
+        int maxLength = 0;
+        for (int i = 0; i < roots.length; i++) {
+            String name = roots[i].getAbsolutePath();
+            if (maxLength < name.length())
+                maxLength = name.length();
+            builder.item("  ~" + name + "~  ", null, KeyCode.KB_NO_KEY, 2001 + i, HelpContext.HC_NO_CONTEXT);
         }
 
+        TRect r = new TRect();
         desktop.getExtent(r);
-        TDoubleWindow window = new TDoubleWindow(r, TWindow.WN_NO_NUMBER);
+
+        r.a.x = x;
+        r.a.y = y;
+        if (x < 0) {
+            r.a.x = 0;
+        } else if (x + maxLength + 4 > r.b.x) {
+            r.a.x = r.b.x - maxLength - 4;
+        }
+        if (y < 0) {
+            r.a.y = 0;
+        } else if (y + roots.length + 2 > r.b.y) {
+            r.a.y = r.b.y - roots.length - 2;
+        }
+        r.b.x = r.a.x + maxLength + 4;
+        r.b.y = r.a.y + roots.length + 2;
+
+        TMenuPopup popup = new TMenuPopup(r, builder.build());
+        int res = desktop.execView(popup);
+        popup.done();
+        File selected = null;
+        if (res >= 2001 && res < 2001 + roots.length) {
+            selected = roots[res - 2001];
+            MsgBox.messageBox("Selected drive " + selected.getAbsolutePath(),
+                    MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
+        }
+
+        return selected;
+    }
+
+    private void openWindow(boolean selectDrive) {
+        File drive;
+        if (selectDrive) {
+            TRect r = new TRect();
+            desktop.getExtent(r);
+            drive = selectDrive(r.a.x + (r.b.x - r.a.x) / 2, r.a.y, null, false);
+        } else {
+            drive = File.listRoots()[0];
+        }
+
+        TRect r = new TRect();
+        desktop.getExtent(r);
+        TDoubleWindow window = new TDoubleWindow(r, TWindow.WN_NO_NUMBER, drive);
         insertWindow(window);
+    }
+
+    private void onManagerNew() {
+        openWindow(true);
     }
 
     public static void main(String[] args) {
