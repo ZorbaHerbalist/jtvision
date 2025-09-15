@@ -23,6 +23,12 @@ public class TFrame extends TView {
         return CLASS_ID;
     }
 
+    // Palette layout
+    // 1 = Passive frame
+    // 2 = Passive title
+    // 3 = Active frame
+    // 4 = Active title
+    // 5 = Icons/Dragging
     public static final TPalette C_FRAME = new TPalette(TPalette.parseHexString("\\x01\\x01\\x02\\x02\\x03"));
 
     private static final int FM_CLOSE_CLICKED   = 0x01;
