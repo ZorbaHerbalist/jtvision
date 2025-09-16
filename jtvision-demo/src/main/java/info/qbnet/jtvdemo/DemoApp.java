@@ -1,21 +1,13 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.util.Console;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.views.TApplication;
 import info.qbnet.jtvision.backend.factory.BackendType;
 import info.qbnet.jtvision.views.TProgram;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.views.TMenuBar;
-import info.qbnet.jtvision.util.TStatusDef;
 import info.qbnet.jtvision.views.TStatusLine;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.MsgBox;
 import info.qbnet.jtvision.views.*;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.SerializationRegistry;
-import info.qbnet.jtvision.util.DataPacket;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -111,9 +103,12 @@ public class DemoApp extends TApplication {
         TInputLine input = null;
 
 
-        TDialog d = new TDialog(new TRect(10, 5, 48, 13), "Input Line");
+        TDialog d = new TDialog(new TRect(10, 5, 52, 13), "Input Line");
 
         input = new TInputLine(new TRect(2, 3, 36, 4), 100);
+
+        HistoryList.add(1, "Test 1");
+        HistoryList.add(1, "Test 2");
 
         DataPacket defaults = new DataPacket(input.dataSize())
                 .putStringField("Not empty input line. Long texts are scrollable.", input.dataSize())
@@ -123,6 +118,7 @@ public class DemoApp extends TApplication {
         d.insert(new TLabel(new TRect(2, 2, 36, 3), "~T~ext:", input));
         d.insert(new TButton(new TRect(8, 5, 18, 7), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
         d.insert(new TButton(new TRect(20, 5, 30, 7), "~C~ancel", Command.CM_CANCEL, 0));
+        d.insert(new THistory(new TRect(36, 3, 39, 4), input, 1));
         d.selectNext(false);
 
         if (desktop.execView(d) == Command.CM_OK && input != null) {
