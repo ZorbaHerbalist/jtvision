@@ -72,7 +72,13 @@ public class CubeCmdApp extends TApplication {
 
         d.selectNext(false);
 
-        DataPacket data = new DataPacket(d.dataSize()).putString("*.*").putShort((short) 0x02).putShort((short) 0x02).rewind();
+        int sortBy = 0x0002;
+        int displayFlags = 0x0003;
+        DataPacket data = new DataPacket(d.dataSize() * 2)
+                .putShort((short) sortBy)
+                .putShort((short) displayFlags)
+                .putStringField("*.*", input.dataSize())
+                .rewind();
         d.setData(data.getByteBuffer());
 
         desktop.execView(d);

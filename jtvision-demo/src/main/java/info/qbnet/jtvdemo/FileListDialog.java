@@ -2,11 +2,9 @@ package info.qbnet.jtvdemo;
 
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.DataPacket;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.views.*;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,15 +50,18 @@ public class FileListDialog extends TDialog {
         insert(new TButton(new TRect(58, 11, 68, 13), "Refresh", CM_REFRESH, 0));
 
         // Initial path
-        pathInput.setData(ByteBuffer.wrap(initialPath.getBytes(StandardCharsets.UTF_8)));
+        DataPacket initial = new DataPacket(pathInput.dataSize())
+                .putStringField(initialPath, pathInput.dataSize())
+                .rewind();
+        pathInput.setData(initial.getByteBuffer());
         loadDir(initialPath);
     }
 
     private String currentPath() {
-        ByteBuffer buf = ByteBuffer.allocate(512);
-        pathInput.getData(buf);
-        buf.flip();
-        return StandardCharsets.UTF_8.decode(buf).toString();
+        DataPacket packet = new DataPacket(pathInput.dataSize());
+        pathInput.getData(packet.getByteBuffer());
+        packet.rewind();
+        return packet.getStringField(pathInput.dataSize());
     }
 
     private void loadDir(String dirPath) {

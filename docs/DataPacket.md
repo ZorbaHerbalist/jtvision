@@ -13,4 +13,10 @@ DataPacket packet = new DataPacket(64)
 
 String message = packet.getString();
 short number = packet.getShort();
+
+// Fixed-length field with a length prefix and zero padding
+DataPacket dialogDefaults = new DataPacket(input.dataSize())
+        .putShort((short) 2)
+        .putStringField("*.txt", input.dataSize())
+        .rewind();
 ```

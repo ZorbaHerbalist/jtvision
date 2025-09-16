@@ -75,7 +75,6 @@ public class TInputLine extends TView {
 
     @Override
     public int dataSize() {
-//        return data.toString().getBytes(StandardCharsets.UTF_8).length;
         return maxLen + 2;
     }
 
@@ -111,8 +110,19 @@ public class TInputLine extends TView {
 
     @Override
     public void getData(ByteBuffer dst) {
+        int required = dataSize();
+        if (dst.remaining() < required) {
+            throw new java.nio.BufferOverflowException();
+        }
+
         byte[] bytes = data.toString().getBytes(StandardCharsets.UTF_8);
-        dst.put(bytes);
+        int len = Math.min(bytes.length, maxLen);
+        dst.put((byte) (len & 0xFF));
+        dst.put((byte) ((len >>> 8) & 0xFF));
+        dst.put(bytes, 0, len);
+        for (int i = len; i < maxLen; i++) {
+            dst.put((byte) 0);
+        }
     }
 
     @Override
@@ -290,11 +300,33 @@ public class TInputLine extends TView {
 
     @Override
     public void setData(ByteBuffer src) {
-        byte[] bytes = new byte[src.remaining()];
+        int available = Math.min(dataSize(), src.remaining());
+        if (available <= 0) {
+            return;
+        }
+
+        int start = src.position();
+        int fieldEnd = start + available;
+
+        if (available < 2) {
+            src.position(fieldEnd);
+            data.setLength(0);
+            selectAll(true);
+            return;
+        }
+
+        int lo = src.get() & 0xFF;
+        int hi = src.get() & 0xFF;
+        int len = (hi << 8) | lo;
+        int bytesRemaining = fieldEnd - src.position();
+
+        int copyLen = Math.min(len, Math.min(maxLen, bytesRemaining));
+        byte[] bytes = new byte[copyLen];
         src.get(bytes);
+        src.position(fieldEnd);
+
         data.setLength(0);
         data.append(new String(bytes, StandardCharsets.UTF_8));
-
         selectAll(true);
     }
 

@@ -1,6 +1,7 @@
 package info.qbnet.jtvision.util;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -31,14 +32,14 @@ public class DataPacket {
      * Creates a new packet with the given capacity for writing.
      */
     public DataPacket(int capacity) {
-        this.buffer = ByteBuffer.allocate(capacity);
+        this.buffer = ByteBuffer.allocate(capacity).order(ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
      * Wraps existing binary data for reading.
      */
     public DataPacket(byte[] data) {
-        this.buffer = ByteBuffer.wrap(data);
+        this.buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
     }
 
     /**
@@ -92,6 +93,75 @@ public class DataPacket {
      */
     public int getInt() {
         return buffer.getInt();
+    }
+
+    /**
+     * Writes a length-prefixed string occupying a fixed-size field.
+     * <p>
+     * The method stores the UTF-8 encoded {@code value} prefixed with its
+     * length as an unsigned short. The field is padded with zero bytes to the
+     * requested {@code fieldSize} to ensure that subsequent writes start at the
+     * expected offset. If the encoded string does not fit, it is truncated to
+     * {@code fieldSize - 2} bytes and the stored length reflects the truncated
+     * value.
+     * </p>
+     *
+     * @param value     string to encode
+     * @param fieldSize total number of bytes reserved for the field including
+     *                  the two-byte length prefix
+     * @return this packet for chaining
+     * @throws IllegalArgumentException if {@code fieldSize} is less than 2
+     */
+    public DataPacket putStringField(String value, int fieldSize) {
+        if (fieldSize < 2) {
+            throw new IllegalArgumentException("fieldSize must be at least 2");
+        }
+        if (fieldSize > buffer.remaining()) {
+            throw new java.nio.BufferOverflowException();
+        }
+
+        byte[] bytes = value.getBytes(charset);
+        int maxBytes = fieldSize - 2;
+        int len = Math.min(bytes.length, maxBytes);
+        buffer.putShort((short) len);
+        buffer.put(bytes, 0, len);
+        for (int i = len; i < maxBytes; i++) {
+            buffer.put((byte) 0);
+        }
+        return this;
+    }
+
+    /**
+     * Reads a string written with {@link #putStringField(String, int)}.
+     * <p>
+     * The method consumes {@code fieldSize} bytes from the underlying buffer,
+     * returning at most {@code fieldSize - 2} bytes decoded using the current
+     * charset. Any remaining padding within the field is skipped.
+     * </p>
+     *
+     * @param fieldSize size of the field including the length prefix
+     * @return decoded string (may be shorter than the stored length if the
+     *         buffer does not contain enough bytes)
+     * @throws IllegalArgumentException if {@code fieldSize} is less than 2
+     */
+    public String getStringField(int fieldSize) {
+        if (fieldSize < 2) {
+            throw new IllegalArgumentException("fieldSize must be at least 2");
+        }
+
+        int available = Math.min(fieldSize, buffer.remaining());
+        int fieldEnd = buffer.position() + available;
+        if (available < 2) {
+            buffer.position(fieldEnd);
+            return "";
+        }
+
+        int len = Short.toUnsignedInt(buffer.getShort());
+        int dataAvailable = Math.min(len, Math.max(0, fieldEnd - buffer.position()));
+        byte[] bytes = new byte[dataAvailable];
+        buffer.get(bytes);
+        buffer.position(fieldEnd);
+        return new String(bytes, charset);
     }
 
     /**

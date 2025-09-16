@@ -496,15 +496,15 @@ public class TGroup extends TView {
     public void getData(ByteBuffer dst) {
         if (last == null) return;
 
-        TView p = last.getNext();
+        TView p = last;
         do {
             int sz = p.dataSize();
             ByteBuffer slice = dst.slice();
             slice.limit(sz);
             p.getData(slice);
             dst.position(dst.position() + sz);
-            p = p.getNext();
-        } while (p != last.getNext());
+            p = p.prev();
+        } while (p != last);
     }
 
     @Override
@@ -849,15 +849,15 @@ public class TGroup extends TView {
     public void setData(ByteBuffer src) {
         if (last == null) return;
 
-        TView p = last.getNext();
+        TView p = last;
         do {
             int sz = p.dataSize();
             ByteBuffer slice = src.slice();
             slice.limit(sz);
             p.setData(slice);
             src.position(src.position() + sz);
-            p = p.getNext();
-        } while (p != last.getNext());
+            p = p.prev();
+        } while (p != last);
     }
 
 

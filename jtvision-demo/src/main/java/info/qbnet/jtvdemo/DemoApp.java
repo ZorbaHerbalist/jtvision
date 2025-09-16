@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,14 +115,10 @@ public class DemoApp extends TApplication {
 
         input = new TInputLine(new TRect(2, 3, 36, 4), 100);
 
-        DataPacket defaults = new DataPacket(100)
-                .putString("Not empty input line. Long texts are scrollable.")
+        DataPacket defaults = new DataPacket(input.dataSize())
+                .putStringField("Not empty input line. Long texts are scrollable.", input.dataSize())
                 .rewind();
-        ByteBuffer initBuf = defaults.getByteBuffer();
-        int initLen = Short.toUnsignedInt(initBuf.getShort());
-        ByteBuffer initSlice = initBuf.slice();
-        initSlice.limit(initLen);
-        input.setData(initSlice);
+        input.setData(defaults.getByteBuffer());
         d.insert(input);
         d.insert(new TLabel(new TRect(2, 2, 36, 3), "~T~ext:", input));
         d.insert(new TButton(new TRect(8, 5, 18, 7), "~O~K", Command.CM_OK, TButton.BF_DEFAULT));
@@ -133,7 +128,8 @@ public class DemoApp extends TApplication {
         if (desktop.execView(d) == Command.CM_OK && input != null) {
             DataPacket result = new DataPacket(input.dataSize());
             input.getData(result.getByteBuffer());
-            String entered = new String(result.toByteArray(), StandardCharsets.UTF_8);
+            result.rewind();
+            String entered = result.getStringField(input.dataSize());
             MsgBox.messageBox("Entered string: " + entered, MsgBox.MF_INFORMATION + MsgBox.MF_OK_BUTTON);
         }
     }
