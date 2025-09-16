@@ -51,8 +51,13 @@ public class TFrame extends TView {
     // 3 = Active frame
     // 4 = Active title
     // 5 = Icons/Dragging
-    public static final TPalette C_FRAME = new TPalette(
-            TPalette.mapFromHexString("\\x01\\x01\\x02\\x02\\x03", FrameColor.values()));
+    public static final TPalette C_FRAME;
+
+    static {
+        PaletteFactory.registerDefaults("frame", FrameColor.class,
+                "\\x01\\x01\\x02\\x02\\x03");
+        C_FRAME = PaletteFactory.get("frame");
+    }
 
     private static final int FM_CLOSE_CLICKED   = 0x01;
     private static final int FM_ZOOM_CLICKED    = 0x02;

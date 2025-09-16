@@ -319,7 +319,7 @@ public class TProgram extends TGroup {
         }
     }
 
-    public static final TPalette C_APP_COLOR = new TPalette(TPalette.mapFromHexString(
+    private static final String APP_COLOR_DATA =
             "\\x71\\x70\\x78\\x74\\x20\\x28\\x24\\x17\\x1F\\x1A" +
             "\\x31\\x31\\x1E\\x71\\x1F" +
             "\\x37\\x3F\\x3A\\x13\\x13\\x3E\\x21\\x3F\\x70\\x7F\\x7A\\x13\\x13\\x70\\x7F\\x7E" +
@@ -328,8 +328,14 @@ public class TProgram extends TGroup {
             "\\x17\\x1F\\x1A\\x71\\x71\\x1E\\x17\\x1F\\x1E\\x20\\x2B\\x2F\\x78\\x2E\\x10\\x30" +
             "\\x3F\\x3E\\x70\\x2F\\x7A\\x20\\x12\\x31\\x31\\x30\\x2F\\x3E\\x31\\x13\\x38\\x00" +
             "\\x37\\x3F\\x3A\\x13\\x13\\x3E\\x30\\x3F\\x3E\\x20\\x2B\\x2F\\x78\\x2E\\x30\\x70" +
-            "\\x7F\\x7E\\x1F\\x2F\\x1A\\x20\\x32\\x31\\x71\\x70\\x2F\\x7E\\x71\\x13\\x38\\x00",
-            ProgramColor.values()));
+            "\\x7F\\x7E\\x1F\\x2F\\x1A\\x20\\x32\\x31\\x71\\x70\\x2F\\x7E\\x71\\x13\\x38\\x00";
+
+    public static final TPalette C_APP_COLOR;
+
+    static {
+        PaletteFactory.registerDefaults("program.appColor", ProgramColor.class, APP_COLOR_DATA);
+        C_APP_COLOR = PaletteFactory.get("program.appColor");
+    }
 
     private static TEvent pending = new TEvent();
 

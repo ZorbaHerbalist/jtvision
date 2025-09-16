@@ -63,8 +63,12 @@ public class TScroller extends TView {
     /** Flag indicating that a redraw is pending once {@link #drawLock} drops to zero. */
     protected boolean drawFlag = false;
 
-    public static final TPalette C_SCROLLER = new TPalette(
-            TPalette.mapFromHexString("\\x06\\x07", ScrollerColor.values()));
+    public static final TPalette C_SCROLLER;
+
+    static {
+        PaletteFactory.registerDefaults("scroller", ScrollerColor.class, "\\x06\\x07");
+        C_SCROLLER = PaletteFactory.get("scroller");
+    }
 
     public TScroller(TRect bounds, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);

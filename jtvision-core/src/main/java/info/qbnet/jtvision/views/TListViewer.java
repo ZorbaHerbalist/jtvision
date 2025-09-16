@@ -71,8 +71,13 @@ public class TListViewer extends TView {
     protected int range;
 
     /** Palette describing active, inactive, focused, selected and divider colors. */
-    public static final TPalette C_LIST_VIEWER = new TPalette(
-            TPalette.mapFromHexString("\\x1A\\x1A\\x1B\\x1C\\x1D", ListViewerColor.values()));
+    public static final TPalette C_LIST_VIEWER;
+
+    static {
+        PaletteFactory.registerDefaults("listViewer", ListViewerColor.class,
+                "\\x1A\\x1A\\x1B\\x1C\\x1D");
+        C_LIST_VIEWER = PaletteFactory.get("listViewer");
+    }
 
     public TListViewer(TRect bounds, int numCols, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);

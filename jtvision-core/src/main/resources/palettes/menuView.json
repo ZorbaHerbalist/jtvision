@@ -1,0 +1,8 @@
+{
+    "NORMAL_TEXT": "0x02",
+    "DISABLED_TEXT": "0x03",
+    "SHORTCUT_TEXT": "0x04",
+    "NORMAL_SELECTION": "0x05",
+    "DISABLED_SELECTION": "0x06",
+    "SHORTCUT_SELECTION": "0x07"
+}

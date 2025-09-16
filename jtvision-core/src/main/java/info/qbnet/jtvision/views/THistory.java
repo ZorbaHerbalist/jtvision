@@ -43,8 +43,12 @@ public class THistory extends TView {
             (char) 0xDE, '~', (char) 0x19, '~', (char) 0xDD
     });
 
-    public static final TPalette C_HISTORY = new TPalette(
-            TPalette.mapFromHexString("\\x16\\x17", HistoryColor.values()));
+    public static final TPalette C_HISTORY;
+
+    static {
+        PaletteFactory.registerDefaults("history", HistoryColor.class, "\\x16\\x17");
+        C_HISTORY = PaletteFactory.get("history");
+    }
 
     protected TInputLine link;
 

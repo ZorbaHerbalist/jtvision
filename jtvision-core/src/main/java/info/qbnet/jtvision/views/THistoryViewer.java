@@ -38,8 +38,13 @@ public class THistoryViewer extends TListViewer {
     }
 
     /** Palette layout matching Turbo Vision's {@code CHistoryViewer}. */
-    public static final TPalette C_HISTORY_VIEWER = new TPalette(
-            TPalette.mapFromHexString("\\x06\\x06\\x07\\x06\\x06", HistoryViewerColor.values()));
+    public static final TPalette C_HISTORY_VIEWER;
+
+    static {
+        PaletteFactory.registerDefaults("historyViewer", HistoryViewerColor.class,
+                "\\x06\\x06\\x07\\x06\\x06");
+        C_HISTORY_VIEWER = PaletteFactory.get("historyViewer");
+    }
 
     /** Identifier of the history list shown by this viewer. */
     private final int historyId;

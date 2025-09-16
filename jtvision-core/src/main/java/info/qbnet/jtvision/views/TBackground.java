@@ -34,8 +34,12 @@ public class TBackground extends TView {
 
     private final char pattern;
 
-    public static final TPalette C_BACKGROUND = new TPalette(
-            TPalette.mapFromHexString("\\x01", BackgroundColor.values()));
+    public static final TPalette C_BACKGROUND;
+
+    static {
+        PaletteFactory.registerDefaults("background", BackgroundColor.class, "\\x01");
+        C_BACKGROUND = PaletteFactory.get("background");
+    }
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);

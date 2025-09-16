@@ -2,6 +2,7 @@ package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.util.Command;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.TStatusDef;
 import info.qbnet.jtvision.util.TStatusItem;
 import info.qbnet.jtvision.util.TPoint;
@@ -88,8 +89,13 @@ public class TStatusLine extends TView {
     private TStatusDef defs;
     private TStatusItem items;
 
-    public static final TPalette C_STATUS_LINE = new TPalette(
-            TPalette.mapFromHexString("\\x02\\x03\\x04\\x05\\x06\\x07", TMenuView.MenuColor.values()));
+    public static final TPalette C_STATUS_LINE;
+
+    static {
+        PaletteFactory.registerDefaults("statusLine", TMenuView.MenuColor.class,
+                "\\x02\\x03\\x04\\x05\\x06\\x07");
+        C_STATUS_LINE = PaletteFactory.get("statusLine");
+    }
 
     public TStatusLine(TRect bounds, TStatusDef defs) {
         super(bounds);

@@ -74,12 +74,21 @@ public class TWindow extends TGroup {
         WP_GRAY_WINDOW;
     }
 
-    public static final TPalette C_BLUE_WINDOW = new TPalette(
-            TPalette.mapFromHexString("\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f", WindowColor.values()));
-    public static final TPalette C_CYAN_WINDOW = new TPalette(
-            TPalette.mapFromHexString("\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17", WindowColor.values()));
-    public static final TPalette C_GRAY_WINDOW = new TPalette(
-            TPalette.mapFromHexString("\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f", WindowColor.values()));
+    public static final TPalette C_BLUE_WINDOW;
+    public static final TPalette C_CYAN_WINDOW;
+    public static final TPalette C_GRAY_WINDOW;
+
+    static {
+        PaletteFactory.registerDefaults("window.blue", WindowColor.class,
+                "\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f");
+        PaletteFactory.registerDefaults("window.cyan", WindowColor.class,
+                "\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17");
+        PaletteFactory.registerDefaults("window.gray", WindowColor.class,
+                "\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f");
+        C_BLUE_WINDOW = PaletteFactory.get("window.blue");
+        C_CYAN_WINDOW = PaletteFactory.get("window.cyan");
+        C_GRAY_WINDOW = PaletteFactory.get("window.gray");
+    }
 
     private WindowPalette palette = WindowPalette.WP_BLUE_WINDOW;
 

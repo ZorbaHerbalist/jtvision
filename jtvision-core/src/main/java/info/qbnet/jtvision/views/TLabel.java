@@ -56,8 +56,12 @@ public class TLabel extends TStaticText {
     /** Highlight flag indicating that the linked view currently has focus. */
     protected boolean light;
 
-    public static final TPalette C_LABEL = new TPalette(
-            TPalette.mapFromHexString("\\x07\\x08\\x09\\x09", LabelColor.values()));
+    public static final TPalette C_LABEL;
+
+    static {
+        PaletteFactory.registerDefaults("label", LabelColor.class, "\\x07\\x08\\x09\\x09");
+        C_LABEL = PaletteFactory.get("label");
+    }
 
     public TLabel(TRect bounds, String text, TView link) {
         super(bounds, text);

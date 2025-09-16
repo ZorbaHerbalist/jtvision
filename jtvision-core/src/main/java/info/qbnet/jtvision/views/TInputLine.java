@@ -54,8 +54,13 @@ public class TInputLine extends TView {
     protected int selStart = 0;
     protected int selEnd = 0;
 
-    public static final TPalette C_INPUT_LINE = new TPalette(
-            TPalette.mapFromHexString("\\x13\\x13\\x14\\x15", InputLineColor.values()));
+    public static final TPalette C_INPUT_LINE;
+
+    static {
+        PaletteFactory.registerDefaults("inputLine", InputLineColor.class,
+                "\\x13\\x13\\x14\\x15");
+        C_INPUT_LINE = PaletteFactory.get("inputLine");
+    }
 
     public TInputLine(TRect bounds, int maxLen) {
         super(bounds);

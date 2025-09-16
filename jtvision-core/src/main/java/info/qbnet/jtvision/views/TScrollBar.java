@@ -66,8 +66,12 @@ public class TScrollBar extends TView {
     private static final char[] H_CHARS =
             {(char) 0x11, (char) 0x10, (char) 0xB1, (char) 0xFE, (char) 0xB2};
 
-    public static final TPalette C_SCROLL_BAR = new TPalette(
-            TPalette.mapFromHexString("\\x04\\x05\\x05", ScrollBarColor.values()));
+    public static final TPalette C_SCROLL_BAR;
+
+    static {
+        PaletteFactory.registerDefaults("scrollBar", ScrollBarColor.class, "\\x04\\x05\\x05");
+        C_SCROLL_BAR = PaletteFactory.get("scrollBar");
+    }
 
     protected int value;
     protected int min;

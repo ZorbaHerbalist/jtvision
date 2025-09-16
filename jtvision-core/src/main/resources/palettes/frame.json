@@ -1,0 +1,7 @@
+{
+    "PASSIVE_FRAME": "0x01",
+    "PASSIVE_TITLE": "0x01",
+    "ACTIVE_FRAME": "0x02",
+    "ACTIVE_TITLE": "0x02",
+    "ICONS": "0x03"
+}

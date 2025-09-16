@@ -1,0 +1,6 @@
+{
+    "NORMAL": "0x13",
+    "ACTIVE": "0x13",
+    "SELECTED_TEXT": "0x14",
+    "ARROWS": "0x15"
+}

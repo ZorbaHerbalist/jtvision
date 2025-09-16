@@ -41,8 +41,12 @@ public class TStaticText extends TView {
 
     protected String text;
 
-    public static final TPalette C_STATIC_TEXT = new TPalette(
-            TPalette.mapFromHexString("\\x06", StaticTextColor.values()));
+    public static final TPalette C_STATIC_TEXT;
+
+    static {
+        PaletteFactory.registerDefaults("staticText", StaticTextColor.class, "\\x06");
+        C_STATIC_TEXT = PaletteFactory.get("staticText");
+    }
 
     public TStaticText(TRect bounds, final String text) {
         super(bounds);

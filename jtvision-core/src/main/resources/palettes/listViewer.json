@@ -1,0 +1,7 @@
+{
+    "ACTIVE": "0x1A",
+    "INACTIVE": "0x1A",
+    "FOCUSED": "0x1B",
+    "SELECTED": "0x1C",
+    "DIVIDER": "0x1D"
+}

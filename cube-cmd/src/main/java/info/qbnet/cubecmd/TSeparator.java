@@ -1,6 +1,7 @@
 package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
@@ -29,8 +30,12 @@ public class TSeparator extends THideView {
         }
     }
 
-    public static final TPalette C_SEPARATOR = new TPalette(
-            TPalette.mapFromHexString("\\x01\\x02\\x03", SeparatorColor.values()));
+    public static final TPalette C_SEPARATOR;
+
+    static {
+        PaletteFactory.registerDefaults("separator", SeparatorColor.class, "\\x01\\x02\\x03");
+        C_SEPARATOR = PaletteFactory.get("separator");
+    }
 
     private static final String FRAME_CHARS = "\u00BB\u00BC\u00C9\u00C8\u00BA\u00BF\u00D9\u00DA\u00C0\u00B3";
 

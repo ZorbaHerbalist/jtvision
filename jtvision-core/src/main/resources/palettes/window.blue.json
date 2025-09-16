@@ -1,0 +1,10 @@
+{
+    "FRAME_PASSIVE": "0x08",
+    "FRAME_ACTIVE": "0x09",
+    "FRAME_ICON": "0x0A",
+    "SCROLLBAR_PAGE": "0x0B",
+    "SCROLLBAR_CONTROLS": "0x0C",
+    "SCROLLER_NORMAL": "0x0D",
+    "SCROLLER_SELECTED": "0x0E",
+    "RESERVED": "0x0F"
+}

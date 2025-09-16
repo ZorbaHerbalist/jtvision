@@ -1,0 +1,10 @@
+{
+    "NORMAL_TEXT": "0x0A",
+    "DEFAULT_TEXT": "0x0B",
+    "SELECTED_TEXT": "0x0C",
+    "DISABLED_TEXT": "0x0D",
+    "NORMAL_SHORTCUT": "0x0E",
+    "DEFAULT_SHORTCUT": "0x0E",
+    "SELECTED_SHORTCUT": "0x0E",
+    "SHADOW": "0x0F"
+}

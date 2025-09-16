@@ -50,8 +50,13 @@ public class TMenuView extends TView {
     protected TMenu menu = null;
     protected TMenuItem current = null;
 
-    public static final TPalette C_MENU_VIEW = new TPalette(
-            TPalette.mapFromHexString("\\x02\\x03\\x04\\x05\\x06\\x07", MenuColor.values()));
+    public static final TPalette C_MENU_VIEW;
+
+    static {
+        PaletteFactory.registerDefaults("menuView", MenuColor.class,
+                "\\x02\\x03\\x04\\x05\\x06\\x07");
+        C_MENU_VIEW = PaletteFactory.get("menuView");
+    }
 
     public TMenuView(TRect bounds) {
         super(bounds);

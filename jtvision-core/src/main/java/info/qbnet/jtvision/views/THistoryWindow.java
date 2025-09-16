@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.views;
 
+import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
@@ -40,8 +41,13 @@ public class THistoryWindow extends TWindow {
     }
 
     /** Palette reproducing Turbo Vision's {@code CHistoryWindow}. */
-    public static final TPalette C_HISTORY_WINDOW = new TPalette(
-            TPalette.mapFromHexString("\\x13\\x13\\x15\\x18\\x19\\x13\\x14", HistoryWindowColor.values()));
+    public static final TPalette C_HISTORY_WINDOW;
+
+    static {
+        PaletteFactory.registerDefaults("historyWindow", HistoryWindowColor.class,
+                "\\x13\\x13\\x15\\x18\\x19\\x13\\x14");
+        C_HISTORY_WINDOW = PaletteFactory.get("historyWindow");
+    }
 
     /** Embedded viewer presenting the available history items. */
     private THistoryViewer viewer;

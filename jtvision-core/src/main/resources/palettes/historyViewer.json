@@ -1,0 +1,7 @@
+{
+    "ACTIVE": "0x06",
+    "INACTIVE": "0x06",
+    "FOCUSED": "0x07",
+    "SELECTED": "0x06",
+    "DIVIDER": "0x06"
+}

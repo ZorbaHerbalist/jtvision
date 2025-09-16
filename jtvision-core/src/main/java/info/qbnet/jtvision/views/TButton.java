@@ -59,8 +59,13 @@ public class TButton extends TView {
     public static final int BF_BROADCAST = 0x04;
     public static final int BF_GRAB_FOCUS= 0x08;
 
-    public static final TPalette C_BUTTON = new TPalette(
-            TPalette.mapFromHexString("\\x0A\\x0B\\x0C\\x0D\\x0E\\x0E\\x0E\\x0F", ButtonColor.values()));
+    public static final TPalette C_BUTTON;
+
+    static {
+        PaletteFactory.registerDefaults("button", ButtonColor.class,
+                "\\x0A\\x0B\\x0C\\x0D\\x0E\\x0E\\x0E\\x0F");
+        C_BUTTON = PaletteFactory.get("button");
+    }
 
     protected String title;
     protected int command;
