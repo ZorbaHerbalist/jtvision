@@ -11,6 +11,25 @@ public class THistory extends TView {
 
     public static final int CLASS_ID = 19;
 
+    /** Palette roles for {@link THistory}. */
+    public enum HistoryColor implements PaletteRole {
+        /** Arrow glyph. */
+        ARROW(1),
+        /** Sides of the history button. */
+        SIDES(2);
+
+        private final int index;
+
+        HistoryColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
     public static void registerType() {
         TStream.registerType(CLASS_ID, THistory::new);
     }
@@ -24,8 +43,8 @@ public class THistory extends TView {
             (char) 0xDE, '~', (char) 0x19, '~', (char) 0xDD
     });
 
-    public static final TPalette C_HISTORY =
-            new TPalette(TPalette.parseHexString("\\x16\\x17"));
+    public static final TPalette C_HISTORY = new TPalette(
+            TPalette.mapFromHexString("\\x16\\x17", HistoryColor.values()));
 
     protected TInputLine link;
 

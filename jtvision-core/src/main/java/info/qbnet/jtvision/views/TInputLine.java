@@ -1,12 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,6 +10,31 @@ import java.nio.charset.StandardCharsets;
 public class TInputLine extends TView {
 
     public static final int CLASS_ID = 11;
+
+    /**
+     * Palette roles for {@link TInputLine}.
+     */
+    public enum InputLineColor implements PaletteRole {
+        /** Normal state. */
+        NORMAL(1),
+        /** Active/focused state. */
+        ACTIVE(2),
+        /** Selected text. */
+        SELECTED_TEXT(3),
+        /** Scroll arrows. */
+        ARROWS(4);
+
+        private final int index;
+
+        InputLineColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TInputLine::new);
@@ -34,7 +54,8 @@ public class TInputLine extends TView {
     protected int selStart = 0;
     protected int selEnd = 0;
 
-    public static final TPalette C_INPUT_LINE = new TPalette(TPalette.parseHexString("\\x13\\x13\\x14\\x15"));
+    public static final TPalette C_INPUT_LINE = new TPalette(
+            TPalette.mapFromHexString("\\x13\\x13\\x14\\x15", InputLineColor.values()));
 
     public TInputLine(TRect bounds, int maxLen) {
         super(bounds);

@@ -1,14 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TMenu;
-import info.qbnet.jtvision.util.TMenuItem;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +12,36 @@ public class TMenuView extends TView {
 
     public static final int CLASS_ID = 39;
 
+    /**
+     * Palette roles for menu based views ({@link TMenuView}, {@link TMenuBar},
+     * {@link TMenuBox}, {@link TMenuPopup}) and {@link TStatusLine}.
+     */
+    public enum MenuColor implements PaletteRole {
+        /** Normal menu text. */
+        NORMAL_TEXT(1),
+        /** Disabled menu text. */
+        DISABLED_TEXT(2),
+        /** Shortcut/accelerator text. */
+        SHORTCUT_TEXT(3),
+        /** Normal selection highlight. */
+        NORMAL_SELECTION(4),
+        /** Disabled selection highlight. */
+        DISABLED_SELECTION(5),
+        /** Shortcut highlight. */
+        SHORTCUT_SELECTION(6);
+
+        private final int index;
+
+        MenuColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
     public static void registerType() {
         TStream.registerType(CLASS_ID, TMenuView::new);
     }
@@ -27,7 +50,8 @@ public class TMenuView extends TView {
     protected TMenu menu = null;
     protected TMenuItem current = null;
 
-    public static final TPalette C_MENU_VIEW = new TPalette(TPalette.parseHexString("\\x02\\x03\\x04\\x05\\x06\\x07"));
+    public static final TPalette C_MENU_VIEW = new TPalette(
+            TPalette.mapFromHexString("\\x02\\x03\\x04\\x05\\x06\\x07", MenuColor.values()));
 
     public TMenuView(TRect bounds) {
         super(bounds);

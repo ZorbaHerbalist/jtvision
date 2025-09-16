@@ -1,11 +1,7 @@
 package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -21,6 +17,27 @@ import java.util.function.Consumer;
 public class TScroller extends TView {
 
     public static final int CLASS_ID = 4;
+
+    /**
+     * Palette roles for {@link TScroller}.
+     */
+    public enum ScrollerColor implements PaletteRole {
+        /** Normal text. */
+        NORMAL_TEXT(1),
+        /** Selected text. */
+        SELECTED_TEXT(2);
+
+        private final int index;
+
+        ScrollerColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TScroller::new);
@@ -46,8 +63,8 @@ public class TScroller extends TView {
     /** Flag indicating that a redraw is pending once {@link #drawLock} drops to zero. */
     protected boolean drawFlag = false;
 
-    public static final TPalette C_SCROLLER =
-            new TPalette(TPalette.parseHexString("\\x06\\x07"));
+    public static final TPalette C_SCROLLER = new TPalette(
+            TPalette.mapFromHexString("\\x06\\x07", ScrollerColor.values()));
 
     public TScroller(TRect bounds, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);

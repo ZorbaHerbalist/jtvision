@@ -3,16 +3,34 @@ package info.qbnet.cubecmd;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.TPoint;
 import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.util.PaletteRole;
 
 public class TSeparator extends THideView {
 
-    // Palette layout
-    // 1 = Passive frame
-    // 2 = Active frame
-    // 3 = Dragging
-    public static final TPalette C_SEPARATOR = new TPalette(TPalette.parseHexString("\\x01\\x02\\x03"));
+    /** Palette roles describing the separator's color usage. */
+    public enum SeparatorColor implements PaletteRole {
+        /** Passive frame color. */
+        PASSIVE_FRAME(1),
+        /** Active frame color. */
+        ACTIVE_FRAME(2),
+        /** Dragging frame color. */
+        DRAGGING(3);
+
+        private final int index;
+
+        SeparatorColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
+    public static final TPalette C_SEPARATOR = new TPalette(
+            TPalette.mapFromHexString("\\x01\\x02\\x03", SeparatorColor.values()));
 
     private static final String FRAME_CHARS = "\u00BB\u00BC\u00C9\u00C8\u00BA\u00BF\u00D9\u00DA\u00C0\u00B3";
 

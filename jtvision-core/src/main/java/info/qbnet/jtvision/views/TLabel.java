@@ -1,11 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -19,6 +15,31 @@ import static info.qbnet.jtvision.util.KeyCode.getAltCode;
 public class TLabel extends TStaticText {
 
     public static final int CLASS_ID = 18;
+
+    /**
+     * Palette roles for {@link TLabel}.
+     */
+    public enum LabelColor implements PaletteRole {
+        /** Normal text. */
+        NORMAL_TEXT(1),
+        /** Highlighted text. */
+        SELECTED_TEXT(2),
+        /** Normal shortcut. */
+        NORMAL_SHORTCUT(3),
+        /** Shortcut while highlighted. */
+        SELECTED_SHORTCUT(4);
+
+        private final int index;
+
+        LabelColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TLabel::new);
@@ -35,8 +56,8 @@ public class TLabel extends TStaticText {
     /** Highlight flag indicating that the linked view currently has focus. */
     protected boolean light;
 
-    public static final TPalette C_LABEL =
-            new TPalette(TPalette.parseHexString("\\x07\\x08\\x09\\x09"));
+    public static final TPalette C_LABEL = new TPalette(
+            TPalette.mapFromHexString("\\x07\\x08\\x09\\x09", LabelColor.values()));
 
     public TLabel(TRect bounds, String text, TView link) {
         super(bounds, text);

@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.views;
 
+import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
 
@@ -9,9 +10,38 @@ import info.qbnet.jtvision.util.TRect;
  */
 public class THistoryWindow extends TWindow {
 
+    /** Palette roles for {@link THistoryWindow}. */
+    public enum HistoryWindowColor implements PaletteRole {
+        /** Passive frame. */
+        FRAME_PASSIVE(1),
+        /** Active frame. */
+        FRAME_ACTIVE(2),
+        /** Frame icon. */
+        FRAME_ICON(3),
+        /** Scrollbar page area. */
+        SCROLLBAR_PAGE(4),
+        /** Scrollbar controls. */
+        SCROLLBAR_CONTROLS(5),
+        /** History viewer normal text. */
+        VIEWER_NORMAL(6),
+        /** History viewer selected text. */
+        VIEWER_SELECTED(7);
+
+        private final int index;
+
+        HistoryWindowColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
     /** Palette reproducing Turbo Vision's {@code CHistoryWindow}. */
-    public static final TPalette C_HISTORY_WINDOW =
-            new TPalette(TPalette.parseHexString("\\x13\\x13\\x15\\x18\\x19\\x13\\x14"));
+    public static final TPalette C_HISTORY_WINDOW = new TPalette(
+            TPalette.mapFromHexString("\\x13\\x13\\x15\\x18\\x19\\x13\\x14", HistoryWindowColor.values()));
 
     /** Embedded viewer presenting the available history items. */
     private THistoryViewer viewer;

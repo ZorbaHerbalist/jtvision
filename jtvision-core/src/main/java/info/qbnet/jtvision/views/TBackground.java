@@ -1,18 +1,32 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.util.EnumSet;
 
-import static info.qbnet.jtvision.util.TPalette.parseHexString;
-
 public class TBackground extends TView {
 
     public static final int CLASS_ID = 30;
+
+    /**
+     * Palette roles for {@link TBackground}.
+     */
+    public enum BackgroundColor implements PaletteRole {
+        /** Background fill. */
+        BACKGROUND(1);
+
+        private final int index;
+
+        BackgroundColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TBackground::new);
@@ -20,7 +34,8 @@ public class TBackground extends TView {
 
     private final char pattern;
 
-    public static final TPalette C_BACKGROUND = new TPalette(parseHexString("\\x01"));
+    public static final TPalette C_BACKGROUND = new TPalette(
+            TPalette.mapFromHexString("\\x01", BackgroundColor.values()));
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);

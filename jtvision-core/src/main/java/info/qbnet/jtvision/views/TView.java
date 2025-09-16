@@ -1084,7 +1084,7 @@ public class TView {
         while (view != null) {
             TPalette palette = view.getPalette();
             if (palette != null) {
-                if (color > palette.length()) return ERROR_ATTR;
+                if (!palette.containsIndex(color)) return ERROR_ATTR;
                 color = palette.get(color);
                 if (color == 0) return ERROR_ATTR;
             }

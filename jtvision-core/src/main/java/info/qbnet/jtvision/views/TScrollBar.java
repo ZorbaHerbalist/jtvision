@@ -1,13 +1,7 @@
 package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -23,6 +17,29 @@ import java.util.EnumSet;
 public class TScrollBar extends TView {
 
     public static final int CLASS_ID = 3;
+
+    /**
+     * Palette roles for {@link TScrollBar}.
+     */
+    public enum ScrollBarColor implements PaletteRole {
+        /** Page area background. */
+        PAGE_AREA(1),
+        /** Arrow buttons. */
+        ARROWS(2),
+        /** Scroll indicator. */
+        INDICATOR(3);
+
+        private final int index;
+
+        ScrollBarColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TScrollBar::new);
@@ -49,8 +66,8 @@ public class TScrollBar extends TView {
     private static final char[] H_CHARS =
             {(char) 0x11, (char) 0x10, (char) 0xB1, (char) 0xFE, (char) 0xB2};
 
-    public static final TPalette C_SCROLL_BAR =
-            new TPalette(TPalette.parseHexString("\\x04\\x05\\x05"));
+    public static final TPalette C_SCROLL_BAR = new TPalette(
+            TPalette.mapFromHexString("\\x04\\x05\\x05", ScrollBarColor.values()));
 
     protected int value;
     protected int min;

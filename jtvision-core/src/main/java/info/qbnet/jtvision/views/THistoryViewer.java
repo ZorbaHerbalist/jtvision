@@ -1,11 +1,7 @@
 package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.HistoryList;
-import info.qbnet.jtvision.util.KeyCode;
-import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.util.*;
 
 /**
  * List viewer displaying the contents of a command history identified by an
@@ -14,9 +10,36 @@ import info.qbnet.jtvision.util.TRect;
  */
 public class THistoryViewer extends TListViewer {
 
+    /**
+     * Palette roles for {@link THistoryViewer}.
+     */
+    public enum HistoryViewerColor implements PaletteRole {
+        /** Active history entry. */
+        ACTIVE(1),
+        /** Inactive history entry. */
+        INACTIVE(2),
+        /** Focused entry highlight. */
+        FOCUSED(3),
+        /** Selected entry highlight. */
+        SELECTED(4),
+        /** Column divider. */
+        DIVIDER(5);
+
+        private final int index;
+
+        HistoryViewerColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
     /** Palette layout matching Turbo Vision's {@code CHistoryViewer}. */
-    public static final TPalette C_HISTORY_VIEWER =
-            new TPalette(TPalette.parseHexString("\\x06\\x06\\x07\\x06\\x06"));
+    public static final TPalette C_HISTORY_VIEWER = new TPalette(
+            TPalette.mapFromHexString("\\x06\\x06\\x07\\x06\\x06", HistoryViewerColor.values()));
 
     /** Identifier of the history list shown by this viewer. */
     private final int historyId;

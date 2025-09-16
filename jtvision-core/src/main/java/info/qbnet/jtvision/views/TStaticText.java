@@ -1,9 +1,6 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 
@@ -13,6 +10,25 @@ import java.io.IOException;
 public class TStaticText extends TView {
 
     public static final int CLASS_ID = 17;
+
+    /**
+     * Palette roles for {@link TStaticText}.
+     */
+    public enum StaticTextColor implements PaletteRole {
+        /** Static text foreground. */
+        TEXT(1);
+
+        private final int index;
+
+        StaticTextColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TStaticText::new);
@@ -25,7 +41,8 @@ public class TStaticText extends TView {
 
     protected String text;
 
-    public static final TPalette C_STATIC_TEXT = new TPalette(TPalette.parseHexString("\\x06"));
+    public static final TPalette C_STATIC_TEXT = new TPalette(
+            TPalette.mapFromHexString("\\x06", StaticTextColor.values()));
 
     public TStaticText(TRect bounds, final String text) {
         super(bounds);

@@ -1,13 +1,7 @@
 package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -24,6 +18,33 @@ import java.util.function.Consumer;
 public class TListViewer extends TView {
 
     public static final int CLASS_ID = 5;
+
+    /**
+     * Palette roles for {@link TListViewer}.
+     */
+    public enum ListViewerColor implements PaletteRole {
+        /** Active list background. */
+        ACTIVE(1),
+        /** Inactive list background. */
+        INACTIVE(2),
+        /** Focused item. */
+        FOCUSED(3),
+        /** Selected item. */
+        SELECTED(4),
+        /** Column divider. */
+        DIVIDER(5);
+
+        private final int index;
+
+        ListViewerColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     /** Registers this class for stream persistence. */
     public static void registerType() {
@@ -50,8 +71,8 @@ public class TListViewer extends TView {
     protected int range;
 
     /** Palette describing active, inactive, focused, selected and divider colors. */
-    public static final TPalette C_LIST_VIEWER =
-            new TPalette(TPalette.parseHexString("\\x1A\\x1A\\x1B\\x1C\\x1D"));
+    public static final TPalette C_LIST_VIEWER = new TPalette(
+            TPalette.mapFromHexString("\\x1A\\x1A\\x1B\\x1C\\x1D", ListViewerColor.values()));
 
     public TListViewer(TRect bounds, int numCols, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);

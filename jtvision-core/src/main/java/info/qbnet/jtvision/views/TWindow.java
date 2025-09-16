@@ -1,12 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +10,39 @@ import java.io.IOException;
 public class TWindow extends TGroup {
 
     public static final int CLASS_ID = 7;
+
+    /**
+     * Palette roles for {@link TWindow} color sets.
+     */
+    public enum WindowColor implements PaletteRole {
+        /** Frame when window is inactive. */
+        FRAME_PASSIVE(1),
+        /** Frame when window is active. */
+        FRAME_ACTIVE(2),
+        /** Frame icon area. */
+        FRAME_ICON(3),
+        /** Scrollbar page area. */
+        SCROLLBAR_PAGE(4),
+        /** Scrollbar controls. */
+        SCROLLBAR_CONTROLS(5),
+        /** Scroller normal text. */
+        SCROLLER_NORMAL(6),
+        /** Scroller selected text. */
+        SCROLLER_SELECTED(7),
+        /** Reserved slot. */
+        RESERVED(8);
+
+        private final int index;
+
+        WindowColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TWindow::new);
@@ -46,9 +74,12 @@ public class TWindow extends TGroup {
         WP_GRAY_WINDOW;
     }
 
-    public static final TPalette C_BLUE_WINDOW = new TPalette(TPalette.parseHexString("\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f"));
-    public static final TPalette C_CYAN_WINDOW = new TPalette(TPalette.parseHexString("\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17"));
-    public static final TPalette C_GRAY_WINDOW = new TPalette(TPalette.parseHexString("\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f"));
+    public static final TPalette C_BLUE_WINDOW = new TPalette(
+            TPalette.mapFromHexString("\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f", WindowColor.values()));
+    public static final TPalette C_CYAN_WINDOW = new TPalette(
+            TPalette.mapFromHexString("\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17", WindowColor.values()));
+    public static final TPalette C_GRAY_WINDOW = new TPalette(
+            TPalette.mapFromHexString("\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f", WindowColor.values()));
 
     private WindowPalette palette = WindowPalette.WP_BLUE_WINDOW;
 

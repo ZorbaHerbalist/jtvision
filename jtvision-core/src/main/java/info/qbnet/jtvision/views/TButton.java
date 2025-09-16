@@ -1,12 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
 
@@ -15,6 +10,39 @@ import static info.qbnet.jtvision.util.KeyCode.getAltCode;
 public class TButton extends TView {
 
     public static final int CLASS_ID = 12;
+
+    /**
+     * Palette roles for {@link TButton}.
+     */
+    public enum ButtonColor implements PaletteRole {
+        /** Normal button text. */
+        NORMAL_TEXT(1),
+        /** Default button text. */
+        DEFAULT_TEXT(2),
+        /** Text when the button is pressed. */
+        SELECTED_TEXT(3),
+        /** Disabled text. */
+        DISABLED_TEXT(4),
+        /** Normal shortcut/accelerator character. */
+        NORMAL_SHORTCUT(5),
+        /** Shortcut character for the default button. */
+        DEFAULT_SHORTCUT(6),
+        /** Shortcut character when the button is pressed. */
+        SELECTED_SHORTCUT(7),
+        /** Button shadow. */
+        SHADOW(8);
+
+        private final int index;
+
+        ButtonColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TButton::new);
@@ -31,7 +59,8 @@ public class TButton extends TView {
     public static final int BF_BROADCAST = 0x04;
     public static final int BF_GRAB_FOCUS= 0x08;
 
-    public static final TPalette C_BUTTON = new TPalette(TPalette.parseHexString("\\x0A\\x0B\\x0C\\x0D\\x0E\\x0E\\x0E\\x0F"));
+    public static final TPalette C_BUTTON = new TPalette(
+            TPalette.mapFromHexString("\\x0A\\x0B\\x0C\\x0D\\x0E\\x0E\\x0E\\x0F", ButtonColor.values()));
 
     protected String title;
     protected int command;

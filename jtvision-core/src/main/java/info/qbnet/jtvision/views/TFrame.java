@@ -1,16 +1,38 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.util.EnumSet;
 
 public class TFrame extends TView {
+
+    /**
+     * Palette roles for {@link TFrame}.
+     */
+    public enum FrameColor implements PaletteRole {
+        /** Passive frame. */
+        PASSIVE_FRAME(1),
+        /** Passive title. */
+        PASSIVE_TITLE(2),
+        /** Active frame. */
+        ACTIVE_FRAME(3),
+        /** Active title. */
+        ACTIVE_TITLE(4),
+        /** Icons and dragging helpers. */
+        ICONS(5);
+
+        private final int index;
+
+        FrameColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
 
     public static final int CLASS_ID = 2;
 
@@ -29,7 +51,8 @@ public class TFrame extends TView {
     // 3 = Active frame
     // 4 = Active title
     // 5 = Icons/Dragging
-    public static final TPalette C_FRAME = new TPalette(TPalette.parseHexString("\\x01\\x01\\x02\\x02\\x03"));
+    public static final TPalette C_FRAME = new TPalette(
+            TPalette.mapFromHexString("\\x01\\x01\\x02\\x02\\x03", FrameColor.values()));
 
     private static final int FM_CLOSE_CLICKED   = 0x01;
     private static final int FM_ZOOM_CLICKED    = 0x02;

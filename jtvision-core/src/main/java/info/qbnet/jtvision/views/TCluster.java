@@ -1,13 +1,7 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.*;
 import info.qbnet.jtvision.event.TEvent;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.CString;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.TPalette;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,12 +10,40 @@ import java.util.List;
 
 public abstract class TCluster extends TView {
 
+    /**
+     * Palette roles for {@link TCluster} based views.
+     */
+    public enum ClusterColor implements PaletteRole {
+        /** Normal text. */
+        NORMAL_TEXT(1),
+        /** Selected text. */
+        SELECTED_TEXT(2),
+        /** Normal shortcut/accelerator character. */
+        NORMAL_SHORTCUT(3),
+        /** Shortcut while selected. */
+        SELECTED_SHORTCUT(4),
+        /** Disabled text. */
+        DISABLED_TEXT(5);
+
+        private final int index;
+
+        ClusterColor(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
     public int value = 0;
     public int sel = 0;
     public int enableMask = 0xFFFFFFFF;
     public final List<String> strings = new ArrayList<>();
 
-    public static final TPalette C_CLUSTER = new TPalette(TPalette.parseHexString("\\x10\\x11\\x12\\x12\\x1f"));
+    public static final TPalette C_CLUSTER = new TPalette(
+            TPalette.mapFromHexString("\\x10\\x11\\x12\\x12\\x1f", ClusterColor.values()));
 
     TCluster(TRect bounds, List<String> strings) {
         super(bounds);

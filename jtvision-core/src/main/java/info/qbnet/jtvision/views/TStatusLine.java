@@ -88,7 +88,8 @@ public class TStatusLine extends TView {
     private TStatusDef defs;
     private TStatusItem items;
 
-    public static final TPalette C_STATUS_LINE = new TPalette(TPalette.parseHexString("\\x02\\x03\\x04\\x05\\x06\\x07"));
+    public static final TPalette C_STATUS_LINE = new TPalette(
+            TPalette.mapFromHexString("\\x02\\x03\\x04\\x05\\x06\\x07", TMenuView.MenuColor.values()));
 
     public TStatusLine(TRect bounds, TStatusDef defs) {
         super(bounds);

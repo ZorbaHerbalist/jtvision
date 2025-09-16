@@ -15,6 +15,7 @@ import info.qbnet.jtvision.views.support.RefusingGroup;
 import info.qbnet.jtvision.views.support.ShadowCountingView;
 import info.qbnet.jtvision.views.support.TestGroup;
 import info.qbnet.jtvision.views.support.TestableTView;
+import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -33,6 +35,35 @@ import static info.qbnet.jtvision.views.TView.Options.*;
 import static info.qbnet.jtvision.views.TView.State.*;
 
 class TViewTest {
+
+    private enum TestPaletteRole implements PaletteRole {
+        INDEX1(1),
+        INDEX2(2),
+        INDEX3(3);
+
+        private final int index;
+
+        TestPaletteRole(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+    }
+
+    private static TPalette palette(int... values) {
+        EnumMap<TestPaletteRole, Byte> map = new EnumMap<>(TestPaletteRole.class);
+        if (values.length > TestPaletteRole.values().length) {
+            throw new IllegalArgumentException("Test palette supports up to "
+                    + TestPaletteRole.values().length + " entries");
+        }
+        for (int i = 0; i < values.length; i++) {
+            map.put(TestPaletteRole.values()[i], (byte) values[i]);
+        }
+        return new TPalette(map);
+    }
 
     private Set<Integer> originalCommands;
     private boolean originalCommandSetChanged;
@@ -127,9 +158,9 @@ class TViewTest {
     @Test
     void mapColorMapsThroughOwnershipChain() {
         TRect r = new TRect(0, 0, 1, 1);
-        TestGroup root = new TestGroup(r, new TPalette(new byte[]{0x11, 0x22, 0x33}));
-        TestGroup child = new TestGroup(r, new TPalette(new byte[]{2, 3, 1}));
-        TestableTView leaf = new TestableTView(r, new TPalette(new byte[]{3, 1, 2}));
+        TestGroup root = new TestGroup(r, palette(0x11, 0x22, 0x33));
+        TestGroup child = new TestGroup(r, palette(2, 3, 1));
+        TestableTView leaf = new TestableTView(r, palette(3, 1, 2));
         child.setOwner(root);
         leaf.setOwner(child);
 
@@ -140,11 +171,11 @@ class TViewTest {
     @Test
     void mapColorReturnsErrorForInvalidOrZero() {
         TRect r = new TRect(0, 0, 1, 1);
-        TestableTView view = new TestableTView(r, new TPalette(new byte[]{0x11}));
+        TestableTView view = new TestableTView(r, palette(0x11));
         assertEquals((short)0xCFCF, view.getColor((short)0x0202));
         assertEquals((short)0x00CF, view.getColor((short)0x0000));
 
-        TestableTView zeroMap = new TestableTView(r, new TPalette(new byte[]{0x00}));
+        TestableTView zeroMap = new TestableTView(r, palette(0x00));
         assertEquals((short)0xCFCF, zeroMap.getColor((short)0x0101));
     }
 
