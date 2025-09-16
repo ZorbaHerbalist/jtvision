@@ -92,8 +92,7 @@ public class TStatusLine extends TView {
     public static final TPalette C_STATUS_LINE;
 
     static {
-        PaletteFactory.registerDefaults("statusLine", TMenuView.MenuColor.class,
-                "\\x02\\x03\\x04\\x05\\x06\\x07");
+        PaletteFactory.registerDefaults("statusLine", TMenuView.MenuColor.class);
         C_STATUS_LINE = PaletteFactory.get("statusLine");
     }
 

@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Factory responsible for constructing {@link TPalette} instances using either
@@ -32,45 +33,45 @@ public final class PaletteFactory {
     }
 
     /**
-     * Registers the default palette data for the specified palette name using a
-     * hexadecimal string representation identical to the one previously used by
-     * {@link TPalette#mapFromHexString(String, Enum[])}.
-     *
-     * @param name      palette identifier
-     * @param roleEnum  enum describing the palette roles
-     * @param hexValues hexadecimal palette values (e.g. "\\x0A\\x0B")
+     * Registers the default palette data for the specified palette name using
+     * the {@link PaletteRole#defaultValue()} definitions provided by the enum
+     * constants.
      */
     public static synchronized <R extends Enum<R> & PaletteRole> void registerDefaults(String name,
-                                                                                       Class<R> roleEnum,
-                                                                                       String hexValues) {
-        Objects.requireNonNull(hexValues, "hexValues");
-        registerDefaults(name, roleEnum, TPalette.parseHexString(hexValues));
+                                                                                       Class<R> roleEnum) {
+        registerDefaults(name, roleEnum, PaletteRole::defaultValue);
     }
 
     /**
-     * Registers the default palette data for the specified palette name.
+     * Registers the default palette data for the specified palette name using
+     * the values provided by {@code defaultMapper}.
      *
-     * @param name     palette identifier
-     * @param roleEnum enum describing the palette roles
-     * @param values   palette values (one entry for each enum constant)
+     * @param name           palette identifier
+     * @param roleEnum       enum describing the palette roles
+     * @param defaultMapper  function returning the default value for a given
+     *                       role
      */
     public static synchronized <R extends Enum<R> & PaletteRole> void registerDefaults(String name,
                                                                                        Class<R> roleEnum,
-                                                                                       byte[] values) {
+                                                                                       Function<R, Byte> defaultMapper) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(roleEnum, "roleEnum");
-        Objects.requireNonNull(values, "values");
+        Objects.requireNonNull(defaultMapper, "defaultMapper");
 
         R[] constants = roleEnum.getEnumConstants();
         if (constants == null || constants.length == 0) {
             throw new IllegalArgumentException("Palette role enum has no constants: " + roleEnum);
         }
-        if (constants.length != values.length) {
-            throw new IllegalArgumentException("Palette default value count mismatch for " + roleEnum
-                    + ": expected " + constants.length + " entries but found " + values.length);
+        EnumMap<R, Byte> defaults = new EnumMap<>(roleEnum);
+        for (R constant : constants) {
+            Byte value = defaultMapper.apply(constant);
+            if (value == null) {
+                throw new IllegalArgumentException("Palette default mapper returned null for role " + constant);
+            }
+            defaults.put(constant, value);
         }
 
-        PaletteDefinition<R> definition = new PaletteDefinition<>(roleEnum, values.clone());
+        PaletteDefinition<R> definition = new PaletteDefinition<>(roleEnum, defaults);
         DEFAULTS.put(name, definition);
         CACHE.remove(name);
     }
@@ -226,14 +227,7 @@ public final class PaletteFactory {
             throw new IllegalArgumentException("unsupported format: " + raw);
         }
         int parsed = Integer.parseInt(value, radix);
-        return toByte(parsed);
-    }
-
-    private static byte toByte(int value) {
-        if (value < 0 || value > 255) {
-            throw new IllegalArgumentException("value out of range: " + value);
-        }
-        return (byte) value;
+        return PaletteRole.toByte(parsed);
     }
 
     /**
@@ -256,11 +250,11 @@ public final class PaletteFactory {
 
     private static final class PaletteDefinition<R extends Enum<R> & PaletteRole> {
         private final Class<R> roleEnum;
-        private final byte[] defaultValues;
+        private final EnumMap<R, Byte> defaultValues;
 
-        PaletteDefinition(Class<R> roleEnum, byte[] defaultValues) {
+        PaletteDefinition(Class<R> roleEnum, EnumMap<R, Byte> defaultValues) {
             this.roleEnum = roleEnum;
-            this.defaultValues = defaultValues;
+            this.defaultValues = new EnumMap<>(defaultValues);
         }
 
         Map<String, Byte> defaultMapping() {
@@ -268,12 +262,13 @@ public final class PaletteFactory {
             if (constants == null) {
                 throw new IllegalStateException("Palette role enum has no constants: " + roleEnum);
             }
-            if (constants.length != defaultValues.length) {
-                throw new IllegalStateException("Palette defaults and role count mismatch for " + roleEnum);
-            }
             Map<String, Byte> map = new LinkedHashMap<>();
-            for (int i = 0; i < constants.length; i++) {
-                map.put(constants[i].name(), defaultValues[i]);
+            for (R constant : constants) {
+                Byte value = defaultValues.get(constant);
+                if (value == null) {
+                    throw new IllegalStateException("Missing default value for role " + constant + " in " + roleEnum);
+                }
+                map.put(constant.name(), value);
             }
             return Collections.unmodifiableMap(map);
         }
@@ -283,19 +278,20 @@ public final class PaletteFactory {
             if (constants == null) {
                 throw new IllegalStateException("Palette role enum has no constants: " + roleEnum);
             }
-            if (constants.length != defaultValues.length) {
-                throw new IllegalStateException("Palette defaults and role count mismatch for " + roleEnum);
-            }
             EnumMap<R, Byte> map = new EnumMap<>(roleEnum);
-            for (int i = 0; i < constants.length; i++) {
-                byte value = defaultValues[i];
+            for (R constant : constants) {
+                Byte base = defaultValues.get(constant);
+                if (base == null) {
+                    throw new IllegalStateException("Missing default value for role " + constant + " in " + roleEnum);
+                }
+                byte value = base;
                 if (overrides != null && !overrides.isEmpty()) {
-                    Byte override = overrides.get(constants[i].name());
+                    Byte override = overrides.get(constant.name());
                     if (override != null) {
                         value = override;
                     }
                 }
-                map.put(constants[i], value);
+                map.put(constant, value);
             }
             return new TPalette(map);
         }

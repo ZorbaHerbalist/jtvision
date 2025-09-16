@@ -24,25 +24,32 @@ public class TListViewer extends TView {
      */
     public enum ListViewerColor implements PaletteRole {
         /** Active list background. */
-        ACTIVE(1),
+        ACTIVE(1, 0x1A),
         /** Inactive list background. */
-        INACTIVE(2),
+        INACTIVE(2, 0x1A),
         /** Focused item. */
-        FOCUSED(3),
+        FOCUSED(3, 0x1B),
         /** Selected item. */
-        SELECTED(4),
+        SELECTED(4, 0x1C),
         /** Column divider. */
-        DIVIDER(5);
+        DIVIDER(5, 0x1D);
 
         private final int index;
+        private final byte defaultValue;
 
-        ListViewerColor(int index) {
+        ListViewerColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -74,8 +81,7 @@ public class TListViewer extends TView {
     public static final TPalette C_LIST_VIEWER;
 
     static {
-        PaletteFactory.registerDefaults("listViewer", ListViewerColor.class,
-                "\\x1A\\x1A\\x1B\\x1C\\x1D");
+        PaletteFactory.registerDefaults("listViewer", ListViewerColor.class);
         C_LIST_VIEWER = PaletteFactory.get("listViewer");
     }
 

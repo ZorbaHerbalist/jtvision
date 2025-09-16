@@ -14,17 +14,24 @@ public class TBackground extends TView {
      */
     public enum BackgroundColor implements PaletteRole {
         /** Background fill. */
-        BACKGROUND(1);
+        BACKGROUND(1, 0x01);
 
         private final int index;
+        private final byte defaultValue;
 
-        BackgroundColor(int index) {
+        BackgroundColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -37,7 +44,7 @@ public class TBackground extends TView {
     public static final TPalette C_BACKGROUND;
 
     static {
-        PaletteFactory.registerDefaults("background", BackgroundColor.class, "\\x01");
+        PaletteFactory.registerDefaults("background", BackgroundColor.class);
         C_BACKGROUND = PaletteFactory.get("background");
     }
 

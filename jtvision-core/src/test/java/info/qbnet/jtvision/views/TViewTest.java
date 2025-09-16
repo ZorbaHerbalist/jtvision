@@ -37,19 +37,26 @@ import static info.qbnet.jtvision.views.TView.State.*;
 class TViewTest {
 
     private enum TestPaletteRole implements PaletteRole {
-        INDEX1(1),
-        INDEX2(2),
-        INDEX3(3);
+        INDEX1(1, 0x01),
+        INDEX2(2, 0x02),
+        INDEX3(3, 0x03);
 
         private final int index;
+        private final byte defaultValue;
 
-        TestPaletteRole(int index) {
+        TestPaletteRole(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 

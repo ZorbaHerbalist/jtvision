@@ -13,4 +13,22 @@ public interface PaletteRole {
      * @return palette slot number (starting at 1)
      */
     int index();
+
+    /**
+     * Returns the default palette value assigned to this role.
+     *
+     * @return palette entry value represented as an unsigned byte
+     */
+    byte defaultValue();
+
+    /**
+     * Utility method ensuring that palette values remain within the
+     * unsigned-byte range accepted by Turbo Vision palettes.
+     */
+    static byte toByte(int value) {
+        if (value < 0 || value > 0xFF) {
+            throw new IllegalArgumentException("Palette value out of range: " + value);
+        }
+        return (byte) value;
+    }
 }

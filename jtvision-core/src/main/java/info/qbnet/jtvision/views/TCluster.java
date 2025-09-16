@@ -15,25 +15,32 @@ public abstract class TCluster extends TView {
      */
     public enum ClusterColor implements PaletteRole {
         /** Normal text. */
-        NORMAL_TEXT(1),
+        NORMAL_TEXT(1, 0x10),
         /** Selected text. */
-        SELECTED_TEXT(2),
+        SELECTED_TEXT(2, 0x11),
         /** Normal shortcut/accelerator character. */
-        NORMAL_SHORTCUT(3),
+        NORMAL_SHORTCUT(3, 0x12),
         /** Shortcut while selected. */
-        SELECTED_SHORTCUT(4),
+        SELECTED_SHORTCUT(4, 0x12),
         /** Disabled text. */
-        DISABLED_TEXT(5);
+        DISABLED_TEXT(5, 0x1F);
 
         private final int index;
+        private final byte defaultValue;
 
-        ClusterColor(int index) {
+        ClusterColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -45,8 +52,7 @@ public abstract class TCluster extends TView {
     public static final TPalette C_CLUSTER;
 
     static {
-        PaletteFactory.registerDefaults("cluster", ClusterColor.class,
-                "\\x10\\x11\\x12\\x12\\x1f");
+        PaletteFactory.registerDefaults("cluster", ClusterColor.class);
         C_CLUSTER = PaletteFactory.get("cluster");
     }
 

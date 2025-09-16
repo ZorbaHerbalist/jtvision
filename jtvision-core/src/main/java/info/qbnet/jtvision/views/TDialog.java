@@ -15,80 +15,97 @@ public class TDialog extends TWindow {
      */
     public enum DialogColor implements PaletteRole {
         /** Passive frame. */
-        FRAME_PASSIVE(1),
+        FRAME_PASSIVE(1, 0x20),
         /** Active frame. */
-        FRAME_ACTIVE(2),
+        FRAME_ACTIVE(2, 0x21),
         /** Frame icon. */
-        FRAME_ICON(3),
+        FRAME_ICON(3, 0x22),
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(4),
+        SCROLLBAR_PAGE(4, 0x23),
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(5),
+        SCROLLBAR_CONTROLS(5, 0x24),
         /** Static text. */
-        STATIC_TEXT(6),
+        STATIC_TEXT(6, 0x25),
         /** Normal label text. */
-        LABEL_NORMAL(7),
+        LABEL_NORMAL(7, 0x26),
         /** Selected label text. */
-        LABEL_SELECTED(8),
+        LABEL_SELECTED(8, 0x27),
         /** Label shortcut character. */
-        LABEL_SHORTCUT(9),
+        LABEL_SHORTCUT(9, 0x28),
         /** Normal button text. */
-        BUTTON_NORMAL(10),
+        BUTTON_NORMAL(10, 0x29),
         /** Default button text. */
-        BUTTON_DEFAULT(11),
+        BUTTON_DEFAULT(11, 0x2A),
         /** Selected button text. */
-        BUTTON_SELECTED(12),
+        BUTTON_SELECTED(12, 0x2B),
         /** Disabled button text. */
-        BUTTON_DISABLED(13),
+        BUTTON_DISABLED(13, 0x2C),
         /** Button shortcut character. */
-        BUTTON_SHORTCUT(14),
+        BUTTON_SHORTCUT(14, 0x2D),
         /** Button shadow. */
-        BUTTON_SHADOW(15),
+        BUTTON_SHADOW(15, 0x2E),
         /** Cluster normal text. */
-        CLUSTER_NORMAL(16),
+        CLUSTER_NORMAL(16, 0x2F),
         /** Cluster selected text. */
-        CLUSTER_SELECTED(17),
+        CLUSTER_SELECTED(17, 0x30),
         /** Cluster shortcut character. */
-        CLUSTER_SHORTCUT(18),
+        CLUSTER_SHORTCUT(18, 0x31),
         /** Input line normal text. */
-        INPUT_LINE_NORMAL_TEXT(19),
+        INPUT_LINE_NORMAL_TEXT(19, 0x32),
         /** Input line selected text. */
-        INPUT_LINE_SELECTED_TEXT(20),
+        INPUT_LINE_SELECTED_TEXT(20, 0x33),
         /** Input line arrows. */
-        INPUT_LINE_ARROWS(21),
+        INPUT_LINE_ARROWS(21, 0x34),
         /** History arrow. */
-        HISTORY_ARROW(22),
+        HISTORY_ARROW(22, 0x35),
         /** History sides. */
-        HISTORY_SIDES(23),
+        HISTORY_SIDES(23, 0x36),
         /** HistoryWindow scrollbar page area */
-        HISTORY_WINDOW_SCROLLBAR_PAGE_AREA(24),
+        HISTORY_WINDOW_SCROLLBAR_PAGE_AREA(24, 0x37),
         /** HistoryWindow scrollbar controls */
-        HISTORY_WINDOW_SCROLLBAR_CONTROLS(25),
+        HISTORY_WINDOW_SCROLLBAR_CONTROLS(25, 0x38),
         /** ListViewer normal */
-        LIST_VIEWER_NORMAL(26),
+        LIST_VIEWER_NORMAL(26, 0x39),
         /** ListViewer focused */
-        LIST_VIEWER_FOCUSED(27),
+        LIST_VIEWER_FOCUSED(27, 0x3A),
         /** ListViewer selected */
-        LIST_VIEWER_SELECTED(28),
+        LIST_VIEWER_SELECTED(28, 0x3B),
         /** ListViewer divider */
-        LIST_VIEWER_DIVIDER(29),
+        LIST_VIEWER_DIVIDER(29, 0x3C),
         /** InfoPane */
-        INFO_PANE(30),
+        INFO_PANE(30, 0x3D),
         /** Cluster disabled */
-        CLUSTER_DISABLED(31),
+        CLUSTER_DISABLED(31, 0x3E),
 
         /** Reserved slot. */
-        RESERVED(32);
+        RESERVED(32, 0x3F);
 
         private final int index;
+        private final byte grayDefault;
 
-        DialogColor(int index) {
+        DialogColor(int index, int grayDefault) {
             this.index = index;
+            this.grayDefault = PaletteRole.toByte(grayDefault);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return grayDefault;
+        }
+
+        public byte blueDefault() {
+            int value = Byte.toUnsignedInt(grayDefault) + 0x20;
+            return PaletteRole.toByte(value);
+        }
+
+        public byte cyanDefault() {
+            int value = Byte.toUnsignedInt(grayDefault) + 0x40;
+            return PaletteRole.toByte(value);
         }
     }
 
@@ -112,12 +129,9 @@ public class TDialog extends TWindow {
     public static final TPalette C_CYAN_DIALOG;
 
     static {
-        PaletteFactory.registerDefaults("dialog.gray", DialogColor.class,
-                "\\x20\\x21\\x22\\x23\\x24\\x25\\x26\\x27\\x28\\x29\\x2a\\x2b\\x2c\\x2d\\x2e\\x2f\\x30\\x31\\x32\\x33\\x34\\x35\\x36\\x37\\x38\\x39\\x3a\\x3b\\x3c\\x3d\\x3e\\x3f");
-        PaletteFactory.registerDefaults("dialog.blue", DialogColor.class,
-                "\\x40\\x41\\x42\\x43\\x44\\x45\\x46\\x47\\x48\\x49\\x4a\\x4b\\x4c\\x4d\\x4e\\x4f\\x50\\x51\\x52\\x53\\x54\\x55\\x56\\x57\\x58\\x59\\x5a\\x5b\\x5c\\x5d\\x5e\\x5f");
-        PaletteFactory.registerDefaults("dialog.cyan", DialogColor.class,
-                "\\x60\\x61\\x62\\x63\\x64\\x65\\x66\\x67\\x68\\x69\\x6a\\x6b\\x6c\\x6d\\x6e\\x6f\\x70\\x71\\x72\\x73\\x74\\x75\\x76\\x77\\x78\\x79\\x7a\\x7b\\x7c\\x7d\\x7e\\x7f");
+        PaletteFactory.registerDefaults("dialog.gray", DialogColor.class);
+        PaletteFactory.registerDefaults("dialog.blue", DialogColor.class, DialogColor::blueDefault);
+        PaletteFactory.registerDefaults("dialog.cyan", DialogColor.class, DialogColor::cyanDefault);
         C_GRAY_DIALOG = PaletteFactory.get("dialog.gray");
         C_BLUE_DIALOG = PaletteFactory.get("dialog.blue");
         C_CYAN_DIALOG = PaletteFactory.get("dialog.cyan");

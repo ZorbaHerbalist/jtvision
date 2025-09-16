@@ -18,27 +18,34 @@ public class TMenuView extends TView {
      */
     public enum MenuColor implements PaletteRole {
         /** Normal menu text. */
-        NORMAL_TEXT(1),
+        NORMAL_TEXT(1, 0x02),
         /** Disabled menu text. */
-        DISABLED_TEXT(2),
+        DISABLED_TEXT(2, 0x03),
         /** Shortcut/accelerator text. */
-        SHORTCUT_TEXT(3),
+        SHORTCUT_TEXT(3, 0x04),
         /** Normal selection highlight. */
-        NORMAL_SELECTION(4),
+        NORMAL_SELECTION(4, 0x05),
         /** Disabled selection highlight. */
-        DISABLED_SELECTION(5),
+        DISABLED_SELECTION(5, 0x06),
         /** Shortcut highlight. */
-        SHORTCUT_SELECTION(6);
+        SHORTCUT_SELECTION(6, 0x07);
 
         private final int index;
+        private final byte defaultValue;
 
-        MenuColor(int index) {
+        MenuColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -53,8 +60,7 @@ public class TMenuView extends TView {
     public static final TPalette C_MENU_VIEW;
 
     static {
-        PaletteFactory.registerDefaults("menuView", MenuColor.class,
-                "\\x02\\x03\\x04\\x05\\x06\\x07");
+        PaletteFactory.registerDefaults("menuView", MenuColor.class);
         C_MENU_VIEW = PaletteFactory.get("menuView");
     }
 

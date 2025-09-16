@@ -12,32 +12,6 @@ public class TPalette {
     private final Map<PaletteRole, Byte> roleData;
     private final Map<Integer, Byte> indexData;
 
-    public static byte[] parseHexString(String s) {
-        s = s.replaceAll("\\s+", "");
-        String[] parts = s.split("\\\\x");
-        byte[] data = new byte[parts.length - 1]; // pierwszy element jest pusty
-        for (int i = 1; i < parts.length; i++) {
-            data[i - 1] = (byte) Integer.parseInt(parts[i], 16);
-        }
-        return data;
-    }
-
-    public static <R extends Enum<R> & PaletteRole> EnumMap<R, Byte> mapFromHexString(String s, R[] roles) {
-        byte[] values = parseHexString(s);
-        if (roles.length != values.length) {
-            throw new IllegalArgumentException("Palette definition and role count mismatch: expected "
-                    + roles.length + " values but found " + values.length);
-        }
-        if (roles.length == 0) {
-            throw new IllegalArgumentException("Palette must define at least one role");
-        }
-        EnumMap<R, Byte> map = new EnumMap<>(roles[0].getDeclaringClass());
-        for (int i = 0; i < roles.length; i++) {
-            map.put(roles[i], values[i]);
-        }
-        return map;
-    }
-
     public <R extends Enum<R> & PaletteRole> TPalette(EnumMap<R, Byte> data) {
         Objects.requireNonNull(data, "palette data");
         Map<PaletteRole, Byte> roleCopy = new LinkedHashMap<>();

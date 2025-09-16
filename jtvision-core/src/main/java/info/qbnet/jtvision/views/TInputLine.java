@@ -16,23 +16,30 @@ public class TInputLine extends TView {
      */
     public enum InputLineColor implements PaletteRole {
         /** Normal state. */
-        NORMAL(1),
+        NORMAL(1, 0x13),
         /** Active/focused state. */
-        ACTIVE(2),
+        ACTIVE(2, 0x13),
         /** Selected text. */
-        SELECTED_TEXT(3),
+        SELECTED_TEXT(3, 0x14),
         /** Scroll arrows. */
-        ARROWS(4);
+        ARROWS(4, 0x15);
 
         private final int index;
+        private final byte defaultValue;
 
-        InputLineColor(int index) {
+        InputLineColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -57,8 +64,7 @@ public class TInputLine extends TView {
     public static final TPalette C_INPUT_LINE;
 
     static {
-        PaletteFactory.registerDefaults("inputLine", InputLineColor.class,
-                "\\x13\\x13\\x14\\x15");
+        PaletteFactory.registerDefaults("inputLine", InputLineColor.class);
         C_INPUT_LINE = PaletteFactory.get("inputLine");
     }
 

@@ -23,19 +23,26 @@ public class TScroller extends TView {
      */
     public enum ScrollerColor implements PaletteRole {
         /** Normal text. */
-        NORMAL_TEXT(1),
+        NORMAL_TEXT(1, 0x06),
         /** Selected text. */
-        SELECTED_TEXT(2);
+        SELECTED_TEXT(2, 0x07);
 
         private final int index;
+        private final byte defaultValue;
 
-        ScrollerColor(int index) {
+        ScrollerColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -66,7 +73,7 @@ public class TScroller extends TView {
     public static final TPalette C_SCROLLER;
 
     static {
-        PaletteFactory.registerDefaults("scroller", ScrollerColor.class, "\\x06\\x07");
+        PaletteFactory.registerDefaults("scroller", ScrollerColor.class);
         C_SCROLLER = PaletteFactory.get("scroller");
     }
 

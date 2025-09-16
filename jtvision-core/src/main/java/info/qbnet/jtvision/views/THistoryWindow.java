@@ -14,29 +14,36 @@ public class THistoryWindow extends TWindow {
     /** Palette roles for {@link THistoryWindow}. */
     public enum HistoryWindowColor implements PaletteRole {
         /** Passive frame. */
-        FRAME_PASSIVE(1),
+        FRAME_PASSIVE(1, 0x13),
         /** Active frame. */
-        FRAME_ACTIVE(2),
+        FRAME_ACTIVE(2, 0x13),
         /** Frame icon. */
-        FRAME_ICON(3),
+        FRAME_ICON(3, 0x15),
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(4),
+        SCROLLBAR_PAGE(4, 0x18),
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(5),
+        SCROLLBAR_CONTROLS(5, 0x19),
         /** History viewer normal text. */
-        VIEWER_NORMAL(6),
+        VIEWER_NORMAL(6, 0x13),
         /** History viewer selected text. */
-        VIEWER_SELECTED(7);
+        VIEWER_SELECTED(7, 0x14);
 
         private final int index;
+        private final byte defaultValue;
 
-        HistoryWindowColor(int index) {
+        HistoryWindowColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -44,8 +51,7 @@ public class THistoryWindow extends TWindow {
     public static final TPalette C_HISTORY_WINDOW;
 
     static {
-        PaletteFactory.registerDefaults("historyWindow", HistoryWindowColor.class,
-                "\\x13\\x13\\x15\\x18\\x19\\x13\\x14");
+        PaletteFactory.registerDefaults("historyWindow", HistoryWindowColor.class);
         C_HISTORY_WINDOW = PaletteFactory.get("historyWindow");
     }
 

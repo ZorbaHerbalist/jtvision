@@ -16,31 +16,38 @@ public class TButton extends TView {
      */
     public enum ButtonColor implements PaletteRole {
         /** Normal button text. */
-        NORMAL_TEXT(1),
+        NORMAL_TEXT(1, 0x0A),
         /** Default button text. */
-        DEFAULT_TEXT(2),
+        DEFAULT_TEXT(2, 0x0B),
         /** Text when the button is pressed. */
-        SELECTED_TEXT(3),
+        SELECTED_TEXT(3, 0x0C),
         /** Disabled text. */
-        DISABLED_TEXT(4),
+        DISABLED_TEXT(4, 0x0D),
         /** Normal shortcut/accelerator character. */
-        NORMAL_SHORTCUT(5),
+        NORMAL_SHORTCUT(5, 0x0E),
         /** Shortcut character for the default button. */
-        DEFAULT_SHORTCUT(6),
+        DEFAULT_SHORTCUT(6, 0x0E),
         /** Shortcut character when the button is pressed. */
-        SELECTED_SHORTCUT(7),
+        SELECTED_SHORTCUT(7, 0x0E),
         /** Button shadow. */
-        SHADOW(8);
+        SHADOW(8, 0x0F);
 
         private final int index;
+        private final byte defaultValue;
 
-        ButtonColor(int index) {
+        ButtonColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -62,8 +69,7 @@ public class TButton extends TView {
     public static final TPalette C_BUTTON;
 
     static {
-        PaletteFactory.registerDefaults("button", ButtonColor.class,
-                "\\x0A\\x0B\\x0C\\x0D\\x0E\\x0E\\x0E\\x0F");
+        PaletteFactory.registerDefaults("button", ButtonColor.class);
         C_BUTTON = PaletteFactory.get("button");
     }
 

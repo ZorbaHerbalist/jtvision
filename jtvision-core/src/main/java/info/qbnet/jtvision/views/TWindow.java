@@ -16,31 +16,48 @@ public class TWindow extends TGroup {
      */
     public enum WindowColor implements PaletteRole {
         /** Frame when window is inactive. */
-        FRAME_PASSIVE(1),
+        FRAME_PASSIVE(1, 0x08),
         /** Frame when window is active. */
-        FRAME_ACTIVE(2),
+        FRAME_ACTIVE(2, 0x09),
         /** Frame icon area. */
-        FRAME_ICON(3),
+        FRAME_ICON(3, 0x0A),
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(4),
+        SCROLLBAR_PAGE(4, 0x0B),
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(5),
+        SCROLLBAR_CONTROLS(5, 0x0C),
         /** Scroller normal text. */
-        SCROLLER_NORMAL(6),
+        SCROLLER_NORMAL(6, 0x0D),
         /** Scroller selected text. */
-        SCROLLER_SELECTED(7),
+        SCROLLER_SELECTED(7, 0x0E),
         /** Reserved slot. */
-        RESERVED(8);
+        RESERVED(8, 0x0F);
 
         private final int index;
+        private final byte blueDefault;
 
-        WindowColor(int index) {
+        WindowColor(int index, int blueDefault) {
             this.index = index;
+            this.blueDefault = PaletteRole.toByte(blueDefault);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return blueDefault;
+        }
+
+        public byte cyanDefault() {
+            int value = Byte.toUnsignedInt(blueDefault) + 0x08;
+            return PaletteRole.toByte(value);
+        }
+
+        public byte grayDefault() {
+            int value = Byte.toUnsignedInt(blueDefault) + 0x10;
+            return PaletteRole.toByte(value);
         }
     }
 
@@ -79,12 +96,9 @@ public class TWindow extends TGroup {
     public static final TPalette C_GRAY_WINDOW;
 
     static {
-        PaletteFactory.registerDefaults("window.blue", WindowColor.class,
-                "\\x08\\x09\\x0a\\x0b\\x0c\\x0d\\x0e\\x0f");
-        PaletteFactory.registerDefaults("window.cyan", WindowColor.class,
-                "\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17");
-        PaletteFactory.registerDefaults("window.gray", WindowColor.class,
-                "\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f");
+        PaletteFactory.registerDefaults("window.blue", WindowColor.class);
+        PaletteFactory.registerDefaults("window.cyan", WindowColor.class, WindowColor::cyanDefault);
+        PaletteFactory.registerDefaults("window.gray", WindowColor.class, WindowColor::grayDefault);
         C_BLUE_WINDOW = PaletteFactory.get("window.blue");
         C_CYAN_WINDOW = PaletteFactory.get("window.cyan");
         C_GRAY_WINDOW = PaletteFactory.get("window.gray");

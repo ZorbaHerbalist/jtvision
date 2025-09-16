@@ -16,17 +16,24 @@ public class TStaticText extends TView {
      */
     public enum StaticTextColor implements PaletteRole {
         /** Static text foreground. */
-        TEXT(1);
+        TEXT(1, 0x06);
 
         private final int index;
+        private final byte defaultValue;
 
-        StaticTextColor(int index) {
+        StaticTextColor(int index, int defaultValue) {
             this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
         }
     }
 
@@ -44,7 +51,7 @@ public class TStaticText extends TView {
     public static final TPalette C_STATIC_TEXT;
 
     static {
-        PaletteFactory.registerDefaults("staticText", StaticTextColor.class, "\\x06");
+        PaletteFactory.registerDefaults("staticText", StaticTextColor.class);
         C_STATIC_TEXT = PaletteFactory.get("staticText");
     }
 
