@@ -1,13 +1,16 @@
 package info.qbnet.jtvision.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +28,7 @@ import java.util.function.Function;
 public final class PaletteFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PaletteFactory.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String RESOURCE_PREFIX = "palettes/";
     private static final Map<String, PaletteDefinition<?>> DEFAULTS = new ConcurrentHashMap<>();
     private static final Map<String, TPalette> CACHE = new ConcurrentHashMap<>();
@@ -93,19 +97,25 @@ public final class PaletteFactory {
     }
 
     private static TPalette buildPalette(String name, PaletteDefinition<?> definition) {
-        Map<String, Byte> overrides = loadOverrides(name);
+        Map<String, Byte> overrides = loadOverrides(name, definition);
         return definition.toPalette(overrides);
     }
 
-    private static Map<String, Byte> loadOverrides(String name) {
+    private static Map<String, Byte> loadOverrides(String name, PaletteDefinition<?> definition) {
         String resource = RESOURCE_PREFIX + name + ".json";
         try (InputStream in = PaletteFactory.class.getClassLoader().getResourceAsStream(resource)) {
             if (in == null) {
                 LOG.debug("Palette resource {} not found; using defaults for {}", resource, name);
                 return Collections.emptyMap();
             }
-            String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            Map<String, Byte> overrides = parseOverrides(name, json);
+            JsonNode root;
+            try {
+                root = OBJECT_MAPPER.readTree(in);
+            } catch (JsonProcessingException e) {
+                LOG.warn("Invalid JSON in palette resource {}: {}", resource, e.getOriginalMessage());
+                return Collections.emptyMap();
+            }
+            Map<String, Byte> overrides = parseOverrides(name, definition, root);
             if (overrides.isEmpty()) {
                 LOG.debug("Palette {} loaded with defaults from {}", name, resource);
             } else {
@@ -119,89 +129,56 @@ public final class PaletteFactory {
         }
     }
 
-    private static Map<String, Byte> parseOverrides(String paletteName, String json) {
-        if (json == null) {
+    private static Map<String, Byte> parseOverrides(String paletteName, PaletteDefinition<?> definition,
+                                                    JsonNode root) {
+        if (root == null || root.isNull()) {
             return Collections.emptyMap();
         }
+        if (!root.isObject()) {
+            LOG.warn("Palette {} configuration is not a JSON object; ignoring overrides", paletteName);
+            return Collections.emptyMap();
+        }
+        Map<String, String> roleLookup = new HashMap<>();
+        Enum<?>[] constants = definition.roleEnum.getEnumConstants();
+        if (constants != null) {
+            for (Enum<?> constant : constants) {
+                roleLookup.put(constant.name().toUpperCase(Locale.ROOT), constant.name());
+            }
+        }
         Map<String, Byte> overrides = new LinkedHashMap<>();
-        int index = 0;
-        int length = json.length();
-        while (index < length) {
-            char ch = json.charAt(index);
-            if (Character.isWhitespace(ch) || ch == '{' || ch == ',') {
-                index++;
-                continue;
+        root.fields().forEachRemaining(entry -> {
+            String rawKey = entry.getKey();
+            if (rawKey == null) {
+                return;
             }
-            if (ch == '}') {
-                break;
+            String normalizedKey = rawKey.toUpperCase(Locale.ROOT);
+            String roleName = roleLookup.get(normalizedKey);
+            if (roleName == null) {
+                LOG.warn("Palette {} entry '{}' does not match any role; ignoring", paletteName, rawKey);
+                return;
             }
-            if (ch != '"') {
-                index++;
-                continue;
-            }
-            int keyEnd = json.indexOf('"', index + 1);
-            if (keyEnd < 0) {
-                break;
-            }
-            String key = json.substring(index + 1, keyEnd);
-            index = keyEnd + 1;
-            index = skipWhitespace(json, index);
-            if (index >= length || json.charAt(index) != ':') {
-                throw new IllegalArgumentException("Invalid JSON palette definition: missing ':' after key " + key);
-            }
-            index++;
-            index = skipWhitespace(json, index);
-            if (index >= length) {
-                break;
+            JsonNode valueNode = entry.getValue();
+            if (valueNode == null || valueNode.isNull()) {
+                LOG.warn("Palette {} role '{}' has null value; falling back to default", paletteName, rawKey);
+                return;
             }
             String rawValue;
-            char valueStart = json.charAt(index);
-            if (valueStart == '"') {
-                int valueEnd = index + 1;
-                while (true) {
-                    valueEnd = json.indexOf('"', valueEnd);
-                    if (valueEnd < 0) {
-                        throw new IllegalArgumentException("Unterminated string value for key " + key);
-                    }
-                    if (json.charAt(valueEnd - 1) != '\\') {
-                        break;
-                    }
-                    valueEnd++;
-                }
-                rawValue = json.substring(index + 1, valueEnd);
-                index = valueEnd + 1;
+            if (valueNode.isTextual() || valueNode.isNumber()) {
+                rawValue = valueNode.asText();
             } else {
-                int valueEnd = index;
-                while (valueEnd < length) {
-                    char current = json.charAt(valueEnd);
-                    if (current == ',' || current == '}') {
-                        break;
-                    }
-                    valueEnd++;
-                }
-                rawValue = json.substring(index, valueEnd).trim();
-                index = valueEnd;
-            }
-            if ("enum".equalsIgnoreCase(key) || "palette".equalsIgnoreCase(key) || rawValue.isEmpty()) {
-                continue;
+                LOG.warn("Palette {} role '{}' has unsupported value type {}; falling back to default", paletteName,
+                        rawKey, valueNode.getNodeType());
+                return;
             }
             try {
                 Byte value = parseByteValue(rawValue);
-                overrides.put(key.toUpperCase(Locale.ROOT), value);
+                overrides.put(roleName, value);
             } catch (IllegalArgumentException ex) {
-                LOG.warn("Palette {} entry '{}' has invalid value '{}'; falling back to default", paletteName, key,
+                LOG.warn("Palette {} role '{}' has invalid value '{}'; falling back to default", paletteName, rawKey,
                         rawValue, ex);
             }
-        }
+        });
         return overrides;
-    }
-
-    private static int skipWhitespace(String text, int index) {
-        int pos = index;
-        while (pos < text.length() && Character.isWhitespace(text.charAt(pos))) {
-            pos++;
-        }
-        return pos;
     }
 
     private static byte parseByteValue(String raw) {
