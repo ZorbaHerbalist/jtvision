@@ -41,12 +41,8 @@ public class TBackground extends TView {
 
     private final char pattern;
 
-    public static final TPalette C_BACKGROUND;
-
-    static {
-        PaletteFactory.registerDefaults("background", BackgroundColor.class);
-        C_BACKGROUND = PaletteFactory.get("background");
-    }
+    public static final PaletteDescriptor<BackgroundColor> BACKGROUND_PALETTE =
+            PaletteDescriptor.register("background", BackgroundColor.class);
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);
@@ -93,6 +89,6 @@ public class TBackground extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_BACKGROUND;
+        return BACKGROUND_PALETTE.palette();
     }
 }

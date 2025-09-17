@@ -124,18 +124,12 @@ public class TDialog extends TWindow {
         DP_GRAY_DIALOG
     }
 
-    public static final TPalette C_GRAY_DIALOG;
-    public static final TPalette C_BLUE_DIALOG;
-    public static final TPalette C_CYAN_DIALOG;
-
-    static {
-        PaletteFactory.registerDefaults("dialog.gray", DialogColor.class);
-        PaletteFactory.registerDefaults("dialog.blue", DialogColor.class, DialogColor::blueDefault);
-        PaletteFactory.registerDefaults("dialog.cyan", DialogColor.class, DialogColor::cyanDefault);
-        C_GRAY_DIALOG = PaletteFactory.get("dialog.gray");
-        C_BLUE_DIALOG = PaletteFactory.get("dialog.blue");
-        C_CYAN_DIALOG = PaletteFactory.get("dialog.cyan");
-    }
+    public static final PaletteDescriptor<DialogColor> GRAY_DIALOG_PALETTE =
+            PaletteDescriptor.register("dialog.gray", DialogColor.class);
+    public static final PaletteDescriptor<DialogColor> BLUE_DIALOG_PALETTE =
+            PaletteDescriptor.register("dialog.blue", DialogColor.class, DialogColor::blueDefault);
+    public static final PaletteDescriptor<DialogColor> CYAN_DIALOG_PALETTE =
+            PaletteDescriptor.register("dialog.cyan", DialogColor.class, DialogColor::cyanDefault);
 
     private DialogPalette dialogPalette = DialogPalette.DP_GRAY_DIALOG;
 
@@ -158,12 +152,12 @@ public class TDialog extends TWindow {
     public TPalette getPalette() {
         switch (dialogPalette) {
             case DP_BLUE_DIALOG:
-                return C_BLUE_DIALOG;
+                return BLUE_DIALOG_PALETTE.palette();
             case DP_CYAN_DIALOG:
-                return C_CYAN_DIALOG;
+                return CYAN_DIALOG_PALETTE.palette();
             case DP_GRAY_DIALOG:
             default:
-                return C_GRAY_DIALOG;
+                return GRAY_DIALOG_PALETTE.palette();
         }
     }
 

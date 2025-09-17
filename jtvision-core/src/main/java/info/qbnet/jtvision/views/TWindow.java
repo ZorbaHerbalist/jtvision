@@ -91,18 +91,12 @@ public class TWindow extends TGroup {
         WP_GRAY_WINDOW;
     }
 
-    public static final TPalette C_BLUE_WINDOW;
-    public static final TPalette C_CYAN_WINDOW;
-    public static final TPalette C_GRAY_WINDOW;
-
-    static {
-        PaletteFactory.registerDefaults("window.blue", WindowColor.class);
-        PaletteFactory.registerDefaults("window.cyan", WindowColor.class, WindowColor::cyanDefault);
-        PaletteFactory.registerDefaults("window.gray", WindowColor.class, WindowColor::grayDefault);
-        C_BLUE_WINDOW = PaletteFactory.get("window.blue");
-        C_CYAN_WINDOW = PaletteFactory.get("window.cyan");
-        C_GRAY_WINDOW = PaletteFactory.get("window.gray");
-    }
+    public static final PaletteDescriptor<WindowColor> BLUE_WINDOW_PALETTE =
+            PaletteDescriptor.register("window.blue", WindowColor.class);
+    public static final PaletteDescriptor<WindowColor> CYAN_WINDOW_PALETTE =
+            PaletteDescriptor.register("window.cyan", WindowColor.class, WindowColor::cyanDefault);
+    public static final PaletteDescriptor<WindowColor> GRAY_WINDOW_PALETTE =
+            PaletteDescriptor.register("window.gray", WindowColor.class, WindowColor::grayDefault);
 
     private WindowPalette palette = WindowPalette.WP_BLUE_WINDOW;
 
@@ -178,12 +172,12 @@ public class TWindow extends TGroup {
     public TPalette getPalette() {
         switch (palette) {
             case WP_BLUE_WINDOW:
-                return C_BLUE_WINDOW;
+                return BLUE_WINDOW_PALETTE.palette();
             case WP_CYAN_WINDOW:
-                return C_CYAN_WINDOW;
+                return CYAN_WINDOW_PALETTE.palette();
             case WP_GRAY_WINDOW:
             default:
-                return C_GRAY_WINDOW;
+                return GRAY_WINDOW_PALETTE.palette();
         }
     }
 

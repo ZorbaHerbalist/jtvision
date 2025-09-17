@@ -78,12 +78,8 @@ public class TListViewer extends TView {
     protected int range;
 
     /** Palette describing active, inactive, focused, selected and divider colors. */
-    public static final TPalette C_LIST_VIEWER;
-
-    static {
-        PaletteFactory.registerDefaults("listViewer", ListViewerColor.class);
-        C_LIST_VIEWER = PaletteFactory.get("listViewer");
-    }
+    public static final PaletteDescriptor<ListViewerColor> LIST_VIEWER_PALETTE =
+            PaletteDescriptor.register("listViewer", ListViewerColor.class);
 
     public TListViewer(TRect bounds, int numCols, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);
@@ -241,7 +237,7 @@ public class TListViewer extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_LIST_VIEWER;
+        return LIST_VIEWER_PALETTE.palette();
     }
 
     /** Returns the text for {@code item}. Subclasses must override. */

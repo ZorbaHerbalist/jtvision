@@ -58,12 +58,8 @@ public class TFrame extends TView {
     // 3 = Active frame
     // 4 = Active title
     // 5 = Icons/Dragging
-    public static final TPalette C_FRAME;
-
-    static {
-        PaletteFactory.registerDefaults("frame", FrameColor.class);
-        C_FRAME = PaletteFactory.get("frame");
-    }
+    public static final PaletteDescriptor<FrameColor> FRAME_PALETTE =
+            PaletteDescriptor.register("frame", FrameColor.class);
 
     private static final int FM_CLOSE_CLICKED   = 0x01;
     private static final int FM_ZOOM_CLICKED    = 0x02;
@@ -266,7 +262,7 @@ public class TFrame extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_FRAME;
+        return FRAME_PALETTE.palette();
     }
 
     private void dragWindow(TEvent event, boolean move) {

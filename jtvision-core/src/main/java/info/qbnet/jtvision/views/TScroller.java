@@ -70,12 +70,8 @@ public class TScroller extends TView {
     /** Flag indicating that a redraw is pending once {@link #drawLock} drops to zero. */
     protected boolean drawFlag = false;
 
-    public static final TPalette C_SCROLLER;
-
-    static {
-        PaletteFactory.registerDefaults("scroller", ScrollerColor.class);
-        C_SCROLLER = PaletteFactory.get("scroller");
-    }
+    public static final PaletteDescriptor<ScrollerColor> SCROLLER_PALETTE =
+            PaletteDescriptor.register("scroller", ScrollerColor.class);
 
     public TScroller(TRect bounds, TScrollBar hScrollBar, TScrollBar vScrollBar) {
         super(bounds);
@@ -121,7 +117,7 @@ public class TScroller extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_SCROLLER;
+        return SCROLLER_PALETTE.palette();
     }
 
     @Override

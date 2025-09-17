@@ -49,12 +49,8 @@ public abstract class TCluster extends TView {
     public int enableMask = 0xFFFFFFFF;
     public final List<String> strings = new ArrayList<>();
 
-    public static final TPalette C_CLUSTER;
-
-    static {
-        PaletteFactory.registerDefaults("cluster", ClusterColor.class);
-        C_CLUSTER = PaletteFactory.get("cluster");
-    }
+    public static final PaletteDescriptor<ClusterColor> CLUSTER_PALETTE =
+            PaletteDescriptor.register("cluster", ClusterColor.class);
 
     TCluster(TRect bounds, List<String> strings) {
         super(bounds);
@@ -218,7 +214,7 @@ public abstract class TCluster extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_CLUSTER;
+        return CLUSTER_PALETTE.palette();
     }
 
     @Override

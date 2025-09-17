@@ -45,12 +45,8 @@ public class THistoryViewer extends TListViewer {
     }
 
     /** Palette layout matching Turbo Vision's {@code CHistoryViewer}. */
-    public static final TPalette C_HISTORY_VIEWER;
-
-    static {
-        PaletteFactory.registerDefaults("historyViewer", HistoryViewerColor.class);
-        C_HISTORY_VIEWER = PaletteFactory.get("historyViewer");
-    }
+    public static final PaletteDescriptor<HistoryViewerColor> HISTORY_VIEWER_PALETTE =
+            PaletteDescriptor.register("historyViewer", HistoryViewerColor.class);
 
     /** Identifier of the history list shown by this viewer. */
     private final int historyId;
@@ -74,7 +70,7 @@ public class THistoryViewer extends TListViewer {
 
     @Override
     public TPalette getPalette() {
-        return C_HISTORY_VIEWER;
+        return HISTORY_VIEWER_PALETTE.palette();
     }
 
     @Override

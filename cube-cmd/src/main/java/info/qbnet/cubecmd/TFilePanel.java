@@ -1,5 +1,6 @@
 package info.qbnet.cubecmd;
 
+import info.qbnet.jtvision.util.PaletteDescriptor;
 import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
@@ -37,12 +38,8 @@ public class TFilePanel extends TFilePanelRoot {
         }
     }
 
-    public static final TPalette C_FILE_PANEL;
-
-    static {
-        PaletteFactory.registerDefaults("filePanel", FilePanelColor.class);
-        C_FILE_PANEL = PaletteFactory.get("filePanel");
-    }
+    public static final PaletteDescriptor<FilePanelColor> FILE_PANEL_PALETTE =
+            PaletteDescriptor.register("filePanel", FilePanelColor.class);
 
     public TFilePanel(TRect bounds, File drive, TScrollBar scrollBar) {
         super(bounds, drive, scrollBar);
@@ -111,6 +108,6 @@ public class TFilePanel extends TFilePanelRoot {
 
     @Override
     public TPalette getPalette() {
-        return C_FILE_PANEL;
+        return FILE_PANEL_PALETTE.palette();
     }
 }

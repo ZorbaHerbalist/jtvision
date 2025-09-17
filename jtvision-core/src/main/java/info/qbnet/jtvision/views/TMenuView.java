@@ -57,12 +57,8 @@ public class TMenuView extends TView {
     protected TMenu menu = null;
     protected TMenuItem current = null;
 
-    public static final TPalette C_MENU_VIEW;
-
-    static {
-        PaletteFactory.registerDefaults("menuView", MenuColor.class);
-        C_MENU_VIEW = PaletteFactory.get("menuView");
-    }
+    public static final PaletteDescriptor<MenuColor> MENU_VIEW_PALETTE =
+            PaletteDescriptor.register("menuView", MenuColor.class);
 
     public TMenuView(TRect bounds) {
         super(bounds);
@@ -430,7 +426,7 @@ public class TMenuView extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_MENU_VIEW;
+        return MENU_VIEW_PALETTE.palette();
     }
 
     private void doSelect(TEvent event) {

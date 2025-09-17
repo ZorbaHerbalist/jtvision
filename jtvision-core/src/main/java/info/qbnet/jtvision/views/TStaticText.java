@@ -48,12 +48,8 @@ public class TStaticText extends TView {
 
     protected String text;
 
-    public static final TPalette C_STATIC_TEXT;
-
-    static {
-        PaletteFactory.registerDefaults("staticText", StaticTextColor.class);
-        C_STATIC_TEXT = PaletteFactory.get("staticText");
-    }
+    public static final PaletteDescriptor<StaticTextColor> STATIC_TEXT_PALETTE =
+            PaletteDescriptor.register("staticText", StaticTextColor.class);
 
     public TStaticText(TRect bounds, final String text) {
         super(bounds);
@@ -145,7 +141,7 @@ public class TStaticText extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_STATIC_TEXT;
+        return STATIC_TEXT_PALETTE.palette();
     }
 
     public String getText() {

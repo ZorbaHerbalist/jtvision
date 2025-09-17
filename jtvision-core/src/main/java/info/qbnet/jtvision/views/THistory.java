@@ -50,12 +50,8 @@ public class THistory extends TView {
             (char) 0xDE, '~', (char) 0x19, '~', (char) 0xDD
     });
 
-    public static final TPalette C_HISTORY;
-
-    static {
-        PaletteFactory.registerDefaults("history", HistoryColor.class);
-        C_HISTORY = PaletteFactory.get("history");
-    }
+    public static final PaletteDescriptor<HistoryColor> HISTORY_PALETTE =
+            PaletteDescriptor.register("history", HistoryColor.class);
 
     protected TInputLine link;
 
@@ -91,7 +87,7 @@ public class THistory extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_HISTORY;
+        return HISTORY_PALETTE.palette();
     }
 
     /**

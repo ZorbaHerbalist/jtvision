@@ -73,12 +73,8 @@ public class TScrollBar extends TView {
     private static final char[] H_CHARS =
             {(char) 0x11, (char) 0x10, (char) 0xB1, (char) 0xFE, (char) 0xB2};
 
-    public static final TPalette C_SCROLL_BAR;
-
-    static {
-        PaletteFactory.registerDefaults("scrollBar", ScrollBarColor.class);
-        C_SCROLL_BAR = PaletteFactory.get("scrollBar");
-    }
+    public static final PaletteDescriptor<ScrollBarColor> SCROLL_BAR_PALETTE =
+            PaletteDescriptor.register("scrollBar", ScrollBarColor.class);
 
     protected int value;
     protected int min;
@@ -151,7 +147,7 @@ public class TScrollBar extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_SCROLL_BAR;
+        return SCROLL_BAR_PALETTE.palette();
     }
 
     protected int getPos() {

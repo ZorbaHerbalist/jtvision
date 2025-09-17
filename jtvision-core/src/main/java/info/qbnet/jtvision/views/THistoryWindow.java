@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.views;
 
+import info.qbnet.jtvision.util.PaletteDescriptor;
 import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TPalette;
@@ -48,12 +49,8 @@ public class THistoryWindow extends TWindow {
     }
 
     /** Palette reproducing Turbo Vision's {@code CHistoryWindow}. */
-    public static final TPalette C_HISTORY_WINDOW;
-
-    static {
-        PaletteFactory.registerDefaults("historyWindow", HistoryWindowColor.class);
-        C_HISTORY_WINDOW = PaletteFactory.get("historyWindow");
-    }
+    public static final PaletteDescriptor<HistoryWindowColor> HISTORY_WINDOW_PALETTE =
+            PaletteDescriptor.register("historyWindow", HistoryWindowColor.class);
 
     /** Embedded viewer presenting the available history items. */
     private THistoryViewer viewer;
@@ -68,7 +65,7 @@ public class THistoryWindow extends TWindow {
 
     @Override
     public TPalette getPalette() {
-        return C_HISTORY_WINDOW;
+        return HISTORY_WINDOW_PALETTE.palette();
     }
 
     /** Returns the text of the currently focused history item. */

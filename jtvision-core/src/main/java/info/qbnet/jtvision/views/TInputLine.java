@@ -61,12 +61,8 @@ public class TInputLine extends TView {
     protected int selStart = 0;
     protected int selEnd = 0;
 
-    public static final TPalette C_INPUT_LINE;
-
-    static {
-        PaletteFactory.registerDefaults("inputLine", InputLineColor.class);
-        C_INPUT_LINE = PaletteFactory.get("inputLine");
-    }
+    public static final PaletteDescriptor<InputLineColor> INPUT_LINE_PALETTE =
+            PaletteDescriptor.register("inputLine", InputLineColor.class);
 
     public TInputLine(TRect bounds, int maxLen) {
         super(bounds);
@@ -159,7 +155,7 @@ public class TInputLine extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_INPUT_LINE;
+        return INPUT_LINE_PALETTE.palette();
     }
 
     private void deleteSelect() {

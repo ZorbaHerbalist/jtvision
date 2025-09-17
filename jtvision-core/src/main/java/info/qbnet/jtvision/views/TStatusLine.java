@@ -2,15 +2,16 @@ package info.qbnet.jtvision.views;
 
 import info.qbnet.jtvision.util.Command;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.CString;
+import info.qbnet.jtvision.util.PaletteDescriptor;
 import info.qbnet.jtvision.util.PaletteFactory;
-import info.qbnet.jtvision.util.TStatusDef;
-import info.qbnet.jtvision.util.TStatusItem;
-import info.qbnet.jtvision.util.TPoint;
-import info.qbnet.jtvision.util.TRect;
-import info.qbnet.jtvision.util.TStream;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
-import info.qbnet.jtvision.util.CString;
+import info.qbnet.jtvision.util.TPoint;
+import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.util.TStatusDef;
+import info.qbnet.jtvision.util.TStatusItem;
+import info.qbnet.jtvision.util.TStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,12 +90,8 @@ public class TStatusLine extends TView {
     private TStatusDef defs;
     private TStatusItem items;
 
-    public static final TPalette C_STATUS_LINE;
-
-    static {
-        PaletteFactory.registerDefaults("statusLine", TMenuView.MenuColor.class);
-        C_STATUS_LINE = PaletteFactory.get("statusLine");
-    }
+    public static final PaletteDescriptor<TMenuView.MenuColor> STATUS_LINE_PALETTE =
+            PaletteDescriptor.register("statusLine", TMenuView.MenuColor.class);
 
     public TStatusLine(TRect bounds, TStatusDef defs) {
         super(bounds);
@@ -219,7 +216,7 @@ public class TStatusLine extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_STATUS_LINE;
+        return STATUS_LINE_PALETTE.palette();
     }
 
     @Override

@@ -63,12 +63,8 @@ public class TLabel extends TStaticText {
     /** Highlight flag indicating that the linked view currently has focus. */
     protected boolean light;
 
-    public static final TPalette C_LABEL;
-
-    static {
-        PaletteFactory.registerDefaults("label", LabelColor.class);
-        C_LABEL = PaletteFactory.get("label");
-    }
+    public static final PaletteDescriptor<LabelColor> LABEL_PALETTE =
+            PaletteDescriptor.register("label", LabelColor.class);
 
     public TLabel(TRect bounds, String text, TView link) {
         super(bounds, text);
@@ -112,7 +108,7 @@ public class TLabel extends TStaticText {
 
     @Override
     public TPalette getPalette() {
-        return C_LABEL;
+        return LABEL_PALETTE.palette();
     }
 
     @Override

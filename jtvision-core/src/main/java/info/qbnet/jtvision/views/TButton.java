@@ -66,12 +66,8 @@ public class TButton extends TView {
     public static final int BF_BROADCAST = 0x04;
     public static final int BF_GRAB_FOCUS= 0x08;
 
-    public static final TPalette C_BUTTON;
-
-    static {
-        PaletteFactory.registerDefaults("button", ButtonColor.class);
-        C_BUTTON = PaletteFactory.get("button");
-    }
+    public static final PaletteDescriptor<ButtonColor> BUTTON_PALETTE =
+            PaletteDescriptor.register("button", ButtonColor.class);
 
     protected String title;
     protected int command;
@@ -214,7 +210,7 @@ public class TButton extends TView {
 
     @Override
     public TPalette getPalette() {
-        return C_BUTTON;
+        return BUTTON_PALETTE.palette();
     }
 
     private int titleLength() {

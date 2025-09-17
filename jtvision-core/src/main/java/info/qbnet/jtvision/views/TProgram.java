@@ -326,12 +326,8 @@ public class TProgram extends TGroup {
         }
     }
 
-    public static final TPalette C_APP_COLOR;
-
-    static {
-        PaletteFactory.registerDefaults("program.appColor", ProgramColor.class);
-        C_APP_COLOR = PaletteFactory.get("program.appColor");
-    }
+    public static final PaletteDescriptor<ProgramColor> APP_COLOR_PALETTE =
+            PaletteDescriptor.register("program.appColor", ProgramColor.class);
 
     private static TEvent pending = new TEvent();
 
@@ -484,7 +480,7 @@ public class TProgram extends TGroup {
 
     @Override
     public TPalette getPalette() {
-        return C_APP_COLOR;
+        return APP_COLOR_PALETTE.palette();
     }
 
     public static byte getShiftState() {
