@@ -1,20 +1,23 @@
 package info.qbnet.jtvision.views;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.backend.Backend;
-import info.qbnet.jtvision.util.Command;
-import info.qbnet.jtvision.util.KeyCode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.IBuffer;
+import info.qbnet.jtvision.util.JsonUtil;
+import info.qbnet.jtvision.util.JsonViewStore;
+import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.PaletteRole;
+import info.qbnet.jtvision.util.TDrawBuffer;
+import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TPoint;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.util.TStream;
-import java.io.IOException;
-import info.qbnet.jtvision.util.IBuffer;
-import info.qbnet.jtvision.util.TDrawBuffer;
-import info.qbnet.jtvision.util.PaletteRole;
-import info.qbnet.jtvision.util.TPalette;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +34,7 @@ public class TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TView::new);
+        JsonViewStore.registerType(TView.class, TView::new);
     }
 
     public int getClassId() {
@@ -347,6 +351,24 @@ public class TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public TView(ObjectNode node) {
+        logger = LoggerFactory.getLogger(getClass());
+        AtomicInteger counter = CLASS_COUNTERS.computeIfAbsent(getClass(), k -> new AtomicInteger());
+        logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
+
+        origin = JsonUtil.getPoint(node, "origin", new TPoint(0, 0));
+        size = JsonUtil.getPoint(node, "size", new TPoint(0, 0));
+        cursor = JsonUtil.getPoint(node, "cursor", new TPoint(0, 0));
+        growMode.clear();
+        growMode.addAll(GrowMode.fromMask(JsonUtil.getInt(node, "growMode", 0)));
+        dragMode.clear();
+        dragMode.addAll(DragMode.fromMask(JsonUtil.getInt(node, "dragMode", 0)));
+        helpCtx = JsonUtil.getInt(node, "helpCtx", HelpContext.HC_NO_CONTEXT);
+        state = JsonUtil.getInt(node, "state", 0);
+        options = JsonUtil.getInt(node, "options", 0);
+        eventMask = JsonUtil.getInt(node, "eventMask", 0);
     }
 
     /**
@@ -1519,17 +1541,39 @@ public class TView {
         }
     }
 
+    public void storeJson(ObjectNode node) {
+        int saveState = state;
+        state &= ~(State.SF_ACTIVE | State.SF_SELECTED | State.SF_FOCUSED | State.SF_EXPOSED);
+        if (origin == null) {
+            origin = new TPoint(0, 0);
+        }
+        if (size == null) {
+            size = new TPoint(0, 0);
+        }
+        if (cursor == null) {
+            cursor = new TPoint(0, 0);
+        }
+        JsonUtil.putPoint(node, "origin", origin);
+        JsonUtil.putPoint(node, "size", size);
+        JsonUtil.putPoint(node, "cursor", cursor);
+        node.put("growMode", GrowMode.toMask(growMode));
+        node.put("dragMode", DragMode.toMask(dragMode));
+        node.put("helpCtx", helpCtx);
+        node.put("state", state);
+        node.put("options", options);
+        node.put("eventMask", eventMask);
+        state = saveState;
+    }
+
     /**
      * Reads a reference to another view within the group currently being
      * loaded. If the referenced view has not yet been created, a fixup is
      * registered and {@code null} is returned.
      *
-     * @param stream source stream
      * @param fixup  optional {@link Consumer} that will receive the resolved view
      * @return the referenced view if already available; otherwise {@code null}
      */
-    public TView getPeerViewPtr(TStream stream, Object fixup) throws IOException {
-        int index = stream.readInt();
+    private TView resolvePeerView(int index, Object fixup) {
         if (index <= 0) {
             return null;
         }
@@ -1552,6 +1596,15 @@ public class TView {
         return null;
     }
 
+    public TView getPeerViewPtr(TStream stream, Object fixup) throws IOException {
+        int index = stream.readInt();
+        return resolvePeerView(index, fixup);
+    }
+
+    public TView getPeerViewPtr(int index, Object fixup) {
+        return resolvePeerView(index, fixup);
+    }
+
     /**
      * Writes a reference to {@code view} relative to this view's owner.
      *
@@ -1564,6 +1617,13 @@ public class TView {
         } else {
             stream.writeInt(0);
         }
+    }
+
+    public int getPeerViewIndex(TView view) {
+        if (view == null || owner == null) {
+            return 0;
+        }
+        return owner.indexOf(view);
     }
 
     /**

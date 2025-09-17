@@ -1,11 +1,12 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.io.IOException;
 
 public class TWindow extends TGroup {
 
@@ -63,6 +64,7 @@ public class TWindow extends TGroup {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TWindow::new);
+        JsonViewStore.registerType(TWindow.class, TWindow::new);
     }
 
     @Override
@@ -143,6 +145,34 @@ public class TWindow extends TGroup {
         }
     }
 
+    public TWindow(ObjectNode node) {
+        super(node);
+        flags = JsonUtil.getInt(node, "flags", 0);
+        if ((flags & WindowFlag.WF_GROW) != 0) {
+            flags |= WindowFlag.WF_MOVE;
+        }
+        ObjectNode zoom = node.has("zoomRect") && node.get("zoomRect").isObject()
+                ? (ObjectNode) node.get("zoomRect") : null;
+        TPoint a = JsonUtil.getPoint(zoom, "a", new TPoint(0, 0));
+        TPoint b = JsonUtil.getPoint(zoom, "b", new TPoint(0, 0));
+        zoomRect = new TRect(a.x, a.y, b.x, b.y);
+        number = JsonUtil.getInt(node, "number", 0);
+        int paletteIndex = JsonUtil.getInt(node, "palette", WindowPalette.WP_BLUE_WINDOW.ordinal());
+        WindowPalette[] palettes = WindowPalette.values();
+        if (paletteIndex < 0 || paletteIndex >= palettes.length) {
+            paletteIndex = WindowPalette.WP_BLUE_WINDOW.ordinal();
+        }
+        palette = palettes[paletteIndex];
+        int frameIndex = JsonUtil.getInt(node, "frame", 0);
+        if (frameIndex > 0) {
+            TView view = getSubViewPtr(frameIndex);
+            if (view instanceof TFrame) {
+                frame = (TFrame) view;
+            }
+        }
+        title = JsonUtil.getString(node, "title");
+    }
+
     public void close() {
         logger.trace("{} TWindow@close()", getLogName());
         if (valid(Command.CM_CLOSE)) {
@@ -165,6 +195,23 @@ public class TWindow extends TGroup {
             stream.writeString(title);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        node.put("flags", flags);
+        ObjectNode zoom = node.putObject("zoomRect");
+        JsonUtil.putPoint(zoom, "a", zoomRect.a);
+        JsonUtil.putPoint(zoom, "b", zoomRect.b);
+        node.put("number", number);
+        node.put("palette", palette.ordinal());
+        node.put("frame", getSubViewIndex(frame));
+        if (title != null) {
+            node.put("title", title);
+        } else {
+            node.putNull("title");
         }
     }
 

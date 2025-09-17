@@ -1,7 +1,8 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 
@@ -111,6 +112,7 @@ public class TDialog extends TWindow {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TDialog::new);
+        JsonViewStore.registerType(TDialog.class, TDialog::new);
     }
 
     @Override
@@ -146,6 +148,16 @@ public class TDialog extends TWindow {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public TDialog(ObjectNode node) {
+        super(node);
+        int paletteIndex = JsonUtil.getInt(node, "dialogPalette", DialogPalette.DP_GRAY_DIALOG.ordinal());
+        DialogPalette[] values = DialogPalette.values();
+        if (paletteIndex < 0 || paletteIndex >= values.length) {
+            paletteIndex = DialogPalette.DP_GRAY_DIALOG.ordinal();
+        }
+        dialogPalette = values[paletteIndex];
     }
 
     @Override
@@ -207,6 +219,12 @@ public class TDialog extends TWindow {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        node.put("dialogPalette", dialogPalette.ordinal());
     }
 
     @Override

@@ -1,7 +1,8 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 
@@ -53,6 +54,7 @@ public class TButton extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TButton::new);
+        JsonViewStore.registerType(TButton.class, TButton::new);
     }
 
     @Override
@@ -98,6 +100,15 @@ public class TButton extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        setState(State.SF_DISABLED, !commandEnabled(command));
+    }
+
+    public TButton(ObjectNode node) {
+        super(node);
+        title = JsonUtil.getString(node, "title");
+        command = JsonUtil.getInt(node, "command", 0);
+        flags = JsonUtil.getInt(node, "flags", 0);
+        amDefault = JsonUtil.getBoolean(node, "amDefault", (flags & BF_DEFAULT) != 0);
         setState(State.SF_DISABLED, !commandEnabled(command));
     }
 
@@ -206,6 +217,19 @@ public class TButton extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        if (title != null) {
+            node.put("title", title);
+        } else {
+            node.putNull("title");
+        }
+        node.put("command", command);
+        node.put("flags", flags);
+        node.put("amDefault", amDefault);
     }
 
     @Override

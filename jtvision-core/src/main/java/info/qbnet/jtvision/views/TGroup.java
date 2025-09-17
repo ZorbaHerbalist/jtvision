@@ -1,20 +1,25 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.Command;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.Buffer;
+import info.qbnet.jtvision.util.Command;
+import info.qbnet.jtvision.util.IBuffer;
+import info.qbnet.jtvision.util.JsonUtil;
+import info.qbnet.jtvision.util.JsonViewStore;
 import info.qbnet.jtvision.util.TPoint;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.util.TStream;
-import info.qbnet.jtvision.util.Buffer;
-import info.qbnet.jtvision.util.IBuffer;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.io.IOException;
 
 /**
  * TGroup objects and their derivatives (which we call groups for short)
@@ -58,6 +63,7 @@ public class TGroup extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TGroup::new);
+        JsonViewStore.registerType(TGroup.class, TGroup::new);
     }
 
     /**
@@ -192,6 +198,37 @@ public class TGroup extends TView {
         }
     }
 
+    public TGroup(ObjectNode node) {
+        super(node);
+        getExtent(clip);
+
+        TGroup previous = loadingGroup;
+        loadingGroup = this;
+        try {
+            ArrayNode children = JsonUtil.getArray(node, "children");
+            if (children != null) {
+                for (JsonNode child : children) {
+                    if (child instanceof ObjectNode) {
+                        TView view = JsonViewStore.loadView((ObjectNode) child);
+                        insertBefore(view, null);
+                    }
+                }
+            }
+            int currentIndex = JsonUtil.getInt(node, "current", 0);
+            if (currentIndex > 0) {
+                TView sel = getSubViewPtr(currentIndex);
+                setCurrent(sel, SelectMode.NORMAL_SELECT);
+            }
+            resolvePeerFixups();
+        } finally {
+            loadingGroup = previous;
+        }
+
+        if (previous == null) {
+            awaken();
+        }
+    }
+
     @Override
     public void awaken() {
         logger.trace("{} TGroup@awaken()", getLogName());
@@ -262,6 +299,14 @@ public class TGroup extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        ArrayNode children = node.putArray("children");
+        forEach(v -> children.add(JsonViewStore.storeView(v)));
+        node.put("current", indexOf(current));
     }
 
     @Override
@@ -531,6 +576,10 @@ public class TGroup extends TView {
         return index > 0 ? at(index) : null;
     }
 
+    public TView getSubViewPtr(int index) {
+        return index > 0 ? at(index) : null;
+    }
+
     @Override
     public void handleEvent(TEvent event) {
         boolean logEvent = LOG_EVENTS && event.what != TEvent.EV_NOTHING;
@@ -743,6 +792,10 @@ public class TGroup extends TView {
      */
     public void putSubViewPtr(TStream stream, TView view) throws IOException {
         stream.writeInt(indexOf(view));
+    }
+
+    public int getSubViewIndex(TView view) {
+        return indexOf(view);
     }
 
     /**

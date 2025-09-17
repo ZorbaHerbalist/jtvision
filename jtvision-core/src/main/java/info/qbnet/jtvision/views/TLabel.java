@@ -1,7 +1,8 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -50,6 +51,7 @@ public class TLabel extends TStaticText {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TLabel::new);
+        JsonViewStore.registerType(TLabel.class, TLabel::new);
     }
 
     @Override
@@ -79,6 +81,17 @@ public class TLabel extends TStaticText {
             this.link = (TView) getPeerViewPtr(stream, (Consumer<TView>) v -> this.link = v);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public TLabel(ObjectNode node) {
+        super(node);
+        int linkIndex = JsonUtil.getInt(node, "link", 0);
+        if (linkIndex > 0) {
+            TView target = getPeerViewPtr(linkIndex, (Consumer<TView>) v -> this.link = v);
+            if (target != null) {
+                this.link = target;
+            }
         }
     }
 
@@ -156,6 +169,12 @@ public class TLabel extends TStaticText {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        node.put("link", getPeerViewIndex(link));
     }
 
 }

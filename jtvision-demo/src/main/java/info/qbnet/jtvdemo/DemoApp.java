@@ -35,9 +35,11 @@ public class DemoApp extends TApplication {
     public static final int CM_DLG_CHECK_BOXES = 108;
     public static final int CM_DLG_FILE_LIST = 109;
     public static final int CM_DLG_LIST_BOX = 110;
+    public static final int CM_DLG_FILE_JSON = 111;
 
     private static final String FILE_TO_READ = "/demo.txt";
     private static final String SAMPLE_DIALOG_FILE = "/sampleDialog.bin";
+    private static final String SAMPLE_DIALOG_JSON = "/sampleDialog.json";
     private static final int MAX_LINES = 100;
 
     private final List<String> lines = new ArrayList<>();
@@ -170,6 +172,23 @@ public class DemoApp extends TApplication {
         String initialPath = Paths.get(".").toAbsolutePath().normalize().toString();
         FileListDialog d = new FileListDialog("File List (TListViewer)", initialPath);
         desktop.execView(d);
+    }
+
+    private void doDlgFileJson() {
+        try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_JSON)) {
+            if (is == null) {
+                MsgBox.messageBox("sampleDialog.json not found", MsgBox.MF_ERROR + MsgBox.MF_OK_BUTTON);
+                return;
+            }
+            TView view = JsonViewStore.load(is);
+            if (view instanceof TDialog) {
+                desktop.execView((TDialog) view);
+            } else {
+                MsgBox.messageBox("JSON file does not describe a dialog", MsgBox.MF_ERROR + MsgBox.MF_OK_BUTTON);
+            }
+        } catch (IOException e) {
+            MsgBox.messageBox("Error loading JSON dialog", MsgBox.MF_ERROR + MsgBox.MF_OK_BUTTON);
+        }
     }
 
     private void doDlgListBox() {
@@ -327,6 +346,7 @@ public class DemoApp extends TApplication {
                         .item("~C~ursor demo", null, KeyCode.KB_NO_KEY, CM_DLG_CURSOR, HelpContext.HC_NO_CONTEXT)
                         .item("~I~nput line", null, KeyCode.KB_NO_KEY, CM_DLG_INPUT_LINE, HelpContext.HC_NO_CONTEXT)
                         .item("~F~ile dialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE, HelpContext.HC_NO_CONTEXT)
+                        .item("JSON ~d~ialog", null, KeyCode.KB_NO_KEY, CM_DLG_FILE_JSON, HelpContext.HC_NO_CONTEXT)
                         .item("File ~l~ist viewer", null, KeyCode.KB_NO_KEY, CM_DLG_FILE_LIST, HelpContext.HC_NO_CONTEXT)
                         .item("List ~b~ox", null, KeyCode.KB_NO_KEY, CM_DLG_LIST_BOX, HelpContext.HC_NO_CONTEXT)
                         .item("~R~adio buttons", null, KeyCode.KB_NO_KEY, CM_DLG_RADIO_BUTTONS, HelpContext.HC_NO_CONTEXT))
@@ -369,6 +389,9 @@ public class DemoApp extends TApplication {
                     break;
                 case CM_DLG_LIST_BOX:
                     doDlgListBox();
+                    break;
+                case CM_DLG_FILE_JSON:
+                    doDlgFileJson();
                     break;
                 case CM_DLG_FILE:
                     try (InputStream is = DemoApp.class.getResourceAsStream(SAMPLE_DIALOG_FILE)) {

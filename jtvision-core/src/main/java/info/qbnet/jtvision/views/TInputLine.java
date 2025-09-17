@@ -1,7 +1,8 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -45,6 +46,7 @@ public class TInputLine extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TInputLine::new);
+        JsonViewStore.registerType(TInputLine.class, TInputLine::new);
     }
 
     @Override
@@ -88,6 +90,20 @@ public class TInputLine extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public TInputLine(ObjectNode node) {
+        super(node);
+        maxLen = JsonUtil.getInt(node, "maxLen", 0);
+        data = new StringBuilder(Math.max(maxLen, 0));
+        String text = JsonUtil.getString(node, "text");
+        if (text != null) {
+            data.append(text);
+        }
+        firstPos = JsonUtil.getInt(node, "firstPos", 0);
+        curPos = JsonUtil.getInt(node, "curPos", 0);
+        selStart = JsonUtil.getInt(node, "selStart", 0);
+        selEnd = JsonUtil.getInt(node, "selEnd", 0);
     }
 
     /** Returns whether the line can be scrolled further by {@code delta}. */
@@ -381,6 +397,17 @@ public class TInputLine extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        node.put("maxLen", maxLen);
+        node.put("text", data.toString());
+        node.put("firstPos", firstPos);
+        node.put("curPos", curPos);
+        node.put("selStart", selStart);
+        node.put("selEnd", selEnd);
     }
 
 }

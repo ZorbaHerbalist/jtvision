@@ -1,5 +1,6 @@
 package info.qbnet.jtvision.views;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.util.*;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class TStaticText extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TStaticText::new);
+        JsonViewStore.registerType(TStaticText.class, TStaticText::new);
     }
 
     @Override
@@ -63,6 +65,11 @@ public class TStaticText extends TView {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public TStaticText(ObjectNode node) {
+        super(node);
+        text = JsonUtil.getString(node, "text");
     }
 
     @Override
@@ -155,6 +162,16 @@ public class TStaticText extends TView {
             stream.writeString(text);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
+        if (text != null) {
+            node.put("text", text);
+        } else {
+            node.putNull("text");
         }
     }
 

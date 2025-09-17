@@ -1,7 +1,8 @@
 package info.qbnet.jtvision.views;
 
-import info.qbnet.jtvision.util.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.*;
 
 import java.util.EnumSet;
 
@@ -45,6 +46,7 @@ public class TFrame extends TView {
 
     public static void registerType() {
         TStream.registerType(CLASS_ID, TFrame::new);
+        JsonViewStore.registerType(TFrame.class, TFrame::new);
     }
 
     @Override
@@ -85,9 +87,18 @@ public class TFrame extends TView {
         super(stream);
     }
 
+    public TFrame(ObjectNode node) {
+        super(node);
+    }
+
     @Override
     public void store(TStream stream) {
         super.store(stream);
+    }
+
+    @Override
+    public void storeJson(ObjectNode node) {
+        super.storeJson(node);
     }
 
     private void frameLine(TDrawBuffer buf, int y, int n, byte color) {
