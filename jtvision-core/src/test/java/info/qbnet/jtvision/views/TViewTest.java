@@ -171,7 +171,7 @@ class TViewTest {
         child.setOwner(root);
         leaf.setOwner(child);
 
-        short mapped = leaf.getColor((short)0x0201);
+        short mapped = leaf.getColor(TestPaletteRole.INDEX1, TestPaletteRole.INDEX2);
         assertEquals((short)0x2211, mapped);
     }
 
@@ -179,11 +179,11 @@ class TViewTest {
     void mapColorReturnsErrorForInvalidOrZero() {
         TRect r = new TRect(0, 0, 1, 1);
         TestableTView view = new TestableTView(r, palette(0x11));
-        assertEquals((short)0xCFCF, view.getColor((short)0x0202));
+        assertEquals((short)0xCFCF, view.getColor(TestPaletteRole.INDEX2, TestPaletteRole.INDEX2));
         assertEquals((short)0x00CF, view.getColor((short)0x0000));
 
         TestableTView zeroMap = new TestableTView(r, palette(0x00));
-        assertEquals((short)0xCFCF, zeroMap.getColor((short)0x0101));
+        assertEquals((short)0xCFCF, zeroMap.getColor(TestPaletteRole.INDEX1, TestPaletteRole.INDEX1));
     }
 
     @Test

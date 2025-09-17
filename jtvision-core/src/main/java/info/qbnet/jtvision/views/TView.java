@@ -10,6 +10,7 @@ import info.qbnet.jtvision.util.TStream;
 import java.io.IOException;
 import info.qbnet.jtvision.util.IBuffer;
 import info.qbnet.jtvision.util.TDrawBuffer;
+import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TPalette;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -857,7 +858,8 @@ public class TView {
      * character attributes by tracing through the palette of the view and the palettes
      * of all its owners.
      * <p>
-     * This is a public wrapper around {@code mapCPair()}.
+     * This is a public wrapper around {@code mapCPair()} and remains available for
+     * backwards compatibility with legacy Turbo Vision palette definitions.
      * </p>
      *
      * @param color color pair encoded in a 16-bit word
@@ -865,6 +867,38 @@ public class TView {
      */
     public short getColor(short color) {
         return mapCPair(color);
+    }
+
+    /**
+     * Resolves a single palette role to its mapped attribute.
+     *
+     * @param foreground palette role representing the foreground/normal color
+     * @return mapped attribute value for {@code foreground}
+     */
+    public short getColor(PaletteRole foreground) {
+        Objects.requireNonNull(foreground, "foreground");
+        return getColor(foreground, null);
+    }
+
+    /**
+     * Resolves a pair of palette roles to the mapped attribute combination used by
+     * routines such as {@link info.qbnet.jtvision.util.TDrawBuffer#moveCStr(int, String, int)}.
+     * The {@code foreground} role supplies the normal color while {@code background}
+     * (when non-null) provides the highlighted/alternate color stored in the high byte.
+     *
+     * @param foreground palette role representing the foreground/normal color
+     * @param background palette role representing the highlight/alternate color
+     * @return mapped attribute pair equivalent to {@code (background << 8) | foreground}
+     */
+    public short getColor(PaletteRole foreground, PaletteRole background) {
+        Objects.requireNonNull(foreground, "foreground");
+
+        int fg = mapColor(foreground.index());
+        int bg = 0;
+        if (background != null) {
+            bg = mapColor(background.index());
+        }
+        return (short) ((bg << 8) | (fg & 0xFF));
     }
 
     /**

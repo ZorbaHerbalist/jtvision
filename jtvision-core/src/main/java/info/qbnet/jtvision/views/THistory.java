@@ -85,7 +85,7 @@ public class THistory extends TView {
     @Override
     public void draw() {
         TDrawBuffer buffer = new TDrawBuffer();
-        buffer.moveCStr(0, HISTORY_GLYPHS, getColor((short) 0x0102));
+        buffer.moveCStr(0, HISTORY_GLYPHS, getColor(HistoryColor.SIDES, HistoryColor.ARROW));
         writeLine(0, 0, size.x, size.y, buffer.buffer);
     }
 

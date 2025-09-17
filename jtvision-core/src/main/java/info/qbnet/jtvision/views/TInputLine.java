@@ -113,8 +113,8 @@ public class TInputLine extends TView {
     @Override
     public void draw() {
         TDrawBuffer buf = new TDrawBuffer();
-        short color = (state & State.SF_FOCUSED) != 0 ? getColor((short) 2)
-                : getColor((short) 1);
+        short color = (state & State.SF_FOCUSED) != 0 ? getColor(InputLineColor.ACTIVE)
+                : getColor(InputLineColor.NORMAL);
 
         buf.moveChar(0, ' ', color, size.x);
         int len = Math.min(size.x - 2, data.length() - firstPos);
@@ -122,18 +122,18 @@ public class TInputLine extends TView {
             buf.moveStr(1, data.substring(firstPos, firstPos + len), color);
         }
         if (canScroll(1)) {
-            buf.moveChar(size.x - 1, (char) 0x10, getColor((short) 4), 1);
+            buf.moveChar(size.x - 1, (char) 0x10, getColor(InputLineColor.ARROWS), 1);
         }
         if ((state & State.SF_FOCUSED) != 0) {
             if (canScroll(-1)) {
-                buf.moveChar(0, (char) 0x11, getColor((short) 4), 1);
+                buf.moveChar(0, (char) 0x11, getColor(InputLineColor.ARROWS), 1);
             }
             int l = selStart - firstPos;
             int r = selEnd - firstPos;
             if (l < 0) l = 0;
             if (r > size.x - 2) r = size.x - 2;
             if (l < r) {
-                buf.moveChar(l + 1, (char) 0x00, getColor((short) 3), r - l);
+                buf.moveChar(l + 1, (char) 0x00, getColor(InputLineColor.SELECTED_TEXT), r - l);
             }
         }
         writeLine(0, 0, size.x, size.y, buf.buffer);

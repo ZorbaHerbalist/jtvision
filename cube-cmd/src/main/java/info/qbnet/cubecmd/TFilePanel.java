@@ -1,6 +1,9 @@
 package info.qbnet.cubecmd;
 
+import info.qbnet.jtvision.util.PaletteFactory;
+import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
+import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.views.TScrollBar;
 
@@ -8,12 +11,45 @@ import java.io.File;
 
 public class TFilePanel extends TFilePanelRoot {
 
+    /** Palette roles used to render the file panel header row. */
+    public enum FilePanelColor implements PaletteRole {
+        /** Normal header text. */
+        HEADER_TEXT(6, 0x06),
+        /** Highlighted header text (used for hotkeys). */
+        HEADER_SHORTCUT(2, 0x02);
+
+        private final int index;
+        private final byte defaultValue;
+
+        FilePanelColor(int index, int defaultValue) {
+            this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
+        }
+    }
+
+    public static final TPalette C_FILE_PANEL;
+
+    static {
+        PaletteFactory.registerDefaults("filePanel", FilePanelColor.class);
+        C_FILE_PANEL = PaletteFactory.get("filePanel");
+    }
+
     public TFilePanel(TRect bounds, File drive, TScrollBar scrollBar) {
         super(bounds, drive, scrollBar);
     }
 
     protected void drawTop(TDrawBuffer buf) {
-        short color = getColor((short) 0x0206);
+        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT);
 
         String format = " %-42s " + (char) 0xB3 + " %-12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
         String line = String.format(format, "Name", "Size", "Date", "Time");
@@ -54,7 +90,7 @@ public class TFilePanel extends TFilePanelRoot {
             line = String.format(format, "", "", "", "");
         }
 
-        buf.moveCStr(0, line, getColor((short) 0x0206));
+        buf.moveCStr(0, line, getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT));
     }
 
     @Override
@@ -71,5 +107,10 @@ public class TFilePanel extends TFilePanelRoot {
             writeLine(0, i, size.x, 1, buf.buffer);
         }
 
+    }
+
+    @Override
+    public TPalette getPalette() {
+        return C_FILE_PANEL;
     }
 }

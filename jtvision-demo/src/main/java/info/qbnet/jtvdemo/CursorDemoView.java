@@ -1,7 +1,8 @@
 package info.qbnet.jtvdemo;
 
-import info.qbnet.jtvision.util.KeyCode;
 import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.views.TView;
 
@@ -11,6 +12,28 @@ import info.qbnet.jtvision.views.TView;
  * the cursor shape can be switched between underline and block styles.
  */
 public class CursorDemoView extends TView {
+
+    private enum CursorDemoColor implements PaletteRole {
+        TEXT(3, 0x03);
+
+        private final int index;
+        private final byte defaultValue;
+
+        CursorDemoColor(int index, int defaultValue) {
+            this.index = index;
+            this.defaultValue = PaletteRole.toByte(defaultValue);
+        }
+
+        @Override
+        public int index() {
+            return index;
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
+        }
+    }
 
     private int curX = 0;
     private int curY = 0;
@@ -27,10 +50,10 @@ public class CursorDemoView extends TView {
     @Override
     public void draw() {
         super.draw();
-        writeStr(1, 0, "Use arrow keys to move cursor", getColor((short)0x03));
-        writeStr(1, 1, "B - block cursor, U - underline", getColor((short)0x03));
+        writeStr(1, 0, "Use arrow keys to move cursor", getColor(CursorDemoColor.TEXT));
+        writeStr(1, 1, "B - block cursor, U - underline", getColor(CursorDemoColor.TEXT));
         String mode = blockMode ? "BLOCK" : "UNDERLINE";
-        writeStr(1, 2, "Current: " + mode, getColor((short)0x03));
+        writeStr(1, 2, "Current: " + mode, getColor(CursorDemoColor.TEXT));
     }
 
     @Override

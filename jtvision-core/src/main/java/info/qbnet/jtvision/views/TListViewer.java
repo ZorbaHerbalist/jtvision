@@ -149,13 +149,13 @@ public class TListViewer extends TView {
         short normalColor, selectedColor, focusedColor, color;
         if ((state & (State.SF_SELECTED | State.SF_ACTIVE)) ==
                 (State.SF_SELECTED | State.SF_ACTIVE)) {
-            normalColor = getColor((short) 1);
-            focusedColor = getColor((short) 3);
-            selectedColor = getColor((short) 4);
+            normalColor = getColor(ListViewerColor.ACTIVE);
+            focusedColor = getColor(ListViewerColor.FOCUSED);
+            selectedColor = getColor(ListViewerColor.SELECTED);
         } else {
-            normalColor = getColor((short) 2);
-            focusedColor = getColor((short) 3);
-            selectedColor = getColor((short) 4);
+            normalColor = getColor(ListViewerColor.INACTIVE);
+            focusedColor = getColor(ListViewerColor.FOCUSED);
+            selectedColor = getColor(ListViewerColor.SELECTED);
         }
 
         int indent = (hScrollBar != null) ? hScrollBar.value : 0;
@@ -200,7 +200,7 @@ public class TListViewer extends TView {
                                 (short) ((b.buffer[curCol + colWidth - 2] & 0xFF00) | SPECIAL_CHARS[scOff + 1]);
                     }
                 }
-                b.moveChar(curCol + colWidth - 1, (char) 0xB3, getColor((short) 5), 1);
+                b.moveChar(curCol + colWidth - 1, (char) 0xB3, getColor(ListViewerColor.DIVIDER), 1);
             }
             writeLine(0, i, size.x, 1, b.buffer);
         }

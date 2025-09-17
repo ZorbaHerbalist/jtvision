@@ -117,20 +117,20 @@ public class TButton extends TView {
         logger.trace("{} TButton@drawState(down={})", getLogName(), down);
 
         TDrawBuffer buf = new TDrawBuffer();
-        short cShadow = getColor((short)8);
+        short cShadow = getColor(ButtonColor.SHADOW);
         short cButton;
         int s = size.x - 1;
         int t = size.y / 2 - 1;
 
         if ((state & State.SF_DISABLED) != 0) {
-            cButton = getColor((short)0x0404);
+            cButton = getColor(ButtonColor.DISABLED_TEXT, ButtonColor.DISABLED_TEXT);
         } else {
-            cButton = getColor((short)0x0501);
+            cButton = getColor(ButtonColor.NORMAL_TEXT, ButtonColor.NORMAL_SHORTCUT);
             if ((state & State.SF_ACTIVE) != 0) {
                 if ((state & State.SF_SELECTED) != 0) {
-                    cButton = getColor((short)0x0703);
+                    cButton = getColor(ButtonColor.SELECTED_TEXT, ButtonColor.SELECTED_SHORTCUT);
                 } else if (amDefault) {
-                    cButton = getColor((short)0x0602);
+                    cButton = getColor(ButtonColor.DEFAULT_TEXT, ButtonColor.DEFAULT_SHORTCUT);
                 }
             }
         }

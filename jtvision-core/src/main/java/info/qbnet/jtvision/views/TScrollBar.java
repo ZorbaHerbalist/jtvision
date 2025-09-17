@@ -138,14 +138,14 @@ public class TScrollBar extends TView {
 
         int s = getScrollSize() - 1;
         TDrawBuffer b = new TDrawBuffer();
-        b.moveChar(0, chars[0], getColor((short) 2), 1);
+        b.moveChar(0, chars[0], getColor(ScrollBarColor.ARROWS), 1);
         if (max == min) {
-            b.moveChar(1, chars[4], getColor((short) 1), s - 1);
+            b.moveChar(1, chars[4], getColor(ScrollBarColor.PAGE_AREA), s - 1);
         } else {
-            b.moveChar(1, chars[2], getColor((short) 1), s - 1);
-            b.moveChar(pos, chars[3], getColor((short) 3), 1);
+            b.moveChar(1, chars[2], getColor(ScrollBarColor.PAGE_AREA), s - 1);
+            b.moveChar(pos, chars[3], getColor(ScrollBarColor.INDICATOR), 1);
         }
-        b.moveChar(s, chars[1], getColor((short) 2), 1);
+        b.moveChar(s, chars[1], getColor(ScrollBarColor.ARROWS), 1);
         writeBuf(0, 0, size.x, size.y, b.buffer);
     }
 

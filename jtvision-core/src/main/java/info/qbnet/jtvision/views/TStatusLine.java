@@ -135,10 +135,10 @@ public class TStatusLine extends TView {
     private void drawSelect(TStatusItem selected) {
         TDrawBuffer buf = new TDrawBuffer();
 
-        short cNormal = getColor((short) 0x0301);
-        short cSelect = getColor((short) 0x0604);
-        short cNormDisabled = getColor((short) 0x0202);
-        short cSelDisabled = getColor((short) 0x0505);
+        short cNormal = getColor(TMenuView.MenuColor.NORMAL_TEXT, TMenuView.MenuColor.SHORTCUT_TEXT);
+        short cSelect = getColor(TMenuView.MenuColor.NORMAL_SELECTION, TMenuView.MenuColor.SHORTCUT_SELECTION);
+        short cNormDisabled = getColor(TMenuView.MenuColor.DISABLED_TEXT, TMenuView.MenuColor.DISABLED_TEXT);
+        short cSelDisabled = getColor(TMenuView.MenuColor.DISABLED_SELECTION, TMenuView.MenuColor.DISABLED_SELECTION);
 
         buf.moveChar(0, ' ', cNormal, size.x);
         TStatusItem t = items;

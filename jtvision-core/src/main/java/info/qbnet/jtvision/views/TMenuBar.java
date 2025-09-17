@@ -87,10 +87,10 @@ public class TMenuBar extends TMenuView {
 
         TDrawBuffer buf = new TDrawBuffer();
 
-        short cNormal = getColor((short) 0x0301);
-        short cSelect = getColor((short) 0x0604);
-        short cNormDisabled = getColor((short) 0x0202);
-        short cSelDisabled = getColor((short) 0x0505);
+        short cNormal = getColor(MenuColor.NORMAL_TEXT, MenuColor.SHORTCUT_TEXT);
+        short cSelect = getColor(MenuColor.NORMAL_SELECTION, MenuColor.SHORTCUT_SELECTION);
+        short cNormDisabled = getColor(MenuColor.DISABLED_TEXT, MenuColor.DISABLED_TEXT);
+        short cSelDisabled = getColor(MenuColor.DISABLED_SELECTION, MenuColor.DISABLED_SELECTION);
 
         buf.moveChar(0, ' ', cNormal, size.x);
         if (menu != null) {

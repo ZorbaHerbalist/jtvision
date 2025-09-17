@@ -139,9 +139,9 @@ public abstract class TCluster extends TView {
      */
     protected void drawMultiBox(String icon, String marker) {
         // Resolve colors for normal, selected and disabled items
-        short cNorm = getColor((short) 0x0301);
-        short cSel  = getColor((short) 0x0402);
-        short cDis  = getColor((short) 0x0505);
+        short cNorm = getColor(ClusterColor.NORMAL_TEXT, ClusterColor.NORMAL_SHORTCUT);
+        short cSel  = getColor(ClusterColor.SELECTED_TEXT, ClusterColor.SELECTED_SHORTCUT);
+        short cDis  = getColor(ClusterColor.DISABLED_TEXT, ClusterColor.DISABLED_TEXT);
 
         TDrawBuffer buf = new TDrawBuffer();
 

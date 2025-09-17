@@ -23,7 +23,7 @@ public class DemoInterior extends TScroller {
 
     @Override
     public void draw() {
-        short color = getColor((short) 0x01);
+        short color = getColor(ScrollerColor.NORMAL_TEXT);
         TDrawBuffer b = new TDrawBuffer();
         for (int y = 0; y < size.y; y++) {
             b.moveChar(0, ' ', color, size.x);

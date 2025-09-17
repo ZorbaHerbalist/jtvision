@@ -95,10 +95,10 @@ public class TLabel extends TStaticText {
         int scOff;
 
         if (light) {
-            color = getColor((short) 0x0402);
+            color = getColor(LabelColor.SELECTED_TEXT, LabelColor.SELECTED_SHORTCUT);
             scOff = 0;
         } else {
-            color = getColor((short) 0x0301);
+            color = getColor(LabelColor.NORMAL_TEXT, LabelColor.NORMAL_SHORTCUT);
             scOff = 4;
         }
 

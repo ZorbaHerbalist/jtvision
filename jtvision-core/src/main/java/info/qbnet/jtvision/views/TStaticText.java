@@ -74,7 +74,7 @@ public class TStaticText extends TView {
         logger.trace("{} TStaticText@draw()", getLogName());
 
         TDrawBuffer buf = new TDrawBuffer();
-        short color = getColor((short) 1);
+        short color = getColor(StaticTextColor.TEXT);
         String s = getText();
         int L = s.length();
         int P = 0; // current position in string

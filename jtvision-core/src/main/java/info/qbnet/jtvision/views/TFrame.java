@@ -188,16 +188,16 @@ public class TFrame extends TView {
         int f;
 
         if ((state & State.SF_DRAGGING) != 0) {
-            cFrame = getColor((short) 0x0505);
-            cTitle = getColor((short) 0x0005);
+            cFrame = getColor(FrameColor.ICONS, FrameColor.ICONS);
+            cTitle = getColor(FrameColor.ICONS);
             f = 0;
         } else if ((state & State.SF_ACTIVE) == 0) {
-            cFrame = getColor((short) 0x0101);
-            cTitle = getColor((short) 0x0002);
+            cFrame = getColor(FrameColor.PASSIVE_FRAME, FrameColor.PASSIVE_FRAME);
+            cTitle = getColor(FrameColor.PASSIVE_TITLE);
             f = 0;
         } else {
-            cFrame = getColor((short) 0x0503);
-            cTitle = getColor((short) 0x0004);
+            cFrame = getColor(FrameColor.ACTIVE_FRAME, FrameColor.ICONS);
+            cTitle = getColor(FrameColor.ACTIVE_TITLE);
             f = 9;
         }
         int width = size.x;

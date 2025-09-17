@@ -64,13 +64,13 @@ public class TSeparator extends THideView {
         int off = 0;
 
         if ((state & State.SF_DRAGGING) != 0) {
-            color = getColor((short) 0x03);
+            color = getColor(SeparatorColor.DRAGGING);
             off = 5;
         } else if ((state & State.SF_ACTIVE) == 0) {
-            color = getColor((short) 0x01);
+            color = getColor(SeparatorColor.PASSIVE_FRAME);
             off = 5;
         } else {
-            color = getColor((short) 0x02);
+            color = getColor(SeparatorColor.ACTIVE_FRAME);
         }
 
         buf.moveChar(0, FRAME_CHARS.charAt(off), color, 1);
