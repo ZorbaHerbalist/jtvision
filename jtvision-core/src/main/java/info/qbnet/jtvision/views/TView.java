@@ -872,33 +872,33 @@ public class TView {
     /**
      * Resolves a single palette role to its mapped attribute.
      *
-     * @param foreground palette role representing the foreground/normal color
-     * @return mapped attribute value for {@code foreground}
+     * @param normalRole palette role representing the normal color
+     * @return mapped attribute value for {@code normalRole}
      */
-    public short getColor(PaletteRole foreground) {
-        Objects.requireNonNull(foreground, "foreground");
-        return getColor(foreground, null);
+    public short getColor(PaletteRole normalRole) {
+        Objects.requireNonNull(normalRole, "normalRole");
+        return getColor(normalRole, null);
     }
 
     /**
      * Resolves a pair of palette roles to the mapped attribute combination used by
      * routines such as {@link info.qbnet.jtvision.util.TDrawBuffer#moveCStr(int, String, int)}.
-     * The {@code foreground} role supplies the normal color while {@code background}
+     * The {@code normalRole} role supplies the normal color while {@code highlightRole}
      * (when non-null) provides the highlighted/alternate color stored in the high byte.
      *
-     * @param foreground palette role representing the foreground/normal color
-     * @param background palette role representing the highlight/alternate color
-     * @return mapped attribute pair equivalent to {@code (background << 8) | foreground}
+     * @param normalRole palette role representing the normal color
+     * @param highlightRole palette role representing the highlight/alternate color
+     * @return mapped attribute pair equivalent to {@code (highlightRole << 8) | normalRole}
      */
-    public short getColor(PaletteRole foreground, PaletteRole background) {
-        Objects.requireNonNull(foreground, "foreground");
+    public short getColor(PaletteRole normalRole, PaletteRole highlightRole) {
+        Objects.requireNonNull(normalRole, "normalRole");
 
-        int fg = mapColor(foreground.index());
-        int bg = 0;
-        if (background != null) {
-            bg = mapColor(background.index());
+        int normalAttr = mapColor(normalRole.index());
+        int highlightAttr = 0;
+        if (highlightRole != null) {
+            highlightAttr = mapColor(highlightRole.index());
         }
-        return (short) ((bg << 8) | (fg & 0xFF));
+        return (short) ((highlightAttr << 8) | (normalAttr & 0xFF));
     }
 
     /**
