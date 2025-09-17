@@ -1118,8 +1118,9 @@ public class TView {
         while (view != null) {
             TPalette palette = view.getPalette();
             if (palette != null) {
-                if (!palette.containsIndex(color)) return ERROR_ATTR;
-                color = palette.get(color);
+                Byte mapped = palette.getOrNull(color);
+                if (mapped == null) return ERROR_ATTR;
+                color = mapped;
                 if (color == 0) return ERROR_ATTR;
             }
             view = view.owner;

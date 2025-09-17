@@ -187,6 +187,16 @@ class TViewTest {
     }
 
     @Test
+    void mapColorReturnsErrorWhenPaletteEntryMissing() {
+        TRect r = new TRect(0, 0, 1, 1);
+        TestGroup root = new TestGroup(r, palette(0x11));
+        TestableTView child = new TestableTView(r);
+        child.setOwner(root);
+
+        assertEquals((short)0xCFCF, child.getColor(TestPaletteRole.INDEX2, TestPaletteRole.INDEX2));
+    }
+
+    @Test
     void makeGlobalAndLocalRoundTripThroughOwnershipChain() {
         TGroup root = new TGroup(new TRect(10, 20, 30, 40));
         TGroup mid = new TGroup(new TRect(3, 4, 13, 14));

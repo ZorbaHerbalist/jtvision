@@ -54,6 +54,14 @@ public class TPalette {
     }
 
     /**
+     * Returns the palette entry at the specified index, or {@code null} when the
+     * palette does not define the index.
+     */
+    public Byte getOrNull(int index) {
+        return indexData.get(index);
+    }
+
+    /**
      * Returns the palette entry matching the given role.
      */
     public byte get(PaletteRole role) {
