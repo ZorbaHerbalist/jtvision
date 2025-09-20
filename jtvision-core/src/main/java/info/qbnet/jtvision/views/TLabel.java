@@ -22,25 +22,18 @@ public class TLabel extends TStaticText {
      */
     public enum LabelColor implements PaletteRole {
         /** Normal text. */
-        NORMAL_TEXT(1, 0x07),
+        NORMAL_TEXT(0x07),
         /** Highlighted text. */
-        SELECTED_TEXT(2, 0x08),
+        SELECTED_TEXT(0x08),
         /** Normal shortcut. */
-        NORMAL_SHORTCUT(3, 0x09),
+        NORMAL_SHORTCUT(0x09),
         /** Shortcut while highlighted. */
-        SELECTED_SHORTCUT(4, 0x09);
+        SELECTED_SHORTCUT(0x09);
 
-        private final int index;
         private final byte defaultValue;
 
-        LabelColor(int index, int defaultValue) {
-            this.index = index;
+        LabelColor(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

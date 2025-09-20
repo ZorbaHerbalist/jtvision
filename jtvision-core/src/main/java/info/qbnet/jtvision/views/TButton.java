@@ -17,33 +17,26 @@ public class TButton extends TView {
      */
     public enum ButtonColor implements PaletteRole {
         /** Normal button text. */
-        NORMAL_TEXT(1, 0x0A),
+        NORMAL_TEXT(0x0A),
         /** Default button text. */
-        DEFAULT_TEXT(2, 0x0B),
+        DEFAULT_TEXT(0x0B),
         /** Text when the button is pressed. */
-        SELECTED_TEXT(3, 0x0C),
+        SELECTED_TEXT(0x0C),
         /** Disabled text. */
-        DISABLED_TEXT(4, 0x0D),
+        DISABLED_TEXT(0x0D),
         /** Normal shortcut/accelerator character. */
-        NORMAL_SHORTCUT(5, 0x0E),
+        NORMAL_SHORTCUT(0x0E),
         /** Shortcut character for the default button. */
-        DEFAULT_SHORTCUT(6, 0x0E),
+        DEFAULT_SHORTCUT(0x0E),
         /** Shortcut character when the button is pressed. */
-        SELECTED_SHORTCUT(7, 0x0E),
+        SELECTED_SHORTCUT(0x0E),
         /** Button shadow. */
-        SHADOW(8, 0x0F);
+        SHADOW(0x0F);
 
-        private final int index;
         private final byte defaultValue;
 
-        ButtonColor(int index, int defaultValue) {
-            this.index = index;
+        ButtonColor(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

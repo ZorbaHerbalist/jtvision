@@ -9,20 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class PaletteDescriptorTest {
 
     private enum TestRole implements PaletteRole {
-        FOREGROUND(1, 0x01),
-        HIGHLIGHT(2, 0x02);
+        FOREGROUND(0x01),
+        HIGHLIGHT(0x02);
 
-        private final int index;
         private final byte defaultValue;
 
-        TestRole(int index, int defaultValue) {
-            this.index = index;
+        TestRole(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

@@ -13,27 +13,20 @@ public class TFrame extends TView {
      */
     public enum FrameColor implements PaletteRole {
         /** Passive frame. */
-        PASSIVE_FRAME(1, 0x01),
+        PASSIVE_FRAME(0x01),
         /** Passive title. */
-        PASSIVE_TITLE(2, 0x01),
+        PASSIVE_TITLE(0x01),
         /** Active frame. */
-        ACTIVE_FRAME(3, 0x02),
+        ACTIVE_FRAME(0x02),
         /** Active title. */
-        ACTIVE_TITLE(4, 0x02),
+        ACTIVE_TITLE(0x02),
         /** Icons and dragging helpers. */
-        ICONS(5, 0x03);
+        ICONS(0x03);
 
-        private final int index;
         private final byte defaultValue;
 
-        FrameColor(int index, int defaultValue) {
-            this.index = index;
+        FrameColor(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

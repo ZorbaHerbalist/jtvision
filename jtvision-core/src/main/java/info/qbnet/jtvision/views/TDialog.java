@@ -16,82 +16,75 @@ public class TDialog extends TWindow {
      */
     public enum DialogColor implements PaletteRole {
         /** Passive frame. */
-        FRAME_PASSIVE(1, 0x20),
+        FRAME_PASSIVE(0x20),
         /** Active frame. */
-        FRAME_ACTIVE(2, 0x21),
+        FRAME_ACTIVE(0x21),
         /** Frame icon. */
-        FRAME_ICON(3, 0x22),
+        FRAME_ICON(0x22),
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(4, 0x23),
+        SCROLLBAR_PAGE(0x23),
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(5, 0x24),
+        SCROLLBAR_CONTROLS(0x24),
         /** Static text. */
-        STATIC_TEXT(6, 0x25),
+        STATIC_TEXT(0x25),
         /** Normal label text. */
-        LABEL_NORMAL(7, 0x26),
+        LABEL_NORMAL(0x26),
         /** Selected label text. */
-        LABEL_SELECTED(8, 0x27),
+        LABEL_SELECTED(0x27),
         /** Label shortcut character. */
-        LABEL_SHORTCUT(9, 0x28),
+        LABEL_SHORTCUT(0x28),
         /** Normal button text. */
-        BUTTON_NORMAL(10, 0x29),
+        BUTTON_NORMAL(0x29),
         /** Default button text. */
-        BUTTON_DEFAULT(11, 0x2A),
+        BUTTON_DEFAULT(0x2A),
         /** Selected button text. */
-        BUTTON_SELECTED(12, 0x2B),
+        BUTTON_SELECTED(0x2B),
         /** Disabled button text. */
-        BUTTON_DISABLED(13, 0x2C),
+        BUTTON_DISABLED(0x2C),
         /** Button shortcut character. */
-        BUTTON_SHORTCUT(14, 0x2D),
+        BUTTON_SHORTCUT(0x2D),
         /** Button shadow. */
-        BUTTON_SHADOW(15, 0x2E),
+        BUTTON_SHADOW(0x2E),
         /** Cluster normal text. */
-        CLUSTER_NORMAL(16, 0x2F),
+        CLUSTER_NORMAL(0x2F),
         /** Cluster selected text. */
-        CLUSTER_SELECTED(17, 0x30),
+        CLUSTER_SELECTED(0x30),
         /** Cluster shortcut character. */
-        CLUSTER_SHORTCUT(18, 0x31),
+        CLUSTER_SHORTCUT(0x31),
         /** Input line normal text. */
-        INPUT_LINE_NORMAL_TEXT(19, 0x32),
+        INPUT_LINE_NORMAL_TEXT(0x32),
         /** Input line selected text. */
-        INPUT_LINE_SELECTED_TEXT(20, 0x33),
+        INPUT_LINE_SELECTED_TEXT(0x33),
         /** Input line arrows. */
-        INPUT_LINE_ARROWS(21, 0x34),
+        INPUT_LINE_ARROWS(0x34),
         /** History arrow. */
-        HISTORY_ARROW(22, 0x35),
+        HISTORY_ARROW(0x35),
         /** History sides. */
-        HISTORY_SIDES(23, 0x36),
+        HISTORY_SIDES(0x36),
         /** HistoryWindow scrollbar page area */
-        HISTORY_WINDOW_SCROLLBAR_PAGE_AREA(24, 0x37),
+        HISTORY_WINDOW_SCROLLBAR_PAGE_AREA(0x37),
         /** HistoryWindow scrollbar controls */
-        HISTORY_WINDOW_SCROLLBAR_CONTROLS(25, 0x38),
+        HISTORY_WINDOW_SCROLLBAR_CONTROLS(0x38),
         /** ListViewer normal */
-        LIST_VIEWER_NORMAL(26, 0x39),
+        LIST_VIEWER_NORMAL(0x39),
         /** ListViewer focused */
-        LIST_VIEWER_FOCUSED(27, 0x3A),
+        LIST_VIEWER_FOCUSED(0x3A),
         /** ListViewer selected */
-        LIST_VIEWER_SELECTED(28, 0x3B),
+        LIST_VIEWER_SELECTED(0x3B),
         /** ListViewer divider */
-        LIST_VIEWER_DIVIDER(29, 0x3C),
+        LIST_VIEWER_DIVIDER(0x3C),
         /** InfoPane */
-        INFO_PANE(30, 0x3D),
+        INFO_PANE(0x3D),
         /** Cluster disabled */
-        CLUSTER_DISABLED(31, 0x3E),
+        CLUSTER_DISABLED(0x3E),
 
         /** Reserved slot. */
-        RESERVED(32, 0x3F);
+        RESERVED(0x3F);
 
-        private final int index;
         private final byte grayDefault;
 
-        DialogColor(int index, int grayDefault) {
-            this.index = index;
+        DialogColor(int grayDefault) {
             this.grayDefault = PaletteRole.toByte(grayDefault);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

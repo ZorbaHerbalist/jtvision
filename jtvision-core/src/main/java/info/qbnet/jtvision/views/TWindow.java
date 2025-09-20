@@ -17,33 +17,26 @@ public class TWindow extends TGroup {
      */
     public enum WindowColor implements PaletteRole {
         /** Frame when window is inactive. */
-        FRAME_PASSIVE(1, 0x08),
+        FRAME_PASSIVE(0x08),
         /** Frame when window is active. */
-        FRAME_ACTIVE(2, 0x09),
+        FRAME_ACTIVE(0x09),
         /** Frame icon area. */
-        FRAME_ICON(3, 0x0A),
+        FRAME_ICON(0x0A),
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(4, 0x0B),
+        SCROLLBAR_PAGE(0x0B),
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(5, 0x0C),
+        SCROLLBAR_CONTROLS(0x0C),
         /** Scroller normal text. */
-        SCROLLER_NORMAL(6, 0x0D),
+        SCROLLER_NORMAL(0x0D),
         /** Scroller selected text. */
-        SCROLLER_SELECTED(7, 0x0E),
+        SCROLLER_SELECTED(0x0E),
         /** Reserved slot. */
-        RESERVED(8, 0x0F);
+        RESERVED(0x0F);
 
-        private final int index;
         private final byte blueDefault;
 
-        WindowColor(int index, int blueDefault) {
-            this.index = index;
+        WindowColor(int blueDefault) {
             this.blueDefault = PaletteRole.toByte(blueDefault);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

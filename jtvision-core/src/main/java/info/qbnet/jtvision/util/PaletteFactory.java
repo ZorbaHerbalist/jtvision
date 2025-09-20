@@ -88,6 +88,33 @@ public final class PaletteFactory {
     public static synchronized <R extends Enum<R> & PaletteRole> void registerDefaults(String name,
                                                                                        Class<R> roleEnum,
                                                                                        Function<R, Byte> defaultMapper) {
+        registerPalette(name, roleEnum, defaultMapper, false);
+    }
+
+    /**
+     * Registers a palette whose indices are derived automatically from the enum
+     * declaration order. The supplied enum must not override
+     * {@link PaletteRole#index()} or {@link PaletteRole#defaultIndex()}.
+     */
+    public static synchronized <R extends Enum<R> & PaletteRole> void registerAutoIndexed(String name,
+                                                                                          Class<R> roleEnum) {
+        registerAutoIndexed(name, roleEnum, PaletteRole::defaultValue);
+    }
+
+    /**
+     * Registers a palette whose indices are derived automatically from the enum
+     * declaration order using a custom default mapper.
+     */
+    public static synchronized <R extends Enum<R> & PaletteRole> void registerAutoIndexed(String name,
+                                                                                          Class<R> roleEnum,
+                                                                                          Function<R, Byte> defaultMapper) {
+        registerPalette(name, roleEnum, defaultMapper, true);
+    }
+
+    private static <R extends Enum<R> & PaletteRole> void registerPalette(String name,
+                                                                          Class<R> roleEnum,
+                                                                          Function<R, Byte> defaultMapper,
+                                                                          boolean enforceAutoIndexing) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(roleEnum, "roleEnum");
         Objects.requireNonNull(defaultMapper, "defaultMapper");
@@ -95,6 +122,14 @@ public final class PaletteFactory {
         R[] constants = roleEnum.getEnumConstants();
         if (constants == null || constants.length == 0) {
             throw new IllegalArgumentException("Palette role enum has no constants: " + roleEnum);
+        }
+        if (enforceAutoIndexing) {
+            for (R constant : constants) {
+                if (PaletteRole.hasExplicitIndex(constant)) {
+                    throw new IllegalArgumentException(
+                            "Palette role " + constant + " defines an explicit index; use registerDefaults instead");
+                }
+            }
         }
         EnumMap<R, Byte> defaults = new EnumMap<>(roleEnum);
         for (R constant : constants) {

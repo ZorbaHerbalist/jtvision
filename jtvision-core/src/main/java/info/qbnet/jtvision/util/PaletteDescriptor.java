@@ -32,7 +32,9 @@ public final class PaletteDescriptor<R extends Enum<R> & PaletteRole> {
     /**
      * Registers the default palette mapping for {@code name} using
      * {@link PaletteRole#defaultValue()} definitions provided by {@code roleEnum}
-     * and returns a descriptor for convenient access.
+     * and returns a descriptor for convenient access. When the enum does not
+     * override {@link PaletteRole#index()}, indices are assigned automatically
+     * based on the declaration order.
      */
     public static <R extends Enum<R> & PaletteRole> PaletteDescriptor<R> register(String name, Class<R> roleEnum) {
         Objects.requireNonNull(name, "name");
@@ -53,6 +55,33 @@ public final class PaletteDescriptor<R extends Enum<R> & PaletteRole> {
         Objects.requireNonNull(roleEnum, "roleEnum");
         Objects.requireNonNull(defaultMapper, "defaultMapper");
         PaletteFactory.registerDefaults(name, roleEnum, defaultMapper);
+        return new PaletteDescriptor<>(name, roleEnum);
+    }
+
+    /**
+     * Registers a palette whose indices are derived automatically from the enum
+     * declaration order and returns a descriptor for convenient access.
+     */
+    public static <R extends Enum<R> & PaletteRole> PaletteDescriptor<R> registerAutoIndexed(String name,
+                                                                                             Class<R> roleEnum) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(roleEnum, "roleEnum");
+        PaletteFactory.registerAutoIndexed(name, roleEnum);
+        return new PaletteDescriptor<>(name, roleEnum);
+    }
+
+    /**
+     * Registers a palette whose indices are derived automatically from the enum
+     * declaration order using {@code defaultMapper} to provide the default
+     * values and returns a descriptor for convenient access.
+     */
+    public static <R extends Enum<R> & PaletteRole> PaletteDescriptor<R> registerAutoIndexed(String name,
+                                                                                             Class<R> roleEnum,
+                                                                                             Function<R, Byte> defaultMapper) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(roleEnum, "roleEnum");
+        Objects.requireNonNull(defaultMapper, "defaultMapper");
+        PaletteFactory.registerAutoIndexed(name, roleEnum, defaultMapper);
         return new PaletteDescriptor<>(name, roleEnum);
     }
 

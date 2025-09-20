@@ -15,27 +15,20 @@ public class THistoryViewer extends TListViewer {
      */
     public enum HistoryViewerColor implements PaletteRole {
         /** Active history entry. */
-        ACTIVE(1, 0x06),
+        ACTIVE(0x06),
         /** Inactive history entry. */
-        INACTIVE(2, 0x06),
+        INACTIVE(0x06),
         /** Focused entry highlight. */
-        FOCUSED(3, 0x07),
+        FOCUSED(0x07),
         /** Selected entry highlight. */
-        SELECTED(4, 0x06),
+        SELECTED(0x06),
         /** Column divider. */
-        DIVIDER(5, 0x06);
+        DIVIDER(0x06);
 
-        private final int index;
         private final byte defaultValue;
 
-        HistoryViewerColor(int index, int defaultValue) {
-            this.index = index;
+        HistoryViewerColor(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override

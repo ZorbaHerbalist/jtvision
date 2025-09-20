@@ -18,7 +18,7 @@ public class TPalette {
         Map<Integer, Byte> indexCopy = new HashMap<>();
         data.forEach((role, value) -> {
             roleCopy.put(role, value);
-            int index = role.index();
+            int index = PaletteRole.hasExplicitIndex(role) ? role.index() : role.defaultIndex();
             if (index <= 0) {
                 throw new IllegalArgumentException("Palette role index must be positive: " + role);
             }

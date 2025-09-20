@@ -3,17 +3,34 @@ package info.qbnet.jtvision.util;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PaletteFactoryTest {
 
     private enum SampleRole implements PaletteRole {
-        PRIMARY(1, 0x10),
-        SECONDARY(2, 0x20);
+        PRIMARY(0x10),
+        SECONDARY(0x20);
+
+        private final byte defaultValue;
+
+        SampleRole(int defaultValue) {
+            this.defaultValue = PaletteRole.toByte(defaultValue);
+        }
+
+        @Override
+        public byte defaultValue() {
+            return defaultValue;
+        }
+    }
+
+    private enum ExplicitIndexRole implements PaletteRole {
+        PRIMARY(5, 0x10),
+        SECONDARY(6, 0x20);
 
         private final int index;
         private final byte defaultValue;
 
-        SampleRole(int index, int defaultValue) {
+        ExplicitIndexRole(int index, int defaultValue) {
             this.index = index;
             this.defaultValue = PaletteRole.toByte(defaultValue);
         }
@@ -71,5 +88,22 @@ class PaletteFactoryTest {
 
         assertEquals(SampleRole.PRIMARY.defaultValue(), palette.get(SampleRole.PRIMARY));
         assertEquals(SampleRole.SECONDARY.defaultValue(), palette.get(SampleRole.SECONDARY));
+    }
+
+    @Test
+    void shouldRegisterAutoIndexedPalette() {
+        String paletteName = "testPaletteAuto";
+        PaletteFactory.registerAutoIndexed(paletteName, SampleRole.class);
+
+        TPalette palette = PaletteFactory.get(paletteName);
+
+        assertEquals(SampleRole.PRIMARY.defaultValue(), palette.get(SampleRole.PRIMARY));
+        assertEquals(SampleRole.SECONDARY.defaultValue(), palette.get(SampleRole.SECONDARY));
+    }
+
+    @Test
+    void shouldRejectAutoIndexedWhenIndicesAreExplicit() {
+        assertThrows(IllegalArgumentException.class,
+                () -> PaletteFactory.registerAutoIndexed("testPaletteExplicit", ExplicitIndexRole.class));
     }
 }

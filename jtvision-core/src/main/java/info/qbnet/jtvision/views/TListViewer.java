@@ -24,27 +24,20 @@ public class TListViewer extends TView {
      */
     public enum ListViewerColor implements PaletteRole {
         /** Active list background. */
-        ACTIVE(1, 0x1A),
+        ACTIVE(0x1A),
         /** Inactive list background. */
-        INACTIVE(2, 0x1A),
+        INACTIVE(0x1A),
         /** Focused item. */
-        FOCUSED(3, 0x1B),
+        FOCUSED(0x1B),
         /** Selected item. */
-        SELECTED(4, 0x1C),
+        SELECTED(0x1C),
         /** Column divider. */
-        DIVIDER(5, 0x1D);
+        DIVIDER(0x1D);
 
-        private final int index;
         private final byte defaultValue;
 
-        ListViewerColor(int index, int defaultValue) {
-            this.index = index;
+        ListViewerColor(int defaultValue) {
             this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public int index() {
-            return index;
         }
 
         @Override
