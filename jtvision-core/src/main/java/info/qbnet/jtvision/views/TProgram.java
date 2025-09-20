@@ -47,276 +47,265 @@ public class TProgram extends TGroup {
      */
     public enum ProgramColor implements PaletteRole {
         /** Desktop background. */
-        BACKGROUND(0x71),
+        BACKGROUND,
         /** Menu and status line normal text. */
-        MENU_NORMAL_TEXT(0x70),
+        MENU_NORMAL_TEXT,
         /** Menu and status line disabled text. */
-        MENU_DISABLED_TEXT(0x78),
+        MENU_DISABLED_TEXT,
         /** Menu and status line shortcut text. */
-        MENU_SHORTCUT_TEXT(0x74),
+        MENU_SHORTCUT_TEXT,
         /** Menu and status line normal selection highlight. */
-        MENU_NORMAL_SELECTION(0x20),
+        MENU_NORMAL_SELECTION,
         /** Menu and status line disabled selection highlight. */
-        MENU_DISABLED_SELECTION(0x28),
+        MENU_DISABLED_SELECTION,
         /** Menu and status line shortcut selection highlight. */
-        MENU_SHORTCUT_SELECTION(0x24),
+        MENU_SHORTCUT_SELECTION,
 
         /** Blue window passive frame. */
-        BLUE_WINDOW_FRAME_PASSIVE(0x17),
+        BLUE_WINDOW_FRAME_PASSIVE,
         /** Blue window active frame. */
-        BLUE_WINDOW_FRAME_ACTIVE(0x1F),
+        BLUE_WINDOW_FRAME_ACTIVE,
         /** Blue window frame icon. */
-        BLUE_WINDOW_FRAME_ICON(0x1A),
+        BLUE_WINDOW_FRAME_ICON,
         /** Blue window scrollbar page area. */
-        BLUE_WINDOW_SCROLLBAR_PAGE(0x31),
+        BLUE_WINDOW_SCROLLBAR_PAGE,
         /** Blue window scrollbar controls. */
-        BLUE_WINDOW_SCROLLBAR_CONTROLS(0x31),
+        BLUE_WINDOW_SCROLLBAR_CONTROLS,
         /** Blue window scroller normal text. */
-        BLUE_WINDOW_SCROLLER_NORMAL(0x1E),
+        BLUE_WINDOW_SCROLLER_NORMAL,
         /** Blue window scroller selected text. */
-        BLUE_WINDOW_SCROLLER_SELECTED(0x71),
+        BLUE_WINDOW_SCROLLER_SELECTED,
         /** Reserved blue window slot. */
-        BLUE_WINDOW_RESERVED(0x1F),
+        BLUE_WINDOW_RESERVED,
 
         /** Cyan window passive frame. */
-        CYAN_WINDOW_FRAME_PASSIVE(0x37),
+        CYAN_WINDOW_FRAME_PASSIVE,
         /** Cyan window active frame. */
-        CYAN_WINDOW_FRAME_ACTIVE(0x3F),
+        CYAN_WINDOW_FRAME_ACTIVE,
         /** Cyan window frame icon. */
-        CYAN_WINDOW_FRAME_ICON(0x3A),
+        CYAN_WINDOW_FRAME_ICON,
         /** Cyan window scrollbar page area. */
-        CYAN_WINDOW_SCROLLBAR_PAGE(0x13),
+        CYAN_WINDOW_SCROLLBAR_PAGE,
         /** Cyan window scrollbar controls. */
-        CYAN_WINDOW_SCROLLBAR_CONTROLS(0x13),
+        CYAN_WINDOW_SCROLLBAR_CONTROLS,
         /** Cyan window scroller normal text. */
-        CYAN_WINDOW_SCROLLER_NORMAL(0x3E),
+        CYAN_WINDOW_SCROLLER_NORMAL,
         /** Cyan window scroller selected text. */
-        CYAN_WINDOW_SCROLLER_SELECTED(0x21),
+        CYAN_WINDOW_SCROLLER_SELECTED,
         /** Reserved cyan window slot. */
-        CYAN_WINDOW_RESERVED(0x3F),
+        CYAN_WINDOW_RESERVED,
 
         /** Gray window passive frame. */
-        GRAY_WINDOW_FRAME_PASSIVE(0x70),
+        GRAY_WINDOW_FRAME_PASSIVE,
         /** Gray window active frame. */
-        GRAY_WINDOW_FRAME_ACTIVE(0x7F),
+        GRAY_WINDOW_FRAME_ACTIVE,
         /** Gray window frame icon. */
-        GRAY_WINDOW_FRAME_ICON(0x7A),
+        GRAY_WINDOW_FRAME_ICON,
         /** Gray window scrollbar page area. */
-        GRAY_WINDOW_SCROLLBAR_PAGE(0x13),
+        GRAY_WINDOW_SCROLLBAR_PAGE,
         /** Gray window scrollbar controls. */
-        GRAY_WINDOW_SCROLLBAR_CONTROLS(0x13),
+        GRAY_WINDOW_SCROLLBAR_CONTROLS,
         /** Gray window scroller normal text. */
-        GRAY_WINDOW_SCROLLER_NORMAL(0x70),
+        GRAY_WINDOW_SCROLLER_NORMAL,
         /** Gray window scroller selected text. */
-        GRAY_WINDOW_SCROLLER_SELECTED(0x7F),
+        GRAY_WINDOW_SCROLLER_SELECTED,
         /** Reserved gray window slot. */
-        GRAY_WINDOW_RESERVED(0x7E),
+        GRAY_WINDOW_RESERVED,
 
         /** Gray dialog passive frame. */
-        GRAY_DIALOG_FRAME_PASSIVE(0x70),
+        GRAY_DIALOG_FRAME_PASSIVE,
         /** Gray dialog active frame. */
-        GRAY_DIALOG_FRAME_ACTIVE(0x7F),
+        GRAY_DIALOG_FRAME_ACTIVE,
         /** Gray dialog frame icon. */
-        GRAY_DIALOG_FRAME_ICON(0x7A),
+        GRAY_DIALOG_FRAME_ICON,
         /** Gray dialog scrollbar page area. */
-        GRAY_DIALOG_SCROLLBAR_PAGE(0x13),
+        GRAY_DIALOG_SCROLLBAR_PAGE,
         /** Gray dialog scrollbar controls. */
-        GRAY_DIALOG_SCROLLBAR_CONTROLS(0x13),
+        GRAY_DIALOG_SCROLLBAR_CONTROLS,
         /** Gray dialog static text. */
-        GRAY_DIALOG_STATIC_TEXT(0x70),
+        GRAY_DIALOG_STATIC_TEXT,
         /** Gray dialog label text. */
-        GRAY_DIALOG_LABEL_NORMAL(0x70),
+        GRAY_DIALOG_LABEL_NORMAL,
         /** Gray dialog label highlight. */
-        GRAY_DIALOG_LABEL_SELECTED(0x7F),
+        GRAY_DIALOG_LABEL_SELECTED,
         /** Gray dialog label shortcut. */
-        GRAY_DIALOG_LABEL_SHORTCUT(0x7E),
+        GRAY_DIALOG_LABEL_SHORTCUT,
         /** Gray dialog button normal. */
-        GRAY_DIALOG_BUTTON_NORMAL(0x20),
+        GRAY_DIALOG_BUTTON_NORMAL,
         /** Gray dialog default button. */
-        GRAY_DIALOG_BUTTON_DEFAULT(0x2B),
+        GRAY_DIALOG_BUTTON_DEFAULT,
         /** Gray dialog pressed button. */
-        GRAY_DIALOG_BUTTON_SELECTED(0x2F),
+        GRAY_DIALOG_BUTTON_SELECTED,
         /** Gray dialog disabled button. */
-        GRAY_DIALOG_BUTTON_DISABLED(0x78),
+        GRAY_DIALOG_BUTTON_DISABLED,
         /** Gray dialog button shortcut. */
-        GRAY_DIALOG_BUTTON_SHORTCUT(0x2E),
+        GRAY_DIALOG_BUTTON_SHORTCUT,
         /** Gray dialog button shadow. */
-        GRAY_DIALOG_BUTTON_SHADOW(0x70),
+        GRAY_DIALOG_BUTTON_SHADOW,
         /** Gray dialog cluster text. */
-        GRAY_DIALOG_CLUSTER_NORMAL(0x30),
+        GRAY_DIALOG_CLUSTER_NORMAL,
         /** Gray dialog cluster selected text. */
-        GRAY_DIALOG_CLUSTER_SELECTED(0x3F),
+        GRAY_DIALOG_CLUSTER_SELECTED,
         /** Gray dialog cluster shortcut. */
-        GRAY_DIALOG_CLUSTER_SHORTCUT(0x3E),
+        GRAY_DIALOG_CLUSTER_SHORTCUT,
         /** Gray dialog input line text. */
-        GRAY_DIALOG_INPUT_LINE_NORMAL_TEXT(0x1F),
+        GRAY_DIALOG_INPUT_LINE_NORMAL_TEXT,
         /** Gray dialog input line selection. */
-        GRAY_DIALOG_INPUT_LINE_SELECTED_TEXT(0x2F),
+        GRAY_DIALOG_INPUT_LINE_SELECTED_TEXT,
         /** Gray dialog input line arrows. */
-        GRAY_DIALOG_INPUT_LINE_ARROWS(0x1A),
+        GRAY_DIALOG_INPUT_LINE_ARROWS,
         /** Gray dialog history arrow. */
-        GRAY_DIALOG_HISTORY_ARROW(0x20),
+        GRAY_DIALOG_HISTORY_ARROW,
         /** Gray dialog history sides. */
-        GRAY_DIALOG_HISTORY_SIDES(0x72),
+        GRAY_DIALOG_HISTORY_SIDES,
         /** Gray dialog history window page area. */
-        GRAY_DIALOG_HISTORY_WINDOW_PAGE(0x31),
+        GRAY_DIALOG_HISTORY_WINDOW_PAGE,
         /** Gray dialog history window controls. */
-        GRAY_DIALOG_HISTORY_WINDOW_CONTROLS(0x31),
+        GRAY_DIALOG_HISTORY_WINDOW_CONTROLS,
         /** Gray dialog list viewer normal item. */
-        GRAY_DIALOG_LIST_VIEWER_NORMAL(0x30),
+        GRAY_DIALOG_LIST_VIEWER_NORMAL,
         /** Gray dialog list viewer focused item. */
-        GRAY_DIALOG_LIST_VIEWER_FOCUSED(0x2F),
+        GRAY_DIALOG_LIST_VIEWER_FOCUSED,
         /** Gray dialog list viewer selected item. */
-        GRAY_DIALOG_LIST_VIEWER_SELECTED(0x3E),
+        GRAY_DIALOG_LIST_VIEWER_SELECTED,
         /** Gray dialog list viewer divider. */
-        GRAY_DIALOG_LIST_VIEWER_DIVIDER(0x31),
+        GRAY_DIALOG_LIST_VIEWER_DIVIDER,
         /** Gray dialog info pane. */
-        GRAY_DIALOG_INFO_PANE(0x13),
+        GRAY_DIALOG_INFO_PANE,
         /** Gray dialog cluster disabled. */
-        GRAY_DIALOG_CLUSTER_DISABLED(0x38),
+        GRAY_DIALOG_CLUSTER_DISABLED,
         /** Gray dialog reserved slot. */
-        GRAY_DIALOG_RESERVED(0x00),
+        GRAY_DIALOG_RESERVED,
 
         /** Blue dialog passive frame. */
-        BLUE_DIALOG_FRAME_PASSIVE(0x17),
+        BLUE_DIALOG_FRAME_PASSIVE,
         /** Blue dialog active frame. */
-        BLUE_DIALOG_FRAME_ACTIVE(0x1F),
+        BLUE_DIALOG_FRAME_ACTIVE,
         /** Blue dialog frame icon. */
-        BLUE_DIALOG_FRAME_ICON(0x1A),
+        BLUE_DIALOG_FRAME_ICON,
         /** Blue dialog scrollbar page area. */
-        BLUE_DIALOG_SCROLLBAR_PAGE(0x71),
+        BLUE_DIALOG_SCROLLBAR_PAGE,
         /** Blue dialog scrollbar controls. */
-        BLUE_DIALOG_SCROLLBAR_CONTROLS(0x71),
+        BLUE_DIALOG_SCROLLBAR_CONTROLS,
         /** Blue dialog static text. */
-        BLUE_DIALOG_STATIC_TEXT(0x1E),
+        BLUE_DIALOG_STATIC_TEXT,
         /** Blue dialog label text. */
-        BLUE_DIALOG_LABEL_NORMAL(0x17),
+        BLUE_DIALOG_LABEL_NORMAL,
         /** Blue dialog label highlight. */
-        BLUE_DIALOG_LABEL_SELECTED(0x1F),
+        BLUE_DIALOG_LABEL_SELECTED,
         /** Blue dialog label shortcut. */
-        BLUE_DIALOG_LABEL_SHORTCUT(0x1E),
+        BLUE_DIALOG_LABEL_SHORTCUT,
         /** Blue dialog button normal. */
-        BLUE_DIALOG_BUTTON_NORMAL(0x20),
+        BLUE_DIALOG_BUTTON_NORMAL,
         /** Blue dialog default button. */
-        BLUE_DIALOG_BUTTON_DEFAULT(0x2B),
+        BLUE_DIALOG_BUTTON_DEFAULT,
         /** Blue dialog pressed button. */
-        BLUE_DIALOG_BUTTON_SELECTED(0x2F),
+        BLUE_DIALOG_BUTTON_SELECTED,
         /** Blue dialog disabled button. */
-        BLUE_DIALOG_BUTTON_DISABLED(0x78),
+        BLUE_DIALOG_BUTTON_DISABLED,
         /** Blue dialog button shortcut. */
-        BLUE_DIALOG_BUTTON_SHORTCUT(0x2E),
+        BLUE_DIALOG_BUTTON_SHORTCUT,
         /** Blue dialog button shadow. */
-        BLUE_DIALOG_BUTTON_SHADOW(0x10),
+        BLUE_DIALOG_BUTTON_SHADOW,
         /** Blue dialog cluster text. */
-        BLUE_DIALOG_CLUSTER_NORMAL(0x30),
+        BLUE_DIALOG_CLUSTER_NORMAL,
         /** Blue dialog cluster selected text. */
-        BLUE_DIALOG_CLUSTER_SELECTED(0x3F),
+        BLUE_DIALOG_CLUSTER_SELECTED,
         /** Blue dialog cluster shortcut. */
-        BLUE_DIALOG_CLUSTER_SHORTCUT(0x3E),
+        BLUE_DIALOG_CLUSTER_SHORTCUT,
         /** Blue dialog input line text. */
-        BLUE_DIALOG_INPUT_LINE_NORMAL_TEXT(0x70),
+        BLUE_DIALOG_INPUT_LINE_NORMAL_TEXT,
         /** Blue dialog input line selection. */
-        BLUE_DIALOG_INPUT_LINE_SELECTED_TEXT(0x2F),
+        BLUE_DIALOG_INPUT_LINE_SELECTED_TEXT,
         /** Blue dialog input line arrows. */
-        BLUE_DIALOG_INPUT_LINE_ARROWS(0x7A),
+        BLUE_DIALOG_INPUT_LINE_ARROWS,
         /** Blue dialog history arrow. */
-        BLUE_DIALOG_HISTORY_ARROW(0x20),
+        BLUE_DIALOG_HISTORY_ARROW,
         /** Blue dialog history sides. */
-        BLUE_DIALOG_HISTORY_SIDES(0x12),
+        BLUE_DIALOG_HISTORY_SIDES,
         /** Blue dialog history window page area. */
-        BLUE_DIALOG_HISTORY_WINDOW_PAGE(0x31),
+        BLUE_DIALOG_HISTORY_WINDOW_PAGE,
         /** Blue dialog history window controls. */
-        BLUE_DIALOG_HISTORY_WINDOW_CONTROLS(0x31),
+        BLUE_DIALOG_HISTORY_WINDOW_CONTROLS,
         /** Blue dialog list viewer normal item. */
-        BLUE_DIALOG_LIST_VIEWER_NORMAL(0x30),
+        BLUE_DIALOG_LIST_VIEWER_NORMAL,
         /** Blue dialog list viewer focused item. */
-        BLUE_DIALOG_LIST_VIEWER_FOCUSED(0x2F),
+        BLUE_DIALOG_LIST_VIEWER_FOCUSED,
         /** Blue dialog list viewer selected item. */
-        BLUE_DIALOG_LIST_VIEWER_SELECTED(0x3E),
+        BLUE_DIALOG_LIST_VIEWER_SELECTED,
         /** Blue dialog list viewer divider. */
-        BLUE_DIALOG_LIST_VIEWER_DIVIDER(0x31),
+        BLUE_DIALOG_LIST_VIEWER_DIVIDER,
         /** Blue dialog info pane. */
-        BLUE_DIALOG_INFO_PANE(0x13),
+        BLUE_DIALOG_INFO_PANE,
         /** Blue dialog cluster disabled. */
-        BLUE_DIALOG_CLUSTER_DISABLED(0x38),
+        BLUE_DIALOG_CLUSTER_DISABLED,
         /** Blue dialog reserved slot. */
-        BLUE_DIALOG_RESERVED(0x00),
+        BLUE_DIALOG_RESERVED,
 
         /** Cyan dialog passive frame. */
-        CYAN_DIALOG_FRAME_PASSIVE(0x37),
+        CYAN_DIALOG_FRAME_PASSIVE,
         /** Cyan dialog active frame. */
-        CYAN_DIALOG_FRAME_ACTIVE(0x3F),
+        CYAN_DIALOG_FRAME_ACTIVE,
         /** Cyan dialog frame icon. */
-        CYAN_DIALOG_FRAME_ICON(0x3A),
+        CYAN_DIALOG_FRAME_ICON,
         /** Cyan dialog scrollbar page area. */
-        CYAN_DIALOG_SCROLLBAR_PAGE(0x13),
+        CYAN_DIALOG_SCROLLBAR_PAGE,
         /** Cyan dialog scrollbar controls. */
-        CYAN_DIALOG_SCROLLBAR_CONTROLS(0x13),
+        CYAN_DIALOG_SCROLLBAR_CONTROLS,
         /** Cyan dialog static text. */
-        CYAN_DIALOG_STATIC_TEXT(0x3E),
+        CYAN_DIALOG_STATIC_TEXT,
         /** Cyan dialog label text. */
-        CYAN_DIALOG_LABEL_NORMAL(0x30),
+        CYAN_DIALOG_LABEL_NORMAL,
         /** Cyan dialog label highlight. */
-        CYAN_DIALOG_LABEL_SELECTED(0x3F),
+        CYAN_DIALOG_LABEL_SELECTED,
         /** Cyan dialog label shortcut. */
-        CYAN_DIALOG_LABEL_SHORTCUT(0x3E),
+        CYAN_DIALOG_LABEL_SHORTCUT,
         /** Cyan dialog button normal. */
-        CYAN_DIALOG_BUTTON_NORMAL(0x20),
+        CYAN_DIALOG_BUTTON_NORMAL,
         /** Cyan dialog default button. */
-        CYAN_DIALOG_BUTTON_DEFAULT(0x2B),
+        CYAN_DIALOG_BUTTON_DEFAULT,
         /** Cyan dialog pressed button. */
-        CYAN_DIALOG_BUTTON_SELECTED(0x2F),
+        CYAN_DIALOG_BUTTON_SELECTED,
         /** Cyan dialog disabled button. */
-        CYAN_DIALOG_BUTTON_DISABLED(0x78),
+        CYAN_DIALOG_BUTTON_DISABLED,
         /** Cyan dialog button shortcut. */
-        CYAN_DIALOG_BUTTON_SHORTCUT(0x2E),
+        CYAN_DIALOG_BUTTON_SHORTCUT,
         /** Cyan dialog button shadow. */
-        CYAN_DIALOG_BUTTON_SHADOW(0x30),
+        CYAN_DIALOG_BUTTON_SHADOW,
         /** Cyan dialog cluster text. */
-        CYAN_DIALOG_CLUSTER_NORMAL(0x70),
+        CYAN_DIALOG_CLUSTER_NORMAL,
         /** Cyan dialog cluster selected text. */
-        CYAN_DIALOG_CLUSTER_SELECTED(0x7F),
+        CYAN_DIALOG_CLUSTER_SELECTED,
         /** Cyan dialog cluster shortcut. */
-        CYAN_DIALOG_CLUSTER_SHORTCUT(0x7E),
+        CYAN_DIALOG_CLUSTER_SHORTCUT,
         /** Cyan dialog input line text. */
-        CYAN_DIALOG_INPUT_LINE_NORMAL_TEXT(0x1F),
+        CYAN_DIALOG_INPUT_LINE_NORMAL_TEXT,
         /** Cyan dialog input line selection. */
-        CYAN_DIALOG_INPUT_LINE_SELECTED_TEXT(0x2F),
+        CYAN_DIALOG_INPUT_LINE_SELECTED_TEXT,
         /** Cyan dialog input line arrows. */
-        CYAN_DIALOG_INPUT_LINE_ARROWS(0x1A),
+        CYAN_DIALOG_INPUT_LINE_ARROWS,
         /** Cyan dialog history arrow. */
-        CYAN_DIALOG_HISTORY_ARROW(0x20),
+        CYAN_DIALOG_HISTORY_ARROW,
         /** Cyan dialog history sides. */
-        CYAN_DIALOG_HISTORY_SIDES(0x32),
+        CYAN_DIALOG_HISTORY_SIDES,
         /** Cyan dialog history window page area. */
-        CYAN_DIALOG_HISTORY_WINDOW_PAGE(0x31),
+        CYAN_DIALOG_HISTORY_WINDOW_PAGE,
         /** Cyan dialog history window controls. */
-        CYAN_DIALOG_HISTORY_WINDOW_CONTROLS(0x71),
+        CYAN_DIALOG_HISTORY_WINDOW_CONTROLS,
         /** Cyan dialog list viewer normal item. */
-        CYAN_DIALOG_LIST_VIEWER_NORMAL(0x70),
+        CYAN_DIALOG_LIST_VIEWER_NORMAL,
         /** Cyan dialog list viewer focused item. */
-        CYAN_DIALOG_LIST_VIEWER_FOCUSED(0x2F),
+        CYAN_DIALOG_LIST_VIEWER_FOCUSED,
         /** Cyan dialog list viewer selected item. */
-        CYAN_DIALOG_LIST_VIEWER_SELECTED(0x7E),
+        CYAN_DIALOG_LIST_VIEWER_SELECTED,
         /** Cyan dialog list viewer divider. */
-        CYAN_DIALOG_LIST_VIEWER_DIVIDER(0x71),
+        CYAN_DIALOG_LIST_VIEWER_DIVIDER,
         /** Cyan dialog info pane. */
-        CYAN_DIALOG_INFO_PANE(0x13),
+        CYAN_DIALOG_INFO_PANE,
         /** Cyan dialog cluster disabled. */
-        CYAN_DIALOG_CLUSTER_DISABLED(0x38),
+        CYAN_DIALOG_CLUSTER_DISABLED,
         /** Cyan dialog reserved slot. */
-        CYAN_DIALOG_RESERVED(0x00);
-
-        private final byte defaultValue;
-
-        ProgramColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        CYAN_DIALOG_RESERVED;
     }
 
     public static final PaletteDescriptor<ProgramColor> APP_COLOR_PALETTE =

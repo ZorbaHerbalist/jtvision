@@ -14,18 +14,7 @@ public class TBackground extends TView {
      */
     public enum BackgroundColor implements PaletteRole {
         /** Background fill. */
-        BACKGROUND(0x01);
-
-        private final byte defaultValue;
-
-        BackgroundColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        BACKGROUND;
     }
 
     public static void registerType() {

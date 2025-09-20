@@ -17,42 +17,21 @@ public class TWindow extends TGroup {
      */
     public enum WindowColor implements PaletteRole {
         /** Frame when window is inactive. */
-        FRAME_PASSIVE(0x08),
+        FRAME_PASSIVE,
         /** Frame when window is active. */
-        FRAME_ACTIVE(0x09),
+        FRAME_ACTIVE,
         /** Frame icon area. */
-        FRAME_ICON(0x0A),
+        FRAME_ICON,
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(0x0B),
+        SCROLLBAR_PAGE,
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(0x0C),
+        SCROLLBAR_CONTROLS,
         /** Scroller normal text. */
-        SCROLLER_NORMAL(0x0D),
+        SCROLLER_NORMAL,
         /** Scroller selected text. */
-        SCROLLER_SELECTED(0x0E),
+        SCROLLER_SELECTED,
         /** Reserved slot. */
-        RESERVED(0x0F);
-
-        private final byte blueDefault;
-
-        WindowColor(int blueDefault) {
-            this.blueDefault = PaletteRole.toByte(blueDefault);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return blueDefault;
-        }
-
-        public byte cyanDefault() {
-            int value = Byte.toUnsignedInt(blueDefault) + 0x08;
-            return PaletteRole.toByte(value);
-        }
-
-        public byte grayDefault() {
-            int value = Byte.toUnsignedInt(blueDefault) + 0x10;
-            return PaletteRole.toByte(value);
-        }
+        RESERVED;
     }
 
     public static void registerType() {
@@ -89,9 +68,9 @@ public class TWindow extends TGroup {
     public static final PaletteDescriptor<WindowColor> BLUE_WINDOW_PALETTE =
             PaletteDescriptor.register("window.blue", WindowColor.class);
     public static final PaletteDescriptor<WindowColor> CYAN_WINDOW_PALETTE =
-            PaletteDescriptor.register("window.cyan", WindowColor.class, WindowColor::cyanDefault);
+            PaletteDescriptor.register("window.cyan", WindowColor.class);
     public static final PaletteDescriptor<WindowColor> GRAY_WINDOW_PALETTE =
-            PaletteDescriptor.register("window.gray", WindowColor.class, WindowColor::grayDefault);
+            PaletteDescriptor.register("window.gray", WindowColor.class);
 
     private WindowPalette palette = WindowPalette.WP_BLUE_WINDOW;
 

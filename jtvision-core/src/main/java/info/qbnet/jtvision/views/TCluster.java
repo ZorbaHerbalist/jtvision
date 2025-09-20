@@ -15,26 +15,15 @@ public abstract class TCluster extends TView {
      */
     public enum ClusterColor implements PaletteRole {
         /** Normal text. */
-        NORMAL_TEXT(0x10),
+        NORMAL_TEXT,
         /** Selected text. */
-        SELECTED_TEXT(0x11),
+        SELECTED_TEXT,
         /** Normal shortcut/accelerator character. */
-        NORMAL_SHORTCUT(0x12),
+        NORMAL_SHORTCUT,
         /** Shortcut while selected. */
-        SELECTED_SHORTCUT(0x12),
+        SELECTED_SHORTCUT,
         /** Disabled text. */
-        DISABLED_TEXT(0x1F);
-
-        private final byte defaultValue;
-
-        ClusterColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        DISABLED_TEXT;
     }
 
     public int value = 0;

@@ -18,11 +18,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
- * Factory responsible for constructing {@link TPalette} instances using either
- * built-in defaults or optional JSON configuration files located in
+ * Factory responsible for constructing {@link TPalette} instances using JSON definitions located in
  * {@code src/main/resources/palettes}.
  */
 public final class PaletteFactory {
@@ -67,87 +65,26 @@ public final class PaletteFactory {
     }
 
     /**
-     * Registers the default palette data for the specified palette name using
-     * the {@link PaletteRole#defaultValue()} definitions provided by the enum
-     * constants.
-     */
-    public static synchronized <R extends Enum<R> & PaletteRole> void registerDefaults(String name,
-                                                                                       Class<R> roleEnum) {
-        registerDefaults(name, roleEnum, PaletteRole::defaultValue);
-    }
-
-    /**
-     * Registers the default palette data for the specified palette name using
-     * the values provided by {@code defaultMapper}.
+     * Registers the palette {@code name} by loading its entries from the JSON resource located in
+     * {@code src/main/resources/palettes}.
      *
-     * @param name           palette identifier
-     * @param roleEnum       enum describing the palette roles
-     * @param defaultMapper  function returning the default value for a given
-     *                       role
+     * @param name     palette identifier
+     * @param roleEnum enum describing the palette roles
      */
-    public static synchronized <R extends Enum<R> & PaletteRole> void registerDefaults(String name,
-                                                                                       Class<R> roleEnum,
-                                                                                       Function<R, Byte> defaultMapper) {
-        registerPalette(name, roleEnum, defaultMapper, false);
-    }
-
-    /**
-     * Registers a palette whose indices are derived automatically from the enum
-     * declaration order. The supplied enum must not override
-     * {@link PaletteRole#index()} or {@link PaletteRole#defaultIndex()}.
-     */
-    public static synchronized <R extends Enum<R> & PaletteRole> void registerAutoIndexed(String name,
-                                                                                          Class<R> roleEnum) {
-        registerAutoIndexed(name, roleEnum, PaletteRole::defaultValue);
-    }
-
-    /**
-     * Registers a palette whose indices are derived automatically from the enum
-     * declaration order using a custom default mapper.
-     */
-    public static synchronized <R extends Enum<R> & PaletteRole> void registerAutoIndexed(String name,
-                                                                                          Class<R> roleEnum,
-                                                                                          Function<R, Byte> defaultMapper) {
-        registerPalette(name, roleEnum, defaultMapper, true);
-    }
-
-    private static <R extends Enum<R> & PaletteRole> void registerPalette(String name,
-                                                                          Class<R> roleEnum,
-                                                                          Function<R, Byte> defaultMapper,
-                                                                          boolean enforceAutoIndexing) {
+    public static synchronized <R extends Enum<R> & PaletteRole> void register(String name,
+                                                                               Class<R> roleEnum) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(roleEnum, "roleEnum");
-        Objects.requireNonNull(defaultMapper, "defaultMapper");
 
-        R[] constants = roleEnum.getEnumConstants();
-        if (constants == null || constants.length == 0) {
-            throw new IllegalArgumentException("Palette role enum has no constants: " + roleEnum);
-        }
-        if (enforceAutoIndexing) {
-            for (R constant : constants) {
-                if (PaletteRole.hasExplicitIndex(constant)) {
-                    throw new IllegalArgumentException(
-                            "Palette role " + constant + " defines an explicit index; use registerDefaults instead");
-                }
-            }
-        }
-        EnumMap<R, Byte> defaults = new EnumMap<>(roleEnum);
-        for (R constant : constants) {
-            Byte value = defaultMapper.apply(constant);
-            if (value == null) {
-                throw new IllegalArgumentException("Palette default mapper returned null for role " + constant);
-            }
-            defaults.put(constant, value);
-        }
-
-        PaletteDefinition<R> definition = new PaletteDefinition<>(roleEnum, defaults);
+        EnumMap<R, Byte> entries = loadPalette(name, roleEnum);
+        PaletteDefinition<R> definition = new PaletteDefinition<>(roleEnum, entries);
         DEFAULTS.put(name, definition);
         CACHE.remove(name);
     }
 
     /**
-     * Returns a palette by name. The palette is constructed using the registered
-     * defaults and optionally overridden by JSON configuration when available.
+     * Returns a palette by name. The palette is constructed from the JSON resource registered for the
+     * palette.
      *
      * @param name palette identifier
      * @return palette instance
@@ -158,92 +95,97 @@ public final class PaletteFactory {
         if (definition == null) {
             throw new IllegalArgumentException("Palette '" + name + "' has not been registered");
         }
-        return CACHE.computeIfAbsent(name, key -> buildPalette(key, definition));
+        return CACHE.computeIfAbsent(name, key -> definition.toPalette());
     }
 
-    private static TPalette buildPalette(String name, PaletteDefinition<?> definition) {
-        Map<String, Byte> overrides = loadOverrides(name, definition);
-        return definition.toPalette(overrides);
-    }
+    private static <R extends Enum<R> & PaletteRole> EnumMap<R, Byte> loadPalette(String name, Class<R> roleEnum) {
+        R[] constants = roleEnum.getEnumConstants();
+        if (constants == null || constants.length == 0) {
+            throw new IllegalArgumentException("Palette role enum has no constants: " + roleEnum);
+        }
 
-    private static Map<String, Byte> loadOverrides(String name, PaletteDefinition<?> definition) {
         String resource = RESOURCE_PREFIX + name + ".json";
         try (InputStream in = PaletteFactory.class.getClassLoader().getResourceAsStream(resource)) {
             if (in == null) {
-                LOG.debug("Palette resource {} not found; using defaults for {}", resource, name);
-                return Collections.emptyMap();
+                throw new IllegalStateException("Palette resource '" + resource + "' not found");
             }
+
             JsonNode root;
             try {
                 root = OBJECT_MAPPER.readTree(in);
             } catch (JsonProcessingException e) {
-                LOG.warn("Invalid JSON in palette resource {}: {}", resource, e.getOriginalMessage());
-                return Collections.emptyMap();
+                throw new IllegalStateException(
+                        "Invalid JSON in palette resource '" + resource + "': " + e.getOriginalMessage(), e);
             }
-            Map<String, Byte> overrides = parseOverrides(name, definition, root);
-            if (overrides.isEmpty()) {
-                LOG.debug("Palette {} loaded with defaults from {}", name, resource);
-            } else {
-                LOG.info("Loaded {} override{} for palette {} from {}", overrides.size(),
-                        overrides.size() == 1 ? "" : "s", name, resource);
-            }
-            return overrides;
+
+            EnumMap<R, Byte> entries = parsePalette(name, roleEnum, root);
+            LOG.info("Loaded palette {} from {}", name, resource);
+            return entries;
         } catch (IOException e) {
-            LOG.warn("Error reading palette resource {}: {}", resource, e.getMessage());
-            return Collections.emptyMap();
+            throw new IllegalStateException("Error reading palette resource '" + resource + "': " + e.getMessage(), e);
         }
     }
 
-    private static Map<String, Byte> parseOverrides(String paletteName, PaletteDefinition<?> definition,
-                                                    JsonNode root) {
+    private static <R extends Enum<R> & PaletteRole> EnumMap<R, Byte> parsePalette(String paletteName,
+                                                                                   Class<R> roleEnum,
+                                                                                   JsonNode root) {
         if (root == null || root.isNull()) {
-            return Collections.emptyMap();
+            throw new IllegalStateException("Palette " + paletteName + " configuration is empty");
         }
         if (!root.isObject()) {
-            LOG.warn("Palette {} configuration is not a JSON object; ignoring overrides", paletteName);
-            return Collections.emptyMap();
+            throw new IllegalStateException("Palette " + paletteName + " configuration must be a JSON object");
         }
-        Map<String, String> roleLookup = new HashMap<>();
-        Enum<?>[] constants = definition.roleEnum.getEnumConstants();
-        if (constants != null) {
-            for (Enum<?> constant : constants) {
-                roleLookup.put(constant.name().toUpperCase(Locale.ROOT), constant.name());
-            }
+
+        Map<String, R> roleLookup = new HashMap<>();
+        for (R constant : roleEnum.getEnumConstants()) {
+            roleLookup.put(constant.name().toUpperCase(Locale.ROOT), constant);
         }
-        Map<String, Byte> overrides = new LinkedHashMap<>();
+
+        EnumMap<R, Byte> entries = new EnumMap<>(roleEnum);
         root.fields().forEachRemaining(entry -> {
             String rawKey = entry.getKey();
             if (rawKey == null) {
                 return;
             }
-            String normalizedKey = rawKey.toUpperCase(Locale.ROOT);
-            String roleName = roleLookup.get(normalizedKey);
-            if (roleName == null) {
+            R role = roleLookup.get(rawKey.toUpperCase(Locale.ROOT));
+            if (role == null) {
                 LOG.warn("Palette {} entry '{}' does not match any role; ignoring", paletteName, rawKey);
                 return;
             }
+
             JsonNode valueNode = entry.getValue();
             if (valueNode == null || valueNode.isNull()) {
-                LOG.warn("Palette {} role '{}' has null value; falling back to default", paletteName, rawKey);
-                return;
+                throw new IllegalStateException(
+                        "Palette " + paletteName + " role '" + rawKey + "' has null value");
             }
+
             String rawValue;
             if (valueNode.isTextual() || valueNode.isNumber()) {
                 rawValue = valueNode.asText();
             } else {
-                LOG.warn("Palette {} role '{}' has unsupported value type {}; falling back to default", paletteName,
-                        rawKey, valueNode.getNodeType());
-                return;
+                throw new IllegalStateException(
+                        "Palette " + paletteName + " role '" + rawKey + "' has unsupported value type "
+                                + valueNode.getNodeType());
             }
+
+            Byte parsed;
             try {
-                Byte value = parseByteValue(rawValue);
-                overrides.put(roleName, value);
+                parsed = parseByteValue(rawValue);
             } catch (IllegalArgumentException ex) {
-                LOG.warn("Palette {} role '{}' has invalid value '{}'; falling back to default", paletteName, rawKey,
-                        rawValue, ex);
+                throw new IllegalStateException(
+                        "Palette " + paletteName + " role '" + rawKey + "' has invalid value '" + rawValue + "'",
+                        ex);
             }
+            entries.put(role, parsed);
         });
-        return overrides;
+
+        for (R constant : roleEnum.getEnumConstants()) {
+            if (!entries.containsKey(constant)) {
+                throw new IllegalStateException(
+                        "Palette " + paletteName + " is missing a value for role " + constant.name());
+            }
+        }
+        return entries;
     }
 
     private static byte parseByteValue(String raw) {
@@ -273,13 +215,12 @@ public final class PaletteFactory {
     }
 
     /**
-     * Returns a snapshot of all registered default palettes. The map keys are
-     * palette identifiers and values represent role-to-byte mappings using the
-     * enum constant names. The returned structure is read-only.
+     * Returns a snapshot of all registered palettes. The map keys are palette identifiers and values represent
+     * role-to-byte mappings using the enum constant names. The returned structure is read-only.
      */
     public static Map<String, Map<String, Byte>> snapshotDefaults() {
         Map<String, Map<String, Byte>> snapshot = new TreeMap<>();
-        DEFAULTS.forEach((name, definition) -> snapshot.put(name, definition.defaultMapping()));
+        DEFAULTS.forEach((name, definition) -> snapshot.put(name, definition.mapping()));
         return Collections.unmodifiableMap(snapshot);
     }
 
@@ -292,50 +233,31 @@ public final class PaletteFactory {
 
     private static final class PaletteDefinition<R extends Enum<R> & PaletteRole> {
         private final Class<R> roleEnum;
-        private final EnumMap<R, Byte> defaultValues;
+        private final EnumMap<R, Byte> values;
 
-        PaletteDefinition(Class<R> roleEnum, EnumMap<R, Byte> defaultValues) {
+        PaletteDefinition(Class<R> roleEnum, EnumMap<R, Byte> values) {
             this.roleEnum = roleEnum;
-            this.defaultValues = new EnumMap<>(defaultValues);
+            this.values = new EnumMap<>(values);
         }
 
-        Map<String, Byte> defaultMapping() {
+        Map<String, Byte> mapping() {
             R[] constants = roleEnum.getEnumConstants();
             if (constants == null) {
                 throw new IllegalStateException("Palette role enum has no constants: " + roleEnum);
             }
             Map<String, Byte> map = new LinkedHashMap<>();
             for (R constant : constants) {
-                Byte value = defaultValues.get(constant);
+                Byte value = values.get(constant);
                 if (value == null) {
-                    throw new IllegalStateException("Missing default value for role " + constant + " in " + roleEnum);
+                    throw new IllegalStateException("Missing value for role " + constant + " in " + roleEnum);
                 }
                 map.put(constant.name(), value);
             }
             return Collections.unmodifiableMap(map);
         }
 
-        TPalette toPalette(Map<String, Byte> overrides) {
-            R[] constants = roleEnum.getEnumConstants();
-            if (constants == null) {
-                throw new IllegalStateException("Palette role enum has no constants: " + roleEnum);
-            }
-            EnumMap<R, Byte> map = new EnumMap<>(roleEnum);
-            for (R constant : constants) {
-                Byte base = defaultValues.get(constant);
-                if (base == null) {
-                    throw new IllegalStateException("Missing default value for role " + constant + " in " + roleEnum);
-                }
-                byte value = base;
-                if (overrides != null && !overrides.isEmpty()) {
-                    Byte override = overrides.get(constant.name());
-                    if (override != null) {
-                        value = override;
-                    }
-                }
-                map.put(constant, value);
-            }
-            return new TPalette(map);
+        TPalette toPalette() {
+            return new TPalette(new EnumMap<>(values));
         }
     }
 }

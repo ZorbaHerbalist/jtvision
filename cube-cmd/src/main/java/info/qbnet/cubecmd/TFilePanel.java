@@ -15,26 +15,19 @@ public class TFilePanel extends TFilePanelRoot {
     /** Palette roles used to render the file panel header row. */
     public enum FilePanelColor implements PaletteRole {
         /** Normal header text. */
-        HEADER_TEXT(6, 0x06),
+        HEADER_TEXT(6),
         /** Highlighted header text (used for hotkeys). */
-        HEADER_SHORTCUT(2, 0x02);
+        HEADER_SHORTCUT(2);
 
         private final int index;
-        private final byte defaultValue;
 
-        FilePanelColor(int index, int defaultValue) {
+        FilePanelColor(int index) {
             this.index = index;
-            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
         }
     }
 

@@ -17,18 +17,7 @@ public class TStaticText extends TView {
      */
     public enum StaticTextColor implements PaletteRole {
         /** Static text foreground. */
-        TEXT(0x06);
-
-        private final byte defaultValue;
-
-        StaticTextColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        TEXT;
     }
 
     public static void registerType() {

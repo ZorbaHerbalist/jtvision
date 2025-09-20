@@ -2,17 +2,17 @@
 
 ## Automatic index assignment
 
-Palette roles now derive their palette indices automatically from the order of
-the enum constants. The `PaletteRole` interface provides the
-`defaultIndex()` implementation which returns `ordinal() + 1` for enums, so
-new palette definitions no longer have to hardcode numerical indices. Existing
-enums that require legacy numbering can still override `index()` (or
-`defaultIndex()`) explicitly.
+Palette roles derive their palette indices automatically from the order of the
+enum constants. The `PaletteRole` interface provides the `defaultIndex()`
+implementation which returns `ordinal() + 1` for enums, so new palette
+definitions no longer have to hardcode numerical indices. Existing enums that
+require legacy numbering can still override `index()` (or `defaultIndex()`)
+explicitly.
 
-To register automatically indexed palettes, use
-`PaletteFactory.registerAutoIndexed` or the convenience method
-`PaletteDescriptor.registerAutoIndexed`. Both APIs ensure that the enum does
-not define custom indices and populate the palette using the declaration order.
+Palette data is now sourced exclusively from JSON files stored in
+`src/main/resources/palettes`. Register a palette by calling
+`PaletteDescriptor.register("paletteName", MyPaletteRole.class)` and ensure the
+corresponding `paletteName.json` file contains an entry for every enum constant.
 
 ## Handling missing entries
 

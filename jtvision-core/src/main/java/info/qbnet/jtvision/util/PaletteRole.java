@@ -34,13 +34,6 @@ public interface PaletteRole {
     }
 
     /**
-     * Returns the default palette value assigned to this role.
-     *
-     * @return palette entry value represented as an unsigned byte
-     */
-    byte defaultValue();
-
-    /**
      * Determines whether {@code role} declares a custom palette index via
      * {@link #index()} or {@link #defaultIndex()}.
      */

@@ -14,24 +14,17 @@ import info.qbnet.jtvision.views.TView;
 public class CursorDemoView extends TView {
 
     private enum CursorDemoColor implements PaletteRole {
-        TEXT(3, 0x03);
+        TEXT(3);
 
         private final int index;
-        private final byte defaultValue;
 
-        CursorDemoColor(int index, int defaultValue) {
+        CursorDemoColor(int index) {
             this.index = index;
-            this.defaultValue = PaletteRole.toByte(defaultValue);
         }
 
         @Override
         public int index() {
             return index;
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
         }
     }
 

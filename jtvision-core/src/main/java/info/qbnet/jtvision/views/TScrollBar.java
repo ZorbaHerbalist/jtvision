@@ -23,22 +23,11 @@ public class TScrollBar extends TView {
      */
     public enum ScrollBarColor implements PaletteRole {
         /** Page area background. */
-        PAGE_AREA(0x04),
+        PAGE_AREA,
         /** Arrow buttons. */
-        ARROWS(0x05),
+        ARROWS,
         /** Scroll indicator. */
-        INDICATOR(0x05);
-
-        private final byte defaultValue;
-
-        ScrollBarColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        INDICATOR;
     }
 
     public static void registerType() {

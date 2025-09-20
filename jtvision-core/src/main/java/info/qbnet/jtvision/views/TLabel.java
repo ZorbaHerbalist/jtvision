@@ -22,24 +22,13 @@ public class TLabel extends TStaticText {
      */
     public enum LabelColor implements PaletteRole {
         /** Normal text. */
-        NORMAL_TEXT(0x07),
+        NORMAL_TEXT,
         /** Highlighted text. */
-        SELECTED_TEXT(0x08),
+        SELECTED_TEXT,
         /** Normal shortcut. */
-        NORMAL_SHORTCUT(0x09),
+        NORMAL_SHORTCUT,
         /** Shortcut while highlighted. */
-        SELECTED_SHORTCUT(0x09);
-
-        private final byte defaultValue;
-
-        LabelColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        SELECTED_SHORTCUT;
     }
 
     public static void registerType() {

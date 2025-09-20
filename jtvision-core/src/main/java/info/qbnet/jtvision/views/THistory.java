@@ -14,20 +14,9 @@ public class THistory extends TView {
     /** Palette roles for {@link THistory}. */
     public enum HistoryColor implements PaletteRole {
         /** Arrow glyph. */
-        ARROW(0x16),
+        ARROW,
         /** Sides of the history button. */
-        SIDES(0x17);
-
-        private final byte defaultValue;
-
-        HistoryColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        SIDES;
     }
 
     public static void registerType() {

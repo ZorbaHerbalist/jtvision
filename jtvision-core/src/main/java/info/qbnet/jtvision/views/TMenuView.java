@@ -18,28 +18,17 @@ public class TMenuView extends TView {
      */
     public enum MenuColor implements PaletteRole {
         /** Normal menu text. */
-        NORMAL_TEXT(0x02),
+        NORMAL_TEXT,
         /** Disabled menu text. */
-        DISABLED_TEXT(0x03),
+        DISABLED_TEXT,
         /** Shortcut/accelerator text. */
-        SHORTCUT_TEXT(0x04),
+        SHORTCUT_TEXT,
         /** Normal selection highlight. */
-        NORMAL_SELECTION(0x05),
+        NORMAL_SELECTION,
         /** Disabled selection highlight. */
-        DISABLED_SELECTION(0x06),
+        DISABLED_SELECTION,
         /** Shortcut highlight. */
-        SHORTCUT_SELECTION(0x07);
-
-        private final byte defaultValue;
-
-        MenuColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        SHORTCUT_SELECTION;
     }
 
     public static void registerType() {

@@ -13,22 +13,11 @@ public class TSeparator extends THideView {
     /** Palette roles describing the separator's color usage. */
     public enum SeparatorColor implements PaletteRole {
         /** Passive frame color. */
-        PASSIVE_FRAME(0x01),
+        PASSIVE_FRAME,
         /** Active frame color. */
-        ACTIVE_FRAME(0x02),
+        ACTIVE_FRAME,
         /** Dragging frame color. */
-        DRAGGING(0x03);
-
-        private final byte defaultValue;
-
-        SeparatorColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        DRAGGING;
     }
 
     public static final PaletteDescriptor<SeparatorColor> SEPARATOR_PALETTE =

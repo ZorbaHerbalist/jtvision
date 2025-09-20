@@ -15,30 +15,19 @@ public class THistoryWindow extends TWindow {
     /** Palette roles for {@link THistoryWindow}. */
     public enum HistoryWindowColor implements PaletteRole {
         /** Passive frame. */
-        FRAME_PASSIVE(0x13),
+        FRAME_PASSIVE,
         /** Active frame. */
-        FRAME_ACTIVE(0x13),
+        FRAME_ACTIVE,
         /** Frame icon. */
-        FRAME_ICON(0x15),
+        FRAME_ICON,
         /** Scrollbar page area. */
-        SCROLLBAR_PAGE(0x18),
+        SCROLLBAR_PAGE,
         /** Scrollbar controls. */
-        SCROLLBAR_CONTROLS(0x19),
+        SCROLLBAR_CONTROLS,
         /** History viewer normal text. */
-        VIEWER_NORMAL(0x13),
+        VIEWER_NORMAL,
         /** History viewer selected text. */
-        VIEWER_SELECTED(0x14);
-
-        private final byte defaultValue;
-
-        HistoryWindowColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        VIEWER_SELECTED;
     }
 
     /** Palette reproducing Turbo Vision's {@code CHistoryWindow}. */

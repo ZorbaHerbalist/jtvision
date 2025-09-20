@@ -15,26 +15,15 @@ public class THistoryViewer extends TListViewer {
      */
     public enum HistoryViewerColor implements PaletteRole {
         /** Active history entry. */
-        ACTIVE(0x06),
+        ACTIVE,
         /** Inactive history entry. */
-        INACTIVE(0x06),
+        INACTIVE,
         /** Focused entry highlight. */
-        FOCUSED(0x07),
+        FOCUSED,
         /** Selected entry highlight. */
-        SELECTED(0x06),
+        SELECTED,
         /** Column divider. */
-        DIVIDER(0x06);
-
-        private final byte defaultValue;
-
-        HistoryViewerColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        DIVIDER;
     }
 
     /** Palette layout matching Turbo Vision's {@code CHistoryViewer}. */

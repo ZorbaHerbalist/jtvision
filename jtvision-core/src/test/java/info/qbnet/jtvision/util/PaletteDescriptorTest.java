@@ -9,19 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class PaletteDescriptorTest {
 
     private enum TestRole implements PaletteRole {
-        FOREGROUND(0x01),
-        HIGHLIGHT(0x02);
-
-        private final byte defaultValue;
-
-        TestRole(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        FOREGROUND,
+        HIGHLIGHT
     }
 
     @Test
@@ -33,12 +22,12 @@ class PaletteDescriptorTest {
         assertNotNull(palette);
         assertEquals(2, palette.length());
 
-        assertEquals(TestRole.FOREGROUND.defaultValue(), descriptor.color(TestRole.FOREGROUND));
-        assertEquals(TestRole.HIGHLIGHT.defaultValue(), descriptor.color(TestRole.HIGHLIGHT));
+        assertEquals(PaletteRole.toByte(0x11), descriptor.color(TestRole.FOREGROUND));
+        assertEquals(PaletteRole.toByte(0x22), descriptor.color(TestRole.HIGHLIGHT));
 
         short packed = descriptor.colorPair(TestRole.FOREGROUND, TestRole.HIGHLIGHT);
-        int expected = (Byte.toUnsignedInt(TestRole.HIGHLIGHT.defaultValue()) << 8)
-                | Byte.toUnsignedInt(TestRole.FOREGROUND.defaultValue());
+        int expected = (Byte.toUnsignedInt(PaletteRole.toByte(0x22)) << 8)
+                | Byte.toUnsignedInt(PaletteRole.toByte(0x11));
         assertEquals((short) expected, packed);
     }
 

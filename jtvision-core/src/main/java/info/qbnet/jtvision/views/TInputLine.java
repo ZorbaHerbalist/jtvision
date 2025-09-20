@@ -17,24 +17,13 @@ public class TInputLine extends TView {
      */
     public enum InputLineColor implements PaletteRole {
         /** Normal state. */
-        NORMAL(0x13),
+        NORMAL,
         /** Active/focused state. */
-        ACTIVE(0x13),
+        ACTIVE,
         /** Selected text. */
-        SELECTED_TEXT(0x14),
+        SELECTED_TEXT,
         /** Scroll arrows. */
-        ARROWS(0x15);
-
-        private final byte defaultValue;
-
-        InputLineColor(int defaultValue) {
-            this.defaultValue = PaletteRole.toByte(defaultValue);
-        }
-
-        @Override
-        public byte defaultValue() {
-            return defaultValue;
-        }
+        ARROWS;
     }
 
     public static void registerType() {
