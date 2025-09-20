@@ -17,7 +17,11 @@ import info.qbnet.jtvision.views.support.TestGroup;
 import info.qbnet.jtvision.views.support.TestableTView;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
+import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.TPalette;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,12 +80,15 @@ class TViewTest {
     private boolean originalCommandSetChanged;
     private TView originalTopView;
     private EventQueueView queueView;
+    private PaletteFactory.MissingEntryPolicy originalMissingEntryPolicy;
 
     @BeforeEach
     void saveTViewState() {
         originalCommands = new java.util.HashSet<>(TView.getCommands());
         originalCommandSetChanged = TView.commandSetChanged;
         originalTopView = TView.theTopView;
+        originalMissingEntryPolicy = PaletteFactory.getMissingEntryPolicy();
+        PaletteFactory.setMissingEntryPolicy(PaletteFactory.MissingEntryPolicy.LOG);
     }
 
     @BeforeEach
@@ -94,6 +101,7 @@ class TViewTest {
         TView.setCommands(originalCommands);
         TView.commandSetChanged = originalCommandSetChanged;
         TView.theTopView = originalTopView;
+        PaletteFactory.setMissingEntryPolicy(originalMissingEntryPolicy);
     }
 
     @Test
@@ -194,6 +202,49 @@ class TViewTest {
         child.setOwner(root);
 
         assertEquals((short)0xCFCF, child.getColor(TestPaletteRole.INDEX2, TestPaletteRole.INDEX2));
+    }
+
+    @Test
+    void mapColorLogsWarningForMissingEntriesInCompatibilityMode() {
+        TRect r = new TRect(0, 0, 1, 1);
+        TestGroup root = new TestGroup(r, palette(0x11));
+        TestableTView child = new TestableTView(r);
+        child.setOwner(root);
+
+        Logger logger = (Logger) org.slf4j.LoggerFactory.getLogger(TestableTView.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        try {
+            assertEquals((short) 0xCFCF, child.getColor(TestPaletteRole.INDEX2, TestPaletteRole.INDEX2));
+        } finally {
+            logger.detachAppender(appender);
+        }
+
+        assertFalse(appender.list.isEmpty(), "Expected warning log for missing palette entry");
+        ILoggingEvent event = appender.list.get(0);
+        assertEquals(ch.qos.logback.classic.Level.WARN, event.getLevel());
+        String message = event.getFormattedMessage();
+        assertTrue(message.contains("palette index 2"));
+        assertTrue(message.contains(child.getLogName()));
+        assertTrue(message.contains(root.getLogName()));
+    }
+
+    @Test
+    void mapColorThrowsWhenStrictMissingEntryPolicyEnabled() {
+        PaletteFactory.setMissingEntryPolicy(PaletteFactory.MissingEntryPolicy.THROW);
+
+        TRect r = new TRect(0, 0, 1, 1);
+        TestGroup root = new TestGroup(r, palette(0x11));
+        TestableTView child = new TestableTView(r);
+        child.setOwner(root);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> child.getColor(TestPaletteRole.INDEX2, TestPaletteRole.INDEX2));
+        String message = exception.getMessage();
+        assertTrue(message.contains("palette index"));
+        assertTrue(message.contains(child.getLogName()));
+        assertTrue(message.contains(root.getLogName()));
     }
 
     @Test

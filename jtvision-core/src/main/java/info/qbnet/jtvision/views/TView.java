@@ -8,6 +8,7 @@ import info.qbnet.jtvision.util.IBuffer;
 import info.qbnet.jtvision.util.JsonUtil;
 import info.qbnet.jtvision.util.JsonViewStore;
 import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
@@ -1134,21 +1135,65 @@ public class TView {
 
     /** Translates a palette index to an attribute using the palette chain. */
     private int mapColor(int color) {
-        if (color == 0) return ERROR_ATTR;
+        final int requestedIndex = color & 0xFF;
+        if (color == 0) {
+            return handleMissingPaletteEntry(requestedIndex, 0, null, "requested index is zero");
+        }
 
         TView view = this;
         while (view != null) {
             TPalette palette = view.getPalette();
             if (palette != null) {
                 Byte mapped = palette.getOrNull(color);
-                if (mapped == null) return ERROR_ATTR;
+                if (mapped == null) {
+                    return handleMissingPaletteEntry(requestedIndex, color, view, "palette entry missing");
+                }
                 color = mapped;
-                if (color == 0) return ERROR_ATTR;
+                if (color == 0) {
+                    return handleMissingPaletteEntry(requestedIndex, 0, view, "palette entry resolved to zero");
+                }
             }
             view = view.owner;
         }
 
         return color;
+    }
+
+    private int handleMissingPaletteEntry(int requestedIndex, int failingIndex, TView failingView, String reason) {
+        String chain = describeViewChain();
+        String failurePoint = failingView != null ? failingView.getLogName() : "initial request";
+        int unsignedRequested = requestedIndex & 0xFF;
+        int unsignedFailing = failingIndex & 0xFF;
+        String message = String.format(
+                "%s palette index %d (0x%02X) unresolved while mapping request %d (0x%02X) via view chain %s (%s at %s)",
+                logName,
+                unsignedFailing,
+                unsignedFailing,
+                unsignedRequested,
+                unsignedRequested,
+                chain,
+                reason,
+                failurePoint);
+
+        if (PaletteFactory.getMissingEntryPolicy() == PaletteFactory.MissingEntryPolicy.THROW) {
+            throw new IllegalStateException(message);
+        }
+
+        logger.warn(message);
+        return ERROR_ATTR;
+    }
+
+    private String describeViewChain() {
+        StringBuilder builder = new StringBuilder();
+        TView current = this;
+        while (current != null) {
+            if (builder.length() > 0) {
+                builder.append(" -> ");
+            }
+            builder.append(current.getLogName());
+            current = current.owner;
+        }
+        return builder.toString();
     }
 
     /** Converts a packed foreground/background pair into an attribute. */

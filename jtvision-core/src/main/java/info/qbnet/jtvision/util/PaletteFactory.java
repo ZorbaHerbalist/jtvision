@@ -33,7 +33,37 @@ public final class PaletteFactory {
     private static final Map<String, PaletteDefinition<?>> DEFAULTS = new ConcurrentHashMap<>();
     private static final Map<String, TPalette> CACHE = new ConcurrentHashMap<>();
 
+    /** Controls how missing palette entries are reported. */
+    public enum MissingEntryPolicy {
+        /** Log a warning and fall back to {@link info.qbnet.jtvision.views.TView#ERROR_ATTR}. */
+        LOG,
+        /** Throw an {@link IllegalStateException} when a palette entry is missing. */
+        THROW
+    }
+
+    private static final String STRICT_PROPERTY = "jtvision.palette.strict";
+    private static volatile MissingEntryPolicy missingEntryPolicy =
+            Boolean.getBoolean(STRICT_PROPERTY) ? MissingEntryPolicy.THROW : MissingEntryPolicy.LOG;
+
     private PaletteFactory() {
+    }
+
+    /**
+     * Returns the currently configured policy for handling missing palette entries.
+     *
+     * @return the active {@link MissingEntryPolicy}
+     */
+    public static MissingEntryPolicy getMissingEntryPolicy() {
+        return missingEntryPolicy;
+    }
+
+    /**
+     * Updates the policy controlling how missing palette entries are handled.
+     *
+     * @param policy desired policy, must not be {@code null}
+     */
+    public static void setMissingEntryPolicy(MissingEntryPolicy policy) {
+        missingEntryPolicy = Objects.requireNonNull(policy, "policy");
     }
 
     /**
