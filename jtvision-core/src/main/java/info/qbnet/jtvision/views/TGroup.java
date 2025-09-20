@@ -276,8 +276,8 @@ public class TGroup extends TView {
         int saveState = p.state;
         p.hide();
         removeView(p);
-        p.owner = null;
-        p.next = null;
+        p.setOwner(null);
+        p.setNext(null);
         if ((saveState & State.SF_VISIBLE) != 0) {
             p.show();
         }
@@ -393,8 +393,8 @@ public class TGroup extends TView {
     }
 
     public void eventError(TEvent event) {
-        if (owner != null) {
-            owner.eventError(event);
+        if (getOwner() != null) {
+            getOwner().eventError(event);
         }
     }
 
@@ -418,7 +418,7 @@ public class TGroup extends TView {
         int result = Command.CM_CANCEL;
         if (p != null) {
             int saveOptions = p.options;
-            TGroup saveOwner = p.owner;
+            TGroup saveOwner = p.getOwner();
             TView saveTopView = theTopView;
             TView saveCurrent = current;
             Set<Integer> saveCommands = getCommands();
@@ -447,7 +447,7 @@ public class TGroup extends TView {
         if (current != null) {
             TView p = current;
             do {
-                p = forwards ? p.next : p.prev();
+                p = forwards ? p.getNext() : p.prev();
             } while (((p.state & (State.SF_VISIBLE | State.SF_DISABLED)) != State.SF_VISIBLE
                     || (p.options & Options.OF_SELECTABLE) == 0) && p != current);
             if (p != current) {
@@ -745,14 +745,14 @@ public class TGroup extends TView {
         p.setOwner(this);
         if (target != null) {
             target = target.prev();
-            p.next = target.next;
-            target.next = p;
+            p.setNext(target.getNext());
+            target.setNext(p);
         } else {
             if (last == null) {
-                p.next = p;
+                p.setNext(p);
             } else {
-                p.next = last.next;
-                last.next = p;
+                p.setNext(last.getNext());
+                last.setNext(p);
             }
             last = p;
         }
@@ -817,14 +817,14 @@ public class TGroup extends TView {
 
         TView current = last;
         do {
-            TView candidate = current.next;     // candidate to remove
+            TView candidate = current.getNext();     // candidate to remove
             if (candidate == p) {
                 // unlink p
-                current.next = p.next;
+                current.setNext(p.getNext());
 
                 // adjust 'last' pointer if we removed the last element
                 if (last == p) {
-                    last = (p.next == p) ? null : current;  // list becomes empty or shift last
+                    last = (p.getNext() == p) ? null : current;  // list becomes empty or shift last
                 }
                 break;            // removal complete
             }

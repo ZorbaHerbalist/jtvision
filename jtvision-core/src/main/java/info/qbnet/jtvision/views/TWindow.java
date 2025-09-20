@@ -217,7 +217,7 @@ public class TWindow extends TGroup {
                         TRect limits = new TRect();
                         TPoint min = new TPoint();
                         TPoint max = new TPoint();
-                        owner.getExtent(limits);
+                        getOwner().getExtent(limits);
                         sizeLimits(min, max);
                         boolean canGrow = (flags & WindowFlag.WF_GROW) != 0;
                         dragView(event, canGrow);

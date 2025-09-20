@@ -284,7 +284,7 @@ public class TButton extends TView {
 
                     if (event.key.keyCode == getAltCode(c)) {
                         doPress = true;
-                    } else if (owner != null && owner.phase == TGroup.Phase.POST_PROCESS &&
+                    } else if (getOwner() != null && getOwner().phase == TGroup.Phase.POST_PROCESS &&
                             Character.toUpperCase(event.key.charCode) == c) {
                         doPress = true;
                     }
@@ -334,16 +334,16 @@ public class TButton extends TView {
     public void makeDefault(boolean enable) {
         if ((flags & BF_DEFAULT) == 0) {
             int c = enable ? Command.CM_GRAB_DEFAULT : Command.CM_RELEASE_DEFAULT;
-            message(owner, TEvent.EV_BROADCAST, c, this);
+            message(getOwner(), TEvent.EV_BROADCAST, c, this);
             amDefault = enable;
             drawView();
         }
     }
 
     public void press() {
-        message(owner, TEvent.EV_BROADCAST, Command.CM_RECORD_HISTORY, null);
+        message(getOwner(), TEvent.EV_BROADCAST, Command.CM_RECORD_HISTORY, null);
         if ((flags & BF_BROADCAST) != 0) {
-            message(owner, TEvent.EV_BROADCAST, command, this);
+            message(getOwner(), TEvent.EV_BROADCAST, command, this);
         } else {
             TEvent e = new TEvent();
             e.what = TEvent.EV_COMMAND;

@@ -100,11 +100,11 @@ public class TFrame extends TView {
             frameMask[width - 1] = INIT_FRAME[n + 2] & 0xFF;
         }
 
-        if (owner != null && owner.last != null) {
-            TView p = owner.last;
+        if (getOwner() != null && getOwner().last != null) {
+            TView p = getOwner().last;
             int dx = width - 1;
             while (true) {
-                p = p.next;
+                p = p.getNext();
                 if (p == this) {
                     break;
                 }
@@ -191,19 +191,19 @@ public class TFrame extends TView {
         }
         int width = size.x;
         int l = width - 10;
-        if ((((TWindow) owner).flags & (TWindow.WindowFlag.WF_CLOSE + TWindow.WindowFlag.WF_ZOOM)) != 0) {
+        if ((((TWindow) getOwner()).flags & (TWindow.WindowFlag.WF_CLOSE + TWindow.WindowFlag.WF_ZOOM)) != 0) {
             l -= 6;
         }
         frameLine(buf, 0, f, (byte) cFrame);
-        if ((((TWindow) owner).number != TWindow.WN_NO_NUMBER) && (((TWindow) owner).number < 10)) {
+        if ((((TWindow) getOwner()).number != TWindow.WN_NO_NUMBER) && (((TWindow) getOwner()).number < 10)) {
             l -= 4;
             int i = 3;
-            if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_ZOOM) != 0) {
+            if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_ZOOM) != 0) {
                 i = 7;
             }
-            buf.buffer[width - i] = (short) ((buf.buffer[width - i] & 0xFF00) | (((TWindow) owner).number) + 0x30);
+            buf.buffer[width - i] = (short) ((buf.buffer[width - i] & 0xFF00) | (((TWindow) getOwner()).number) + 0x30);
         }
-        String title = ((TWindow) owner).getTitle(l);
+        String title = ((TWindow) getOwner()).getTitle(l);
         if (!title.isEmpty()) {
             l = title.length();
             if (l > width - 10) {
@@ -218,21 +218,21 @@ public class TFrame extends TView {
             buf.moveChar(i + l, ' ', cTitle, 1);
         }
         if ((state & State.SF_ACTIVE) != 0) {
-            if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_CLOSE) != 0) {
+            if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_CLOSE) != 0) {
                 if ((frameMode & FM_CLOSE_CLICKED) == 0) {
                     buf.moveCStr(2, "[~" + (char) 254 + "~]", cFrame);
                 } else {
                     buf.moveCStr(2, "[~" + (char) 15 + "~]", cFrame);
                 }
             }
-            if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_ZOOM) != 0) {
+            if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_ZOOM) != 0) {
                 buf.moveCStr(width - 5, "[~" + (char) 24 + "~]", cFrame);
                 TPoint min = new TPoint();
                 TPoint max = new TPoint();
-                owner.sizeLimits(min, max);
+                getOwner().sizeLimits(min, max);
                 if ((frameMode & FM_ZOOM_CLICKED) != 0) {
                     buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 15);
-                } else if ((owner.size.x == max.x) && (owner.size.y == max.y)) {
+                } else if ((getOwner().size.x == max.x) && (getOwner().size.y == max.y)) {
                     buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 18);
                 }
             }
@@ -246,7 +246,7 @@ public class TFrame extends TView {
 
         frameLine(buf, size.y - 1, f + 6, (byte) cFrame);
         if ((state & State.SF_ACTIVE) != 0) {
-            if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_GROW) != 0) {
+            if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_GROW) != 0) {
                 buf.moveCStr(width - 2, "~" + (char) 196 + (char) 217 + "~" , cFrame);
             }
         }
@@ -262,9 +262,9 @@ public class TFrame extends TView {
         TRect limits = new TRect();
         TPoint min = new TPoint();
         TPoint max = new TPoint();
-        owner.owner.getExtent(limits);
-        owner.sizeLimits(min, max);
-        owner.dragView(event, !move);
+        getOwner().getOwner().getExtent(limits);
+        getOwner().sizeLimits(min, max);
+        getOwner().dragView(event, !move);
         clearEvent(event);
     }
 
@@ -276,7 +276,7 @@ public class TFrame extends TView {
             TPoint mouse = new TPoint();
             makeLocal(event.mouse.where, mouse);
             if (mouse.y == 0) {
-                if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_CLOSE) != 0 &&
+                if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_CLOSE) != 0 &&
                         (state & State.SF_ACTIVE) != 0 && mouse.x >= 2 && mouse.x <= 4) {
                     do {
                         makeLocal(event.mouse.where, mouse);
@@ -291,12 +291,12 @@ public class TFrame extends TView {
                     if (mouse.x >= 2 && mouse.x <= 4 && mouse.y == 0) {
                         event.what = TEvent.EV_COMMAND;
                         event.msg.command = Command.CM_CLOSE;
-                        event.msg.infoPtr = owner;
+                        event.msg.infoPtr = getOwner();
                         putEvent(event);
                     }
                     clearEvent(event);
                     drawView();
-                } else if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_ZOOM) != 0 && (state & State.SF_ACTIVE) != 0 && (event.mouse.isDouble || (mouse.x >= size.x - 5 && mouse.x <= size.x - 3))) {
+                } else if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_ZOOM) != 0 && (state & State.SF_ACTIVE) != 0 && (event.mouse.isDouble || (mouse.x >= size.x - 5 && mouse.x <= size.x - 3))) {
                     if (!event.mouse.isDouble) {
                         do {
                             makeLocal(event.mouse.where, mouse);
@@ -312,16 +312,16 @@ public class TFrame extends TView {
                     if (((mouse.x >= size.x - 5 && mouse.x <= size.x - 3 && mouse.y == 0)) || event.mouse.isDouble) {
                         event.what = TEvent.EV_COMMAND;
                         event.msg.command = Command.CM_ZOOM;
-                        event.msg.infoPtr = owner;
+                        event.msg.infoPtr = getOwner();
                         putEvent(event);
                     }
                     clearEvent(event);
                     drawView();
-                } else if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_MOVE) != 0) {
+                } else if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_MOVE) != 0) {
                     dragWindow(event, true);
                 }
             } else if ((state & State.SF_ACTIVE) != 0 && mouse.x >= size.x - 2 && mouse.y >= size.y - 1) {
-                if ((((TWindow) owner).flags & TWindow.WindowFlag.WF_GROW) != 0) {
+                if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_GROW) != 0) {
                     dragWindow(event, false);
                 }
             }

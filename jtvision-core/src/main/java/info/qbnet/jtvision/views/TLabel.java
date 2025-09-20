@@ -117,7 +117,7 @@ public class TLabel extends TStaticText {
                 char c = hotKey(getText());
                 if (c != 0) {
                     if (event.key.keyCode == getAltCode(c) ||
-                            (owner != null && owner.phase == TGroup.Phase.POST_PROCESS &&
+                            (getOwner() != null && getOwner().phase == TGroup.Phase.POST_PROCESS &&
                                     Character.toUpperCase(event.key.charCode) == c)) {
                         focusLink(event);
                     }

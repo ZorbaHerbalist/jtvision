@@ -321,7 +321,7 @@ public abstract class TCluster extends TView {
                     for (i = 0; i < strings.size(); i++) {
                         char c = hotKey(strings.get(i));
                         boolean match = (KeyCode.getAltCode(c) == event.key.keyCode)
-                                || (((owner != null && owner.phase == TGroup.Phase.POST_PROCESS)
+                                || (((getOwner() != null && getOwner().phase == TGroup.Phase.POST_PROCESS)
                                 || (state & State.SF_FOCUSED) != 0)
                                 && c != 0 && Character.toUpperCase(event.key.charCode) == c);
                         if (match) {

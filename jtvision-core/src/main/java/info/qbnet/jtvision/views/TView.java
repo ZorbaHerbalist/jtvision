@@ -42,11 +42,9 @@ public class TView {
         return CLASS_ID;
     }
 
-    /** Owning {@link TGroup}; {@code null} for top-level views. */
-    protected TGroup owner = null;
+    private TGroup owner = null;
 
-    /** Next sibling in Z-order; wraps to owner's first child when last. */
-    protected TView next = null;
+    private TView next = null;
 
     /** Top-left corner relative to the owner's origin. */
     public TPoint origin;
@@ -407,7 +405,7 @@ public class TView {
     public void calcBounds(TRect bounds, TPoint delta) {
         getBounds(bounds);
 
-        int sx = owner.size.x;
+        int sx = getOwner().size.x;
         int dx = delta.x;
         if (growMode.contains(GrowMode.GF_GROW_LO_X)) {
             bounds.a.x = growValue(bounds.a.x, sx, dx);
@@ -419,7 +417,7 @@ public class TView {
             bounds.b.x = bounds.a.x + TDrawBuffer.MAX_VIEW_LENGTH;
         }
 
-        int sy = owner.size.y;
+        int sy = getOwner().size.y;
         int dy = delta.y;
         if (growMode.contains(GrowMode.GF_GROW_LO_Y)) {
             bounds.a.y = growValue(bounds.a.y, sy, dy);
@@ -486,8 +484,8 @@ public class TView {
     public void done() {
         logger.trace("{} TView@done()", logName);
         hide();
-        if (owner != null) {
-            owner.delete(this);
+        if (getOwner() != null) {
+            getOwner().delete(this);
         }
     }
 
@@ -495,7 +493,7 @@ public class TView {
         TRect limits = new TRect();
         TPoint minSize = new TPoint();
         TPoint maxSize = new TPoint();
-        owner.getExtent(limits);
+        getOwner().getExtent(limits);
         sizeLimits(minSize, maxSize);
         s.x = Math.min(Math.max(s.x, minSize.x), maxSize.x);
         s.y = Math.min(Math.max(s.y, minSize.y), maxSize.y);
@@ -538,7 +536,7 @@ public class TView {
         TRect saveBounds = new TRect();
         getBounds(saveBounds);
         TRect limits = new TRect();
-        owner.getExtent(limits);
+        getOwner().getExtent(limits);
         TPoint p = new TPoint();
         TPoint s = new TPoint();
         do {
@@ -644,9 +642,9 @@ public class TView {
      * Repaints siblings beneath {@code rect} up to {@code lastView}.
      */
     private void drawUnderRect(TRect rect, TView lastView) {
-        owner.clip.intersect(rect);
-        owner.drawSubViews(nextView(), lastView);
-        owner.getExtent(owner.clip);
+        getOwner().clip.intersect(rect);
+        getOwner().drawSubViews(nextView(), lastView);
+        getOwner().getExtent(getOwner().clip);
     }
 
     /**
@@ -796,12 +794,12 @@ public class TView {
     public boolean exposed() {
         if ((state & State.SF_EXPOSED) == 0) return false;
         if (size.x <= 0 || size.y <= 0) return false;
-        if (owner == null) return false;
+        if (getOwner() == null) return false;
 
         for (int y = 0; y < size.y; y++) {
             int rowY = origin.y + y;
-            if (isRowExposed(this, owner, rowY, origin.x, origin.x + size.x,
-                    owner.first())) {
+            if (isRowExposed(this, getOwner(), rowY, origin.x, origin.x + size.x,
+                    getOwner().first())) {
                 return true;
             }
         }
@@ -824,10 +822,10 @@ public class TView {
 
         boolean result = true;
         if ((state & (State.SF_SELECTED | State.SF_MODAL)) == 0) {
-            if (owner != null) {
-                result = owner.focus();
+            if (getOwner() != null) {
+                result = getOwner().focus();
                 if (result) {
-                    TView current = owner.current;
+                    TView current = getOwner().current;
                     if (current == null ||
                             (current.options & Options.OF_VALIDATE) == 0 ||
                             current.valid(Command.CM_RELEASED_FOCUS)) {
@@ -870,8 +868,8 @@ public class TView {
      */
     public void getClipRect(TRect clip) {
         getBounds(clip);
-        if (owner != null) {
-            clip.intersect(owner.clip);
+        if (getOwner() != null) {
+            clip.intersect(getOwner().clip);
         }
         clip.move(-origin.x, -origin.y);
     }
@@ -958,8 +956,8 @@ public class TView {
      * @param event the {@link TEvent} object that will receive the next available event
      */
     public void getEvent(TEvent event) {
-        if (owner != null) {
-            owner.getEvent(event);
+        if (getOwner() != null) {
+            getOwner().getEvent(event);
         }
     }
 
@@ -1090,7 +1088,7 @@ public class TView {
         getBounds(r);
         if (!bounds.equals(r)) {
             changeBounds(bounds);
-            if (owner != null && (state & State.SF_VISIBLE) != 0) {
+            if (getOwner() != null && (state & State.SF_VISIBLE) != 0) {
                 if ((state & State.SF_SHADOW) != 0) {
                     r.union(bounds);
                     r.b.x += shadowSize.x;
@@ -1103,7 +1101,7 @@ public class TView {
 
     /** Moves this view to the top of its owner's subview list. */
     public void makeFirst() {
-        putInFrontOf(owner.first());
+        putInFrontOf(getOwner().first());
     }
 
     /**
@@ -1116,7 +1114,7 @@ public class TView {
         do {
             dest.x += current.origin.x;
             dest.y += current.origin.y;
-            current = current.owner;
+            current = current.getOwner();
         } while (current != null);
     }
     /**
@@ -1129,7 +1127,7 @@ public class TView {
         do {
             dest.x -= current.origin.x;
             dest.y -= current.origin.y;
-            current = current.owner;
+            current = current.getOwner();
         } while (current != null);
     }
 
@@ -1153,7 +1151,7 @@ public class TView {
                     return handleMissingPaletteEntry(requestedIndex, 0, view, "palette entry resolved to zero");
                 }
             }
-            view = view.owner;
+            view = view.getOwner();
         }
 
         return color;
@@ -1191,7 +1189,7 @@ public class TView {
                 builder.append(" -> ");
             }
             builder.append(current.getLogName());
-            current = current.owner;
+            current = current.getOwner();
         }
         return builder.toString();
     }
@@ -1231,10 +1229,10 @@ public class TView {
 
     /** @return next subview or {@code null} if this is the last. */
     public TView nextView() {
-        if (owner.last == this) {
+        if (getOwner().last == this) {
             return null;
         } else {
-            return next;
+            return getNext();
         }
     }
 
@@ -1248,11 +1246,11 @@ public class TView {
     /** @return previous subview, treating the list as circular. */
     public TView prev() {
         TView previous = this;
-        TView np = next;
+        TView np = getNext();
 
         while ((np != null) && (np != this)) {
             previous = np;
-            np = np.next;
+            np = np.getNext();
         }
 
         return previous;
@@ -1260,13 +1258,13 @@ public class TView {
 
     /** @return previous subview or {@code null} if this is the first. */
     public TView prevView() {
-        return owner != null && owner.first() != this ? prev() : null;
+        return getOwner() != null && getOwner().first() != this ? prev() : null;
     }
 
     /** Forwards {@code event} to the owner's event queue. */
     public void putEvent(TEvent event) {
-        if (owner != null) {
-            owner.putEvent(event);
+        if (getOwner() != null) {
+            getOwner().putEvent(event);
         }
     }
 
@@ -1282,8 +1280,8 @@ public class TView {
      * @param target the view before which this view should be inserted
      */
     private void moveView(TView target) {
-        owner.removeView(this);
-        owner.insertView(this, target);
+        getOwner().removeView(this);
+        getOwner().insertView(this, target);
     }
 
     /**
@@ -1300,7 +1298,7 @@ public class TView {
      * @param target the view in front of which this view should be placed.
      */
     public void putInFrontOf(TView target) {
-        if (owner != null && target != this && target != nextView() && (target == null || target.owner == owner)) {
+        if (getOwner() != null && target != this && target != nextView() && (target == null || target.getOwner() == getOwner())) {
             if ((state & State.SF_VISIBLE) == 0) {
                 moveView(target);
             } else {
@@ -1324,8 +1322,8 @@ public class TView {
                     drawShow(lastView);
                 }
                 if ((options & Options.OF_SELECTABLE) != 0) {
-                    owner.resetCurrent();
-                    owner.resetCursor();
+                    getOwner().resetCurrent();
+                    getOwner().resetCursor();
                 }
             }
         }
@@ -1376,8 +1374,8 @@ public class TView {
             if ((options & Options.OF_TOP_SELECT) != 0) {
                 makeFirst();
             } else {
-                if (owner != null) {
-                    owner.setCurrent(this, TGroup.SelectMode.NORMAL_SELECT);
+                if (getOwner() != null) {
+                    getOwner().setCurrent(this, TGroup.SelectMode.NORMAL_SELECT);
                 }
             }
         }
@@ -1479,11 +1477,11 @@ public class TView {
             this.state &= ~state;
         }
 
-        if (owner == null) return;
+        if (getOwner() == null) return;
 
         switch (state) {
             case State.SF_VISIBLE:
-                if ((owner.state & State.SF_EXPOSED) != 0) {
+                if ((getOwner().state & State.SF_EXPOSED) != 0) {
                     setState(State.SF_EXPOSED, enable);
                 }
                 if (enable) {
@@ -1492,7 +1490,7 @@ public class TView {
                     drawHide(null);
                 }
                 if ((options & Options.OF_SELECTABLE) != 0) {
-                    owner.resetCurrent();
+                    getOwner().resetCurrent();
                 }
                 break;
             case State.SF_CURSOR_VIS:
@@ -1505,7 +1503,7 @@ public class TView {
             case State.SF_FOCUSED:
                 resetCursor();
                 int command = enable ? Command.CM_RECEIVED_FOCUS : Command.CM_RELEASED_FOCUS;
-                message(owner, TEvent.EV_BROADCAST, command, this);
+                message(getOwner(), TEvent.EV_BROADCAST, command, this);
                 break;
             default:
                 break;
@@ -1547,9 +1545,9 @@ public class TView {
     public void sizeLimits(TPoint min, TPoint max) {
         min.x = 0;
         min.y = 0;
-        if (owner != null) {
-            max.x = owner.size.x;
-            max.y = owner.size.y;
+        if (getOwner() != null) {
+            max.x = getOwner().size.x;
+            max.y = getOwner().size.y;
         } else {
             max.x = Short.MAX_VALUE;
             max.y = Short.MAX_VALUE;
@@ -1657,18 +1655,18 @@ public class TView {
      * @param view   view to reference
      */
     public void putPeerViewPtr(TStream stream, TView view) throws IOException {
-        if (owner != null) {
-            owner.putSubViewPtr(stream, view);
+        if (getOwner() != null) {
+            getOwner().putSubViewPtr(stream, view);
         } else {
             stream.writeInt(0);
         }
     }
 
     public int getPeerViewIndex(TView view) {
-        if (view == null || owner == null) {
+        if (view == null || getOwner() == null) {
             return 0;
         }
-        return owner.indexOf(view);
+        return getOwner().indexOf(view);
     }
 
     /**
@@ -1678,7 +1676,7 @@ public class TView {
         if (theTopView == null) {
             TView p = this;
             while (p != null && (p.state & State.SF_MODAL) == 0) {
-                p = p.owner;
+                p = p.getOwner();
             }
             return p;
         } else {
@@ -1801,7 +1799,7 @@ public class TView {
         short[] curBuffer = buffer;
 
         while (true) {
-            if (view.owner == null || curBuffer == null || curCount <= 0) return;
+            if (view.getOwner() == null || curBuffer == null || curCount <= 0) return;
 
             // Abort if the current view isn't both visible and exposed.
             if ((view.state & required) != required) return;
@@ -1827,7 +1825,7 @@ public class TView {
 
             // Ascend the owner chain, clipping and translating until we reach
             // the nearest ancestor that owns a buffer or is locked.
-            TGroup g = view.owner;
+            TGroup g = view.getOwner();
             TGroup top = null;
             while (g != null) {
                 if ((g.state & required) != required) return;
@@ -1847,7 +1845,7 @@ public class TView {
 
                 destX += g.origin.x;
                 destY += g.origin.y;
-                g = g.owner;
+                g = g.getOwner();
             }
 
             if (top == null) return;
@@ -1870,7 +1868,7 @@ public class TView {
 
                 // For each ancestor level, check siblings drawn before this view
                 TView child = view;
-                for (TGroup parent = view.owner; parent != null && !covered; parent = parent.owner) {
+                for (TGroup parent = view.getOwner(); parent != null && !covered; parent = parent.getOwner()) {
                     for (TView s = parent.first(); s != null && s != child; s = s.nextView()) {
                         if ((s.state & State.SF_VISIBLE) == 0) continue;
 
@@ -1909,7 +1907,7 @@ public class TView {
 
             // If the ancestor isn't locked and has a further owner, propagate
             // the drawing upward. Otherwise we're done.
-            if (top.lockFlag != 0 || top.owner == null) {
+            if (top.lockFlag != 0 || top.getOwner() == null) {
                 return;
             }
 
@@ -1986,7 +1984,7 @@ public class TView {
 
     // Getters and setters
 
-    /**
+    /** Owning {@link TGroup}; {@code null} for top-level views. */ /**
      * Returns the owner of this view.
      *
      * @return The {@link TGroup} that owns this view, or {@code null} if it has no owner.
@@ -2000,17 +1998,21 @@ public class TView {
      *
      * @param owner The {@link TGroup} to set as the owner of this view.
      */
-    public void setOwner(TGroup owner) {
+    protected void setOwner(TGroup owner) {
         this.owner = owner;
     }
 
-    /**
+    /** Next sibling in Z-order; wraps to owner's first child when last. */ /**
      * Returns the next view in the sibling chain.
      *
      * @return The next {@link TView} in the sibling list, or {@code null} if this is the last.
      */
     public TView getNext() {
         return next;
+    }
+
+    protected void setNext(TView next) {
+        this.next = next;
     }
 
     public TPoint getSize() {

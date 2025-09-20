@@ -354,7 +354,7 @@ public class TListViewer extends TView {
 
     /** Broadcasts a list item selection message to the owner. */
     protected void selectItem(int item) {
-        TView.message(owner, TEvent.EV_BROADCAST, Command.CM_LIST_ITEM_SELECTED, this);
+        TView.message(getOwner(), TEvent.EV_BROADCAST, Command.CM_LIST_ITEM_SELECTED, this);
     }
 
     /** Sets the total number of items and updates the vertical scroll bar. */

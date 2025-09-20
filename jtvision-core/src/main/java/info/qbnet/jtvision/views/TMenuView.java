@@ -307,12 +307,12 @@ public class TMenuView extends TView {
                         getItemRect(current, r);
                         r.a.x += origin.x;
                         r.a.y = r.b.y + origin.y;
-                        r.b = owner.getSize();
+                        r.b = getOwner().getSize();
                         if (size.y == 1) {
                             r.a.x--;
                         }
                         target = topMenu().newSubView(r, current.subMenu(), this);
-                        result = owner.execView(target);
+                        result = getOwner().execView(target);
                         // assume disposal handled elsewhere
                         target.done();
                     } else if (action == MenuAction.DO_SELECT) {
@@ -413,7 +413,7 @@ public class TMenuView extends TView {
 
     private void doSelect(TEvent event) {
         putEvent(event);
-        event.msg.command = owner.execView(this);
+        event.msg.command = getOwner().execView(this);
         if (event.msg.command != 0 && commandEnabled(event.msg.command)) {
             event.what = TEvent.EV_COMMAND;
             event.msg.infoPtr = null;
