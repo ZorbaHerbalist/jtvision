@@ -55,15 +55,15 @@ public class TView {
     /** Resize behavior flags for owner size changes. */
     public enum GrowMode {
         /** Keep left edge at constant distance from owner's right. */
-        GF_GROW_LO_X(0x01),
+        LO_X(0x01),
         /** Keep top edge at constant distance from owner's bottom. */
-        GF_GROW_LO_Y(0x02),
+        LO_Y(0x02),
         /** Keep right edge at constant distance from owner's right. */
-        GF_GROW_HI_X(0x04),
+        HI_X(0x04),
         /** Keep bottom edge at constant distance from owner's bottom. */
-        GF_GROW_HI_Y(0x08),
+        HI_Y(0x08),
         /** Scale proportionally with owner, e.g. {@code TWindow}. */
-        GF_GROW_REL(0x10);
+        REL(0x10);
 
         private final int mask;
 
@@ -82,7 +82,7 @@ public class TView {
          * @return new {@code EnumSet} with all grow modes
          */
         public static EnumSet<GrowMode> growAll() {
-            return EnumSet.of(GF_GROW_LO_X, GF_GROW_LO_Y, GF_GROW_HI_X, GF_GROW_HI_Y);
+            return EnumSet.of(LO_X, LO_Y, HI_X, HI_Y);
         }
 
         /**
@@ -120,19 +120,19 @@ public class TView {
     private final EnumSet<GrowMode> growMode = EnumSet.noneOf(GrowMode.class);
 
     /** Drag behavior flags restricting movement within owner bounds. */
-    public enum DragMode {
+    public enum DragLimitMode {
         /** Constrain movement to not cross the owner's left edge. */
-        DM_LIMIT_LO_X(0x10),
+        LO_X(0x10),
         /** Constrain movement to not cross the owner's top edge. */
-        DM_LIMIT_LO_Y(0x20),
+        LO_Y(0x20),
         /** Constrain movement to not cross the owner's right edge. */
-        DM_LIMIT_HI_X(0x40),
+        HI_X(0x40),
         /** Constrain movement to not cross the owner's bottom edge. */
-        DM_LIMIT_HI_Y(0x80);
+        HI_Y(0x80);
 
         private final int mask;
 
-        DragMode(int mask) {
+        DragLimitMode(int mask) {
             this.mask = mask;
         }
 
@@ -146,8 +146,8 @@ public class TView {
          *
          * @return new {@code EnumSet} with all drag modes
          */
-        public static EnumSet<DragMode> limitAll() {
-            return EnumSet.of(DM_LIMIT_LO_X, DM_LIMIT_LO_Y, DM_LIMIT_HI_X, DM_LIMIT_HI_Y);
+        public static EnumSet<DragLimitMode> limitAll() {
+            return EnumSet.of(LO_X, LO_Y, HI_X, HI_Y);
         }
 
         /**
@@ -156,9 +156,9 @@ public class TView {
          * @param value bitmask representation
          * @return corresponding set of drag modes
          */
-        public static EnumSet<DragMode> fromMask(int value) {
-            EnumSet<DragMode> set = EnumSet.noneOf(DragMode.class);
-            for (DragMode mode : values()) {
+        public static EnumSet<DragLimitMode> fromMask(int value) {
+            EnumSet<DragLimitMode> set = EnumSet.noneOf(DragLimitMode.class);
+            for (DragLimitMode mode : values()) {
                 if ((value & mode.mask) != 0) {
                     set.add(mode);
                 }
@@ -172,9 +172,9 @@ public class TView {
          * @param set set of drag modes
          * @return bitmask representation
          */
-        public static int toMask(EnumSet<DragMode> set) {
+        public static int toMask(EnumSet<DragLimitMode> set) {
             int value = 0;
-            for (DragMode mode : set) {
+            for (DragLimitMode mode : set) {
                 value |= mode.mask;
             }
             return value;
@@ -182,7 +182,7 @@ public class TView {
     }
 
     /** Current drag mode flags controlling allowed view movement. */
-    private final EnumSet<DragMode> dragMode = EnumSet.of(DragMode.DM_LIMIT_LO_Y);
+    private final EnumSet<DragLimitMode> dragMode = EnumSet.of(DragLimitMode.LO_Y);
 
     /** Predefined help context identifiers. */
     public static class HelpContext {
@@ -339,7 +339,7 @@ public class TView {
             growMode.clear();
             growMode.addAll(GrowMode.fromMask(stream.readInt()));
             dragMode.clear();
-            dragMode.addAll(DragMode.fromMask(stream.readInt()));
+            dragMode.addAll(DragLimitMode.fromMask(stream.readInt()));
             helpCtx = stream.readInt();
             state = stream.readInt();
             options = stream.readInt();
@@ -360,7 +360,7 @@ public class TView {
         growMode.clear();
         growMode.addAll(GrowMode.fromMask(JsonUtil.getInt(node, "growMode", 0)));
         dragMode.clear();
-        dragMode.addAll(DragMode.fromMask(JsonUtil.getInt(node, "dragMode", 0)));
+        dragMode.addAll(DragLimitMode.fromMask(JsonUtil.getInt(node, "dragMode", 0)));
         helpCtx = JsonUtil.getInt(node, "helpCtx", HelpContext.HC_NO_CONTEXT);
         state = JsonUtil.getInt(node, "state", 0);
         options = JsonUtil.getInt(node, "options", 0);
@@ -386,10 +386,10 @@ public class TView {
 
     /**
      * Computes a new coordinate or size when the owner resizes.
-     * Uses {@link GrowMode#GF_GROW_REL} for proportional scaling.
+     * Uses {@link GrowMode#REL} for proportional scaling.
      */
     private int growValue(int value, int s, int d) {
-        if (!growMode.contains(GrowMode.GF_GROW_REL))
+        if (!growMode.contains(GrowMode.REL))
             return value + d;
         else
             return (value * s + ((s - d) >> 1)) / (s - d);
@@ -404,10 +404,10 @@ public class TView {
 
         int sx = getOwner().getSize().x;
         int dx = delta.x;
-        if (growMode.contains(GrowMode.GF_GROW_LO_X)) {
+        if (growMode.contains(GrowMode.LO_X)) {
             bounds.a.x = growValue(bounds.a.x, sx, dx);
         }
-        if (growMode.contains(GrowMode.GF_GROW_HI_X)) {
+        if (growMode.contains(GrowMode.HI_X)) {
             bounds.b.x = growValue(bounds.b.x, sx, dx);
         }
         if (bounds.b.x - bounds.a.x > TDrawBuffer.MAX_VIEW_LENGTH) {
@@ -416,10 +416,10 @@ public class TView {
 
         int sy = getOwner().getSize().y;
         int dy = delta.y;
-        if (growMode.contains(GrowMode.GF_GROW_LO_Y)) {
+        if (growMode.contains(GrowMode.LO_Y)) {
             bounds.a.y = growValue(bounds.a.y, sy, dy);
         }
-        if (growMode.contains(GrowMode.GF_GROW_HI_Y)) {
+        if (growMode.contains(GrowMode.HI_Y)) {
             bounds.b.y = growValue(bounds.b.y, sy, dy);
         }
 
@@ -496,10 +496,10 @@ public class TView {
         s.y = Math.min(Math.max(s.y, minSize.y), maxSize.y);
         p.x = Math.min(Math.max(p.x, limits.a.x - s.x + 1), limits.b.x - 1);
         p.y = Math.min(Math.max(p.y, limits.a.y - s.y + 1), limits.b.y - 1);
-        if (dragMode.contains(DragMode.DM_LIMIT_LO_X)) p.x = Math.max(p.x, limits.a.x);
-        if (dragMode.contains(DragMode.DM_LIMIT_LO_Y)) p.y = Math.max(p.y, limits.a.y);
-        if (dragMode.contains(DragMode.DM_LIMIT_HI_X)) p.x = Math.min(p.x, limits.b.x - s.x);
-        if (dragMode.contains(DragMode.DM_LIMIT_HI_Y)) p.y = Math.min(p.y, limits.b.y - s.y);
+        if (dragMode.contains(DragLimitMode.LO_X)) p.x = Math.max(p.x, limits.a.x);
+        if (dragMode.contains(DragLimitMode.LO_Y)) p.y = Math.max(p.y, limits.a.y);
+        if (dragMode.contains(DragLimitMode.HI_X)) p.x = Math.min(p.x, limits.b.x - s.x);
+        if (dragMode.contains(DragLimitMode.HI_Y)) p.y = Math.min(p.y, limits.b.y - s.y);
         TRect r = new TRect(p.x, p.y, p.x + s.x, p.y + s.y);
         locate(r);
     }
@@ -1569,7 +1569,7 @@ public class TView {
             stream.writeInt(getCursor().x);
             stream.writeInt(getCursor().y);
             stream.writeInt(GrowMode.toMask(growMode));
-            stream.writeInt(DragMode.toMask(dragMode));
+            stream.writeInt(DragLimitMode.toMask(dragMode));
             stream.writeInt(helpCtx);
             stream.writeInt(state);
             stream.writeInt(options);
@@ -1597,7 +1597,7 @@ public class TView {
         JsonUtil.putPoint(node, "size", getSize());
         JsonUtil.putPoint(node, "cursor", getCursor());
         node.put("growMode", GrowMode.toMask(growMode));
-        node.put("dragMode", DragMode.toMask(dragMode));
+        node.put("dragMode", DragLimitMode.toMask(dragMode));
         node.put("helpCtx", helpCtx);
         node.put("state", state);
         node.put("options", options);
@@ -2059,18 +2059,18 @@ public class TView {
         return Collections.unmodifiableSet(EnumSet.copyOf(growMode));
     }
 
-    public void setDragModes(EnumSet<DragMode> modes) {
+    public void setDragModes(EnumSet<DragLimitMode> modes) {
         dragMode.clear();
         if (modes != null) {
             dragMode.addAll(modes);
         }
     }
 
-    public void addDragMode(DragMode mode) {
+    public void addDragMode(DragLimitMode mode) {
         dragMode.add(mode);
     }
 
-    public void removeDragMode(DragMode mode) {
+    public void removeDragMode(DragLimitMode mode) {
         dragMode.remove(mode);
     }
 
@@ -2078,7 +2078,7 @@ public class TView {
         dragMode.clear();
     }
 
-    public Set<DragMode> getDragModes() {
+    public Set<DragLimitMode> getDragModes() {
         return Collections.unmodifiableSet(EnumSet.copyOf(dragMode));
     }
 

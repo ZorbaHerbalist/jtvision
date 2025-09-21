@@ -28,7 +28,7 @@ public class TBackground extends TView {
 
     public TBackground(TRect bounds, char pattern) {
         super(bounds);
-        setGrowModes(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+        setGrowModes(EnumSet.of(GrowMode.HI_X, GrowMode.HI_Y));
         this.pattern = pattern;
 
         logger.debug("{} TBackground@TBackground(bounds={}, pattern={})", getLogName(), bounds, (int) pattern);

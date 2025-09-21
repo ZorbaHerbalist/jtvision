@@ -13,7 +13,7 @@ public class TFilePanelRoot extends THideView {
 
     public TFilePanelRoot(TRect bounds, File driveFile, TScrollBar scrollBar) {
         super(bounds);
-        this.setGrowModes(EnumSet.of(GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+        this.setGrowModes(EnumSet.of(GrowMode.HI_X, GrowMode.HI_Y));
         this.options |= (Options.OF_SELECTABLE + Options.OF_TOP_SELECT + Options.OF_FIRST_CLICK);
         this.eventMask = 0xFFFF;
 

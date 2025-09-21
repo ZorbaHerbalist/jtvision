@@ -76,12 +76,12 @@ public class TScrollBar extends TView {
         arStep = 1;
 
         if (getSize().x == 1) {
-            setGrowModes(EnumSet.of(GrowMode.GF_GROW_LO_X,
-                    GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+            setGrowModes(EnumSet.of(GrowMode.LO_X,
+                    GrowMode.HI_X, GrowMode.HI_Y));
             chars = V_CHARS.clone();
         } else {
-            setGrowModes(EnumSet.of(GrowMode.GF_GROW_LO_Y,
-                    GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
+            setGrowModes(EnumSet.of(GrowMode.LO_Y,
+                    GrowMode.HI_X, GrowMode.HI_Y));
             chars = H_CHARS.clone();
         }
     }

@@ -449,7 +449,7 @@ class TViewTest {
         TGroup group = new TGroup(new TRect(0, 0, 10, 10));
         TestableTView view = new TestableTView(new TRect(0, 0, 5, 6));
         group.insert(view);
-        view.setGrowModes(EnumSet.of(TView.GrowMode.GF_GROW_HI_X, TView.GrowMode.GF_GROW_HI_Y));
+        view.setGrowModes(EnumSet.of(TView.GrowMode.HI_X, TView.GrowMode.HI_Y));
 
         int originalWidth  = view.getSizeField().x;
         int originalHeight = view.getSizeField().y;
@@ -481,7 +481,7 @@ class TViewTest {
         group.insert(view);
         view.clearGrowModes();
         view.setGrowModes(TView.GrowMode.growAll());
-        view.addGrowMode(TView.GrowMode.GF_GROW_REL);
+        view.addGrowMode(TView.GrowMode.REL);
 
         TPoint delta = new TPoint(10,20);
         group.getSize().x += delta.x;
@@ -499,23 +499,23 @@ class TViewTest {
     @Test
     void growAllReturnsIndependentSets() {
         EnumSet<TView.GrowMode> first = TView.GrowMode.growAll();
-        first.remove(TView.GrowMode.GF_GROW_LO_X);
+        first.remove(TView.GrowMode.LO_X);
         EnumSet<TView.GrowMode> second = TView.GrowMode.growAll();
-        assertEquals(EnumSet.of(TView.GrowMode.GF_GROW_LO_X,
-                TView.GrowMode.GF_GROW_LO_Y,
-                TView.GrowMode.GF_GROW_HI_X,
-                TView.GrowMode.GF_GROW_HI_Y), second);
+        assertEquals(EnumSet.of(TView.GrowMode.LO_X,
+                TView.GrowMode.LO_Y,
+                TView.GrowMode.HI_X,
+                TView.GrowMode.HI_Y), second);
     }
 
     @Test
     void limitAllReturnsIndependentSets() {
-        EnumSet<TView.DragMode> first = TView.DragMode.limitAll();
-        first.remove(TView.DragMode.DM_LIMIT_LO_X);
-        EnumSet<TView.DragMode> second = TView.DragMode.limitAll();
-        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
-                TView.DragMode.DM_LIMIT_LO_Y,
-                TView.DragMode.DM_LIMIT_HI_X,
-                TView.DragMode.DM_LIMIT_HI_Y), second);
+        EnumSet<TView.DragLimitMode> first = TView.DragLimitMode.limitAll();
+        first.remove(TView.DragLimitMode.LO_X);
+        EnumSet<TView.DragLimitMode> second = TView.DragLimitMode.limitAll();
+        assertEquals(EnumSet.of(TView.DragLimitMode.LO_X,
+                TView.DragLimitMode.LO_Y,
+                TView.DragLimitMode.HI_X,
+                TView.DragLimitMode.HI_Y), second);
     }
 
     @Test
@@ -523,17 +523,17 @@ class TViewTest {
         TestableTView view = new TestableTView(new TRect(0, 0, 1, 1));
         view.clearDragModes();
         assertTrue(view.getDragModes().isEmpty());
-        view.addDragMode(TView.DragMode.DM_LIMIT_LO_X);
-        view.addDragMode(TView.DragMode.DM_LIMIT_HI_Y);
-        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
-                TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
-        view.removeDragMode(TView.DragMode.DM_LIMIT_LO_X);
-        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
-        view.setDragModes(TView.DragMode.limitAll());
-        assertEquals(EnumSet.of(TView.DragMode.DM_LIMIT_LO_X,
-                TView.DragMode.DM_LIMIT_LO_Y,
-                TView.DragMode.DM_LIMIT_HI_X,
-                TView.DragMode.DM_LIMIT_HI_Y), view.getDragModes());
+        view.addDragMode(TView.DragLimitMode.LO_X);
+        view.addDragMode(TView.DragLimitMode.HI_Y);
+        assertEquals(EnumSet.of(TView.DragLimitMode.LO_X,
+                TView.DragLimitMode.HI_Y), view.getDragModes());
+        view.removeDragMode(TView.DragLimitMode.LO_X);
+        assertEquals(EnumSet.of(TView.DragLimitMode.HI_Y), view.getDragModes());
+        view.setDragModes(TView.DragLimitMode.limitAll());
+        assertEquals(EnumSet.of(TView.DragLimitMode.LO_X,
+                TView.DragLimitMode.LO_Y,
+                TView.DragLimitMode.HI_X,
+                TView.DragLimitMode.HI_Y), view.getDragModes());
     }
 
     @Test
