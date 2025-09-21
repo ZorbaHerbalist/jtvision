@@ -92,14 +92,14 @@ public class TMenuBar extends TMenuView {
         short cNormDisabled = getColor(MenuColor.DISABLED_TEXT, MenuColor.DISABLED_TEXT);
         short cSelDisabled = getColor(MenuColor.DISABLED_SELECTION, MenuColor.DISABLED_SELECTION);
 
-        buf.moveChar(0, ' ', cNormal, size.x);
+        buf.moveChar(0, ' ', cNormal, getSize().x);
         if (menu != null) {
             int x = 0;
             TMenuItem p = menu.items();
             while (p != null) {
                 if (p.name() != null) {
                     int l = CString.cStrLen(p.name());
-                    if (x + l < size.x) {
+                    if (x + l < getSize().x) {
                         short color;
                         if (p.disabled) {
                             if (p == current) {
@@ -124,7 +124,7 @@ public class TMenuBar extends TMenuView {
             }
         }
 
-        writeLine(0, 0, size.x, 1, buf.buffer);
+        writeLine(0, 0, getSize().x, 1, buf.buffer);
     }
 
     @Override

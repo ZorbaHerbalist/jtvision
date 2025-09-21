@@ -97,8 +97,8 @@ public class CursorDemoView extends TView {
     }
 
     private void moveCursor(int dx, int dy) {
-        curX = Math.max(0, Math.min(size.x - 1, curX + dx));
-        curY = Math.max(0, Math.min(size.y - 1, curY + dy));
+        curX = Math.max(0, Math.min(getSize().x - 1, curX + dx));
+        curY = Math.max(0, Math.min(getSize().y - 1, curY + dy));
         setCursor(curX, curY);
     }
 }

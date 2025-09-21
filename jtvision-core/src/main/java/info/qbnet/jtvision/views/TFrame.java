@@ -84,7 +84,7 @@ public class TFrame extends TView {
     }
 
     private void frameLine(TDrawBuffer buf, int y, int n, byte color) {
-        int width = size.x;
+        int width = getSize().x;
         if (width <= 0) {
             return;
         }
@@ -115,15 +115,15 @@ public class TFrame extends TView {
                     continue;
                 }
 
-                int ax = y - p.origin.y;
+                int ax = y - p.getOrigin().y;
                 int al, ah;
                 if (ax >= 0) {
-                    if (ax > p.size.y) {
+                    if (ax > p.getSize().y) {
                         continue;
                     }
                     al = 0x05;
                     ah = 0x00;
-                    if (ax == p.size.y) {
+                    if (ax == p.getSize().y) {
                         al = 0x03;
                         ah = 0x0A;
                     }
@@ -136,8 +136,8 @@ public class TFrame extends TView {
                     ah = 0x0A;
                 }
 
-                int si = p.origin.x;
-                int di = p.origin.x + p.size.x;
+                int si = p.getOrigin().x;
+                int di = p.getOrigin().x + p.getSize().x;
                 if (si < 1) {
                     si = 1;
                 }
@@ -189,7 +189,7 @@ public class TFrame extends TView {
             cTitle = getColor(FrameColor.ACTIVE_TITLE);
             f = 9;
         }
-        int width = size.x;
+        int width = getSize().x;
         int l = width - 10;
         if ((((TWindow) getOwner()).flags & (TWindow.WindowFlag.WF_CLOSE + TWindow.WindowFlag.WF_ZOOM)) != 0) {
             l -= 6;
@@ -232,25 +232,25 @@ public class TFrame extends TView {
                 getOwner().sizeLimits(min, max);
                 if ((frameMode & FM_ZOOM_CLICKED) != 0) {
                     buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 15);
-                } else if ((getOwner().size.x == max.x) && (getOwner().size.y == max.y)) {
+                } else if ((getOwner().getSize().x == max.x) && (getOwner().getSize().y == max.y)) {
                     buf.buffer[width - 4] = (short) ((buf.buffer[width - 4] & 0xFF00) | 18);
                 }
             }
         }
-        writeLine(0,0,size.x, 1, buf.buffer);
+        writeLine(0,0, getSize().x, 1, buf.buffer);
 
-        for (int i = 1; i <= size.y - 2; i++) {
+        for (int i = 1; i <= getSize().y - 2; i++) {
             frameLine(buf, i, f + 3, (byte) cFrame);
-            writeLine(0, i, size.x, 1, buf.buffer);
+            writeLine(0, i, getSize().x, 1, buf.buffer);
         }
 
-        frameLine(buf, size.y - 1, f + 6, (byte) cFrame);
+        frameLine(buf, getSize().y - 1, f + 6, (byte) cFrame);
         if ((state & State.SF_ACTIVE) != 0) {
             if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_GROW) != 0) {
                 buf.moveCStr(width - 2, "~" + (char) 196 + (char) 217 + "~" , cFrame);
             }
         }
-        writeLine(0, size.y - 1, size.x, 1, buf.buffer);
+        writeLine(0, getSize().y - 1, getSize().x, 1, buf.buffer);
     }
 
     @Override
@@ -296,11 +296,11 @@ public class TFrame extends TView {
                     }
                     clearEvent(event);
                     drawView();
-                } else if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_ZOOM) != 0 && (state & State.SF_ACTIVE) != 0 && (event.mouse.isDouble || (mouse.x >= size.x - 5 && mouse.x <= size.x - 3))) {
+                } else if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_ZOOM) != 0 && (state & State.SF_ACTIVE) != 0 && (event.mouse.isDouble || (mouse.x >= getSize().x - 5 && mouse.x <= getSize().x - 3))) {
                     if (!event.mouse.isDouble) {
                         do {
                             makeLocal(event.mouse.where, mouse);
-                            if (mouse.x >= size.x - 5 && mouse.x <= size.x - 3 && mouse.y == 0) {
+                            if (mouse.x >= getSize().x - 5 && mouse.x <= getSize().x - 3 && mouse.y == 0) {
                                 frameMode |= FM_ZOOM_CLICKED;
                             } else {
                                 frameMode = 0;
@@ -309,7 +309,7 @@ public class TFrame extends TView {
                         } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE + TEvent.EV_MOUSE_AUTO));
                     }
                     frameMode = 0;
-                    if (((mouse.x >= size.x - 5 && mouse.x <= size.x - 3 && mouse.y == 0)) || event.mouse.isDouble) {
+                    if (((mouse.x >= getSize().x - 5 && mouse.x <= getSize().x - 3 && mouse.y == 0)) || event.mouse.isDouble) {
                         event.what = TEvent.EV_COMMAND;
                         event.msg.command = Command.CM_ZOOM;
                         event.msg.infoPtr = getOwner();
@@ -320,7 +320,7 @@ public class TFrame extends TView {
                 } else if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_MOVE) != 0) {
                     dragWindow(event, true);
                 }
-            } else if ((state & State.SF_ACTIVE) != 0 && mouse.x >= size.x - 2 && mouse.y >= size.y - 1) {
+            } else if ((state & State.SF_ACTIVE) != 0 && mouse.x >= getSize().x - 2 && mouse.y >= getSize().y - 1) {
                 if ((((TWindow) getOwner()).flags & TWindow.WindowFlag.WF_GROW) != 0) {
                     dragWindow(event, false);
                 }

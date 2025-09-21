@@ -46,14 +46,11 @@ public class TView {
 
     private TView next = null;
 
-    /** Top-left corner relative to the owner's origin. */
-    public TPoint origin;
+    private TPoint origin;
 
-    /** View dimensions; {@code x} is width and {@code y} is height. */
-    public TPoint size;
+    private TPoint size;
 
-    /** Cursor position relative to the view's origin. */
-    public TPoint cursor = new TPoint(0, 0);
+    private TPoint cursor = new TPoint(0, 0);
 
     /** Resize behavior flags for owner size changes. */
     public enum GrowMode {
@@ -336,8 +333,8 @@ public class TView {
         logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
 
         try {
-            origin = new TPoint(stream.readInt(), stream.readInt());
-            size = new TPoint(stream.readInt(), stream.readInt());
+            setOrigin(new TPoint(stream.readInt(), stream.readInt()));
+            setSize(new TPoint(stream.readInt(), stream.readInt()));
             cursor = new TPoint(stream.readInt(), stream.readInt());
             growMode.clear();
             growMode.addAll(GrowMode.fromMask(stream.readInt()));
@@ -357,8 +354,8 @@ public class TView {
         AtomicInteger counter = CLASS_COUNTERS.computeIfAbsent(getClass(), k -> new AtomicInteger());
         logName = getClass().getSimpleName() + "#" + counter.incrementAndGet();
 
-        origin = JsonUtil.getPoint(node, "origin", new TPoint(0, 0));
-        size = JsonUtil.getPoint(node, "size", new TPoint(0, 0));
+        setOrigin(JsonUtil.getPoint(node, "origin", new TPoint(0, 0)));
+        setSize(JsonUtil.getPoint(node, "size", new TPoint(0, 0)));
         cursor = JsonUtil.getPoint(node, "cursor", new TPoint(0, 0));
         growMode.clear();
         growMode.addAll(GrowMode.fromMask(JsonUtil.getInt(node, "growMode", 0)));
@@ -405,7 +402,7 @@ public class TView {
     public void calcBounds(TRect bounds, TPoint delta) {
         getBounds(bounds);
 
-        int sx = getOwner().size.x;
+        int sx = getOwner().getSize().x;
         int dx = delta.x;
         if (growMode.contains(GrowMode.GF_GROW_LO_X)) {
             bounds.a.x = growValue(bounds.a.x, sx, dx);
@@ -417,7 +414,7 @@ public class TView {
             bounds.b.x = bounds.a.x + TDrawBuffer.MAX_VIEW_LENGTH;
         }
 
-        int sy = getOwner().size.y;
+        int sy = getOwner().getSize().y;
         int dy = delta.y;
         if (growMode.contains(GrowMode.GF_GROW_LO_Y)) {
             bounds.a.y = growValue(bounds.a.y, sy, dy);
@@ -519,15 +516,15 @@ public class TView {
 
     private void handleMouseDrag(TEvent event, boolean draggingGrow) {
         TPoint offset = draggingGrow
-                ? new TPoint(size.x - event.mouse.where.x, size.y - event.mouse.where.y)
-                : new TPoint(origin.x - event.mouse.where.x, origin.y - event.mouse.where.y);
+                ? new TPoint(getSize().x - event.mouse.where.x, getSize().y - event.mouse.where.y)
+                : new TPoint(getOrigin().x - event.mouse.where.x, getOrigin().y - event.mouse.where.y);
         do {
             event.mouse.where.x += offset.x;
             event.mouse.where.y += offset.y;
             if (draggingGrow) {
-                moveGrow(origin, event.mouse.where);
+                moveGrow(getOrigin(), event.mouse.where);
             } else {
-                moveGrow(event.mouse.where, size);
+                moveGrow(event.mouse.where, getSize());
             }
         } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
     }
@@ -540,10 +537,10 @@ public class TView {
         TPoint p = new TPoint();
         TPoint s = new TPoint();
         do {
-            p.x = origin.x;
-            p.y = origin.y;
-            s.x = size.x;
-            s.y = size.y;
+            p.x = getOrigin().x;
+            p.y = getOrigin().y;
+            s.x = getSize().x;
+            s.y = getSize().y;
             keyEvent(event);
             applyKeyCode(event.key.keyCode, p, s, limits, draggingGrow);
             moveGrow(p, s);
@@ -594,8 +591,8 @@ public class TView {
         logger.trace("{} TView@draw()", logName);
 
         TDrawBuffer buf = new TDrawBuffer();
-        buf.moveChar(0,' ', getColor((short) 1), size.x);
-        writeLine(0,0, size.x, size.y, buf.buffer);
+        buf.moveChar(0,' ', getColor((short) 1), getSize().x);
+        writeLine(0,0, getSize().x, getSize().y, buf.buffer);
     }
 
     /**
@@ -742,11 +739,11 @@ public class TView {
         TView v = start;
         while (v != null && v != target) {
             if ((v.state & State.SF_VISIBLE) != 0) {
-                int vy1 = v.origin.y;
-                int vy2 = vy1 + v.size.y;
+                int vy1 = v.getOrigin().y;
+                int vy2 = vy1 + v.getSize().y;
                 if (y >= vy1 && y < vy2) {
-                    int vx1 = v.origin.x;
-                    int vx2 = vx1 + v.size.x;
+                    int vx1 = v.getOrigin().x;
+                    int vx2 = vx1 + v.getSize().x;
 
                     if (xStart >= vx1) {
                         if (xStart < vx2) {
@@ -775,9 +772,9 @@ public class TView {
             return true;
         }
 
-        int newY = y + parent.origin.y;
-        int newStart = xStart + parent.origin.x;
-        int newEnd = xEnd + parent.origin.x;
+        int newY = y + parent.getOrigin().y;
+        int newStart = xStart + parent.getOrigin().x;
+        int newEnd = xEnd + parent.getOrigin().x;
         return isRowExposed(parent, parent.getOwner(), newY, newStart,
                 newEnd, parent.getOwner().first());
     }
@@ -793,12 +790,12 @@ public class TView {
      */
     public boolean exposed() {
         if ((state & State.SF_EXPOSED) == 0) return false;
-        if (size.x <= 0 || size.y <= 0) return false;
+        if (getSize().x <= 0 || getSize().y <= 0) return false;
         if (getOwner() == null) return false;
 
-        for (int y = 0; y < size.y; y++) {
-            int rowY = origin.y + y;
-            if (isRowExposed(this, getOwner(), rowY, origin.x, origin.x + size.x,
+        for (int y = 0; y < getSize().y; y++) {
+            int rowY = getOrigin().y + y;
+            if (isRowExposed(this, getOwner(), rowY, getOrigin().x, getOrigin().x + getSize().x,
                     getOwner().first())) {
                 return true;
             }
@@ -850,8 +847,8 @@ public class TView {
      * @param bounds The {@link TRect} object to populate with the view's bounds.
      */
     void getBounds(TRect bounds) {
-        bounds.a = new TPoint(origin.x, origin.y);
-        bounds.b = new TPoint(origin.x + size.x, origin.y + size.y);
+        bounds.a = new TPoint(getOrigin().x, getOrigin().y);
+        bounds.b = new TPoint(getOrigin().x + getSize().x, getOrigin().y + getSize().y);
     }
 
     /**
@@ -871,7 +868,7 @@ public class TView {
         if (getOwner() != null) {
             clip.intersect(getOwner().clip);
         }
-        clip.move(-origin.x, -origin.y);
+        clip.move(-getOrigin().x, -getOrigin().y);
     }
 
     /**
@@ -964,7 +961,7 @@ public class TView {
     /** Fills {@code extent} with the view's local bounds. */
     public void getExtent(TRect extent) {
         extent.a = new TPoint(0, 0);
-        extent.b = new TPoint(size.x, size.y);
+        extent.b = new TPoint(getSize().x, getSize().y);
     }
 
     /** Returns {@link #helpCtx} or {@link HelpContext#HC_DRAGGING} when dragging. */
@@ -995,7 +992,7 @@ public class TView {
     }
 
     public void growTo(int x, int y) {
-        TRect r = new TRect(origin.x, origin.y, origin.x + x, origin.y + y);
+        TRect r = new TRect(getOrigin().x, getOrigin().y, getOrigin().x + x, getOrigin().y + y);
         locate(r);
     }
 
@@ -1112,8 +1109,8 @@ public class TView {
         dest.x = source.x;
         dest.y = source.y;
         do {
-            dest.x += current.origin.x;
-            dest.y += current.origin.y;
+            dest.x += current.getOrigin().x;
+            dest.y += current.getOrigin().y;
             current = current.getOwner();
         } while (current != null);
     }
@@ -1125,8 +1122,8 @@ public class TView {
         dest.x = source.x;
         dest.y = source.y;
         do {
-            dest.x -= current.origin.x;
-            dest.y -= current.origin.y;
+            dest.x -= current.getOrigin().x;
+            dest.y -= current.getOrigin().y;
             current = current.getOwner();
         } while (current != null);
     }
@@ -1223,7 +1220,7 @@ public class TView {
     }
 
     public void moveTo(int x, int y) {
-        TRect r = new TRect(x, y, x + size.x, y + size.y);
+        TRect r = new TRect(x, y, x + getSize().x, y + getSize().y);
         locate(r);
     }
 
@@ -1341,9 +1338,9 @@ public class TView {
         int required = State.SF_VISIBLE | State.SF_CURSOR_VIS | State.SF_FOCUSED;
         boolean show = (state & required) == required;
 
-        TPoint global = new TPoint(cursor.x, cursor.y);
+        TPoint global = new TPoint(getCursor().x, getCursor().y);
         if (show) {
-            if (cursor.x < 0 || cursor.x >= size.x || cursor.y < 0 || cursor.y >= size.y) {
+            if (getCursor().x < 0 || getCursor().x >= getSize().x || getCursor().y < 0 || getCursor().y >= getSize().y) {
                 show = false; // outside bounds
             } else {
                 makeGlobal(global, global);
@@ -1395,8 +1392,8 @@ public class TView {
      * @param bounds The rectangle defining the new bounds of the view.
      */
     protected void setBounds(TRect bounds) {
-        this.origin = new TPoint(bounds.a.x, bounds.a.y);
-        this.size = new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y);
+        this.setOrigin(new TPoint(bounds.a.x, bounds.a.y));
+        this.setSize(new TPoint(bounds.b.x - bounds.a.x, bounds.b.y - bounds.a.y));
     }
 
     /**
@@ -1430,7 +1427,7 @@ public class TView {
     }
 
     /** Sets the cursor position. */
-    public void setCursor(int x, int y) {
+    protected void setCursor(int x, int y) {
         cursor.x = x;
         cursor.y = y;
         drawCursor();
@@ -1546,8 +1543,8 @@ public class TView {
         min.x = 0;
         min.y = 0;
         if (getOwner() != null) {
-            max.x = getOwner().size.x;
-            max.y = getOwner().size.y;
+            max.x = getOwner().getSize().x;
+            max.y = getOwner().getSize().y;
         } else {
             max.x = Short.MAX_VALUE;
             max.y = Short.MAX_VALUE;
@@ -1565,12 +1562,12 @@ public class TView {
         // Do not persist transient runtime bits, mirroring Turbo Vision's behavior.
         state &= ~(State.SF_ACTIVE | State.SF_SELECTED | State.SF_FOCUSED | State.SF_EXPOSED);
         try {
-            stream.writeInt(origin.x);
-            stream.writeInt(origin.y);
-            stream.writeInt(size.x);
-            stream.writeInt(size.y);
-            stream.writeInt(cursor.x);
-            stream.writeInt(cursor.y);
+            stream.writeInt(getOrigin().x);
+            stream.writeInt(getOrigin().y);
+            stream.writeInt(getSize().x);
+            stream.writeInt(getSize().y);
+            stream.writeInt(getCursor().x);
+            stream.writeInt(getCursor().y);
             stream.writeInt(GrowMode.toMask(growMode));
             stream.writeInt(DragMode.toMask(dragMode));
             stream.writeInt(helpCtx);
@@ -1587,18 +1584,18 @@ public class TView {
     public void storeJson(ObjectNode node) {
         int saveState = state;
         state &= ~(State.SF_ACTIVE | State.SF_SELECTED | State.SF_FOCUSED | State.SF_EXPOSED);
-        if (origin == null) {
-            origin = new TPoint(0, 0);
+        if (getOrigin() == null) {
+            setOrigin(new TPoint(0, 0));
         }
-        if (size == null) {
-            size = new TPoint(0, 0);
+        if (getSize() == null) {
+            setSize(new TPoint(0, 0));
         }
-        if (cursor == null) {
+        if (getCursor() == null) {
             cursor = new TPoint(0, 0);
         }
-        JsonUtil.putPoint(node, "origin", origin);
-        JsonUtil.putPoint(node, "size", size);
-        JsonUtil.putPoint(node, "cursor", cursor);
+        JsonUtil.putPoint(node, "origin", getOrigin());
+        JsonUtil.putPoint(node, "size", getSize());
+        JsonUtil.putPoint(node, "cursor", getCursor());
         node.put("growMode", GrowMode.toMask(growMode));
         node.put("dragMode", DragMode.toMask(dragMode));
         node.put("helpCtx", helpCtx);
@@ -1805,7 +1802,7 @@ public class TView {
             if ((view.state & required) != required) return;
 
             // Clip vertically to the view's bounds
-            if (curY < 0 || curY >= view.size.y) return;
+            if (curY < 0 || curY >= view.getSize().y) return;
 
             int start = curX;
             int end = curX + curCount;
@@ -1813,14 +1810,14 @@ public class TView {
                 curOffset -= start;
                 start = 0;
             }
-            if (end > view.size.x) {
-                end = view.size.x;
+            if (end > view.getSize().x) {
+                end = view.getSize().x;
             }
             int length = end - start;
             if (length <= 0) return;
 
-            int destX = view.origin.x + start;
-            int destY = view.origin.y + curY;
+            int destX = view.getOrigin().x + start;
+            int destY = view.getOrigin().y + curY;
             int bufIndex = curOffset + (start - curX);
 
             // Ascend the owner chain, clipping and translating until we reach
@@ -1843,8 +1840,8 @@ public class TView {
                     break;
                 }
 
-                destX += g.origin.x;
-                destY += g.origin.y;
+                destX += g.getOrigin().x;
+                destY += g.getOrigin().y;
                 g = g.getOwner();
             }
 
@@ -1877,8 +1874,8 @@ public class TView {
                         s.makeGlobal(tmp, tmp);
                         int sx1 = tmp.x;
                         int sy1 = tmp.y;
-                        int sx2 = sx1 + s.size.x;
-                        int sy2 = sy1 + s.size.y;
+                        int sx2 = sx1 + s.getSize().x;
+                        int sy2 = sy1 + s.getSize().y;
 
                         if (globalY >= sy1 && globalY < sy2 && globalX >= sx1 && globalX < sx2) {
                             covered = true;
@@ -1888,8 +1885,8 @@ public class TView {
                         if ((s.state & State.SF_SHADOW) != 0) {
                             int shx1 = sx1 + s.shadowSize.x;
                             int shy1 = sy1 + s.shadowSize.y;
-                            int shx2 = shx1 + s.size.x;
-                            int shy2 = shy1 + s.size.y;
+                            int shx2 = shx1 + s.getSize().x;
+                            int shy2 = shy1 + s.getSize().y;
                             if (globalY >= shy1 && globalY < shy2 && globalX >= shx1 && globalX < shx2) {
                                 if (outAttr == attr) {
                                     outAttr = s.shadowAttr & 0xFF;
@@ -1916,7 +1913,7 @@ public class TView {
             curX = destX;
             curCount = length;
             curBuffer = target.getData();
-            curOffset = curY * view.size.x + curX;
+            curOffset = curY * view.getSize().x + curX;
         }
     }
 
@@ -1984,7 +1981,7 @@ public class TView {
 
     // Getters and setters
 
-    /** Owning {@link TGroup}; {@code null} for top-level views. */ /**
+    /** Owning {@link TGroup}; {@code null} for top-level views.
      * Returns the owner of this view.
      *
      * @return The {@link TGroup} that owns this view, or {@code null} if it has no owner.
@@ -2002,7 +1999,8 @@ public class TView {
         this.owner = owner;
     }
 
-    /** Next sibling in Z-order; wraps to owner's first child when last. */ /**
+    /**
+     * Next sibling in Z-order; wraps to owner's first child when last.
      * Returns the next view in the sibling chain.
      *
      * @return The next {@link TView} in the sibling list, or {@code null} if this is the last.
@@ -2015,8 +2013,27 @@ public class TView {
         this.next = next;
     }
 
+    /** Top-left corner relative to the owner's origin. */
+    public TPoint getOrigin() {
+        return origin;
+    }
+
+    protected void setOrigin(TPoint origin) {
+        this.origin = origin;
+    }
+
+    /** View dimensions; {@code x} is width and {@code y} is height. */
     public TPoint getSize() {
         return size;
+    }
+
+    protected void setSize(TPoint size) {
+        this.size = size;
+    }
+
+    /** Cursor position relative to the view's origin. */
+    public TPoint getCursor() {
+        return cursor;
     }
 
     public void setGrowModes(EnumSet<GrowMode> modes) {

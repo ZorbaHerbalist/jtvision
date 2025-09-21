@@ -93,12 +93,12 @@ public class TLabel extends TStaticText {
             scOff = 4;
         }
 
-        buf.moveChar(0, ' ', color & 0xFF, size.x);
+        buf.moveChar(0, ' ', color & 0xFF, getSize().x);
         buf.moveCStr(1, getText(), color);
         if (showMarkers) {
             buf.buffer[0] = (short) ((buf.buffer[0] & 0xFF00) | SPECIAL_CHARS[scOff]);
         }
-        writeLine(0, 0, size.x, 1, buf.buffer);
+        writeLine(0, 0, getSize().x, 1, buf.buffer);
     }
 
     @Override

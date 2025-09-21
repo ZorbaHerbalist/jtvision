@@ -25,7 +25,7 @@ public class TDoubleWindow extends TStdWindow {
         r.grow(-1, 0);
         r.a.x = r.b.x / 2;
         r.b.x = r.a.x + 2;
-        separator = new TSeparator(r, size.x);
+        separator = new TSeparator(r, getSize().x);
         insert(separator);
 
         initInterior();

@@ -321,7 +321,7 @@ public class TWindow extends TGroup {
         TPoint min = new TPoint();
         TPoint max = new TPoint();
         sizeLimits(min, max);
-        if (size.x != max.x || size.y != max.y) {
+        if (getSize().x != max.x || getSize().y != max.y) {
             getBounds(zoomRect);
             TRect r = new TRect(0, 0, max.x, max.y);
             locate(r);

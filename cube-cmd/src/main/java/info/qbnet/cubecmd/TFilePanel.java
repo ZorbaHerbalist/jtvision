@@ -1,7 +1,6 @@
 package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.util.PaletteDescriptor;
-import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
@@ -89,12 +88,12 @@ public class TFilePanel extends TFilePanelRoot {
         TDrawBuffer buf = new TDrawBuffer();
 
         drawTop(buf);
-        writeLine(0, 0, size.x, 1, buf.buffer);
+        writeLine(0, 0, getSize().x, 1, buf.buffer);
 
-        for (int i = 1; i < size.y; i++) {
+        for (int i = 1; i < getSize().y; i++) {
             int idx = i - 1;
             drawAtIdx(idx, buf);
-            writeLine(0, i, size.x, 1, buf.buffer);
+            writeLine(0, i, getSize().x, 1, buf.buffer);
         }
 
     }

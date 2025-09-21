@@ -75,7 +75,7 @@ public class TScrollBar extends TView {
         pgStep = 1;
         arStep = 1;
 
-        if (size.x == 1) {
+        if (getSize().x == 1) {
             setGrowModes(EnumSet.of(GrowMode.GF_GROW_LO_X,
                     GrowMode.GF_GROW_HI_X, GrowMode.GF_GROW_HI_Y));
             chars = V_CHARS.clone();
@@ -124,7 +124,7 @@ public class TScrollBar extends TView {
             b.moveChar(pos, chars[3], getColor(ScrollBarColor.INDICATOR), 1);
         }
         b.moveChar(s, chars[1], getColor(ScrollBarColor.ARROWS), 1);
-        writeBuf(0, 0, size.x, size.y, b.buffer);
+        writeBuf(0, 0, getSize().x, getSize().y, b.buffer);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class TScrollBar extends TView {
 
     // former getSize()
     protected int getScrollSize() {
-        int s = (size.x == 1) ? size.y : size.x;
+        int s = (getSize().x == 1) ? getSize().y : getSize().x;
         return (s < 3) ? 3 : s;
     }
 
@@ -177,7 +177,7 @@ public class TScrollBar extends TView {
                         makeLocal(event.mouse.where, mouse);
                         tracking = extent.contains(mouse);
                         if (tracking) {
-                            i = (size.x == 1) ? mouse.y : mouse.x;
+                            i = (getSize().x == 1) ? mouse.y : mouse.x;
                             if (i <= 0) i = 1;
                             if (i >= s) i = s - 1;
                         } else {
@@ -200,7 +200,7 @@ public class TScrollBar extends TView {
                 if ((state & State.SF_VISIBLE) != 0) {
                     int clickPart = SB_INDICATOR;
                     int i = value;
-                    if (size.y == 1) {
+                    if (getSize().y == 1) {
                         switch (KeyCode.ctrlToArrow(event.key.keyCode)) {
                             case KeyCode.KB_LEFT -> clickPart = SB_LEFT_ARROW;
                             case KeyCode.KB_RIGHT -> clickPart = SB_RIGHT_ARROW;
@@ -239,7 +239,7 @@ public class TScrollBar extends TView {
     private int getPartCode(TPoint mouse, TRect extent, int p, int s) {
         int part = -1;
         if (extent.contains(mouse)) {
-            int mark = (size.x == 1) ? mouse.y : mouse.x;
+            int mark = (getSize().x == 1) ? mouse.y : mouse.x;
             if (mark == p) {
                 part = SB_INDICATOR;
             } else {
@@ -247,7 +247,7 @@ public class TScrollBar extends TView {
                 else if (mark < p) part = SB_PAGE_LEFT;
                 else if (mark < s) part = SB_PAGE_RIGHT;
                 else part = SB_RIGHT_ARROW;
-                if (size.x == 1) {
+                if (getSize().x == 1) {
                     part += 4;
                 }
             }

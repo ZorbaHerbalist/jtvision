@@ -2,7 +2,6 @@ package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.PaletteDescriptor;
-import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
@@ -30,7 +29,7 @@ public class TSeparator extends THideView {
 
     public TSeparator(TRect bounds, int width) {
         super(bounds);
-        oldX = origin.x + 1;
+        oldX = getOrigin().x + 1;
         oldW = width;
         eventMask = 0xFFFF;
     }
@@ -54,10 +53,10 @@ public class TSeparator extends THideView {
 
         buf.moveChar(0, FRAME_CHARS.charAt(off), color, 1);
         buf.moveChar(1, FRAME_CHARS.charAt(2 + off), color, 1);
-        buf.moveChar(2, FRAME_CHARS.charAt(4 + off), color, (size.y - 2) * 2);
-        buf.moveChar(size.y * 2 - 2, FRAME_CHARS.charAt(1 + off), color, 1);
-        buf.moveChar(size.y * 2 - 1, FRAME_CHARS.charAt(3 + off), color, 1);
-        writeBuf(0, 0, 2, size.y, buf.buffer);
+        buf.moveChar(2, FRAME_CHARS.charAt(4 + off), color, (getSize().y - 2) * 2);
+        buf.moveChar(getSize().y * 2 - 2, FRAME_CHARS.charAt(1 + off), color, 1);
+        buf.moveChar(getSize().y * 2 - 1, FRAME_CHARS.charAt(3 + off), color, 1);
+        writeBuf(0, 0, 2, getSize().y, buf.buffer);
     }
 
     @Override

@@ -76,14 +76,14 @@ public abstract class TCluster extends TView {
 
     /** Returns the column (x offset) for the specified item. */
     protected int column(int item) {
-        if (item < size.y) {
+        if (item < getSize().y) {
             return 0;
         }
 
         int width = 0;
         int col = -6;
         for (int i = 0; i <= item; i++) {
-            if (i % size.y == 0) {
+            if (i % getSize().y == 0) {
                 col += width + 6;
                 width = 0;
             }
@@ -123,13 +123,13 @@ public abstract class TCluster extends TView {
 
         TDrawBuffer buf = new TDrawBuffer();
 
-        for (int i = 0; i < size.y; i++) {
-            buf.moveChar(0, ' ', cNorm & 0xFF, size.x);
+        for (int i = 0; i < getSize().y; i++) {
+            buf.moveChar(0, ' ', cNorm & 0xFF, getSize().x);
 
             // Iterate over columns
-            int columns = (strings.size() - 1) / size.y + 1;
+            int columns = (strings.size() - 1) / getSize().y + 1;
             for (int j = 0; j < columns; j++) {
-                int cur = j * size.y + i;
+                int cur = j * getSize().y + i;
                 if (cur >= strings.size()) {
                     continue;
                 }
@@ -137,7 +137,7 @@ public abstract class TCluster extends TView {
                 int col = column(cur);
                 int textLen = CString.cStrLen(strings.get(cur));
 
-                if (col + textLen + 5 < TDrawBuffer.MAX_VIEW_LENGTH && col < size.x) {
+                if (col + textLen + 5 < TDrawBuffer.MAX_VIEW_LENGTH && col < getSize().x) {
                     short color;
                     if (!buttonState(cur)) {
                         color = cDis;
@@ -147,7 +147,7 @@ public abstract class TCluster extends TView {
                         color = cNorm;
                     }
 
-                    buf.moveChar(col, ' ', color & 0xFF, size.x - col);
+                    buf.moveChar(col, ' ', color & 0xFF, getSize().x - col);
                     buf.moveStr(col, icon, color & 0xFF);
                     int markIdx = Math.min(multiMark(cur), marker.length() - 1);
                     char markCh = marker.charAt(markIdx);
@@ -156,7 +156,7 @@ public abstract class TCluster extends TView {
 
                     if (showMarkers && (state & State.SF_FOCUSED) != 0 && cur == sel) {
                         buf.buffer[col] = (short) ((buf.buffer[col] & 0xFF00) | SPECIAL_CHARS[0]);
-                        int nextCol = column(cur + size.y) - 1;
+                        int nextCol = column(cur + getSize().y) - 1;
                         if (nextCol >= 0 && nextCol < TDrawBuffer.MAX_VIEW_LENGTH) {
                             buf.buffer[nextCol] = (short) ((buf.buffer[nextCol] & 0xFF00) | SPECIAL_CHARS[1]);
                         }
@@ -164,7 +164,7 @@ public abstract class TCluster extends TView {
                 }
             }
 
-            writeLine(0, i, size.x, 1, buf.buffer);
+            writeLine(0, i, getSize().x, 1, buf.buffer);
         }
 
         setCursor(column(sel) + 2, row(sel));
@@ -178,8 +178,8 @@ public abstract class TCluster extends TView {
             return -1;
         }
         int i = 0;
-        while (p.x >= column(i + size.y)) {
-            i += size.y;
+        while (p.x >= column(i + getSize().y)) {
+            i += getSize().y;
         }
         int s = i + p.y;
         if (s >= strings.size()) {
@@ -276,9 +276,9 @@ public abstract class TCluster extends TView {
                         i = 0;
                         do {
                             i++;
-                            s += size.y;
+                            s += getSize().y;
                             if (s >= strings.size()) {
-                                s = (s + 1) % size.y;
+                                s = (s + 1) % getSize().y;
                                 if (s >= strings.size()) {
                                     s = 0;
                                 }
@@ -298,9 +298,9 @@ public abstract class TCluster extends TView {
                         do {
                             i++;
                             if (s > 0) {
-                                s -= size.y;
+                                s -= getSize().y;
                                 if (s < 0) {
-                                    s = ((strings.size() + size.y - 1) / size.y) * size.y + s - 1;
+                                    s = ((strings.size() + getSize().y - 1) / getSize().y) * getSize().y + s - 1;
                                     if (s >= strings.size()) {
                                         s = strings.size() - 1;
                                     }
@@ -368,7 +368,7 @@ public abstract class TCluster extends TView {
 
     /** Returns the row (y offset) for the specified item. */
     protected int row(int item) {
-        return item % size.y;
+        return item % getSize().y;
     }
 
     /** Enables or disables buttons specified by {@code mask}. */

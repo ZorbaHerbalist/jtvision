@@ -28,10 +28,10 @@ public class TestableTView extends TView {
     }
 
     public TPoint getOriginField() {
-        return origin;
+        return getOrigin();
     }
 
     public TPoint getSizeField() {
-        return size;
+        return getSize();
     }
 }

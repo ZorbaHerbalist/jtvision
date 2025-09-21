@@ -73,7 +73,7 @@ public class MsgBox {
 
         // text
         TRect tr = new TRect();
-        tr.assign(3, 2, dialog.size.x - 2, dialog.size.y - 3);
+        tr.assign(3, 2, dialog.getSize().x - 2, dialog.getSize().y - 3);
         String text = params != null && params.length > 0 ? String.format(msg, params) : msg;
         dialog.insert(new TStaticText(tr, text));
 
@@ -85,15 +85,15 @@ public class MsgBox {
             if ((options & mask) != 0) {
                 TRect br = new TRect(0, 0, 10, 2);
                 TButton b = new TButton(br, BUTTON_NAMES[i], BUTTON_COMMANDS[i], TButton.BF_NORMAL);
-                x += b.size.x + 2;
+                x += b.getSize().x + 2;
                 buttons.add(b);
             }
         }
-        x = (dialog.size.x - x) / 2;
+        x = (dialog.getSize().x - x) / 2;
         for (TView v : buttons) {
             dialog.insert(v);
-            v.moveTo(x, dialog.size.y - 3);
-            x += v.size.x + 2;
+            v.moveTo(x, dialog.getSize().y - 3);
+            x += v.getSize().x + 2;
         }
 
         int res;

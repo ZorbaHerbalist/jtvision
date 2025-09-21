@@ -4,7 +4,6 @@ import info.qbnet.jtvision.util.Command;
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.CString;
 import info.qbnet.jtvision.util.PaletteDescriptor;
-import info.qbnet.jtvision.util.PaletteFactory;
 import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TPoint;
@@ -137,14 +136,14 @@ public class TStatusLine extends TView {
         short cNormDisabled = getColor(TMenuView.MenuColor.DISABLED_TEXT, TMenuView.MenuColor.DISABLED_TEXT);
         short cSelDisabled = getColor(TMenuView.MenuColor.DISABLED_SELECTION, TMenuView.MenuColor.DISABLED_SELECTION);
 
-        buf.moveChar(0, ' ', cNormal, size.x);
+        buf.moveChar(0, ' ', cNormal, getSize().x);
         TStatusItem t = items;
         int i = 0;
         while (t != null) {
             logger.trace("{} TStatusLine@drawSelect() item {}", getLogName(), t);
             if (t.text() != null) {
                 int l = CString.cStrLen(t.text());
-                if (i + l < size.x) {
+                if (i + l < getSize().x) {
                     short color;
                     if (commandEnabled(t.command())) {
                         if (t == selected) {
@@ -168,19 +167,19 @@ public class TStatusLine extends TView {
             t = t.next();
         }
 
-        if (i < size.x - 2) {
+        if (i < getSize().x - 2) {
             String hintBuf = hint(helpCtx);
             if (hintBuf != null && hintBuf.length() > 0) {
                 buf.moveChar(i, (char) 179, cNormal, 1);
                 i += 2;
-                if (i + hintBuf.length() > size.x) {
-                    hintBuf = hintBuf.substring(0, size.x - i);
+                if (i + hintBuf.length() > getSize().x) {
+                    hintBuf = hintBuf.substring(0, getSize().x - i);
                 }
                 buf.moveCStr(i, hintBuf, (byte) cNormal);
             }
         }
 
-        writeLine(0, 0, size.x, 1, buf.buffer);
+        writeLine(0, 0, getSize().x, 1, buf.buffer);
     }
 
     private void findItems() {

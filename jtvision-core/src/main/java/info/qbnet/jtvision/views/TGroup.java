@@ -237,7 +237,7 @@ public class TGroup extends TView {
 
     @Override
     public void changeBounds(TRect bounds) {
-        TPoint d = new TPoint(bounds.b.x - bounds.a.x - size.x, bounds.b.y - bounds.a.y - size.y);
+        TPoint d = new TPoint(bounds.b.x - bounds.a.x - getSize().x, bounds.b.y - bounds.a.y - getSize().y);
         if (d.x == 0 && d.y == 0) {
             setBounds(bounds);
             drawView();
@@ -345,7 +345,7 @@ public class TGroup extends TView {
             lockFlag++;
             redraw();
             lockFlag--;
-            writeBuf(0, 0, size.x, size.y, buffer.getData());
+            writeBuf(0, 0, getSize().x, getSize().y, buffer.getData());
         } else {
             getClipRect(clip);
             redraw();
@@ -534,7 +534,7 @@ public class TGroup extends TView {
         if ((getOptions() & Options.OF_BUFFERED) == 0) {
             return;
         }
-        buffer = new Buffer(size.x, size.y);
+        buffer = new Buffer(getSize().x, getSize().y);
     }
 
     @Override
@@ -718,10 +718,10 @@ public class TGroup extends TView {
 
         if (p != null && p.getOwner() == null && (target == null || target.getOwner() == this)) {
             if ((p.getOptions() & Options.OF_CENTER_X) != 0) {
-                p.origin.x = (size.x - p.size.x) / 2;
+                p.getOrigin().x = (getSize().x - p.getSize().x) / 2;
             }
             if ((p.getOptions() & Options.OF_CENTER_Y) != 0) {
-                p.origin.y = (size.y - p.size.y) / 2;
+                p.getOrigin().y = (getSize().y - p.getSize().y) / 2;
             }
             int saveState = p.state;
             p.hide();

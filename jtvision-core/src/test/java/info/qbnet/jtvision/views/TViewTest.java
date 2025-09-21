@@ -455,8 +455,8 @@ class TViewTest {
         int originalHeight = view.getSizeField().y;
 
         TPoint delta = new TPoint(2,3);
-        group.size.x += delta.x;
-        group.size.y += delta.y;
+        group.getSize().x += delta.x;
+        group.getSize().y += delta.y;
 
         TRect bounds = new TRect();
         view.calcBounds(bounds, delta);
@@ -484,8 +484,8 @@ class TViewTest {
         view.addGrowMode(TView.GrowMode.GF_GROW_REL);
 
         TPoint delta = new TPoint(10,20);
-        group.size.x += delta.x;
-        group.size.y += delta.y;
+        group.getSize().x += delta.x;
+        group.getSize().y += delta.y;
 
         TRect bounds = new TRect();
         view.calcBounds(bounds, delta);

@@ -119,7 +119,7 @@ public class TScroller extends TView {
         d.x = (hScrollBar != null) ? hScrollBar.value : 0;
         d.y = (vScrollBar != null) ? vScrollBar.value : 0;
         if (d.x != delta.x || d.y != delta.y) {
-            setCursor(cursor.x + delta.x - d.x, cursor.y + delta.y - d.y);
+            setCursor(getCursor().x + delta.x - d.x, getCursor().y + delta.y - d.y);
             delta.x = d.x;
             delta.y = d.y;
             if (drawLock != 0) {
@@ -149,10 +149,10 @@ public class TScroller extends TView {
         limit.y = y;
         drawLock++;
         if (hScrollBar != null) {
-            hScrollBar.setParams(hScrollBar.value, 0, x - size.x, size.x - 1, hScrollBar.arStep);
+            hScrollBar.setParams(hScrollBar.value, 0, x - getSize().x, getSize().x - 1, hScrollBar.arStep);
         }
         if (vScrollBar != null) {
-            vScrollBar.setParams(vScrollBar.value, 0, y - size.y, size.y - 1, vScrollBar.arStep);
+            vScrollBar.setParams(vScrollBar.value, 0, y - getSize().y, getSize().y - 1, vScrollBar.arStep);
         }
         drawLock--;
         checkDraw();

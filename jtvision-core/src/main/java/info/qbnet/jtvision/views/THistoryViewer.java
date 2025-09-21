@@ -45,7 +45,7 @@ public class THistoryViewer extends TListViewer {
         }
         if (hScrollBar != null) {
             int width = historyWidth();
-            int max = Math.max(1, width - size.x + 3);
+            int max = Math.max(1, width - getSize().x + 3);
             hScrollBar.setRange(1, max);
         }
     }

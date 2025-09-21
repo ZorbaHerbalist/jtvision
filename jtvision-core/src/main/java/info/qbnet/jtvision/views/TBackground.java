@@ -53,8 +53,8 @@ public class TBackground extends TView {
         logger.trace("{} TBackground@draw()", getLogName());
 
         TDrawBuffer buf = new TDrawBuffer();
-        buf.moveChar(0, pattern, getColor(BackgroundColor.BACKGROUND), size.x);
-        writeLine(0,0, size.x, size.y, buf.buffer);
+        buf.moveChar(0, pattern, getColor(BackgroundColor.BACKGROUND), getSize().x);
+        writeLine(0,0, getSize().x, getSize().y, buf.buffer);
 
         logger.trace("{} Background color {}", getLogName(), getColor(BackgroundColor.BACKGROUND));
     }

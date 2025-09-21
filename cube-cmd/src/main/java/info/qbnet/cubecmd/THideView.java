@@ -12,8 +12,8 @@ public class THideView extends TView {
     }
 
     public void hideView() {
-        oldSizeX = size.x;
-        growTo(0, size.y);
+        oldSizeX = getSize().x;
+        growTo(0, getSize().y);
         eventMask = 0;
         hide();
     }
@@ -21,7 +21,7 @@ public class THideView extends TView {
     public void showView() {
         eventMask = 0xFFFF;
         // CHECK: missing in original implementation
-        growTo(oldSizeX, size.y);
+        growTo(oldSizeX, getSize().y);
         show();
     }
 

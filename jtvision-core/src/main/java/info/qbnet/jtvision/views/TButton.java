@@ -108,8 +108,8 @@ public class TButton extends TView {
         TDrawBuffer buf = new TDrawBuffer();
         short cShadow = getColor(ButtonColor.SHADOW);
         short cButton;
-        int s = size.x - 1;
-        int t = size.y / 2 - 1;
+        int s = getSize().x - 1;
+        int t = getSize().y / 2 - 1;
 
         if ((state & State.SF_DISABLED) != 0) {
             cButton = getColor(ButtonColor.DISABLED_TEXT, ButtonColor.DISABLED_TEXT);
@@ -125,8 +125,8 @@ public class TButton extends TView {
         }
 
         char ch = ' ';
-        for (int y = 0; y < size.y - 1; y++) {
-            buf.moveChar(0, ' ', cButton & 0xFF, size.x);
+        for (int y = 0; y < getSize().y - 1; y++) {
+            buf.moveChar(0, ' ', cButton & 0xFF, getSize().x);
             // left edge highlight
             buf.buffer[0] = (short) ((cShadow << 8) | (buf.buffer[0] & 0xFF));
 
@@ -180,12 +180,12 @@ public class TButton extends TView {
                 buf.buffer[s - 1] = (short) ((buf.buffer[s - 1] & 0xFF00) | ']');
             }
 
-            writeLine(0, y, size.x, 1, buf.buffer);
+            writeLine(0, y, getSize().x, 1, buf.buffer);
         }
 
         buf.moveChar(0, ' ', cShadow & 0xFF, 2);
         buf.moveChar(2, ch, cShadow & 0xFF, s - 1);
-        writeLine(0, size.y - 1, size.x, 1, buf.buffer);
+        writeLine(0, getSize().y - 1, getSize().x, 1, buf.buffer);
     }
 
     @Override

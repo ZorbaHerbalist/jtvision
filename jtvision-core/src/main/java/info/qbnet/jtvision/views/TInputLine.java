@@ -93,7 +93,7 @@ public class TInputLine extends TView {
         if (delta < 0) {
             return firstPos > 0;
         } else if (delta > 0) {
-            return data.length() - firstPos + 2 > size.x;
+            return data.length() - firstPos + 2 > getSize().x;
         } else {
             return false;
         }
@@ -110,13 +110,13 @@ public class TInputLine extends TView {
         short color = (state & State.SF_FOCUSED) != 0 ? getColor(InputLineColor.ACTIVE)
                 : getColor(InputLineColor.NORMAL);
 
-        buf.moveChar(0, ' ', color, size.x);
-        int len = Math.min(size.x - 2, data.length() - firstPos);
+        buf.moveChar(0, ' ', color, getSize().x);
+        int len = Math.min(getSize().x - 2, data.length() - firstPos);
         if (len > 0) {
             buf.moveStr(1, data.substring(firstPos, firstPos + len), color);
         }
         if (canScroll(1)) {
-            buf.moveChar(size.x - 1, (char) 0x10, getColor(InputLineColor.ARROWS), 1);
+            buf.moveChar(getSize().x - 1, (char) 0x10, getColor(InputLineColor.ARROWS), 1);
         }
         if ((state & State.SF_FOCUSED) != 0) {
             if (canScroll(-1)) {
@@ -125,12 +125,12 @@ public class TInputLine extends TView {
             int l = selStart - firstPos;
             int r = selEnd - firstPos;
             if (l < 0) l = 0;
-            if (r > size.x - 2) r = size.x - 2;
+            if (r > getSize().x - 2) r = getSize().x - 2;
             if (l < r) {
                 buf.moveChar(l + 1, (char) 0x00, getColor(InputLineColor.SELECTED_TEXT), r - l);
             }
         }
-        writeLine(0, 0, size.x, size.y, buf.buffer);
+        writeLine(0, 0, getSize().x, getSize().y, buf.buffer);
         setCursor(curPos - firstPos + 1, 0);
     }
 
@@ -177,7 +177,7 @@ public class TInputLine extends TView {
         TPoint mouse = new TPoint();
         makeLocal(event.mouse.where, mouse);
         if (mouse.x <= 0) return -1;
-        if (mouse.x >= size.x - 1) return 1;
+        if (mouse.x >= getSize().x - 1) return 1;
         return 0;
     }
 
@@ -306,7 +306,7 @@ public class TInputLine extends TView {
                 if (firstPos > curPos) {
                     firstPos = curPos;
                 }
-                int i = curPos - size.x + 2;
+                int i = curPos - getSize().x + 2;
                 if (firstPos < i) {
                     firstPos = i;
                 }

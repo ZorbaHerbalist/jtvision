@@ -79,16 +79,16 @@ public class TListViewer extends TView {
         if (vScrollBar != null) {
             int pgStep, arStep;
             if (numCols == 1) {
-                pgStep = size.y - 1;
+                pgStep = getSize().y - 1;
                 arStep = 1;
             } else {
-                pgStep = size.y * numCols;
-                arStep = size.y;
+                pgStep = getSize().y * numCols;
+                arStep = getSize().y;
             }
             vScrollBar.setStep(pgStep, arStep);
         }
         if (hScrollBar != null) {
-            hScrollBar.setStep(size.x / numCols, 1);
+            hScrollBar.setStep(getSize().x / numCols, 1);
         }
         this.hScrollBar = hScrollBar;
         this.vScrollBar = vScrollBar;
@@ -113,10 +113,10 @@ public class TListViewer extends TView {
         logger.trace("{} TListViewer@changeBounds(bounds={})", getLogName(), bounds);
         super.changeBounds(bounds);
         if (hScrollBar != null) {
-            hScrollBar.setStep(size.x / Math.max(numCols, 1), hScrollBar.arStep);
+            hScrollBar.setStep(getSize().x / Math.max(numCols, 1), hScrollBar.arStep);
         }
         if (vScrollBar != null) {
-            vScrollBar.setStep(size.y, vScrollBar.arStep);
+            vScrollBar.setStep(getSize().y, vScrollBar.arStep);
         }
     }
 
@@ -137,12 +137,12 @@ public class TListViewer extends TView {
         }
 
         int indent = (hScrollBar != null) ? hScrollBar.value : 0;
-        int colWidth = size.x / numCols + 1;
+        int colWidth = getSize().x / numCols + 1;
         TDrawBuffer b = new TDrawBuffer();
 
-        for (int i = 0; i < size.y; i++) {
+        for (int i = 0; i < getSize().y; i++) {
             for (int j = 0; j < numCols; j++) {
-                int item = j * size.y + i + topItem;
+                int item = j * getSize().y + i + topItem;
                 int curCol = j * colWidth;
                 int scOff;
 
@@ -180,7 +180,7 @@ public class TListViewer extends TView {
                 }
                 b.moveChar(curCol + colWidth - 1, (char) 0xB3, getColor(ListViewerColor.DIVIDER), 1);
             }
-            writeLine(0, i, size.x, 1, b.buffer);
+            writeLine(0, i, getSize().x, 1, b.buffer);
         }
     }
 
@@ -194,13 +194,13 @@ public class TListViewer extends TView {
             if (numCols == 1) {
                 topItem = item;
             } else {
-                topItem = item - item % size.y;
+                topItem = item - item % getSize().y;
             }
-        } else if (item >= topItem + (size.y * numCols)) {
+        } else if (item >= topItem + (getSize().y * numCols)) {
             if (numCols == 1) {
-                topItem = item - size.y + 1;
+                topItem = item - getSize().y + 1;
             } else {
-                topItem = item - item % size.y - (size.y * (numCols - 1));
+                topItem = item - item % getSize().y - (getSize().y * (numCols - 1));
             }
         }
     }
@@ -241,12 +241,12 @@ public class TListViewer extends TView {
 
         if (event.what == TEvent.EV_MOUSE_DOWN) {
             TPoint mouse = new TPoint();
-            int colWidth = size.x / numCols + 1;
+            int colWidth = getSize().x / numCols + 1;
             int oldItem = focused;
             int newItem;
             makeLocal(event.mouse.where, mouse);
             if (mouseInView(event.mouse.where)) {
-                newItem = mouse.y + (size.y * (mouse.x / colWidth)) + topItem;
+                newItem = mouse.y + (getSize().y * (mouse.x / colWidth)) + topItem;
             } else {
                 newItem = oldItem;
             }
@@ -259,7 +259,7 @@ public class TListViewer extends TView {
                 oldItem = newItem;
                 makeLocal(event.mouse.where, mouse);
                 if (mouseInView(event.mouse.where)) {
-                    newItem = mouse.y + (size.y * (mouse.x / colWidth)) + topItem;
+                    newItem = mouse.y + (getSize().y * (mouse.x / colWidth)) + topItem;
                 } else {
                     if (numCols == 1) {
                         if (event.what == TEvent.EV_MOUSE_AUTO) {
@@ -269,7 +269,7 @@ public class TListViewer extends TView {
                             count = 0;
                             if (mouse.y < 0) {
                                 newItem = focused - 1;
-                            } else if (mouse.y >= size.y) {
+                            } else if (mouse.y >= getSize().y) {
                                 newItem = focused + 1;
                             }
                         }
@@ -280,13 +280,13 @@ public class TListViewer extends TView {
                         if (count == MouseAutosToSkip) {
                             count = 0;
                             if (mouse.x < 0) {
-                                newItem = focused - size.y;
-                            } else if (mouse.x >= size.x) {
-                                newItem = focused + size.y;
+                                newItem = focused - getSize().y;
+                            } else if (mouse.x >= getSize().x) {
+                                newItem = focused + getSize().y;
                             } else if (mouse.y < 0) {
-                                newItem = focused - focused % size.y;
-                            } else if (mouse.y > size.y) {
-                                newItem = focused - focused % size.y + size.y - 1;
+                                newItem = focused - focused % getSize().y;
+                            } else if (mouse.y > getSize().y) {
+                                newItem = focused - focused % getSize().y + getSize().y - 1;
                             }
                         }
                     }
@@ -309,22 +309,22 @@ public class TListViewer extends TView {
                     case KeyCode.KB_DOWN -> newItem = focused + 1;
                     case KeyCode.KB_RIGHT -> {
                         if (numCols > 1) {
-                            newItem = focused + size.y;
+                            newItem = focused + getSize().y;
                         } else {
                             return;
                         }
                     }
                     case KeyCode.KB_LEFT -> {
                         if (numCols > 1) {
-                            newItem = focused - size.y;
+                            newItem = focused - getSize().y;
                         } else {
                             return;
                         }
                     }
-                    case KeyCode.KB_PAGE_DOWN -> newItem = focused + size.y * numCols;
-                    case KeyCode.KB_PAGE_UP -> newItem = focused - size.y * numCols;
+                    case KeyCode.KB_PAGE_DOWN -> newItem = focused + getSize().y * numCols;
+                    case KeyCode.KB_PAGE_UP -> newItem = focused - getSize().y * numCols;
                     case KeyCode.KB_HOME -> newItem = topItem;
-                    case KeyCode.KB_END -> newItem = topItem + (size.y * numCols) - 1;
+                    case KeyCode.KB_END -> newItem = topItem + (getSize().y * numCols) - 1;
                     case KeyCode.KB_CTRL_PAGE_DOWN -> newItem = range - 1;
                     case KeyCode.KB_CTRL_PAGE_UP -> newItem = 0;
                     default -> {

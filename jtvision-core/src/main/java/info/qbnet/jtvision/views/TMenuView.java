@@ -115,7 +115,7 @@ public class TMenuView extends TView {
     private boolean mouseActive;
 
     private boolean mouseInOwner(TEvent e) {
-        if (parentMenu != null && parentMenu.size.y == 1) {
+        if (parentMenu != null && parentMenu.getSize().y == 1) {
             TPoint mouse = new TPoint();
             TRect r = new TRect();
             parentMenu.makeLocal(e.mouse.where, mouse);
@@ -170,7 +170,7 @@ public class TMenuView extends TView {
                 case TEvent.EV_MOUSE_DOWN:
                     if (mouseInView(e.mouse.where) || mouseInOwner(e)) {
                         trackMouse(e);
-                        if (size.y == 1) {
+                        if (getSize().y == 1) {
                             autoSelect = true;
                         }
                     } else {
@@ -209,7 +209,7 @@ public class TMenuView extends TView {
                     switch (KeyCode.ctrlToArrow(e.key.keyCode)) {
                         case KeyCode.KB_UP:
                         case KeyCode.KB_DOWN:
-                            if (size.y != 1) {
+                            if (getSize().y != 1) {
                                 trackKey(KeyCode.ctrlToArrow(e.key.keyCode) == KeyCode.KB_DOWN);
                             } else {
                                 if (e.key.keyCode == KeyCode.KB_DOWN) {
@@ -227,7 +227,7 @@ public class TMenuView extends TView {
                             break;
                         case KeyCode.KB_HOME:
                         case KeyCode.KB_END:
-                            if (size.y != 1) {
+                            if (getSize().y != 1) {
                                 if (menu != null) {
                                     current = menu.items();
                                 }
@@ -237,14 +237,14 @@ public class TMenuView extends TView {
                             }
                             break;
                         case KeyCode.KB_ENTER:
-                            if (size.y == 1) {
+                            if (getSize().y == 1) {
                                 autoSelect = true;
                             }
                             action = MenuAction.DO_SELECT;
                             break;
                         case KeyCode.KB_ESC:
                             action = MenuAction.DO_RETURN;
-                            if (parentMenu == null || parentMenu.size.y != 1) {
+                            if (parentMenu == null || parentMenu.getSize().y != 1) {
                                 clearEvent(e);
                             }
                             break;
@@ -266,7 +266,7 @@ public class TMenuView extends TView {
                                 }
                             } else {
                                 if (target == this) {
-                                    if (size.y == 1) {
+                                    if (getSize().y == 1) {
                                         autoSelect = true;
                                     }
                                     action = MenuAction.DO_SELECT;
@@ -305,10 +305,10 @@ public class TMenuView extends TView {
                         }
                         TRect r = new TRect();
                         getItemRect(current, r);
-                        r.a.x += origin.x;
-                        r.a.y = r.b.y + origin.y;
+                        r.a.x += getOrigin().x;
+                        r.a.y = r.b.y + getOrigin().y;
                         r.b = getOwner().getSize();
-                        if (size.y == 1) {
+                        if (getSize().y == 1) {
                             r.a.x--;
                         }
                         target = topMenu().newSubView(r, current.subMenu(), this);

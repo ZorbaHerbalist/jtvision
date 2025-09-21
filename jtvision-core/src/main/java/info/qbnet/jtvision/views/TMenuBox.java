@@ -55,8 +55,8 @@ public class TMenuBox extends TMenuView {
             r.a.y = r.b.y - h;
         }
         // init(r)
-        this.origin = r.a;
-        this.size = new TPoint(r.b.x - r.a.x, r.b.y - r.a.y);
+        this.setOrigin(r.a);
+        this.setSize(new TPoint(r.b.x - r.a.x, r.b.y - r.a.y));
 
         this.state |= State.SF_SHADOW;
         this.options |= Options.OF_PRE_PROCESS;
@@ -88,13 +88,13 @@ public class TMenuBox extends TMenuView {
     private void frameLine(int n, TDrawBuffer b, short cNormal, short color) {
         b.moveChar(0, FRAME_CHARS.charAt(n), (char) cNormal, 1);
         b.moveChar(1, FRAME_CHARS.charAt(n + 1), (char) cNormal, 1);
-        b.moveChar(2, FRAME_CHARS.charAt(n + 2), (char) color, size.x - 4);
-        b.moveChar(size.x - 2, FRAME_CHARS.charAt(n + 3), (char) cNormal, 1);
-        b.moveChar(size.x - 1, FRAME_CHARS.charAt(n + 4), (char) cNormal, 1);
+        b.moveChar(2, FRAME_CHARS.charAt(n + 2), (char) color, getSize().x - 4);
+        b.moveChar(getSize().x - 2, FRAME_CHARS.charAt(n + 3), (char) cNormal, 1);
+        b.moveChar(getSize().x - 1, FRAME_CHARS.charAt(n + 4), (char) cNormal, 1);
     }
 
     private void drawLine(int y, TDrawBuffer b) {
-        writeBuf(0, y, size.x, 1, b.buffer);
+        writeBuf(0, y, getSize().x, 1, b.buffer);
     }
 
     @Override
@@ -132,9 +132,9 @@ public class TMenuBox extends TMenuView {
                     frameLine(10, buf, cNormal, color);
                     buf.moveCStr(3, p.name(), color);
                     if (p.command() == 0) {
-                        buf.moveChar(size.x - 4, (char) 16, color, 1);
+                        buf.moveChar(getSize().x - 4, (char) 16, color, 1);
                     } else if (p.param != null) {
-                        buf.moveCStr(size.x - 3 - p.param.length(), p.param, color);
+                        buf.moveCStr(getSize().x - 3 - p.param.length(), p.param, color);
                     }
                 }
                 drawLine(y++, buf);
@@ -154,6 +154,6 @@ public class TMenuBox extends TMenuView {
             y++;
             p = p.next;
         }
-        rect.assign(2, y, size.x -2, y + 1);
+        rect.assign(2, y, getSize().x -2, y + 1);
     }
 }

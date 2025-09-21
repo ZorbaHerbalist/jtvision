@@ -66,9 +66,9 @@ public class TStaticText extends TView {
         int Y = 0; // current row
         boolean center = false;
 
-        while (Y < size.y) {
+        while (Y < getSize().y) {
             // start with a cleared line
-            buf.moveChar(0, ' ', color, size.x);
+            buf.moveChar(0, ' ', color, getSize().x);
 
             if (P < L) {
                 // optional centering marker
@@ -85,20 +85,20 @@ public class TStaticText extends TView {
                     J = P;
                     while (P < L && s.charAt(P) == ' ') P++;
                     while (P < L && s.charAt(P) != ' ' && s.charAt(P) != '\r' && s.charAt(P) != '\n') P++;
-                } while (!(P >= L || P >= I + size.x || s.charAt(P) == '\r' || s.charAt(P) == '\n'));
+                } while (!(P >= L || P >= I + getSize().x || s.charAt(P) == '\r' || s.charAt(P) == '\n'));
 
                 // adjust if word would overflow line
-                if (P > I + size.x) {
+                if (P > I + getSize().x) {
                     if (J > I) {
                         P = J;
                     } else {
-                        P = I + size.x;
+                        P = I + getSize().x;
                     }
                 }
 
                 // compute starting column when centered
                 if (center) {
-                    J = (size.x - (P - I)) / 2;
+                    J = (getSize().x - (P - I)) / 2;
                 } else {
                     J = 0;
                 }
@@ -123,7 +123,7 @@ public class TStaticText extends TView {
                 }
             }
 
-            writeLine(0, Y, size.x, 1, buf.buffer);
+            writeLine(0, Y, getSize().x, 1, buf.buffer);
             Y++;
         }
     }

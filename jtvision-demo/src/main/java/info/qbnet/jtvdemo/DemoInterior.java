@@ -4,7 +4,6 @@ import info.qbnet.jtvision.util.TDrawBuffer;
 import info.qbnet.jtvision.util.TRect;
 import info.qbnet.jtvision.views.TScrollBar;
 import info.qbnet.jtvision.views.TScroller;
-import info.qbnet.jtvision.views.TView;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -25,17 +24,17 @@ public class DemoInterior extends TScroller {
     public void draw() {
         short color = getColor(ScrollerColor.NORMAL_TEXT);
         TDrawBuffer b = new TDrawBuffer();
-        for (int y = 0; y < size.y; y++) {
-            b.moveChar(0, ' ', color, size.x);
+        for (int y = 0; y < getSize().y; y++) {
+            b.moveChar(0, ' ', color, getSize().x);
             int i = delta.y + y;
             if (i < lines.size()) {
                 String line = lines.get(i);
                 if (line.length() > delta.x) {
-                    String part = line.substring(delta.x, Math.min(line.length(), delta.x + size.x));
+                    String part = line.substring(delta.x, Math.min(line.length(), delta.x + getSize().x));
                     b.moveStr(0, part, color);
                 }
             }
-            writeLine(0, y, size.x, 1, b.buffer);
+            writeLine(0, y, getSize().x, 1, b.buffer);
         }
     }
 }
