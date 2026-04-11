@@ -20,40 +20,51 @@ public class TDoubleWindow extends TStdWindow {
         this.eventMask = 0xFFFF;
         this.leftDrive = this.rightDrive = drive;
 
-        TRect r = new TRect();
-        getExtent(r);
-        r.grow(-1, 0);
-        r.a.x = r.b.x / 2;
-        r.b.x = r.a.x + 2;
-        separator = new TSeparator(r, getSize().x);
+        TRect separatorBounds = new TRect();
+        getExtent(separatorBounds);
+        separatorBounds.grow(-1, 0);
+        separatorBounds.a.x = separatorBounds.b.x / 2;
+        separatorBounds.b.x = separatorBounds.a.x + 2;
+        separator = new TSeparator(separatorBounds, getSize().x);
         insert(separator);
 
         initInterior();
-
-        // TODO
     }
 
     public void initInterior() {
-        // TODO
+        TRect leftBounds = new TRect();
+        getExtent(leftBounds);
+        leftBounds.grow(-1, -1);
+        leftBounds.b.x = leftBounds.b.x / 2;
+        initLeftView(leftBounds);
 
-        TRect r = new TRect();
-        getExtent(r);
-        r.grow(-1, -1);
-        r.b.x = r.b.x / 2;
-        initLeftView(r);
+        TRect rightBounds = new TRect();
+        getExtent(rightBounds);
+        rightBounds.grow(-1, -1);
+        rightBounds.a.x = rightBounds.b.x / 2 + 2;
+        initRightView(rightBounds);
 
+        if (rightView != null) {
+            rightView.select();
+        }
     }
 
-    public void initLeftView(TRect r) {
-
-        TFilePanel filePanel = new TFilePanel(r, leftDrive, null);
-
-        filePanel.changeBounds(r);
-
+    public void initLeftView(TRect bounds) {
+        TFilePanel filePanel = new TFilePanel(bounds, leftDrive, null);
+        filePanel.changeBounds(bounds);
         insert(filePanel);
 
         this.leftView = filePanel;
         this.leftPanel = filePanel;
+    }
+
+    public void initRightView(TRect bounds) {
+        TFilePanel filePanel = new TFilePanel(bounds, rightDrive, null);
+        filePanel.changeBounds(bounds);
+        insert(filePanel);
+
+        this.rightView = filePanel;
+        this.rightPanel = filePanel;
     }
 
 }
