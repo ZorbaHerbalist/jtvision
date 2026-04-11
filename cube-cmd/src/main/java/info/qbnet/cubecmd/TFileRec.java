@@ -7,6 +7,7 @@ import java.util.Date;
 
 public class TFileRec {
 
+    private final File file;
     private final String name;
 //    public String owner;
     private final long size;
@@ -24,10 +25,15 @@ public class TFileRec {
     private String lastModifiedTime = null;
 
     public TFileRec(File file) {
-        this.name = file.getName();
-        this.size = file.length();
-        this.timestamp = file.lastModified();
-        this.directory = file.isDirectory();
+        this(file, file.getName(), file.length(), file.lastModified(), file.isDirectory());
+    }
+
+    private TFileRec(File file, String name, long size, long timestamp, boolean directory) {
+        this.file = file;
+        this.name = name;
+        this.size = size;
+        this.timestamp = timestamp;
+        this.directory = directory;
         int dotIndex = this.name.lastIndexOf('.');
         if (dotIndex >= 0 && dotIndex + 1 < this.name.length()) {
             this.extension = this.name.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
@@ -36,8 +42,20 @@ public class TFileRec {
         }
     }
 
+    public static TFileRec parentEntry(File currentDirectory) {
+        File parent = currentDirectory.getParentFile();
+        if (parent == null) {
+            parent = currentDirectory;
+        }
+        return new TFileRec(parent, "..", 0, currentDirectory.lastModified(), true);
+    }
+
     public String getName() {
         return name;
+    }
+
+    public File getFile() {
+        return file;
     }
 
     public long getSize() {

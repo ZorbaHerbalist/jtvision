@@ -24,6 +24,9 @@ public class TDiskDrive extends TDrive {
     @Override
     public TFileCollection getDirectory() {
         TFileCollection directory = new TFileCollection();
+        if (currentDirectory.getParentFile() != null) {
+            directory.add(TFileRec.parentEntry(currentDirectory));
+        }
 
         File[] files = currentDirectory.listFiles();
         if (files != null) {
@@ -33,5 +36,33 @@ public class TDiskDrive extends TDrive {
         }
 
         return directory;
+    }
+
+    @Override
+    public File getCurrentDirectory() {
+        return currentDirectory;
+    }
+
+    @Override
+    public boolean goToParent() {
+        File parent = currentDirectory.getParentFile();
+        if (parent == null || !parent.isDirectory()) {
+            return false;
+        }
+        currentDirectory = parent;
+        return true;
+    }
+
+    @Override
+    public boolean enterDirectory(TFileRec rec) {
+        if (rec == null || !rec.isDirectory()) {
+            return false;
+        }
+        File target = rec.getFile();
+        if (target == null || !target.isDirectory()) {
+            return false;
+        }
+        currentDirectory = target;
+        return true;
     }
 }
