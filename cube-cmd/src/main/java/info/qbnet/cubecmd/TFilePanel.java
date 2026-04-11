@@ -71,8 +71,8 @@ public class TFilePanel extends TFilePanelRoot {
         String format = " %-42s " + (char) 0xB3 + " %12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
 
         String line;
-        if (idx >= 0 && idx < collection.size()) {
-            TFileRec rec = collection.get(idx);
+        if (idx >= 0 && idx < collection.visibleSize()) {
+            TFileRec rec = collection.visibleGet(idx);
 
             line = String.format(format, formatFileName(rec.getName(), 42), rec.isDirectory() ? "<SUB-DIR>" : rec.getSize(), rec.getLastModifiedDate(), rec.getLastModifiedTime());
         } else {

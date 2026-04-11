@@ -2,7 +2,7 @@ package info.qbnet.cubecmd;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Date;
 
 public class TFileRec {
@@ -15,6 +15,7 @@ public class TFileRec {
 //    public boolean selected;
     private final long timestamp;
     private final boolean directory;
+    private final String extension;
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy");
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
@@ -27,6 +28,12 @@ public class TFileRec {
         this.size = file.length();
         this.timestamp = file.lastModified();
         this.directory = file.isDirectory();
+        int dotIndex = this.name.lastIndexOf('.');
+        if (dotIndex >= 0 && dotIndex + 1 < this.name.length()) {
+            this.extension = this.name.substring(dotIndex + 1).toLowerCase(Locale.ROOT);
+        } else {
+            this.extension = "";
+        }
     }
 
     public String getName() {
@@ -39,6 +46,14 @@ public class TFileRec {
 
     public boolean isDirectory() {
         return directory;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getExtension() {
+        return extension;
     }
 
     public String getLastModifiedDate() {
