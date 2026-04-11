@@ -1,5 +1,7 @@
 package info.qbnet.cubecmd;
 
+import info.qbnet.jtvision.event.TEvent;
+import info.qbnet.jtvision.util.KeyCode;
 import info.qbnet.jtvision.util.TRect;
 
 import java.io.File;
@@ -44,8 +46,8 @@ public class TDoubleWindow extends TStdWindow {
         rightBounds.a.x = rightBounds.b.x / 2 + 2;
         initRightView(rightBounds);
 
-        if (rightView != null) {
-            rightView.select();
+        if (leftView != null) {
+            leftView.select();
         }
     }
 
@@ -67,4 +69,23 @@ public class TDoubleWindow extends TStdWindow {
         this.rightPanel = filePanel;
     }
 
+    private void selectOtherPanel() {
+        if (leftPanel == null || rightPanel == null) {
+            return;
+        }
+        if (leftPanel.getState(State.SF_SELECTED)) {
+            rightPanel.select();
+        } else {
+            leftPanel.select();
+        }
+    }
+
+    @Override
+    public void handleEvent(TEvent event) {
+        super.handleEvent(event);
+        if (event.what == TEvent.EV_KEYDOWN && event.key.keyCode == KeyCode.KB_TAB) {
+            selectOtherPanel();
+            clearEvent(event);
+        }
+    }
 }

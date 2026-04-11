@@ -16,7 +16,11 @@ public class TFilePanel extends TFilePanelRoot {
         /** Normal header text. */
         HEADER_TEXT(6),
         /** Highlighted header text (used for hotkeys). */
-        HEADER_SHORTCUT(2);
+        HEADER_SHORTCUT(2),
+        /** Selected row in inactive panel. */
+        SELECTED_INACTIVE(7),
+        /** Selected row in active panel. */
+        SELECTED_ACTIVE(3);
 
         private final int index;
 
@@ -71,6 +75,14 @@ public class TFilePanel extends TFilePanelRoot {
         String format = " %-42s " + (char) 0xB3 + " %12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
 
         String line;
+        boolean selected = idx == collection.getSelected();
+        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT);
+        if (selected) {
+            color = (state & State.SF_FOCUSED) != 0
+                    ? getColor(FilePanelColor.SELECTED_ACTIVE)
+                    : getColor(FilePanelColor.SELECTED_INACTIVE);
+        }
+
         if (idx >= 0 && idx < collection.visibleSize()) {
             TFileRec rec = collection.visibleGet(idx);
 
@@ -79,7 +91,7 @@ public class TFilePanel extends TFilePanelRoot {
             line = String.format(format, "", "", "", "");
         }
 
-        buf.moveCStr(0, line, getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT));
+        buf.moveCStr(0, line, color);
     }
 
     @Override
@@ -96,6 +108,13 @@ public class TFilePanel extends TFilePanelRoot {
             writeLine(0, i, getSize().x, 1, buf.buffer);
         }
 
+        int selectedRow = collection.getSelected() + 1;
+        if ((state & State.SF_FOCUSED) != 0 && selectedRow > 0 && selectedRow < getSize().y) {
+            setCursor(1, selectedRow);
+            showCursor();
+        } else {
+            hideCursor();
+        }
     }
 
     @Override
