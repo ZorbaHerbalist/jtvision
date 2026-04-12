@@ -6,6 +6,7 @@ import info.qbnet.jtvision.util.PaletteDescriptor;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
+import info.qbnet.jtvision.views.TScrollBar;
 
 import java.io.File;
 
@@ -73,6 +74,8 @@ public class TDoubleWindow extends TStdWindow {
     private THideView rightView = null;
     private TFilePanel leftPanel = null;
     private TFilePanel rightPanel = null;
+    private TScrollBar leftScrollBar = null;
+    private TScrollBar rightScrollBar = null;
     private TSeparator separator = null;
 
     public TDoubleWindow(TRect bounds, int number, File drive) {
@@ -125,7 +128,7 @@ public class TDoubleWindow extends TStdWindow {
         TRect leftBounds = new TRect();
         getExtent(leftBounds);
         leftBounds.grow(-1, -1);
-        leftBounds.b.x = getSeparatorLeftX();
+        leftBounds.b.x = Math.max(leftBounds.a.x + 1, getSeparatorLeftX());
         return leftBounds;
     }
 
@@ -135,6 +138,25 @@ public class TDoubleWindow extends TStdWindow {
         rightBounds.grow(-1, -1);
         rightBounds.a.x = getSeparatorLeftX() + 2;
         return rightBounds;
+    }
+
+    private TRect computeLeftScrollBarBounds() {
+        TRect leftScrollBounds = new TRect();
+        getExtent(leftScrollBounds);
+        leftScrollBounds.grow(-1, -1);
+        int x = getSeparatorLeftX();
+        leftScrollBounds.a.x = x;
+        leftScrollBounds.b.x = x + 1;
+        return leftScrollBounds;
+    }
+
+    private TRect computeRightScrollBarBounds() {
+        TRect rightScrollBounds = new TRect();
+        rightScrollBounds = computeRightBounds();
+        int x = rightScrollBounds.b.x;
+        rightScrollBounds.a.x = x;
+        rightScrollBounds.b.x = x + 1;
+        return rightScrollBounds;
     }
 
     private TRect computeSeparatorBounds() {
@@ -153,8 +175,16 @@ public class TDoubleWindow extends TStdWindow {
         TRect separatorBounds = computeSeparatorBounds();
         TRect leftBounds = computeLeftBounds();
         TRect rightBounds = computeRightBounds();
+        TRect leftScrollBounds = computeLeftScrollBarBounds();
+        TRect rightScrollBounds = computeRightScrollBarBounds();
 
         separator.locate(separatorBounds);
+        if (leftScrollBar != null) {
+            leftScrollBar.locate(leftScrollBounds);
+        }
+        if (rightScrollBar != null) {
+            rightScrollBar.locate(rightScrollBounds);
+        }
         if (leftView != null) {
             leftView.locate(leftBounds);
         }
@@ -164,7 +194,11 @@ public class TDoubleWindow extends TStdWindow {
     }
 
     public void initLeftView(TRect bounds) {
-        TFilePanel filePanel = new TFilePanel(bounds, leftDrive, null);
+        TRect scrollBounds = computeLeftScrollBarBounds();
+        leftScrollBar = new TScrollBar(scrollBounds);
+        insert(leftScrollBar);
+
+        TFilePanel filePanel = new TFilePanel(bounds, leftDrive, leftScrollBar);
         filePanel.changeBounds(bounds);
         insert(filePanel);
 
@@ -173,7 +207,11 @@ public class TDoubleWindow extends TStdWindow {
     }
 
     public void initRightView(TRect bounds) {
-        TFilePanel filePanel = new TFilePanel(bounds, rightDrive, null);
+        TRect scrollBounds = computeRightScrollBarBounds();
+        rightScrollBar = new TScrollBar(scrollBounds);
+        insert(rightScrollBar);
+
+        TFilePanel filePanel = new TFilePanel(bounds, rightDrive, rightScrollBar);
         filePanel.changeBounds(bounds);
         insert(filePanel);
 

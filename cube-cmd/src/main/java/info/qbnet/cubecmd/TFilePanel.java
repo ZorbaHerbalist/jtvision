@@ -111,19 +111,20 @@ public class TFilePanel extends TFilePanelRoot {
 
     @Override
     public void draw() {
-        // TODO
         TDrawBuffer buf = new TDrawBuffer();
+        ensureSelectionVisible();
+        syncScrollBar();
 
         drawTop(buf);
         writeLine(0, 0, getSize().x, 1, buf.buffer);
 
         for (int i = 1; i < getSize().y; i++) {
-            int idx = i - 1;
+            int idx = getTopIndex() + i - 1;
             drawAtIdx(idx, buf);
             writeLine(0, i, getSize().x, 1, buf.buffer);
         }
 
-        int selectedRow = collection.getSelected() + 1;
+        int selectedRow = collection.getSelected() - getTopIndex() + 1;
         if ((state & State.SF_FOCUSED) != 0 && selectedRow > 0 && selectedRow < getSize().y) {
             setCursor(1, selectedRow);
             showCursor();

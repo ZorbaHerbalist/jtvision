@@ -305,6 +305,10 @@ public class TScrollBar extends TView {
         setParams(aValue, min, max, pgStep, arStep);
     }
 
+    public int getValue() {
+        return value;
+    }
+
     @Override
     public void store(TStream stream) {
         super.store(stream);
@@ -324,4 +328,3 @@ public class TScrollBar extends TView {
         }
     }
 }
-
