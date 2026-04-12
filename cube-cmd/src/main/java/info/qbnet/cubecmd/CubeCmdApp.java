@@ -147,6 +147,12 @@ public class CubeCmdApp extends TApplication {
         openWindow(true);
     }
 
+
+    @Override
+    public TPalette getPalette() {
+        return CubeCmdPalette.palette();
+    }
+
     public static void main(String[] args) {
         CubeCmdApp app = new CubeCmdApp();
         app.run();

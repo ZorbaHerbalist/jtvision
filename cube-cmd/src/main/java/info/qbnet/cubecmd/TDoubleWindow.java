@@ -2,11 +2,69 @@ package info.qbnet.cubecmd;
 
 import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.KeyCode;
+import info.qbnet.jtvision.util.PaletteDescriptor;
+import info.qbnet.jtvision.util.PaletteRole;
+import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
 
 import java.io.File;
 
 public class TDoubleWindow extends TStdWindow {
+
+    /**
+     * Palette layout matching Dos Navigator's CDoubleWindow table.
+     *
+     * <p>Keeping all slots allows child views (now and in future) to resolve
+     * exactly the same indices as in DN.</p>
+     */
+    public enum DoubleWindowColor implements PaletteRole {
+        FRAME_PASSIVE,
+        FRAME_ACTIVE,
+        FRAME_INACTIVE,
+        SCROLLBAR_PAGE,
+        SCROLLBAR_ARROW,
+        PANEL_NORMAL_TEXT,
+        PANEL_SEPARATOR,
+        PANEL_SELECTED_TEXT,
+        PANEL_CURSOR_NORMAL,
+        PANEL_CURSOR_SELECTED,
+        PANEL_TOP_ACTIVE,
+        PANEL_TOP_PASSIVE,
+        VIEWER_NORMAL_TEXT,
+        VIEWER_SELECTED_TEXT,
+        TREE_TEXT,
+        TREE_NORMAL_ITEM,
+        TREE_SELECTED_ITEM,
+        TREE_DIRECTORY_FLAG,
+        TREE_DIRECTORY_SELECTED,
+        TREE_SOURCE_ITEM,
+        TREE_DESTINATION_ITEM,
+        TREE_INFO,
+        DISK_INFO_NORMAL,
+        DISK_INFO_HIGHLIGHT,
+        FILE_INFO_1,
+        FILE_INFO_2,
+        FILE_INFO_3,
+        FILE_INFO_4,
+        FILE_INFO_5,
+        FILE_INFO_6,
+        FILE_INFO_7,
+        FILE_PANEL_MARKER,
+        DRIVE_LINE_1,
+        DRIVE_LINE_2,
+        DRIVE_LINE_3,
+        DRIVE_LINE_4,
+        DRIVE_LINE_5,
+        DRIVE_LINE_6,
+        DRIVE_LINE_7,
+        DRIVE_LINE_8,
+        DRIVE_LINE_9,
+        DRIVE_LINE_10,
+        DRIVE_LINE_11
+    }
+
+    public static final PaletteDescriptor<DoubleWindowColor> DOUBLE_WINDOW_PALETTE =
+            PaletteDescriptor.register("doubleWindow", DoubleWindowColor.class);
 
     private File leftDrive;
     private File rightDrive;
@@ -87,5 +145,10 @@ public class TDoubleWindow extends TStdWindow {
             selectOtherPanel();
             clearEvent(event);
         }
+    }
+
+    @Override
+    public TPalette getPalette() {
+        return DOUBLE_WINDOW_PALETTE.palette();
     }
 }

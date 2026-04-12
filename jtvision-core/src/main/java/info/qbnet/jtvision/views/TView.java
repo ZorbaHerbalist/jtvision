@@ -1143,7 +1143,7 @@ public class TView {
                 if (mapped == null) {
                     return handleMissingPaletteEntry(requestedIndex, color, view, "palette entry missing");
                 }
-                color = mapped;
+                color = Byte.toUnsignedInt(mapped);
                 if (color == 0) {
                     return handleMissingPaletteEntry(requestedIndex, 0, view, "palette entry resolved to zero");
                 }

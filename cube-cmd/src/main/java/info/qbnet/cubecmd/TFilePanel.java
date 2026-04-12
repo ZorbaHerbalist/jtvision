@@ -11,27 +11,36 @@ import java.io.File;
 
 public class TFilePanel extends TFilePanelRoot {
 
-    /** Palette roles used to render the file panel header row. */
+    /** Palette roles mirroring Dos Navigator's CPanel palette layout. */
     public enum FilePanelColor implements PaletteRole {
-        /** Normal header text. */
-        HEADER_TEXT(6),
-        /** Highlighted header text (used for hotkeys). */
-        HEADER_SHORTCUT(2),
-        /** Selected row in inactive panel. */
-        SELECTED_INACTIVE(7),
-        /** Selected row in active panel. */
-        SELECTED_ACTIVE(3);
-
-        private final int index;
-
-        FilePanelColor(int index) {
-            this.index = index;
-        }
-
-        @Override
-        public int index() {
-            return index;
-        }
+        /** Standard file list text. */
+        NORMAL_TEXT,
+        /** Column separators and highlighted markers. */
+        SEPARATOR,
+        /** Selected row when the panel is inactive. */
+        SELECTED_TEXT,
+        /** Cursor row base color while focused (normal file). */
+        CURSOR_NORMAL,
+        /** Cursor row color while focused on a selected file. */
+        CURSOR_SELECTED,
+        /** Header/column titles text. */
+        HEADER_TEXT,
+        /** Custom highlight color 1 (DN ttCust1). */
+        CUSTOM_TYPE_1,
+        /** Custom highlight color 2 (DN ttCust2). */
+        CUSTOM_TYPE_2,
+        /** Custom highlight color 3 (DN ttCust3). */
+        CUSTOM_TYPE_3,
+        /** Custom highlight color 4 (DN ttCust4). */
+        CUSTOM_TYPE_4,
+        /** Custom highlight color 5 (DN ttCust5). */
+        CUSTOM_TYPE_5,
+        /** Reserved DN palette slot (index 12). */
+        RESERVED_12,
+        /** Reserved DN palette slot (index 13). */
+        RESERVED_13,
+        /** Reserved DN palette slot (index 14). */
+        RESERVED_14
     }
 
     public static final PaletteDescriptor<FilePanelColor> FILE_PANEL_PALETTE =
@@ -42,7 +51,7 @@ public class TFilePanel extends TFilePanelRoot {
     }
 
     protected void drawTop(TDrawBuffer buf) {
-        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT);
+        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.SEPARATOR);
 
         String format = " %-42s " + (char) 0xB3 + " %-12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
         String line = String.format(format, "Name", "Size", "Date", "Time");
@@ -76,11 +85,11 @@ public class TFilePanel extends TFilePanelRoot {
 
         String line;
         boolean selected = idx == collection.getSelected();
-        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.HEADER_SHORTCUT);
+        short color = getColor(FilePanelColor.NORMAL_TEXT, FilePanelColor.SEPARATOR);
         if (selected) {
             color = (state & State.SF_FOCUSED) != 0
-                    ? getColor(FilePanelColor.SELECTED_ACTIVE)
-                    : getColor(FilePanelColor.SELECTED_INACTIVE);
+                    ? getColor(FilePanelColor.CURSOR_SELECTED)
+                    : getColor(FilePanelColor.SELECTED_TEXT);
         }
 
         if (idx >= 0 && idx < collection.visibleSize()) {
