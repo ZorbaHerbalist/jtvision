@@ -10,6 +10,7 @@ import info.qbnet.jtvision.util.TRect;
 import java.io.File;
 
 public class TDoubleWindow extends TStdWindow {
+    private static final int MIN_PANEL_WIDTH = 8;
 
     /**
      * Palette layout matching Dos Navigator's CDoubleWindow table.
@@ -92,20 +93,73 @@ public class TDoubleWindow extends TStdWindow {
     }
 
     public void initInterior() {
-        TRect leftBounds = new TRect();
-        getExtent(leftBounds);
-        leftBounds.grow(-1, -1);
-        leftBounds.b.x = leftBounds.b.x / 2;
+        TRect leftBounds = computeLeftBounds();
         initLeftView(leftBounds);
 
-        TRect rightBounds = new TRect();
-        getExtent(rightBounds);
-        rightBounds.grow(-1, -1);
-        rightBounds.a.x = rightBounds.b.x / 2 + 2;
+        TRect rightBounds = computeRightBounds();
         initRightView(rightBounds);
 
         if (leftView != null) {
             leftView.select();
+        }
+    }
+
+    private int getSeparatorLeftX() {
+        int ownerWidth = getSize().x;
+        int minX = Math.max(1, MIN_PANEL_WIDTH + 1);
+        int maxX = Math.max(minX, ownerWidth - MIN_PANEL_WIDTH - 2);
+
+        int oldW = Math.max(1, separator.getOldW());
+        int scaledCenter = (int) Math.round((double) separator.getOldX() * ownerWidth / oldW);
+        int separatorLeft = scaledCenter - 1;
+
+        if (separatorLeft < minX) {
+            separatorLeft = minX;
+        } else if (separatorLeft > maxX) {
+            separatorLeft = maxX;
+        }
+        return separatorLeft;
+    }
+
+    private TRect computeLeftBounds() {
+        TRect leftBounds = new TRect();
+        getExtent(leftBounds);
+        leftBounds.grow(-1, -1);
+        leftBounds.b.x = getSeparatorLeftX();
+        return leftBounds;
+    }
+
+    private TRect computeRightBounds() {
+        TRect rightBounds = new TRect();
+        getExtent(rightBounds);
+        rightBounds.grow(-1, -1);
+        rightBounds.a.x = getSeparatorLeftX() + 2;
+        return rightBounds;
+    }
+
+    private TRect computeSeparatorBounds() {
+        TRect separatorBounds = new TRect();
+        getExtent(separatorBounds);
+        separatorBounds.grow(-1, 0);
+        separatorBounds.a.x = getSeparatorLeftX();
+        separatorBounds.b.x = separatorBounds.a.x + 2;
+        return separatorBounds;
+    }
+
+    private void relayoutPanels() {
+        if (separator == null) {
+            return;
+        }
+        TRect separatorBounds = computeSeparatorBounds();
+        TRect leftBounds = computeLeftBounds();
+        TRect rightBounds = computeRightBounds();
+
+        separator.locate(separatorBounds);
+        if (leftView != null) {
+            leftView.locate(leftBounds);
+        }
+        if (rightView != null) {
+            rightView.locate(rightBounds);
         }
     }
 
@@ -145,6 +199,12 @@ public class TDoubleWindow extends TStdWindow {
             selectOtherPanel();
             clearEvent(event);
         }
+    }
+
+    @Override
+    public void changeBounds(TRect bounds) {
+        super.changeBounds(bounds);
+        relayoutPanels();
     }
 
     @Override

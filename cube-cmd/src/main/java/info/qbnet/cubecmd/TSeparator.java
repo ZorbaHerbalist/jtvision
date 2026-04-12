@@ -4,6 +4,7 @@ import info.qbnet.jtvision.event.TEvent;
 import info.qbnet.jtvision.util.PaletteDescriptor;
 import info.qbnet.jtvision.util.PaletteRole;
 import info.qbnet.jtvision.util.TDrawBuffer;
+import info.qbnet.jtvision.util.TPoint;
 import info.qbnet.jtvision.util.TPalette;
 import info.qbnet.jtvision.util.TRect;
 
@@ -39,12 +40,15 @@ public class TSeparator extends THideView {
         TDrawBuffer buf = new TDrawBuffer();
 
         short color;
-        int off = 0;
+        boolean ownerActive = getOwner() != null && getOwner().getState(State.SF_ACTIVE);
+        boolean ownerDragging = getOwner() != null && getOwner().getState(State.SF_DRAGGING);
+        boolean dragging = ownerDragging || (state & State.SF_DRAGGING) != 0;
 
-        if ((state & State.SF_DRAGGING) != 0) {
+        int off = 0;
+        if (dragging) {
             color = getColor(SeparatorColor.DRAGGING);
             off = 5;
-        } else if ((state & State.SF_ACTIVE) == 0) {
+        } else if (!ownerActive) {
             color = getColor(SeparatorColor.PASSIVE_FRAME);
             off = 5;
         } else {
@@ -67,18 +71,35 @@ public class TSeparator extends THideView {
     @Override
     public void handleEvent(TEvent event) {
         super.handleEvent(event);
-        // TODO
-//        if (event.what == TEvent.EV_MOUSE_DOWN) {
-//            TPoint mouse = new TPoint();
-//            makeLocal(event.mouse.where, mouse);
-//            do {
-//                makeLocal(event.mouse.where, mouse);
-//                if (mouse.x >= 1 && mouse.x < owner.size.x - 2) {
-//
-//                }
-//
-//            } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE));
-//            clearEvent(event);
-//        }
+        if (event.what == TEvent.EV_MOUSE_DOWN && getOwner() != null) {
+            TPoint localMouse = new TPoint();
+            makeLocal(event.mouse.where, localMouse);
+            int dragOffsetX = localMouse.x;
+
+            do {
+                getOwner().makeLocal(event.mouse.where, localMouse);
+                if (localMouse.x >= 1 && localMouse.x < getOwner().getSize().x - 2) {
+                    oldX = localMouse.x + 1 - dragOffsetX;
+                    oldW = getOwner().getSize().x;
+
+                    TRect ownerBounds = new TRect(
+                            getOwner().getOrigin().x,
+                            getOwner().getOrigin().y,
+                            getOwner().getOrigin().x + getOwner().getSize().x,
+                            getOwner().getOrigin().y + getOwner().getSize().y
+                    );
+                    getOwner().changeBounds(ownerBounds);
+                }
+            } while (mouseEvent(event, TEvent.EV_MOUSE_MOVE + TEvent.EV_MOUSE_AUTO));
+            clearEvent(event);
+        }
+    }
+
+    int getOldX() {
+        return oldX;
+    }
+
+    int getOldW() {
+        return oldW;
     }
 }
