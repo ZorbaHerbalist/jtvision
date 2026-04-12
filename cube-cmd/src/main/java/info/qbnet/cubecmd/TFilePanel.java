@@ -51,9 +51,10 @@ public class TFilePanel extends TFilePanelRoot {
     }
 
     protected void drawTop(TDrawBuffer buf) {
-        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.SEPARATOR);
+        short color = getColor(FilePanelColor.HEADER_TEXT, FilePanelColor.NORMAL_TEXT);
 
-        String format = " %-42s " + (char) 0xB3 + " %-12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
+        String separator = "~" + (char) 0xB3 + "~";
+        String format = " %-42s " + separator + " %-12s " + separator + " %-8s " + separator + " %-7s ";
         String line = String.format(format, "Name", "Size", "Date", "Time");
 
         buf.moveCStr(0, line, color);
@@ -81,16 +82,21 @@ public class TFilePanel extends TFilePanelRoot {
     }
 
     private void drawAtIdx(int idx, TDrawBuffer buf) {
-        String format = " %-42s " + (char) 0xB3 + " %12s " + (char) 0xB3 + " %-8s " + (char) 0xB3 + " %-7s ";
+        String separator = "~" + (char) 0xB3 + "~";
+        String format = " %-42s " + separator + " %12s " + separator + " %-8s " + separator + " %-7s ";
 
         String line;
-        boolean selected = idx == collection.getSelected();
-        short color = getColor(FilePanelColor.NORMAL_TEXT, FilePanelColor.SEPARATOR);
-        if (selected) {
-            color = (state & State.SF_FOCUSED) != 0
-                    ? getColor(FilePanelColor.CURSOR_SELECTED)
-                    : getColor(FilePanelColor.SELECTED_TEXT);
+        boolean currentRow = idx == collection.getSelected();
+        boolean focused = (state & State.SF_FOCUSED) != 0;
+        FilePanelColor textRole = currentRow && focused
+                ? FilePanelColor.CURSOR_NORMAL
+                : FilePanelColor.NORMAL_TEXT;
+        int normalAttr = getColor(textRole) & 0xFF;
+        int separatorAttr = getColor(FilePanelColor.NORMAL_TEXT) & 0xFF;
+        if (currentRow && focused) {
+            separatorAttr = (normalAttr & 0xF0) | (separatorAttr & 0x0F);
         }
+        short color = (short) ((separatorAttr << 8) | normalAttr);
 
         if (idx >= 0 && idx < collection.visibleSize()) {
             TFileRec rec = collection.visibleGet(idx);
