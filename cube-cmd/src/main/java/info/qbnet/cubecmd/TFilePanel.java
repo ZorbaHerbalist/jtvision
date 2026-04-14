@@ -61,6 +61,10 @@ public class TFilePanel extends TFilePanelRoot {
     }
 
     private static String formatFileName(String fileName, int width) {
+        if ("..".equals(fileName) || ".".equals(fileName)) {
+            return String.format("%-" + width + "s", fileName);
+        }
+
         int dotIndex = fileName.lastIndexOf('.');
         String namePart = dotIndex >= 0 ? fileName.substring(0, dotIndex) : fileName;
         String extPart = dotIndex >= 0 ? fileName.substring(dotIndex + 1) : "";

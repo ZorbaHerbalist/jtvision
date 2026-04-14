@@ -72,6 +72,8 @@ public class TDoubleWindow extends TStdWindow {
     private File rightDrive;
     private THideView leftView = null;
     private THideView rightView = null;
+    private TTopView leftTopView = null;
+    private TTopView rightTopView = null;
     private TFilePanel leftPanel = null;
     private TFilePanel rightPanel = null;
     private TScrollBar leftScrollBar = null;
@@ -140,6 +142,20 @@ public class TDoubleWindow extends TStdWindow {
         return rightBounds;
     }
 
+    private TRect computeLeftTopBounds() {
+        TRect topBounds = computeLeftBounds();
+        topBounds.b.y = topBounds.a.y;
+        topBounds.a.y -= 1;
+        return topBounds;
+    }
+
+    private TRect computeRightTopBounds() {
+        TRect topBounds = computeRightBounds();
+        topBounds.b.y = topBounds.a.y;
+        topBounds.a.y -= 1;
+        return topBounds;
+    }
+
     private TRect computeLeftScrollBarBounds() {
         TRect leftScrollBounds = new TRect();
         getExtent(leftScrollBounds);
@@ -173,6 +189,8 @@ public class TDoubleWindow extends TStdWindow {
             return;
         }
         TRect separatorBounds = computeSeparatorBounds();
+        TRect leftTopBounds = computeLeftTopBounds();
+        TRect rightTopBounds = computeRightTopBounds();
         TRect leftBounds = computeLeftBounds();
         TRect rightBounds = computeRightBounds();
         TRect leftScrollBounds = computeLeftScrollBarBounds();
@@ -185,6 +203,12 @@ public class TDoubleWindow extends TStdWindow {
         if (rightScrollBar != null) {
             rightScrollBar.locate(rightScrollBounds);
         }
+        if (leftTopView != null) {
+            leftTopView.locate(leftTopBounds);
+        }
+        if (rightTopView != null) {
+            rightTopView.locate(rightTopBounds);
+        }
         if (leftView != null) {
             leftView.locate(leftBounds);
         }
@@ -194,27 +218,35 @@ public class TDoubleWindow extends TStdWindow {
     }
 
     public void initLeftView(TRect bounds) {
+        TRect topBounds = computeLeftTopBounds();
         TRect scrollBounds = computeLeftScrollBarBounds();
         leftScrollBar = new TScrollBar(scrollBounds);
         insert(leftScrollBar);
 
         TFilePanel filePanel = new TFilePanel(bounds, leftDrive, leftScrollBar);
-        filePanel.changeBounds(bounds);
         insert(filePanel);
 
+        TTopView topView = new TTopView(topBounds, filePanel);
+        insert(topView);
+
+        this.leftTopView = topView;
         this.leftView = filePanel;
         this.leftPanel = filePanel;
     }
 
     public void initRightView(TRect bounds) {
+        TRect topBounds = computeRightTopBounds();
         TRect scrollBounds = computeRightScrollBarBounds();
         rightScrollBar = new TScrollBar(scrollBounds);
         insert(rightScrollBar);
 
         TFilePanel filePanel = new TFilePanel(bounds, rightDrive, rightScrollBar);
-        filePanel.changeBounds(bounds);
         insert(filePanel);
 
+        TTopView topView = new TTopView(topBounds, filePanel);
+        insert(topView);
+
+        this.rightTopView = topView;
         this.rightView = filePanel;
         this.rightPanel = filePanel;
     }
@@ -243,6 +275,7 @@ public class TDoubleWindow extends TStdWindow {
     public void changeBounds(TRect bounds) {
         super.changeBounds(bounds);
         relayoutPanels();
+        drawView();
     }
 
     @Override

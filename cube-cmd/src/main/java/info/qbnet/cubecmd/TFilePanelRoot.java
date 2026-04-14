@@ -93,7 +93,7 @@ public class TFilePanelRoot extends THideView {
 
         if (changed) {
             reloadCollection(previousDirName);
-            drawView();
+            redrawWithHeader();
         }
     }
 
@@ -158,6 +158,43 @@ public class TFilePanelRoot extends THideView {
         return topIndex;
     }
 
+    public String getDirectoryName() {
+        return drive.getCurrentDirectory().getPath();
+    }
+
+    protected void cycleDriveRoot() {
+        File currentDirectory = drive.getCurrentDirectory();
+        File currentRoot = currentDirectory;
+        while (currentRoot.getParentFile() != null) {
+            currentRoot = currentRoot.getParentFile();
+        }
+
+        File[] roots = File.listRoots();
+        if (roots == null || roots.length == 0) {
+            return;
+        }
+
+        int currentIndex = 0;
+        for (int i = 0; i < roots.length; i++) {
+            if (roots[i].equals(currentRoot)) {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        File nextRoot = roots[(currentIndex + 1) % roots.length];
+        this.drive = new TDiskDrive(nextRoot, this, -1);
+        reloadCollection(null);
+        redrawWithHeader();
+    }
+
+    private void redrawWithHeader() {
+        drawView();
+        if (getOwner() != null) {
+            getOwner().drawView();
+        }
+    }
+
     @Override
     public void handleEvent(TEvent event) {
         super.handleEvent(event);
@@ -194,7 +231,7 @@ public class TFilePanelRoot extends THideView {
                 case KeyCode.KB_BACK -> {
                     if (drive.goToParent()) {
                         reloadCollection(null);
-                        drawView();
+                        redrawWithHeader();
                     }
                     clearEvent(event);
                 }
@@ -208,6 +245,14 @@ public class TFilePanelRoot extends THideView {
                     ensureSelectionVisible();
                     drawView();
                 }
+            }
+        } else if (event.what == TEvent.EV_COMMAND) {
+            if (event.msg.command == TTopView.CM_CUBE_CHANGE_DRIVE) {
+                cycleDriveRoot();
+                clearEvent(event);
+            } else if (event.msg.command == TTopView.CM_CUBE_CHANGE_DIR) {
+                openSelected();
+                clearEvent(event);
             }
         }
     }
